@@ -7,8 +7,8 @@ package frc.utility.wpimodified;
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUsageId;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import frc.utility.swerve.SecondOrderKinematics;
 
 /**
  * Class for swerve drive odometry. Odometry allows you to track the robot's position on the field over a course of a match using
@@ -18,7 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
  * Furthermore, odometry can be used for latency compensation when using computer-vision systems.
  */
 public class SwerveDriveOdometry {
-    private final SwerveDriveKinematics m_kinematics;
+    private final SecondOrderKinematics m_kinematics;
     private Pose3d m_poseMeters;
 
     private Rotation3d m_gyroOffset;
@@ -35,7 +35,7 @@ public class SwerveDriveOdometry {
      * @param initialPose     The starting position of the robot on the field.
      */
     public SwerveDriveOdometry(
-            SwerveDriveKinematics kinematics,
+            SecondOrderKinematics kinematics,
             Rotation3d gyroAngle,
             SwerveModulePosition[] modulePositions,
             Pose3d initialPose) {
@@ -64,7 +64,7 @@ public class SwerveDriveOdometry {
      * @param initialPose     The starting position of the robot on the field.
      */
     public SwerveDriveOdometry(
-            SwerveDriveKinematics kinematics,
+            SecondOrderKinematics kinematics,
             Rotation2d gyroAngle,
             SwerveModulePosition[] modulePositions,
             Pose2d initialPose) {
@@ -83,7 +83,7 @@ public class SwerveDriveOdometry {
      * @param modulePositions The wheel positions reported by each module.
      */
     public SwerveDriveOdometry(
-            SwerveDriveKinematics kinematics,
+            SecondOrderKinematics kinematics,
             Rotation3d gyroAngle,
             SwerveModulePosition[] modulePositions) {
         this(kinematics, gyroAngle, modulePositions, new Pose3d());
@@ -97,7 +97,7 @@ public class SwerveDriveOdometry {
      * @param modulePositions The wheel positions reported by each module.
      */
     public SwerveDriveOdometry(
-            SwerveDriveKinematics kinematics,
+            SecondOrderKinematics kinematics,
             Rotation2d gyroAngle,
             SwerveModulePosition[] modulePositions) {
         this(kinematics, gyroAngle, modulePositions, new Pose2d());
@@ -176,7 +176,7 @@ public class SwerveDriveOdometry {
      *
      * @param gyroAngle       The angle reported by the gyroscope.
      * @param modulePositions The current position of all swerve modules. Please provide the positions in the same order in which
-     *                        you instantiated your SwerveDriveKinematics.
+     *                        you instantiated your SecondOrderKinematics.
      * @return The new pose of the robot.
      */
     public Pose3d update(Rotation3d gyroAngle, SwerveModulePosition[] modulePositions) {
@@ -260,7 +260,7 @@ public class SwerveDriveOdometry {
      *
      * @param gyroAngle       The angle reported by the gyroscope.
      * @param modulePositions The current position of all swerve modules. Please provide the positions in the same order in which
-     *                        you instantiated your SwerveDriveKinematics.
+     *                        you instantiated your SecondOrderKinematics.
      * @return The new pose of the robot.
      */
     public Pose2d update(Rotation2d gyroAngle, SwerveModulePosition[] modulePositions) {

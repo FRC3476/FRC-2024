@@ -11,6 +11,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.littletonrobotics.junction.Logger;
 
+import javax.sound.sampled.Port;
+
 import static frc.robot.Constants.*;
 
 public class DriveIOFalcon implements DriveIO {
@@ -32,20 +34,20 @@ public class DriveIOFalcon implements DriveIO {
 
         final CANcoder flCANcoder, blCANcoder, frCANcoder, brCANcoder;
 
-        flDriveFalcon = new TalonFX(FL_DRIVE_ID,"*");
-        blDriveFalcon = new TalonFX(BL_DRIVE_ID,"*");
-        frDriveFalcon = new TalonFX(FR_DRIVE_ID,"*");
-        brDriveFalcon = new TalonFX(BR_DRIVE_ID,"*");
+        flDriveFalcon = new TalonFX(Ports.FL_DRIVE,"*");
+        blDriveFalcon = new TalonFX(Ports.BL_DRIVE,"*");
+        frDriveFalcon = new TalonFX(Ports.FR_DRIVE,"*");
+        brDriveFalcon = new TalonFX(Ports.BR_DRIVE,"*");
 
-        flSteerFalcon = new TalonFX(FL_STEER_ID,"*");
-        blSteerFalcon = new TalonFX(BL_STEER_ID,"*");
-        frSteerFalcon = new TalonFX(FR_STEER_ID,"*");
-        brSteerFalcon = new TalonFX(BR_STEER_ID,"*");
+        flSteerFalcon = new TalonFX(Ports.FL_STEER,"*");
+        blSteerFalcon = new TalonFX(Ports.BL_STEER,"*");
+        frSteerFalcon = new TalonFX(Ports.FR_STEER,"*");
+        brSteerFalcon = new TalonFX(Ports.BR_STEER,"*");
 
-        flCANcoder = new CANcoder(FL_CAN_ID, "*");
-        blCANcoder = new CANcoder(BL_CAN_ID, "*");
-        frCANcoder = new CANcoder(FR_CAN_ID, "*");
-        brCANcoder = new CANcoder(BR_CAN_ID, "*");
+        flCANcoder = new CANcoder(Ports.FL_CANCODER, "*");
+        blCANcoder = new CANcoder(Ports.BL_CANCODER, "*");
+        frCANcoder = new CANcoder(Ports.FR_CANCODER, "*");
+        brCANcoder = new CANcoder(Ports.BR_CANCODER, "*");
 
         flDriveFalcon.setInverted(false);
         frDriveFalcon.setInverted(false);
@@ -114,7 +116,7 @@ public class DriveIOFalcon implements DriveIO {
 
         for(int i = 0; i < 4; i++) {
             var steerFeedbackConfigs = new FeedbackConfigs();
-            steerFeedbackConfigs.FeedbackRemoteSensorID = FL_CAN_ID + i;
+            steerFeedbackConfigs.FeedbackRemoteSensorID = Ports.FL_CANCODER + i;
             steerFeedbackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
             steerFeedbackConfigs.SensorToMechanismRatio = 1;
             steerFeedbackConfigs.RotorToSensorRatio = 1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR;
