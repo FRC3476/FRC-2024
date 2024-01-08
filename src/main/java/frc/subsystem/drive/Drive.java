@@ -154,7 +154,7 @@ public class Drive extends AbstractSubsystem {
                         moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
                     }
                 } else {
-                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePositions);
+                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
                 }
             }
 
@@ -167,7 +167,7 @@ public class Drive extends AbstractSubsystem {
             Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Angle Error", angleDiff);
             Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted State", moduleState);
             Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted Relative Angle",
-                    moduleInputs[i].steerMotorRelativePositions + angleDiff);
+                    moduleInputs[i].steerMotorRelativePosition + angleDiff);
         }
     }
 
