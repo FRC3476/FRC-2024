@@ -116,7 +116,7 @@ public class Robot extends LoggedRobot {
             Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
-            drive = new Drive(new DriveIOFalcon(), new GyroIOPigeon2());
+            drive = new Drive(new ModuleIOFalcon(0), new ModuleIOFalcon(1), new ModuleIOFalcon(2), new ModuleIOFalcon(3), new GyroIOPigeon2());
         } else {
             setUseTiming(false); // Run as fast as possible
             if(VIRTUAL_MODE == "REPLAY") {
@@ -127,7 +127,7 @@ public class Robot extends LoggedRobot {
                 Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             }
 
-            drive = new Drive(new DriveIO() {}, new GyroIO() {});
+            drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
