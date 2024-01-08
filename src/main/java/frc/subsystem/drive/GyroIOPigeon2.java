@@ -30,12 +30,12 @@ public class GyroIOPigeon2 implements GyroIO {
          */
 
         inputs.yawPositionRad = Units.degreesToRadians(pigeon.getYaw().getValue()); // counterclockwise positive
-        inputs.yawVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityZ().getValue());
+        inputs.yawVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityZDevice().getValue());
 
         inputs.pitchPositionRad = Units.degreesToRadians(pigeon.getPitch().getValue()); // up positive
-        inputs.pitchVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityY().getValue());
+        inputs.pitchVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityYDevice().getValue());
 
         inputs.rollPositionRad = Units.degreesToRadians(pigeon.getRoll().getValue()); // clockwise  positive
-        inputs.rollVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityY().getValue());
+        inputs.rollVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityXDevice().getValue());
     }
 }

@@ -1,21 +1,16 @@
-//file:noinspection DependencyNotationArgument
-//file:noinspection GroovyAccessibility
-//file:noinspection UnnecessaryQualifiedReference
-//file:noinspection ConfigurationAvoidance
-//file:noinspection GroovyAssignabilityCheck
-//file:noinspection GroovyUnusedAssignment
-import edu.wpi.first.gradlerio.deploy.roborio.RoboRIO
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2023.4.3"
+    id "edu.wpi.first.GradleRIO" version "2024.1.1"
     id "idea"
-    id "com.peterabeles.gversion" version "1.10"
 }
 
 def javaVersion = JavaVersion.VERSION_17
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+
+java {
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+}
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
@@ -56,7 +51,33 @@ wpi.java.debugJni = false
 // Set this to true to enable desktop support.
 def includeDesktopSupport = false
 
+repositories {
+    mavenCentral()
+    maven {
+        url "https://maven.dacubeking.com/snapshots/"
+    }
+    maven {
+        url = uri("https://maven.pkg.github.com/Mechanical-Advantage/AdvantageKit")
+        credentials {
+            username = "Mechanical-Advantage-Bot"
+            password = "\u0067\u0068\u0070\u005f\u006e\u0056\u0051\u006a\u0055\u004f\u004c\u0061\u0079\u0066\u006e\u0078\u006e\u0037\u0051\u0049\u0054\u0042\u0032\u004c\u004a\u006d\u0055\u0070\u0073\u0031\u006d\u0037\u004c\u005a\u0030\u0076\u0062\u0070\u0063\u0051"
+        }
+    }
+    mavenLocal()
+}
+
+configurations.all {
+    exclude group: "edu.wpi.first.wpilibj"
+}
+
+task(checkAkitInstall, dependsOn: "classes", type: JavaExec) {
+    mainClass = "org.littletonrobotics.junction.CheckInstall"
+    classpath = sourceSets.main.runtimeClasspath
+}
+compileJava.finalizedBy checkAkitInstall
+
 dependencies {
+
     implementation 'org.jetbrains:annotations:23.0.0'
 
     implementation wpi.java.deps.wpilib()
@@ -76,7 +97,7 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation platform("org.junit:junit-bom:5.8.2")
+    testImplementation platform("org.junit:junit-bom:5.10.1")
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.junit.jupiter:junit-jupiter-params"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
@@ -86,7 +107,6 @@ dependencies {
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit.junction:junction-autolog:$akitJson.version"
-
 }
 
 test{
@@ -103,6 +123,7 @@ wpi.sim.addDriverstation()
 // knows where to look for our Robot Class.
 jar {
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from sourceSets.main.allSource
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
@@ -115,34 +136,6 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
     // Configure string concat to always inline compile
     options.compilerArgs.add '-XDstringConcat=inline'
-}
-
-repositories {
-    mavenCentral()
-    maven {
-        url "https://maven.dacubeking.com/snapshots/"
-    }
-    maven {
-        url = uri("https://maven.pkg.github.com/Mechanical-Advantage/AdvantageKit")
-        credentials {
-            username = "Mechanical-Advantage-Bot"
-            password = "\u0067\u0068\u0070\u005f\u006e\u0056\u0051\u006a\u0055\u004f\u004c\u0061\u0079\u0066\u006e\u0078\u006e\u0037\u0051\u0049\u0054\u0042\u0032\u004c\u004a\u006d\u0055\u0070\u0073\u0031\u006d\u0037\u004c\u005a\u0030\u0076\u0062\u0070\u0063\u0051"
-        }
-    }
-}
-
-configurations.all {
-    exclude group: "edu.wpi.first.wpilibj"
-}
-
-project.compileJava.dependsOn(createVersionFile)
-gversion {
-    srcDir       = "src/main/java/"
-    classPackage = "frc.robot"
-    className    = "BuildConstants"
-    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
-    timeZone     = "America/Los_Angeles" // Use preferred time zone
-    indent       = "  "
 }
 
 idea {

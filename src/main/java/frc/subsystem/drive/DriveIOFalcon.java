@@ -69,7 +69,8 @@ public class DriveIOFalcon implements DriveIO {
 
         // copy configuration settings over from 2023, no need to reinvent the wheel
         for(TalonFX steerMotor : steerMotors) {
-            steerMotor.getConfigurator().defaultTimeoutSeconds = 10;
+            // Causing a compile error not sure why
+            //steerMotor.getConfigurator().defaultTimeoutSeconds = 10;
 
             var steerConfigs = new TalonFXConfiguration();
 
@@ -90,7 +91,8 @@ public class DriveIOFalcon implements DriveIO {
         }
 
         for(TalonFX driveMotor : driveMotors) {
-            driveMotor.getConfigurator().defaultTimeoutSeconds = 10;
+            // Causing a compile error not sure why
+            // driveMotor.getConfigurator().defaultTimeoutSeconds = 10;
 
             var driveConfigs = new TalonFXConfiguration();
 
@@ -126,7 +128,7 @@ public class DriveIOFalcon implements DriveIO {
 
             var absolutePosition = swerveCancoders[i].getAbsolutePosition();
             absolutePosition.waitForUpdate(1);
-            steerMotors[i].setRotorPosition(absolutePosition.getValue(),1);
+            steerMotors[i].setPosition(absolutePosition.getValue(),1);
         }
         isBraking = false;
         setBrakeMode(true);
@@ -181,7 +183,7 @@ public class DriveIOFalcon implements DriveIO {
     @Override
     public void setSteerMotorPosition(int motor, double position) {
         steerMotors[motor].setControl(
-                new PositionVoltage(position/360, true, 0, 0, true)
+                new PositionVoltage(position/360)
         );
     }
 
@@ -192,7 +194,7 @@ public class DriveIOFalcon implements DriveIO {
 
     @Override
     public void setDriveMotorVoltage(int motor, double voltage) {
-        driveMotors[motor].setControl(new VoltageOut(voltage,true,false));
+        driveMotors[motor].setControl(new VoltageOut(voltage));
     }
 
     @Override
