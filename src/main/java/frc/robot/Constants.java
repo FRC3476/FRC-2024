@@ -2,10 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import frc.utility.swerve.SwerveSetpointGenerator;
-import frc.utility.wpimodified.SecondOrderKinematics;
+import frc.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -39,26 +38,30 @@ public final class Constants {
      *    BL  BR
      *  F = Front, B = Back, L = Left, R = Right
      */
-    public static final int FL_DRIVE_ID = -1;
-    public static final int BL_DRIVE_ID = -1;
-    public static final int FR_DRIVE_ID = -1;
-    public static final int BR_DRIVE_ID = -1;
+    public static class Ports {
+        public static final int FL_DRIVE = 12;
+        public static final int BL_DRIVE = 14;
+        public static final int FR_DRIVE = 11;
+        public static final int BR_DRIVE = 13;
 
-    public static final int FL_STEER_ID = -1;
-    public static final int BL_STEER_ID = -1;
-    public static final int FR_STEER_ID = -1;
-    public static final int BR_STEER_ID = -1;
+        public static final int FL_STEER = 15;
+        public static final int BL_STEER = 18;
+        public static final int FR_STEER = 16;
+        public static final int BR_STEER = 17;
 
-    public static final int FL_CAN_ID = -1;
-    public static final int BL_CAN_ID = -1;
-    public static final int FR_CAN_ID = -1;
-    public static final int BR_CAN_ID = -1;
+        public static final int FL_CANCODER = 19;
+        public static final int BL_CANCODER = 22;
+        public static final int FR_CANCODER = 21;
+        public static final int BR_CANCODER = 20;
+
+        public static final int PIGEON = 30;
+
+    }
 
     public static final double SWERVE_DRIVE_P = 100;
     public static final double SWERVE_DRIVE_D = 0.00;
     public static final double SWERVE_DRIVE_I = 0.00;
 
-    public static final int PIGEON_CAN_ID = -1;
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 20;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;

@@ -9,7 +9,6 @@ import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -18,6 +17,8 @@ import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.utility.swerve.SecondOrderKinematics;
+import frc.utility.swerve.SecondOrderModuleState;
 
 /**
  * This class wraps {@link SwerveDriveOdometry Swerve Drive Odometry} to fuse latency-compensated vision measurements with swerve
@@ -55,7 +56,7 @@ public class SwerveDrivePoseEstimator {
      * @param initialPoseMeters The starting pose estimate.
      */
     public SwerveDrivePoseEstimator(
-            SwerveDriveKinematics kinematics,
+            SecondOrderKinematics kinematics,
             Rotation2d gyroAngle,
             SwerveModulePosition[] modulePositions,
             Pose2d initialPoseMeters) {
@@ -81,7 +82,7 @@ public class SwerveDrivePoseEstimator {
      * @param initialPoseMeters The starting pose estimate.
      */
     public SwerveDrivePoseEstimator(
-            SwerveDriveKinematics kinematics,
+            SecondOrderKinematics kinematics,
             Rotation3d gyroAngle,
             SwerveModulePosition[] modulePositions,
             Pose3d initialPoseMeters) {
@@ -108,7 +109,7 @@ public class SwerveDrivePoseEstimator {
      *                                 measurement less.
      */
     public SwerveDrivePoseEstimator(
-            SwerveDriveKinematics kinematics,
+            SecondOrderKinematics kinematics,
             Rotation3d gyroAngle,
             SwerveModulePosition[] modulePositions,
             Pose3d initialPoseMeters,
@@ -140,7 +141,7 @@ public class SwerveDrivePoseEstimator {
      *                                 measurement less.
      */
     public SwerveDrivePoseEstimator(
-            SwerveDriveKinematics kinematics,
+            SecondOrderKinematics kinematics,
             Rotation2d gyroAngle,
             SwerveModulePosition[] modulePositions,
             Pose2d initialPoseMeters,

@@ -7,7 +7,7 @@ import edu.wpi.first.math.util.Units;
 import static frc.robot.Constants.*;
 
 public class GyroIOPigeon2 implements GyroIO {
-    private final Pigeon2 pigeon = new Pigeon2(PIGEON_CAN_ID);
+    private final Pigeon2 pigeon = new Pigeon2(Ports.PIGEON);
 
     public GyroIOPigeon2() {
         var pigeonConfig = new Pigeon2Configuration();

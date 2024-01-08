@@ -4,8 +4,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,9 +31,9 @@ public class SwerveSetpointGenerator {
     public record KinematicLimit(double maxDriveVelocity, double maxDriveAcceleration, double maxSteeringVelocity) {
     }
 
-    private final SwerveDriveKinematics kinematics;
+    private final SecondOrderKinematics kinematics;
 
-    public SwerveSetpointGenerator(final SwerveDriveKinematics kinematics) {
+    public SwerveSetpointGenerator(final SecondOrderKinematics kinematics) {
         this.kinematics = kinematics;
     }
 
@@ -158,10 +156,10 @@ public class SwerveSetpointGenerator {
                                            ChassisSpeeds desiredState, final double dt) {
         final Translation2d[] modules = Constants.SWERVE_MODULE_LOCATIONS;
 
-        SwerveModuleState[] desiredModuleState = kinematics.toSwerveModuleStates(desiredState);
+        SecondOrderModuleState[] desiredModuleState = kinematics.toSwerveModuleStates(desiredState);
         // Make sure desiredState respects velocity limits.
         if (limits.maxDriveVelocity > 0.0) {
-            SwerveDriveKinematics.desaturateWheelSpeeds(desiredModuleState, limits.maxDriveVelocity);
+            SecondOrderKinematics.desaturateWheelSpeeds(desiredModuleState, limits.maxDriveVelocity);
             desiredState = kinematics.toChassisSpeeds(desiredModuleState);
         }
 
@@ -338,5 +336,5 @@ public class SwerveSetpointGenerator {
     }
 
 
-    public record SwerveSetpoint(ChassisSpeeds chassisSpeeds, SwerveModuleState[] moduleStates, double[] wheelAccelerations) {}
+    public record SwerveSetpoint(ChassisSpeeds chassisSpeeds, SecondOrderModuleState[] moduleStates, double[] wheelAccelerations) {}
 }
