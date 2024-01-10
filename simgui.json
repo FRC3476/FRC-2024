@@ -1,0 +1,37 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/Side Chooser": "String Chooser"
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "AdvantageKit": {
+        "DriverStation": {
+          "open": true
+        },
+        "RealOutputs": {
+          "Drive": {
+            "open": true
+          },
+          "LoggedRobot": {
+            "open": true
+          },
+          "Logger": {
+            "open": true
+          },
+          "SubsystemExecutionTimes": {
+            "open": true
+          },
+          "open": true
+        },
+        "SystemStats": {
+          "open": true
+        },
+        "open": true
+      }
+    }
+  }
+}
