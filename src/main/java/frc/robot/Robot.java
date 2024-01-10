@@ -203,10 +203,10 @@ public class Robot extends LoggedRobot {
             prototype.setMotorVoltage(1,0);
         }
 
-        if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
+        if (xbox.getRisingEdge(XboxButtons.LEFT_BUMPER)) {
             prototype.invertMotor(0);
         }
-        if (xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
+        if (xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
             prototype.invertMotor(1);
         }
     }
