@@ -194,9 +194,13 @@ public class Robot extends LoggedRobot {
 
         if (leftAxis > 0.1) {
             prototype.setMotorVoltage(0, leftAxis * 12);
+        } else {
+            prototype.setMotorVoltage(0,0);
         }
         if (rightAxis > 0.1) {
             prototype.setMotorVoltage(1, rightAxis * 12);
+        } else {
+            prototype.setMotorVoltage(1,0);
         }
 
         if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
