@@ -5,14 +5,12 @@
 
 ### Eclipse ###
 .metadata
-bin/
 tmp/
 *.tmp
 *.bak
 *.swp
 *~.nib
 local.properties
-.settings/
 .loadpath
 .recommenders
 
@@ -287,7 +285,8 @@ $RECYCLE.BIN/
 *.lnk
 
 ### Gradle ###
-.gradle/
+.gradle/*
+
 **/build/
 !src/**/build/
 
@@ -304,10 +303,6 @@ gradle-app.setting
 .gradletasknamecache
 
 # Eclipse Gradle plugin generated files
-# Eclipse Core
-.project
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
 
 ### Gradle Patch ###
 # Java heap dump

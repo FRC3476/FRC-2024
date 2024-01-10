@@ -58,7 +58,7 @@ public abstract class AbstractSubsystem {
 
     public static void tick() {
         for (AbstractSubsystem subsystem : subsystems) {
-            double startTime = Logger.getInstance().getRealTimestamp();
+            double startTime = Logger.getRealTimestamp();
             if (subsystem.signal == ThreadSignal.ALIVE) {
                 subsystem.update();
 
@@ -68,8 +68,8 @@ public abstract class AbstractSubsystem {
                     subsystem.ticksSinceLastLog = 0;
                 }
             }
-            double executionTimeMS = (Logger.getInstance().getRealTimestamp() - startTime) * 0.001; //micoseconds to ms
-            Logger.getInstance().recordOutput("SubsystemExecutionTimes/" + subsystem.subsystemName + " Execution Time",
+            double executionTimeMS = (Logger.getRealTimestamp() - startTime) * 0.001; //micoseconds to ms
+            Logger.recordOutput("SubsystemExecutionTimes/" + subsystem.subsystemName + " Execution Time",
                     executionTimeMS);
         }
     }

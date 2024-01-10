@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
+import frc.utility.swerve.SecondOrderModuleState;
 import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import frc.utility.wpimodified.SwerveDrivePoseEstimator;
@@ -48,9 +49,9 @@ public class Drive extends AbstractSubsystem {
         );
     }
 
+    double lastTimeStep;
     @Override
     public synchronized void update() {
-        var lastTimeStep = Logger.getRealTimestamp() * 1e-6;
         for(int i = 0; i < 4; i++) {
             moduleIO[i].updateInputs(moduleInputs[i]);
         }
@@ -66,6 +67,13 @@ public class Drive extends AbstractSubsystem {
                 new Rotation3d(gyroInputs.rollPositionRad,gyroInputs.pitchPositionRad,gyroInputs.yawPositionRad),
                 getModulePositions()
         );
+        lastTimeStep = Logger.getRealTimestamp() * 1e-6;
+    }
+
+    public synchronized void setBrakeMode(boolean brakeMode) {
+        for(ModuleIO module : moduleIO) {
+            module.setBrakeMode(brakeMode);
+        }
     }
 
     public SwerveModulePosition [] getModulePositions() {
@@ -118,30 +126,30 @@ public class Drive extends AbstractSubsystem {
         double ffv = DRIVE_FEEDFORWARD.calculate(velocity, 0);
         moduleIO[module].setDriveMotorVoltage(ffv);
 
-        Logger.getInstance().recordOutput("Drive/Out Volts " + module, ffv);
-        Logger.getInstance().recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
-        Logger.getInstance().recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
-        Logger.getInstance().recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
-        Logger.getInstance().recordOutput("Drive/Voltage Contrib to Accel" + module,
+        Logger.recordOutput("Drive/Out Volts " + module, ffv);
+        Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
+        Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
+        Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
+        Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
                 ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
 
-        double time = Logger.getInstance().getRealTimestamp() * 1e-6;
+        double time = Logger.getRealTimestamp() * 1e-6;
         double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
 
-        Logger.getInstance().recordOutput("Drive/Acceleration" + module, realAccel);
-        Logger.getInstance().recordOutput("Drive/Expected Accel" + module,
+        Logger.recordOutput("Drive/Acceleration" + module, realAccel);
+        Logger.recordOutput("Drive/Expected Accel" + module,
                 (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
 
         lastModuleVelocities[module] = getSwerveDriveVelocity(module);
-        lastModuleTimes[module] = Logger.getInstance().getRealTimestamp() * 1e-6;
+        lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
     }
 
-    private synchronized void setSwerveModuleStates(SwerveModuleState[] swerveModuleStates, boolean rotate) {
-        Logger.getInstance().recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
+    private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean rotate) {
+        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
 
         for (int i = 0; i < 4; i++) {
             var moduleState = swerveModuleStates[i];
-            moduleState = SwerveModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
+            moduleState = SecondOrderModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
             double currentAngle = getWheelRotation(i);
 
             double angleDiff = getAngleDiff(moduleState.angle.getDegrees(), currentAngle);
@@ -161,12 +169,11 @@ public class Drive extends AbstractSubsystem {
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0);
             //setMotorSpeed(i, 0, 0);
 
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted Angle", moduleState.angle.getDegrees());
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted Speed", moduleState.speedMetersPerSecond);
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted Acceleration", 0);
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Angle Error", angleDiff);
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted State", moduleState);
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted Relative Angle",
+            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Angle", moduleState.angle.getDegrees());
+            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Speed", moduleState.speedMetersPerSecond);
+            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Acceleration", 0);
+            Logger.recordOutput("Drive/SwerveModule " + i + " Angle Error", angleDiff);
+            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Relative Angle",
                     moduleInputs[i].steerMotorRelativePosition + angleDiff);
         }
     }
@@ -196,6 +203,11 @@ public class Drive extends AbstractSubsystem {
                 inputs.getRotation() * MAX_TELEOP_TURN_SPEED,
                 poseEstimator.getEstimatedPosition().getRotation());
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
+    }
+    public synchronized void resetAbsoluteZeros() {
+        for (ModuleIO module : moduleIO) {
+            module.resetAbsoluteZeros();
+        }
     }
 }
 

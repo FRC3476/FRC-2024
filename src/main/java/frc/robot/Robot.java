@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
 import frc.utility.Controller;
+import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -44,6 +45,7 @@ public class Robot extends LoggedRobot {
 
     private static PowerDistribution powerDistribution;
 
+
     static Drive drive;
 
     /**
@@ -52,23 +54,22 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-        Logger logger = Logger.getInstance();
 
         String logPath = null;
 
         // record metadata
-        logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-        logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-        logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-        logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-        logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+        Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+        Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+        Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
         switch (BuildConstants.DIRTY) {
-            case 0 -> logger.recordMetadata("GitDirty", "All changes committed");
-            case 1 -> logger.recordMetadata("GitDirty", "Uncommitted changes");
-            default -> logger.recordMetadata("GitDirty", "Unknown");
+            case 0 -> Logger.recordMetadata("GitDirty", "All changes committed");
+            case 1 -> Logger.recordMetadata("GitDirty", "Uncommitted changes");
+            default -> Logger.recordMetadata("GitDirty", "Unknown");
         }
 
-        if (!isReal()) {
+        if (!isReal() && Objects.equals(VIRTUAL_MODE, "REPLAY")) {
             try {
                 logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
             } catch (NoSuchElementException e) {
@@ -112,19 +113,19 @@ public class Robot extends LoggedRobot {
                 }
             }
 
-            Logger.getInstance().addDataReceiver(new WPILOGWriter(LOG_DIRECTORY));
-            Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            Logger.addDataReceiver(new WPILOGWriter(LOG_DIRECTORY));
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
             drive = new Drive(new ModuleIOFalcon(0), new ModuleIOFalcon(1), new ModuleIOFalcon(2), new ModuleIOFalcon(3), new GyroIOPigeon2());
         } else {
             setUseTiming(false); // Run as fast as possible
-            if(VIRTUAL_MODE == "REPLAY") {
-                Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read replay log
-                Logger.getInstance().addDataReceiver(
+            if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
+                Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+                Logger.addDataReceiver(
                         new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
             } else {
-                Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+                Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             }
 
             drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
@@ -137,13 +138,14 @@ public class Robot extends LoggedRobot {
 
         xbox = new Controller(0);
 
-        logger.start();
+        Logger.start();
         drive.start();
     }
 
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
+        AbstractSubsystem.tick();
     }
 
     /** This function is called once when autonomous is enabled. */
@@ -169,11 +171,16 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        drive.setBrakeMode(true);
     }
 
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+        xbox.update();
+
+        ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
+        drive.swerveDriveFieldRelative(controllerDriveInputs);
     }
 
     /** This function is called once when the robot is disabled. */
@@ -189,13 +196,18 @@ public class Robot extends LoggedRobot {
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
+        drive.setBrakeMode(false);
     }
 
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
+        xbox.update();
+        if (xbox.getRawButton(XboxButtons.X) && xbox.getRawButton(XboxButtons.B)
+                && xbox.getRisingEdge(XboxButtons.X) && xbox.getRisingEdge(XboxButtons.B)) {
+            drive.resetAbsoluteZeros();
+        }
     }
-
     @SuppressWarnings("Magic Number")
     private ControllerDriveInputs getControllerDriveInputs() {
         ControllerDriveInputs inputs;
@@ -217,9 +229,9 @@ public class Robot extends LoggedRobot {
         }
 
         inputs.squareInputs();
-        Logger.getInstance().recordOutput("Robot/Xbox Controller X", inputs.getX());
-        Logger.getInstance().recordOutput("Robot/Xbox Controller Y", inputs.getY());
-        Logger.getInstance().recordOutput("Robot/Xbox Controller Rotation", inputs.getRotation());
+        Logger.recordOutput("Robot/Xbox Controller X", inputs.getX());
+        Logger.recordOutput("Robot/Xbox Controller Y", inputs.getY());
+        Logger.recordOutput("Robot/Xbox Controller Rotation", inputs.getRotation());
 
         return inputs;
     }
