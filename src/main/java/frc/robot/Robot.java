@@ -52,23 +52,22 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-        Logger logger = Logger.getInstance();
 
         String logPath = null;
 
         // record metadata
-        logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-        logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-        logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-        logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-        logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+        Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+        Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+        Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
         switch (BuildConstants.DIRTY) {
-            case 0 -> logger.recordMetadata("GitDirty", "All changes committed");
-            case 1 -> logger.recordMetadata("GitDirty", "Uncommitted changes");
-            default -> logger.recordMetadata("GitDirty", "Unknown");
+            case 0 -> Logger.recordMetadata("GitDirty", "All changes committed");
+            case 1 -> Logger.recordMetadata("GitDirty", "Uncommitted changes");
+            default -> Logger.recordMetadata("GitDirty", "Unknown");
         }
 
-        if (!isReal()) {
+        if (!isReal() && Objects.equals(VIRTUAL_MODE, "REPLAY")) {
             try {
                 logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
             } catch (NoSuchElementException e) {
@@ -112,19 +111,19 @@ public class Robot extends LoggedRobot {
                 }
             }
 
-            Logger.getInstance().addDataReceiver(new WPILOGWriter(LOG_DIRECTORY));
-            Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            Logger.addDataReceiver(new WPILOGWriter(LOG_DIRECTORY));
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
             drive = new Drive(new DriveIOFalcon(), new GyroIOPigeon2());
         } else {
             setUseTiming(false); // Run as fast as possible
-            if(VIRTUAL_MODE == "REPLAY") {
-                Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read replay log
-                Logger.getInstance().addDataReceiver(
+            if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
+                Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+                Logger.addDataReceiver(
                         new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
             } else {
-                Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+                Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             }
 
             drive = new Drive(new DriveIO() {}, new GyroIO() {});
@@ -137,13 +136,14 @@ public class Robot extends LoggedRobot {
 
         xbox = new Controller(0);
 
-        logger.start();
+        Logger.start();
         drive.start();
     }
 
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
+        AbstractSubsystem.tick();
     }
 
     /** This function is called once when autonomous is enabled. */

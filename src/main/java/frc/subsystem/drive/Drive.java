@@ -50,8 +50,8 @@ public class Drive extends AbstractSubsystem {
         var lastTimeStep = driveInputs.driveIOtimestamp;
         driveIO.updateInputs(driveInputs);
         gyroIO.updateInputs(gyroInputs);
-        Logger.getInstance().processInputs("Drive", driveInputs);
-        Logger.getInstance().processInputs("Gyro", gyroInputs);
+        Logger.processInputs("Drive", driveInputs);
+        Logger.processInputs("Gyro", gyroInputs);
 
         if (!DriverStation.isTest() && DriverStation.isEnabled()) {
             var dt = driveInputs.driveIOtimestamp - lastTimeStep;
@@ -115,18 +115,18 @@ public class Drive extends AbstractSubsystem {
         double ffv = DRIVE_FEEDFORWARD.calculate(velocity, 0);
         driveIO.setDriveMotorVoltage(module, ffv);
 
-        Logger.getInstance().recordOutput("Drive/Out Volts " + module, ffv);
-        Logger.getInstance().recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
-        Logger.getInstance().recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
-        Logger.getInstance().recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
-        Logger.getInstance().recordOutput("Drive/Voltage Contrib to Accel" + module,
+        Logger.recordOutput("Drive/Out Volts " + module, ffv);
+        Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
+        Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
+        Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
+        Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
                 ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
 
         double time = driveInputs.driveIOtimestamp;
         double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
 
-        Logger.getInstance().recordOutput("Drive/Acceleration" + module, realAccel);
-        Logger.getInstance().recordOutput("Drive/Expected Accel" + module,
+        Logger.recordOutput("Drive/Acceleration" + module, realAccel);
+        Logger.recordOutput("Drive/Expected Accel" + module,
                 (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
 
         lastModuleVelocities[module] = getSwerveDriveVelocity(module);
@@ -134,7 +134,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     private synchronized void setSwerveModuleStates(SwerveModuleState[] swerveModuleStates, boolean rotate) {
-        Logger.getInstance().recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
+        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
 
         for (int i = 0; i < 4; i++) {
             var moduleState = swerveModuleStates[i];
@@ -158,12 +158,12 @@ public class Drive extends AbstractSubsystem {
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0);
             //setMotorSpeed(i, 0, 0);
 
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted Angle", moduleState.angle.getDegrees());
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted Speed", moduleState.speedMetersPerSecond);
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted Acceleration", 0);
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Angle Error", angleDiff);
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted State", moduleState);
-            Logger.getInstance().recordOutput("Drive/SwerveModule " + i + " Wanted Relative Angle",
+            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Angle", moduleState.angle.getDegrees());
+            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Speed", moduleState.speedMetersPerSecond);
+            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Acceleration", 0);
+            Logger.recordOutput("Drive/SwerveModule " + i + " Angle Error", angleDiff);
+            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted State", moduleState);
+            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Relative Angle",
                     driveInputs.steerMotorRelativePositions[i] + angleDiff);
         }
     }
