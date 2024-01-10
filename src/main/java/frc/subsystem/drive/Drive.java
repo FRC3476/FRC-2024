@@ -4,36 +4,40 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
+import frc.utility.swerve.SecondOrderModuleState;
 import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import frc.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.Constants.*;
 
 public class Drive extends AbstractSubsystem {
-    private final DriveIO driveIO;
-    private final DriveInputsAutoLogged driveInputs = new DriveInputsAutoLogged();
-    private final GyroIO gyroIO;
+    @AutoLogOutput(key = "Gyro")
+    final GyroIO gyroIO;
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
+    @AutoLogOutput(key = "Drive")
+    private final ModuleIO[] moduleIO;
+    private final ModuleInputsAutoLogged[] moduleInputs = new ModuleInputsAutoLogged[] {new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged()};
     private @NotNull ChassisSpeeds nextChassisSpeeds = new ChassisSpeeds();
     private SwerveSetpointGenerator.KinematicLimit kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     private final SwerveDrivePoseEstimator poseEstimator;
-    public Drive(DriveIO driveIO, GyroIO gyroIO) {
+    public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
         super();
-        this.driveIO = driveIO;
         this.gyroIO = gyroIO;
+        moduleIO = new ModuleIO[]{flModule, blModule, frModule, brModule};
 
-        driveIO.setBrakeMode(false);
+        for(ModuleIO module : moduleIO) {
+            module.setBrakeMode(false);
+        }
 
         poseEstimator = new SwerveDrivePoseEstimator(
                 SWERVE_DRIVE_KINEMATICS,
@@ -45,24 +49,31 @@ public class Drive extends AbstractSubsystem {
         );
     }
 
+    double lastTimeStep;
     @Override
     public synchronized void update() {
-        var lastTimeStep = driveInputs.driveIOtimestamp;
-        driveIO.updateInputs(driveInputs);
+        for(int i = 0; i < 4; i++) {
+            moduleIO[i].updateInputs(moduleInputs[i]);
+        }
         gyroIO.updateInputs(gyroInputs);
-        Logger.processInputs("Drive", driveInputs);
-        Logger.processInputs("Gyro", gyroInputs);
 
         if (!DriverStation.isTest() && DriverStation.isEnabled()) {
-            var dt = driveInputs.driveIOtimestamp - lastTimeStep;
+            var dt = Logger.getRealTimestamp() * 1e-6 - lastTimeStep;
             swerveDrive(nextChassisSpeeds, kinematicLimit, dt);
         }
 
         poseEstimator.updateWithTime(
-                driveInputs.driveIOtimestamp,
+                Logger.getRealTimestamp() * 1e-6,
                 new Rotation3d(gyroInputs.rollPositionRad,gyroInputs.pitchPositionRad,gyroInputs.yawPositionRad),
                 getModulePositions()
         );
+        lastTimeStep = Logger.getRealTimestamp() * 1e-6;
+    }
+
+    public synchronized void setBrakeMode(boolean brakeMode) {
+        for(ModuleIO module : moduleIO) {
+            module.setBrakeMode(brakeMode);
+        }
     }
 
     public SwerveModulePosition [] getModulePositions() {
@@ -76,20 +87,20 @@ public class Drive extends AbstractSubsystem {
     }
 
     private double getSwerveDriveVelocity(int motorNum) {
-        return driveInputs.driveMotorVelocities[motorNum];
+        return moduleInputs[motorNum].driveMotorVelocity;
     }
 
     public double getWheelRotation(int moduleNumber) {
         if (USE_RELATIVE_ENCODER_POSITION) {
-            double relPos = driveInputs.steerMotorRelativePositions[moduleNumber] % 360;
+            double relPos = moduleInputs[moduleNumber].steerMotorRelativePosition % 360;
             if (relPos < 0) relPos += 360;
             return relPos;
         } else {
-            return driveInputs.steerMotorRelativePositions[moduleNumber];
+            return moduleInputs[moduleNumber].steerMotorRelativePosition;
         }
     }
     public double getDrivePosition(int moduleNumber) {
-        return driveInputs.driveMotorPositions[moduleNumber];
+        return moduleInputs[moduleNumber].driveMotorPosition;
     }
 
     private double getAngleDiff(double targetAngle, double currentAngle) {
@@ -113,7 +124,7 @@ public class Drive extends AbstractSubsystem {
         }
 
         double ffv = DRIVE_FEEDFORWARD.calculate(velocity, 0);
-        driveIO.setDriveMotorVoltage(module, ffv);
+        moduleIO[module].setDriveMotorVoltage(ffv);
 
         Logger.recordOutput("Drive/Out Volts " + module, ffv);
         Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
@@ -122,7 +133,7 @@ public class Drive extends AbstractSubsystem {
         Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
                 ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
 
-        double time = driveInputs.driveIOtimestamp;
+        double time = Logger.getRealTimestamp() * 1e-6;
         double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
 
         Logger.recordOutput("Drive/Acceleration" + module, realAccel);
@@ -130,15 +141,15 @@ public class Drive extends AbstractSubsystem {
                 (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
 
         lastModuleVelocities[module] = getSwerveDriveVelocity(module);
-        lastModuleTimes[module] = Logger.getInstance().getRealTimestamp() * 1e-6;
+        lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
     }
 
-    private synchronized void setSwerveModuleStates(SwerveModuleState[] swerveModuleStates, boolean rotate) {
+    private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean rotate) {
         Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
 
         for (int i = 0; i < 4; i++) {
             var moduleState = swerveModuleStates[i];
-            moduleState = SwerveModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
+            moduleState = SecondOrderModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
             double currentAngle = getWheelRotation(i);
 
             double angleDiff = getAngleDiff(moduleState.angle.getDegrees(), currentAngle);
@@ -146,12 +157,12 @@ public class Drive extends AbstractSubsystem {
             if (rotate) {
                 if (Math.abs(angleDiff) > ALLOWED_SWERVE_ANGLE_ERROR) {
                     if (USE_CANCODERS) {
-                        driveIO.setSteerMotorPosition(i, driveInputs.steerMotorRelativePositions[i] + angleDiff);
+                        moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff);
                     } else {
-                        driveIO.setSteerMotorPosition(i, moduleState.angle.getDegrees());
+                        moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
                     }
                 } else {
-                    driveIO.setSteerMotorPosition(i, driveInputs.steerMotorRelativePositions[i]);
+                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
                 }
             }
 
@@ -162,9 +173,8 @@ public class Drive extends AbstractSubsystem {
             Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Speed", moduleState.speedMetersPerSecond);
             Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Acceleration", 0);
             Logger.recordOutput("Drive/SwerveModule " + i + " Angle Error", angleDiff);
-            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted State", moduleState);
             Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Relative Angle",
-                    driveInputs.steerMotorRelativePositions[i] + angleDiff);
+                    moduleInputs[i].steerMotorRelativePosition + angleDiff);
         }
     }
 
@@ -193,6 +203,11 @@ public class Drive extends AbstractSubsystem {
                 inputs.getRotation() * MAX_TELEOP_TURN_SPEED,
                 poseEstimator.getEstimatedPosition().getRotation());
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
+    }
+    public synchronized void resetAbsoluteZeros() {
+        for (ModuleIO module : moduleIO) {
+            module.resetAbsoluteZeros();
+        }
     }
 }
 

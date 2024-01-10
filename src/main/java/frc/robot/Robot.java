@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
 import frc.utility.Controller;
+import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -43,6 +44,7 @@ public class Robot extends LoggedRobot {
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
 
     private static PowerDistribution powerDistribution;
+
 
     static Drive drive;
 
@@ -115,7 +117,7 @@ public class Robot extends LoggedRobot {
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
-            drive = new Drive(new DriveIOFalcon(), new GyroIOPigeon2());
+            drive = new Drive(new ModuleIOFalcon(0), new ModuleIOFalcon(1), new ModuleIOFalcon(2), new ModuleIOFalcon(3), new GyroIOPigeon2());
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -126,7 +128,7 @@ public class Robot extends LoggedRobot {
                 Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             }
 
-            drive = new Drive(new DriveIO() {}, new GyroIO() {});
+            drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -169,11 +171,16 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        drive.setBrakeMode(true);
     }
 
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+        xbox.update();
+
+        ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
+        drive.swerveDriveFieldRelative(controllerDriveInputs);
     }
 
     /** This function is called once when the robot is disabled. */
@@ -189,13 +196,18 @@ public class Robot extends LoggedRobot {
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
+        drive.setBrakeMode(false);
     }
 
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
+        xbox.update();
+        if (xbox.getRawButton(XboxButtons.X) && xbox.getRawButton(XboxButtons.B)
+                && xbox.getRisingEdge(XboxButtons.X) && xbox.getRisingEdge(XboxButtons.B)) {
+            drive.resetAbsoluteZeros();
+        }
     }
-
     @SuppressWarnings("Magic Number")
     private ControllerDriveInputs getControllerDriveInputs() {
         ControllerDriveInputs inputs;
@@ -217,9 +229,9 @@ public class Robot extends LoggedRobot {
         }
 
         inputs.squareInputs();
-        Logger.getInstance().recordOutput("Robot/Xbox Controller X", inputs.getX());
-        Logger.getInstance().recordOutput("Robot/Xbox Controller Y", inputs.getY());
-        Logger.getInstance().recordOutput("Robot/Xbox Controller Rotation", inputs.getRotation());
+        Logger.recordOutput("Robot/Xbox Controller X", inputs.getX());
+        Logger.recordOutput("Robot/Xbox Controller Y", inputs.getY());
+        Logger.recordOutput("Robot/Xbox Controller Rotation", inputs.getRotation());
 
         return inputs;
     }
