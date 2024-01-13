@@ -21,10 +21,8 @@ import org.littletonrobotics.junction.Logger;
 import static frc.robot.Constants.*;
 
 public class Drive extends AbstractSubsystem {
-    @AutoLogOutput(key = "Gyro")
     final GyroIO gyroIO;
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
-    @AutoLogOutput(key = "Drive")
     private final ModuleIO[] moduleIO;
     private final ModuleInputsAutoLogged[] moduleInputs = new ModuleInputsAutoLogged[] {new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged()};
     private @NotNull ChassisSpeeds nextChassisSpeeds = new ChassisSpeeds();
@@ -54,8 +52,10 @@ public class Drive extends AbstractSubsystem {
     public synchronized void update() {
         for(int i = 0; i < 4; i++) {
             moduleIO[i].updateInputs(moduleInputs[i]);
+            Logger.processInputs("Drive/Module " + i, moduleInputs[i]);
         }
         gyroIO.updateInputs(gyroInputs);
+        Logger.processInputs("Drive/Gyro", gyroInputs);
 
         if (!DriverStation.isTest() && DriverStation.isEnabled()) {
             var dt = Logger.getRealTimestamp() * 1e-6 - lastTimeStep;
@@ -145,7 +145,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean rotate) {
-        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
+//        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
 
         for (int i = 0; i < 4; i++) {
             var moduleState = swerveModuleStates[i];

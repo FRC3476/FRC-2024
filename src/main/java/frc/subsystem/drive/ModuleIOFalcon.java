@@ -139,8 +139,8 @@ public class ModuleIOFalcon implements ModuleIO {
         inputs.driveMotorAmps = driveMotorAmps.getValue();
         inputs.driveMotorTemp = driveMotorTemp.getValue();
 
-        inputs.steerMotorAbsolutePosition = steerMotorAbsolutePosition.getValue();
-        inputs.steerMotorRelativePosition = steerMotorRelativePosition.getValue();
+        inputs.steerMotorAbsolutePosition = steerMotorAbsolutePosition.getValue() * 360;
+        inputs.steerMotorRelativePosition = steerMotorRelativePosition.getValue() * 360 % 360;
         inputs.steerMotorVoltage = steerMotorVoltage.getValue();
         inputs.steerMotorAmps = steerMotorAmps.getValue();
         inputs.steerMotorTemp = steerMotorTemp.getValue();
