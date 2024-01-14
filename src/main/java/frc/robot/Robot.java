@@ -19,7 +19,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import javax.naming.ldap.Control;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -117,7 +116,7 @@ public class Robot extends LoggedRobot {
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
-            drive = new Drive(new ModuleIOFalcon(0), new ModuleIOFalcon(1), new ModuleIOFalcon(2), new ModuleIOFalcon(3), new GyroIOPigeon2());
+            drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {

@@ -11,11 +11,10 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Voltage;
 
 import static frc.robot.Constants.*;
 
-public class ModuleIOFalcon implements ModuleIO {
+public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFX driveMotor;
     private final TalonFX steerMotor;
 
@@ -34,7 +33,7 @@ public class ModuleIOFalcon implements ModuleIO {
     private final double absoluteEncoderOffset;
 
 
-    public ModuleIOFalcon(int id) {
+    public ModuleIOTalonFX(int id) {
         /*
          * Module guide
          *    FL = 0  FR = 2
