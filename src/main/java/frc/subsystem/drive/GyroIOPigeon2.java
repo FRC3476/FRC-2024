@@ -18,7 +18,7 @@ public class GyroIOPigeon2 implements GyroIO {
         pigeon.getConfigurator().apply(pigeonConfig);
         pigeon.reset();
         pigeon.getConfigurator().setYaw(0.0);
-        pigeon.getYaw().setUpdateFrequency(100);
+        pigeon.getYaw().setUpdateFrequency(50.0);
         pigeon.optimizeBusUtilization();
     }
 
@@ -26,9 +26,9 @@ public class GyroIOPigeon2 implements GyroIO {
     public void updateInputs(GyroInputs inputs) {
         inputs.connected = pigeon.getUpTime().getValue() > 0;
         /*
-         * X axis points forward
-         * Y axis points to the left
-         * Z axis points to the sky
+         * X-axis points forward
+         * Y-axis points to the left
+         * Z-axis points to the sky
          */
 
         inputs.yawPositionRad = Units.degreesToRadians(pigeon.getYaw().getValue()); // counterclockwise positive

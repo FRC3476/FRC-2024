@@ -180,7 +180,7 @@ public class Robot extends LoggedRobot {
         xbox.update();
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        drive.swerveDrive(controllerDriveInputs);
+        drive.swerveDriveFieldRelative(controllerDriveInputs);
     }
 
     /** This function is called once when the robot is disabled. */

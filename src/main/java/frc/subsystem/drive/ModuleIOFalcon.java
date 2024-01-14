@@ -140,6 +140,7 @@ public class ModuleIOFalcon implements ModuleIO {
 
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();
+        swerveCancoder.optimizeBusUtilization();
     }
     @Override
     public void updateInputs(ModuleInputs inputs) {
