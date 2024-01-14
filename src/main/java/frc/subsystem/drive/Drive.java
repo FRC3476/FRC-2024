@@ -7,7 +7,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
 import frc.utility.swerve.SecondOrderModuleState;
@@ -28,6 +30,8 @@ public class Drive extends AbstractSubsystem {
     private @NotNull ChassisSpeeds nextChassisSpeeds = new ChassisSpeeds();
     private SwerveSetpointGenerator.KinematicLimit kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     private final SwerveDrivePoseEstimator poseEstimator;
+    private @NotNull DriveState driveState = DriveState.TELEOP;
+
     public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
         super();
         this.gyroIO = gyroIO;
@@ -39,7 +43,7 @@ public class Drive extends AbstractSubsystem {
 
         poseEstimator = new SwerveDrivePoseEstimator(
                 SWERVE_DRIVE_KINEMATICS,
-                new Rotation3d(gyroInputs.rollPositionRad,gyroInputs.pitchPositionRad,gyroInputs.yawPositionRad),
+                gyroInputs.rotation3d,
                 getModulePositions(),
                 new Pose3d(),
                 VecBuilder.fill(0.1, 0.1, 0.1, 0.01),
@@ -52,11 +56,21 @@ public class Drive extends AbstractSubsystem {
     public synchronized void update() {
         for(int i = 0; i < 4; i++) {
             moduleIO[i].updateInputs(moduleInputs[i]);
-            Logger.processInputs("Module " + i, moduleInputs[i]);
+            Logger.processInputs("Drive/Module " + i, moduleInputs[i]);
         }
         gyroIO.updateInputs(gyroInputs);
-        Logger.processInputs("Pigeon", gyroInputs);
+        Logger.processInputs("Drive/Gyro", gyroInputs);
 
+//        switch(driveState) {
+//            case TURN, WAITING_FOR_PATH -> updateTurn();
+//            case STOP -> {
+//                nextChassisSpeeds = new ChassisSpeeds();
+//                kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
+//            }
+//            case RAMSETE -> updateRamsete();
+//        }
+
+        Rotation3d startupRotationToField = poseEstimator.getEstimatedPosition3d().getRotation().minus(gyroInputs.rotation3d);
 
         if (!DriverStation.isTest() && DriverStation.isEnabled()) {
             var dt = Logger.getRealTimestamp() * 1e-6 - lastTimeStep;
@@ -65,7 +79,7 @@ public class Drive extends AbstractSubsystem {
 
         poseEstimator.updateWithTime(
                 Logger.getRealTimestamp() * 1e-6,
-                new Rotation3d(gyroInputs.rollPositionRad,gyroInputs.pitchPositionRad,gyroInputs.yawPositionRad),
+                gyroInputs.rotation3d,
                 getModulePositions()
         );
         lastTimeStep = Logger.getRealTimestamp() * 1e-6;
@@ -97,7 +111,7 @@ public class Drive extends AbstractSubsystem {
             if (relPos < 0) relPos += 360;
             return relPos;
         } else {
-            return moduleInputs[moduleNumber].steerMotorRelativePosition;
+            return moduleInputs[moduleNumber].steerMotorAbsolutePosition;
         }
     }
     public double getDrivePosition(int moduleNumber) {
@@ -124,7 +138,7 @@ public class Drive extends AbstractSubsystem {
             throw new IllegalArgumentException("Module must be between 0 and 3");
         }
 
-        double ffv = DRIVE_FEEDFORWARD.calculate(velocity, 0);
+        double ffv = DRIVE_FEEDFORWARD.calculate(velocity, acceleration);
         moduleIO[module].setDriveMotorVoltage(ffv);
 
         Logger.recordOutput("Drive/Out Volts " + module, ffv);
@@ -146,7 +160,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean rotate) {
-        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
+//        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
 
         for (int i = 0; i < 4; i++) {
             var moduleState = swerveModuleStates[i];
@@ -197,18 +211,35 @@ public class Drive extends AbstractSubsystem {
         setSwerveModuleStates(moduleStates, rotate);
     }
 
+    public synchronized void swerveDrive(@NotNull ControllerDriveInputs inputs) {
+        nextChassisSpeeds = new ChassisSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
+                DRIVE_HIGH_SPEED_M * inputs.getY(),
+                inputs.getRotation() * MAX_TELEOP_TURN_SPEED);
+        kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
+    }
+
     public synchronized void swerveDriveFieldRelative(@NotNull ControllerDriveInputs inputs) {
         nextChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 DRIVE_HIGH_SPEED_M * inputs.getX(),
                 DRIVE_HIGH_SPEED_M * inputs.getY(),
                 inputs.getRotation() * MAX_TELEOP_TURN_SPEED,
-                poseEstimator.getEstimatedPosition().getRotation());
+                gyroInputs.rotation3d.toRotation2d().plus(Rotation2d.fromDegrees(gyroInputs.yawVelocityRadPerSec)));
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
     public synchronized void resetAbsoluteZeros() {
         for (ModuleIO module : moduleIO) {
             module.resetAbsoluteZeros();
         }
+    }
+
+    public enum DriveState {
+        TELEOP, TURN, DONE, RAMSETE, STOP, WAITING_FOR_PATH
+    }
+
+    static final class TurnInputs {
+        public static ControllerDriveInputs controllerDriveInputs;
+        public static State goal;
+        public static double turnErrorRadians;
     }
 }
 

@@ -16,7 +16,7 @@ public class Prototype extends AbstractSubsystem {
     public synchronized void update() {
         for(int i = 0; i < 2; i++) {
             prototypeIO[i].updateInputs(prototypeInputs[i]);
-            Logger.processInputs("Prototype Motor " + i, prototypeInputs[i]);
+            Logger.processInputs("Prototype/Motor " + i, prototypeInputs[i]);
         }
     }
 

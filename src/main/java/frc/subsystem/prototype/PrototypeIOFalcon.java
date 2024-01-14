@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import jdk.jshell.Snippet;
 
 public class PrototypeIOFalcon implements PrototypeIO {
     private final TalonFX motor;
@@ -16,6 +17,7 @@ public class PrototypeIOFalcon implements PrototypeIO {
     private final StatusSignal<Double> motorVelocity;
     private final StatusSignal<Double> motorVoltage;
     private final StatusSignal<Double> motorAmps;
+    private final StatusSignal<Double> motorTemp;
 
     public PrototypeIOFalcon(int id) {
         motor = new TalonFX(id);
@@ -26,10 +28,11 @@ public class PrototypeIOFalcon implements PrototypeIO {
         motorVelocity = motor.getVelocity();
         motorVoltage = motor.getMotorVoltage();
         motorAmps = motor.getSupplyCurrent();
+        motorTemp = motor.getDeviceTemp();
 
 
         BaseStatusSignal.setUpdateFrequencyForAll(100.0, motorPosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50.0, motorVelocity, motorVoltage, motorAmps);
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0, motorVelocity, motorVoltage, motorAmps, motorTemp);
     }
 
     @Override
@@ -40,6 +43,7 @@ public class PrototypeIOFalcon implements PrototypeIO {
         inputs.motorVelocity = motorVelocity.getValue();
         inputs.motorVoltage = motorVoltage.getValue();
         inputs.motorAmps = motorAmps.getValue();
+        inputs.motorTemp = motorTemp.getValue();
     }
 
     @Override

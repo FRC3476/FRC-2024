@@ -9,6 +9,7 @@ public interface PrototypeIO {
         double motorVelocity;
         double motorVoltage;
         double motorAmps;
+        double motorTemp;
     }
 
     default void updateInputs(PrototypeInputs inputs) {}
