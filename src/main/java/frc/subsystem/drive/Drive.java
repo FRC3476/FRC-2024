@@ -146,7 +146,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean rotate) {
-        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
+//        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
 
         for (int i = 0; i < 4; i++) {
             var moduleState = swerveModuleStates[i];

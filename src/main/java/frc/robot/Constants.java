@@ -1,7 +1,9 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
@@ -104,4 +106,35 @@ public final class Constants {
     // TODO: change these
     public static final double FIELD_HEIGHT_METERS = 8.0137;
     public static final double FIELD_WIDTH_METERS = 16.54175;
+
+    public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
+
+    //all value to be changed
+    public static final TrapezoidProfile.Constraints ARM_PIVOT_CONSTRAINTS
+            = new TrapezoidProfile.Constraints(10, 10);
+    public static final double PIVOT_P = 0.1;
+    public static final double PIVOT_I = 0.00;
+    public static final double PIVOT_D = 2;
+    public static final double PIVOT_ROTATIONS_PER_DEGREE = 1 / 5.4;
+    public static final double PIVOT_IZONE = 10;
+    public static final double ARM_NOMINAL_VOLTAGE = 9;
+    public static final int ARM_SMART_CURRENT_LIMIT = 35;
+    public static final int ARM_CURRENT_THRESHOLD = ARM_SMART_CURRENT_LIMIT - 10;
+    public static final int PIVOT_SMART_CURRENT_LIMIT = 40;
+    public static final int ARM_ROLLER_SMART_CURRENT_LIMIT = 30;
+    public static final double DEGREES_PER_ROTATION = 360;
+    public static final int ARM_PIVOT_CAN_ID = 50;
+    public static final int ARM_CAN_ID = 51;
+    public static final int ARM_ROLLER_MAIN_CAN_ID = 52;
+    public static final int ARM_ROLLER_FOLLOWER_CAN_ID = 53;
+
+    public static final double ARM_ROLLER_VOLTAGE = -6;
+    public static final double ARM_ROLLER_IDLE = -0;
+    public static final double ARM_CLOSE_THRESHOLD_DEGREES = 48;
+    public static final double ARM_OPEN_THRESHOLD_DEGREES = 55;
+    public static final boolean USE_ARM_ENCODER = !IS_PRACTICE;
+    public static final boolean ARM_WHEELS_USED = false;
+
+    public static final double ARM_LENGTH = .308;
+
 }
