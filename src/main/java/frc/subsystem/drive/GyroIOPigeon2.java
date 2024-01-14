@@ -24,7 +24,7 @@ public class GyroIOPigeon2 implements GyroIO {
 
     @Override
     public void updateInputs(GyroInputs inputs) {
-        inputs.connected = BaseStatusSignal.refreshAll(pigeon.getYaw(), pigeon.getAngularVelocityZWorld()).isOK();
+        inputs.connected = pigeon.getUpTime().getValue() > 0;
         /*
          * X axis points forward
          * Y axis points to the left
