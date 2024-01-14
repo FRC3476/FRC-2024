@@ -10,6 +10,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Voltage;
 
 import static frc.robot.Constants.*;
 
@@ -29,6 +31,7 @@ public class ModuleIOFalcon implements ModuleIO {
     private final StatusSignal<Double> steerMotorTemp;
 
     private final CANcoder swerveCancoder;
+    private final double absoluteEncoderOffset;
 
 
     public ModuleIOFalcon(int id) {
@@ -45,24 +48,30 @@ public class ModuleIOFalcon implements ModuleIO {
                 driveMotor = new TalonFX(Ports.FL_DRIVE);
                 steerMotor = new TalonFX(Ports.FL_STEER);
                 swerveCancoder = new CANcoder(Ports.FL_CANCODER);
+                absoluteEncoderOffset = -0.234130859375+0.5;
             }
             case 1 -> {
                 driveMotor = new TalonFX(Ports.BL_DRIVE);
                 steerMotor = new TalonFX(Ports.BL_STEER);
                 swerveCancoder = new CANcoder(Ports.BL_CANCODER);
+                absoluteEncoderOffset = -0.10107421875+0.5;
             }
             case 2 -> {
                 driveMotor = new TalonFX(Ports.FR_DRIVE);
                 steerMotor = new TalonFX(Ports.FR_STEER);
                 swerveCancoder = new CANcoder(Ports.FR_CANCODER);
+                absoluteEncoderOffset = -0.33251953125;
             }
             case 3 -> {
                 driveMotor = new TalonFX(Ports.BR_DRIVE);
                 steerMotor = new TalonFX(Ports.BR_STEER);
                 swerveCancoder = new CANcoder(Ports.BR_CANCODER);
+                absoluteEncoderOffset = 0.4794921875;
             }
             default -> throw new IllegalArgumentException("Invalid module ID");
         }
+
+        steerMotor.setInverted(true);
 
         var driveConfigs = new TalonFXConfiguration();
 
@@ -108,8 +117,11 @@ public class ModuleIOFalcon implements ModuleIO {
         steerConfigs.Feedback.RotorToSensorRatio = 1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR;
         steerMotor.getConfigurator().apply(steerConfigs);
 
-
         swerveCancoder.getConfigurator().apply(new CANcoderConfiguration());
+        MagnetSensorConfigs magneticSensorConfigs = new MagnetSensorConfigs();
+        magneticSensorConfigs.MagnetOffset = absoluteEncoderOffset;
+        swerveCancoder.getConfigurator().apply(magneticSensorConfigs);
+
 
         driveMotorPosition = driveMotor.getPosition();
         driveMotorVelocity = driveMotor.getVelocity();
@@ -128,6 +140,7 @@ public class ModuleIOFalcon implements ModuleIO {
 
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();
+        swerveCancoder.optimizeBusUtilization();
     }
     @Override
     public void updateInputs(ModuleInputs inputs) {
@@ -139,8 +152,8 @@ public class ModuleIOFalcon implements ModuleIO {
         inputs.driveMotorAmps = driveMotorAmps.getValue();
         inputs.driveMotorTemp = driveMotorTemp.getValue();
 
-        inputs.steerMotorAbsolutePosition = steerMotorAbsolutePosition.getValue() * 360;
-        inputs.steerMotorRelativePosition = steerMotorRelativePosition.getValue() * 360 % 360;
+        inputs.steerMotorAbsolutePosition = Units.rotationsToDegrees(steerMotorAbsolutePosition.getValue());
+        inputs.steerMotorRelativePosition = Units.rotationsToDegrees(steerMotorRelativePosition.getValue());
         inputs.steerMotorVoltage = steerMotorVoltage.getValue();
         inputs.steerMotorAmps = steerMotorAmps.getValue();
         inputs.steerMotorTemp = steerMotorTemp.getValue();
@@ -170,11 +183,13 @@ public class ModuleIOFalcon implements ModuleIO {
         isBraking = enabled;
     }
 
+    private final PositionVoltage positionVoltage = new PositionVoltage(0);
     @Override
     public void setSteerMotorPosition(double position) {
-        steerMotor.setControl(
-                new PositionVoltage(position/360)
-        );
+        positionVoltage.Position = position/360;
+        positionVoltage.EnableFOC = true;
+        positionVoltage.OverrideBrakeDurNeutral = true;
+        steerMotor.setControl(positionVoltage);
     }
 
     @Override
@@ -182,9 +197,14 @@ public class ModuleIOFalcon implements ModuleIO {
         steerMotor.setControl(new VoltageOut(voltage));
     }
 
+
+    private final VoltageOut voltageOut = new VoltageOut(0);
     @Override
     public void setDriveMotorVoltage(double voltage) {
-        driveMotor.setControl(new VoltageOut(voltage));
+        voltageOut.Output = voltage;
+        voltageOut.EnableFOC = true;
+        voltageOut.OverrideBrakeDurNeutral = false;
+        driveMotor.setControl(voltageOut);
     }
 
     @Override

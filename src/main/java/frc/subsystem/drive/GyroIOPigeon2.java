@@ -18,26 +18,23 @@ public class GyroIOPigeon2 implements GyroIO {
         pigeon.getConfigurator().apply(pigeonConfig);
         pigeon.reset();
         pigeon.getConfigurator().setYaw(0.0);
-        pigeon.getYaw().setUpdateFrequency(100);
+        pigeon.getYaw().setUpdateFrequency(50.0);
         pigeon.optimizeBusUtilization();
     }
 
     @Override
     public void updateInputs(GyroInputs inputs) {
-        inputs.connected = BaseStatusSignal.refreshAll(pigeon.getYaw(), pigeon.getAngularVelocityZWorld()).isOK();
+        inputs.connected = pigeon.getUpTime().getValue() > 0;
         /*
-         * X axis points forward
-         * Y axis points to the left
-         * Z axis points to the sky
+         * X-axis points forward
+         * Y-axis points to the left
+         * Z-axis points to the sky
          */
 
         inputs.yawPositionRad = Units.degreesToRadians(pigeon.getYaw().getValue()); // counterclockwise positive
         inputs.yawVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityZWorld().getValue());
 
-        inputs.pitchPositionRad = Units.degreesToRadians(pigeon.getPitch().getValue()); // up positive
-        inputs.pitchVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityYWorld().getValue());
-
-        inputs.rollPositionRad = Units.degreesToRadians(pigeon.getRoll().getValue()); // clockwise  positive
-        inputs.rollVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityXWorld().getValue());
+        inputs.rotation3d = pigeon.getRotation3d();
+        inputs.rotation2d = pigeon.getRotation2d();
     }
 }
