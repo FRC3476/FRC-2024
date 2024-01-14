@@ -74,6 +74,7 @@ public final class Constants {
     public static final boolean USE_RELATIVE_ENCODER_POSITION = true;
     public static final double ALLOWED_SWERVE_ANGLE_ERROR = 0;
     public static final boolean USE_CANCODERS = true;
+    public static final int INTAKE_MOTOR_ID = 1;
 
     //TODO: figure out how tf these numbers were obtained
     public static final double SWERVE_INCHES_PER_ROTATION = 12.5 * 0.976 * 0.96488764044943820224719101123596;

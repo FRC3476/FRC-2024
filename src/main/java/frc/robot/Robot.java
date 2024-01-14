@@ -8,6 +8,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
+import frc.subsystem.intake.Intake;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
@@ -39,6 +40,7 @@ public class Robot extends LoggedRobot {
     private static final String customAuto = "My Auto";
     private String autoSelected;
     private Controller xbox;
+    private Intake intake;
     private final LoggedDashboardChooser<String> chooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
 
@@ -180,6 +182,13 @@ public class Robot extends LoggedRobot {
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
+
+        if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
+            intake.setMotorVoltage(INTAKE_MOTOR_ID, Controller.XboxAxes.RIGHT_TRIGGER * 12); //Change constant later
+        }
+        if (xbox.getRisingEdge(XboxButtons.A)) {
+            intake.invertMotor(INTAKE_MOTOR_ID);
+        }
     }
 
     /** This function is called once when the robot is disabled. */
