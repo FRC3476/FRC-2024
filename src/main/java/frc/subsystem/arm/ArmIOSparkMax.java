@@ -1,5 +1,6 @@
 package frc.subsystem.arm;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -12,8 +13,10 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.utility.PhoenixPIDController;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import frc.subsystem.prototype.PrototypeIO;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+
 
 import frc.robot.Constants;
 import org.jetbrains.annotations.NotNull;
@@ -29,12 +32,14 @@ public class ArmIOSparkMax extends ArmIO {
     private @Nullable CANcoder pivotAbsoluteEncoder;
     private @Nullable CANcoder armAbsoluteEncoder;
 
-    private @NotNull TalonFXLimitSwitch reverseLimitSwitch;
 
 
     public ArmIOSparkMax() {
-        pivotTalonFX = new CANcoder(ARM_PIVOT_CAN_ID, CANcoderLowLevel.MotorType.kBrushless);
-        armTalonFX = new CANcoder(ARM_CAN_ID, CANcoderLowLevel.MotorType.kBrushless);
+        //pivotTalonFX = new CANcoder(ARM_PIVOT_CAN_ID, CANcoderLowLevel.MotorType.kBrushless);
+
+        pivotTalonFX = new TalonFX(ARM_PIVOT_CAN_ID, );//second parameter=Canbus
+
+        armTalonFX = new CANcoder(ARM_CAN_ID,);
 
         var talonFXConfigs = new TalonFXConfiguration();
 
@@ -72,7 +77,7 @@ public class ArmIOSparkMax extends ArmIO {
         }
 
         pivotTalonFX.enableVoltageCompensation(Constants.Arm_NOMINAL_VOLTAGE);
-*/      pivotTalonFX.output
+*/      //pivotTalonFX.output
 
         PhoenixPIDController pivotTalonFXPIDController = new PhoenixPIDController(1,2,3);
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
@@ -98,7 +103,7 @@ public class ArmIOSparkMax extends ArmIO {
         //pivotTalonFX.setSmartCurrentLimit(Constants.PIVOT_SMART_CURRENT_LIMIT);
 
         var armCurrentLimitsConfigs = talonFXConfigs.CurrentLimits;
-        armTalonFX.setSmartCurrentLimit(Constants.Arm_SMART_CURRENT_LIMIT);
+        armTalonFX.clearStickyFault_SupplyCurrLimit(Constants.ARM_SMART_CURRENT_LIMIT);
         armTalonFX.setClosedLoopRampRate(0.75);
 
         armTalonFX.setIdleMode(IdleMode.kBrake);
@@ -106,15 +111,7 @@ public class ArmIOSparkMax extends ArmIO {
 
 
 
-        if (isReal()) {
-            pivotTalonFX.burnFlash();
-            armTalonFX.burnFlash();
-            if (Arm_WHEELS_USED) {
-                rollerSparkMax1.burnFlash();
-                rollerSparkMax2.burnFlash();
-            }
-        }
-    }
+
 
     private void resetArmPosition(StatusSignal<Double> position) {
     }
@@ -148,7 +145,7 @@ public class ArmIOSparkMax extends ArmIO {
 
     @Override
     public void setPivotVoltage(double voltage) {
-        pivotTalonFX.getPIDController().setReference(voltage, CANSparkMax.ControlType.kVoltage);
+        pivotTalonFX.getPIDController().setReference(voltage, CANcoder.ControlType.kVoltage);
     }
 
     @Override
