@@ -3,7 +3,7 @@ package frc.subsystem.shooter;
 import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
-public class   Shooter extends AbstractSubsystem {
+public class Shooter extends AbstractSubsystem {
     private final ShooterIO[] ShooterIO;
     private final ShooterInputsAutoLogged[] ShooterInputs = new ShooterInputsAutoLogged[] {new ShooterInputsAutoLogged(), new ShooterInputsAutoLogged()};
     public Shooter(ShooterIO ShooterIO1, ShooterIO ShooterIO2) {
@@ -22,10 +22,10 @@ public class   Shooter extends AbstractSubsystem {
     }
 
     public synchronized void setMotorVoltage(int id, double voltage) {
-        ShooterIO[id].setMotorVoltage(voltage);
+        ShooterIO[id].setMotorVoltage(id, voltage);
     }
 
     public synchronized void invertMotor(int id) {
-        ShooterIO[id].invertMotor();
+        ShooterIO[id].invertMotor(id);
     }
 }
