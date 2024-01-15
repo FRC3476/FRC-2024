@@ -184,11 +184,12 @@ public class Drive extends AbstractSubsystem {
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0);
             //setMotorSpeed(i, 0, 0);
 
-            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Angle", moduleState.angle.getDegrees());
-            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Speed", moduleState.speedMetersPerSecond);
-            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Acceleration", 0);
-            Logger.recordOutput("Drive/SwerveModule " + i + " Angle Error", angleDiff);
-            Logger.recordOutput("Drive/SwerveModule " + i + " Wanted Relative Angle",
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", moduleState.omega);
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Angle Error", angleDiff);
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Relative Angle",
                     moduleInputs[i].steerMotorRelativePosition + angleDiff);
         }
     }
