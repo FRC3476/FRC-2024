@@ -10,12 +10,14 @@ import org.littletonrobotics.junction.Logger;
 
 public class Arm extends AbstractSubsystem {
 
-        /** A robot arm subsystem that moves with a motion profile. */
+    private final ArmIO io;
+
+    /** A robot arm subsystem that moves with a motion profile. */
 
 
-        public Arm(ArmIO) {
+        public Arm(ArmIO armio) {
             super();
-            this.io = ArmIO;
+            this.io = armio;
             trapezoidProfile = new TrapezoidProfile(Constants.ARM_PIVOT_CONSTRAINTS, new TrapezoidProfile.State(56 + 90 - 20, 0));
             setAutoGrab(false);
         }
