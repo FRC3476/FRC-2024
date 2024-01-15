@@ -8,7 +8,6 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import jdk.jshell.Snippet;
 
 public class PrototypeIOFalcon implements PrototypeIO {
     private final TalonFX motor;
