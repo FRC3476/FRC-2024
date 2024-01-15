@@ -25,6 +25,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final StatusSignal<Double> driveMotorTemp;
     private final StatusSignal<Double> steerMotorAbsolutePosition;
     private final StatusSignal<Double> steerMotorRelativePosition;
+    private final StatusSignal<Double> steerMotorVelocity;
     private final StatusSignal<Double> steerMotorVoltage;
     private final StatusSignal<Double> steerMotorAmps;
     private final StatusSignal<Double> steerMotorTemp;
@@ -130,6 +131,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         steerMotorAbsolutePosition = swerveCancoder.getAbsolutePosition();
         steerMotorRelativePosition = steerMotor.getPosition();
+        steerMotorVelocity = steerMotor.getVelocity();
         steerMotorVoltage = steerMotor.getMotorVoltage();
         steerMotorAmps = steerMotor.getSupplyCurrent();
         steerMotorTemp = steerMotor.getDeviceTemp();
@@ -188,6 +190,15 @@ public class ModuleIOTalonFX implements ModuleIO {
         positionVoltage.Position = position/360;
         positionVoltage.EnableFOC = true;
         positionVoltage.OverrideBrakeDurNeutral = true;
+        steerMotor.setControl(positionVoltage);
+    }
+
+    @Override
+    public void setSteerMotorPosition(double position, double omega) {
+        positionVoltage.Position = position/360;
+        positionVoltage.EnableFOC = true;
+        positionVoltage.OverrideBrakeDurNeutral = true;
+        positionVoltage.FeedForward = omega * SWERVE_OMEGA_FEEDFORWARD;
         steerMotor.setControl(positionVoltage);
     }
 
