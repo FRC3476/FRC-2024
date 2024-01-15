@@ -8,6 +8,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
+import frc.subsystem.shooter.*;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
@@ -46,6 +47,7 @@ public class Robot extends LoggedRobot {
 
 
     static Drive drive;
+    private static Shooter shooter;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -119,7 +121,7 @@ public class Robot extends LoggedRobot {
             drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
         } else {
             setUseTiming(false); // Run as fast as possible
-            if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
+            if (Objects.equals(VIRTUAL_MODE, "REPLAY")) {
                 Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
                 Logger.addDataReceiver(
                         new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
@@ -127,7 +129,12 @@ public class Robot extends LoggedRobot {
                 Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             }
 
-            drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
+            drive = new Drive(new ModuleIO() {
+            }, new ModuleIO() {
+            }, new ModuleIO() {
+            }, new ModuleIO() {
+            }, new GyroIO() {
+            });
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -136,24 +143,32 @@ public class Robot extends LoggedRobot {
         sideChooser.addOption("Red", "red");
 
         xbox = new Controller(0);
+         shooter = new Shooter(new ShooterIOTalonFX())
+
 
         Logger.start();
         drive.start();
     }
 
-    /** This function is called periodically during all modes. */
+    /**
+     * This function is called periodically during all modes.
+     */
     @Override
     public void robotPeriodic() {
         AbstractSubsystem.tick();
     }
 
-    /** This function is called once when autonomous is enabled. */
+    /**
+     * This function is called once when autonomous is enabled.
+     */
     @Override
     public void autonomousInit() {
         autoSelected = chooser.get();
     }
 
-    /** This function is called periodically during autonomous. */
+    /**
+     * This function is called periodically during autonomous.
+     */
     @Override
     public void autonomousPeriodic() {
         switch (autoSelected) {
@@ -167,38 +182,64 @@ public class Robot extends LoggedRobot {
         }
     }
 
-    /** This function is called once when teleop is enabled. */
+    /**
+     * This function is called once when teleop is enabled.
+     */
     @Override
     public void teleopInit() {
         drive.setBrakeMode(true);
     }
 
-    /** This function is called periodically during operator control. */
+    /**
+     * This function is called periodically during operator control.
+     */
     @Override
     public void teleopPeriodic() {
         xbox.update();
+
+        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
+            shooter.runVelocity(1); // change to correct velocity
+        }
+        if(xbox.getRisingEdge(XboxButtons.A)) {
+            shooter.stop();
+        }
+        if(xbox.getRisingEdge(XboxButtons.A)) {
+            shooter.stop();
+        }
+        if(xbox.getRisingEdge(XboxButtons.B)) {
+            shooter.invertMotor(FIRST_SHOOTER_MOTOR_NUM);
+            shooter.invertMotor(SECOND_SHOOTER_MOTOR_NUM);
+        }
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
     }
 
-    /** This function is called once when the robot is disabled. */
+    /**
+     * This function is called once when the robot is disabled.
+     */
     @Override
     public void disabledInit() {
     }
 
-    /** This function is called periodically when disabled. */
+    /**
+     * This function is called periodically when disabled.
+     */
     @Override
     public void disabledPeriodic() {
     }
 
-    /** This function is called once when test mode is enabled. */
+    /**
+     * This function is called once when test mode is enabled.
+     */
     @Override
     public void testInit() {
         drive.setBrakeMode(false);
     }
 
-    /** This function is called periodically during test mode. */
+    /**
+     * This function is called periodically during test mode.
+     */
     @Override
     public void testPeriodic() {
         xbox.update();
@@ -207,6 +248,7 @@ public class Robot extends LoggedRobot {
             drive.resetAbsoluteZeros();
         }
     }
+
     @SuppressWarnings("Magic Number")
     private ControllerDriveInputs getControllerDriveInputs() {
         ControllerDriveInputs inputs;
@@ -235,12 +277,16 @@ public class Robot extends LoggedRobot {
         return inputs;
     }
 
-    /** This function is called once when the robot is first started up. */
+    /**
+     * This function is called once when the robot is first started up.
+     */
     @Override
     public void simulationInit() {
     }
 
-    /** This function is called periodically whilst in simulation. */
+    /**
+     * This function is called periodically whilst in simulation.
+     */
     @Override
     public void simulationPeriodic() {
     }

@@ -59,7 +59,6 @@ public final class Constants {
     }
 
 
-
     public static final double SWERVE_DRIVE_P = 100;
     public static final double SWERVE_DRIVE_D = 0.00;
     public static final double SWERVE_DRIVE_I = 0.00;
@@ -102,4 +101,7 @@ public final class Constants {
     // TODO: change these
     public static final double FIELD_HEIGHT_METERS = 8.0137;
     public static final double FIELD_WIDTH_METERS = 16.54175;
+
+    public static final int FIRST_SHOOTER_MOTOR_NUM = 0;
+    public static final int SECOND_SHOOTER_MOTOR_NUM = 1;
 }
