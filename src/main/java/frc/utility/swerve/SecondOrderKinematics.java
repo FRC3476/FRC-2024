@@ -262,51 +262,6 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     }
 
     /**
-     * Performs forward kinematics to return the resulting chassis state from the given module states.
-     * This method is often used for odometry -- determining the robot's position on the field using
-     * data from the real-world speed and angle of each module on the robot.
-     *
-     * @param moduleDeltas The latest change in position of the modules (as a SwerveModulePosition
-     *     type) as measured from respective encoders and gyros. The order of the swerve module states
-     *     should be same as passed into the constructor of this class.
-     * @return The resulting Twist2d.
-     */
-    public Twist2d toTwist2d(SwerveModulePosition... moduleDeltas) {
-        if (moduleDeltas.length != m_numModules) {
-            throw new IllegalArgumentException(
-                    "Number of modules is not consistent with number of module locations provided in "
-                            + "constructor");
-        }
-        var moduleDeltaMatrix = new SimpleMatrix(m_numModules * 2, 1);
-
-        for (int i = 0; i < m_numModules; i++) {
-            var module = moduleDeltas[i];
-            moduleDeltaMatrix.set(i * 2, 0, module.distanceMeters * module.angle.getCos());
-            moduleDeltaMatrix.set(i * 2 + 1, module.distanceMeters * module.angle.getSin());
-        }
-
-        var chassisDeltaVector = m_forwardKinematics.mult(moduleDeltaMatrix);
-        return new Twist2d(
-                chassisDeltaVector.get(0, 0), chassisDeltaVector.get(1, 0), chassisDeltaVector.get(2, 0));
-    }
-
-    @Override
-    public Twist2d toTwist2d(SwerveDriveWheelPositions start, SwerveDriveWheelPositions end) {
-        if (start.positions.length != end.positions.length) {
-            throw new IllegalArgumentException("Inconsistent number of modules!");
-        }
-        var newPositions = new SwerveModulePosition[start.positions.length];
-        for (int i = 0; i < start.positions.length; i++) {
-            var startModule = start.positions[i];
-            var endModule = end.positions[i];
-            newPositions[i] =
-                    new SwerveModulePosition(
-                            endModule.distanceMeters - startModule.distanceMeters, endModule.angle);
-        }
-        return toTwist2d(newPositions);
-    }
-
-    /**
      * Renormalizes the wheel speeds if any individual speed is above the specified maximum.
      *
      * <p>Sometimes, after inverse kinematics, the requested speed from one or more modules may be
