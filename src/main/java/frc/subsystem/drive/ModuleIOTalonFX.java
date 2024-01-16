@@ -71,6 +71,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             default -> throw new IllegalArgumentException("Invalid module ID");
         }
 
+        driveMotor.setInverted(false);
         steerMotor.setInverted(true);
 
         var driveConfigs = new TalonFXConfiguration();
@@ -142,6 +143,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();
         swerveCancoder.optimizeBusUtilization();
+
+        isBraking = false;
+        setBrakeMode(true);
     }
     @Override
     public void updateInputs(ModuleInputs inputs) {

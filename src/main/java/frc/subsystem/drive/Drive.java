@@ -161,9 +161,9 @@ public class Drive extends AbstractSubsystem {
     }
 
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates) {
-//        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
 
         for (int i = 0; i < 4; i++) {
+
             var moduleState = swerveModuleStates[i];
             moduleState = SecondOrderModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
             double currentAngle = getWheelRotation(i);
@@ -197,6 +197,7 @@ public class Drive extends AbstractSubsystem {
     private synchronized void swerveDrive(ChassisSpeeds desiredRobotRelSpeeds,
                                           SwerveSetpointGenerator.KinematicLimit kinematicLimit,
                                           double dt) {
+        Logger.recordOutput("Drive/Desired ChassisSpeeds", desiredRobotRelSpeeds);
         var moduleStates = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(desiredRobotRelSpeeds);
 
         SecondOrderKinematics.desaturateWheelSpeeds(
