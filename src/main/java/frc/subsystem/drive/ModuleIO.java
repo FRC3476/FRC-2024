@@ -13,6 +13,8 @@ public interface ModuleIO {
 
         public double steerMotorAbsolutePosition;
         public double steerMotorRelativePosition;
+        // omega
+        public double steerMotorVelocity;
         public double steerMotorVoltage;
         public double steerMotorAmps;
         public double steerMotorTemp;
@@ -22,6 +24,8 @@ public interface ModuleIO {
     default void setBrakeMode(boolean enabled) {}
     // sets target position (in deg) of steer motor
     default void setSteerMotorPosition(double position) {}
+    // sets target position with calculated 2nd order kinematics omega value
+    default void setSteerMotorPosition(double position, double omega) {}
     // sets target voltage of motor
     default void setSteerMotorVoltage(double voltage) {}
     default void setDriveMotorVoltage(double voltage) {}

@@ -22,7 +22,7 @@ public class SecondOrderModuleState extends SwerveModuleState {
             return new SecondOrderModuleState(
                     -desiredState.speedMetersPerSecond,
                     desiredState.angle.rotateBy(Rotation2d.fromDegrees(180.0)),
-                    -desiredState.omega);
+                    desiredState.omega);
         } else {
             return new SecondOrderModuleState(desiredState.speedMetersPerSecond, desiredState.angle, desiredState.omega);
         }
