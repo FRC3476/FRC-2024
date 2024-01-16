@@ -1,6 +1,7 @@
 package frc.subsystem.drive;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -43,11 +44,11 @@ public class Drive extends AbstractSubsystem {
 
         poseEstimator = new SwerveDrivePoseEstimator(
                 SWERVE_DRIVE_KINEMATICS,
-                gyroInputs.rotation3d,
+                gyroInputs.rotation2d,
                 getModulePositions(),
-                new Pose3d(),
-                VecBuilder.fill(0.1, 0.1, 0.1, 0.01),
-                VecBuilder.fill(0.9, 0.9, 0.9, 0.9)
+                new Pose2d(),
+                VecBuilder.fill(0.1, 0.1, 0.1),
+                VecBuilder.fill(0.9, 0.9, 0.9)
         );
     }
 
@@ -159,7 +160,7 @@ public class Drive extends AbstractSubsystem {
         lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
     }
 
-    private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean rotate) {
+    private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates) {
 //        Logger.recordOutput("Drive/Wanted Swerve Module States", swerveModuleStates);
 
         for (int i = 0; i < 4; i++) {
@@ -169,16 +170,14 @@ public class Drive extends AbstractSubsystem {
 
             double angleDiff = getAngleDiff(moduleState.angle.getDegrees(), currentAngle);
 
-            if (rotate) {
-                if (Math.abs(angleDiff) > ALLOWED_SWERVE_ANGLE_ERROR) {
-                    if (USE_CANCODERS) {
-                        moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff, moduleState.omega);
-                    } else {
-                        moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees(), moduleState.omega);
-                    }
+            if (Math.abs(angleDiff) > ALLOWED_SWERVE_ANGLE_ERROR) {
+                if (USE_CANCODERS) {
+                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff, moduleState.omega);
                 } else {
-                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
+                    moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees(), moduleState.omega);
                 }
+            } else {
+                moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
             }
 
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0);
@@ -200,16 +199,12 @@ public class Drive extends AbstractSubsystem {
                                           double dt) {
         var moduleStates = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(desiredRobotRelSpeeds);
 
-        boolean rotate = desiredRobotRelSpeeds.omegaRadiansPerSecond != 0 ||
-                desiredRobotRelSpeeds.vxMetersPerSecond != 0 ||
-                desiredRobotRelSpeeds.vyMetersPerSecond != 0;
-
         SecondOrderKinematics.desaturateWheelSpeeds(
                 moduleStates,
                 DRIVE_FEEDFORWARD.maxAchievableVelocity(SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO, 0)
         );
 
-        setSwerveModuleStates(moduleStates, rotate);
+        setSwerveModuleStates(moduleStates);
     }
 
     public synchronized void swerveDrive(@NotNull ControllerDriveInputs inputs) {
@@ -224,7 +219,7 @@ public class Drive extends AbstractSubsystem {
                 DRIVE_HIGH_SPEED_M * inputs.getX(),
                 DRIVE_HIGH_SPEED_M * inputs.getY(),
                 inputs.getRotation() * MAX_TELEOP_TURN_SPEED,
-                gyroInputs.rotation3d.toRotation2d().plus(Rotation2d.fromDegrees(gyroInputs.yawVelocityRadPerSec)));
+                gyroInputs.rotation2d);
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
     public synchronized void resetAbsoluteZeros() {
