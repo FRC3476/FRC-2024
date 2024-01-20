@@ -65,7 +65,7 @@ public final class Constants {
 
 
     public static final double SWERVE_DRIVE_P = 100;
-    public static final double SWERVE_DRIVE_D = 0.00;
+    public static final double SWERVE_DRIVE_D = 0.05;
     public static final double SWERVE_DRIVE_I = 0.00;
 
 
@@ -81,15 +81,17 @@ public final class Constants {
 
     //TODO: figure out how tf these numbers were obtained
     public static final double SWERVE_INCHES_PER_ROTATION = 12.5 * 0.976 * 0.96488764044943820224719101123596;
+    public static final double SWERVE_WHEEL_RADIUS = 2; // inches
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
+    public static final double SWERVE_OMEGA_FEEDFORWARD = 0.0;
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
     public static final double DRIVE_MOTOR_REDUCTION = 1 / 5.9;
 
     // TODO: check accuracy of these numbers for new drive base. Ask CAD ppl?
-    public static final @NotNull Translation2d SWERVE_LEFT_FRONT_LOCATION = new Translation2d(0.26352, 0.26352);
-    public static final @NotNull Translation2d SWERVE_LEFT_BACK_LOCATION = new Translation2d(-0.26352, 0.26352);
-    public static final @NotNull Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(0.26352, -0.26352);
-    public static final @NotNull Translation2d SWERVE_RIGHT_BACK_LOCATION = new Translation2d(-0.26352, -0.26352);
+    public static final @NotNull Translation2d SWERVE_LEFT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(11.375), Units.inchesToMeters(11.375));
+    public static final @NotNull Translation2d SWERVE_LEFT_BACK_LOCATION = new Translation2d(Units.inchesToMeters(-11.375), Units.inchesToMeters(11.375));
+    public static final @NotNull Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(11.375), Units.inchesToMeters(-11.375));
+    public static final @NotNull Translation2d SWERVE_RIGHT_BACK_LOCATION = new Translation2d(Units.inchesToMeters(-11.375), Units.inchesToMeters(-11.375));
     public static final @NotNull Translation2d @NotNull [] SWERVE_MODULE_LOCATIONS = {
             SWERVE_LEFT_FRONT_LOCATION,
             SWERVE_LEFT_BACK_LOCATION,
