@@ -1,31 +1,19 @@
 package frc.subsystem.arm;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.utility.PhoenixPIDController;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.wpilibj.drive.RobotDriveBase;
-import frc.subsystem.prototype.PrototypeIO;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 
 import frc.robot.Constants;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import static edu.wpi.first.wpilibj.RobotBase.isReal;
 import static frc.robot.Constants.*;
 
-public class ArmIOSparkMax extends ArmIO {
+public class ArmIOTalonFX extends ArmIO {
 
     private TalonFX pivotTalonFX;
     private TalonFX armTalonFX;
@@ -35,7 +23,7 @@ public class ArmIOSparkMax extends ArmIO {
 
 
 
-    public ArmIOSparkMax() {
+    public ArmIOTalonFX() {
         //pivotTalonFX = new CANcoder(ARM_PIVOT_CAN_ID, CANcoderLowLevel.MotorType.kBrushless);
 
         pivotTalonFX = new TalonFX(ARM_PIVOT_CAN_ID);//second parameter=Canbus
@@ -126,29 +114,29 @@ public class ArmIOSparkMax extends ArmIO {
     }
 
     @Override
-    public synchronized void updateInputs(ArmInputsAutoLogged inputs){
+    public void updateInputs(ArmInputsAutoLogged inputs){
 
-            inputs.pivotPosition = pivotTalonFX.getEncoder().getPosition();
-            inputs.pivotVelocity = pivotTalonFX.getEncoder().getVelocity();
+            inputs.pivotPosition = pivotTalonFX.getPosition().getValue();
+            inputs.pivotVelocity = pivotTalonFX.getVelocity().getValue();;
 
-            inputs.pivotRelativePosition = pivotTalonFX.getEncoder().getPosition();
-            inputs.pivotRelativeVelocity = pivotTalonFX.getEncoder().getVelocity();
+            inputs.pivotRelativePosition = pivotTalonFX.getPosition().getValue();
+            inputs.pivotRelativeVelocity = pivotTalonFX.getVelocity().getValue();
 
-            inputs.pivotCurrent = pivotTalonFX.getOutputCurrent();
-            inputs.pivotTemp = pivotTalonFX.getMotorTemperature();
-            inputs.pivotVoltage = pivotTalonFX.getAppliedOutput() * pivotTalonFX.getBusVoltage();
+            inputs.pivotCurrent = pivotTalonFX.getSupplyCurrent().getValue();
+            inputs.pivotTemp = pivotTalonFX.getDeviceTemp().getValue();
+            inputs.pivotVoltage = pivotTalonFX.getMotorVoltage().getValue();
 
-            inputs.ArmPosition = armTalonFX.getEncoder().getPosition();
-            inputs.ArmVelocity = armTalonFX.getEncoder().getVelocity();
-            inputs.ArmCurrent = armTalonFX.getOutputCurrent();
-            inputs.ArmTemp = armTalonFX.getMotorTemperature();
-            inputs.ArmVoltage = armTalonFX.getAppliedOutput() * armTalonFX.getBusVoltage();
-            inputs.ArmAppliedOutput = armTalonFX.getAppliedOutput();
-            inputs.ArmBusVoltage = armTalonFX.getBusVoltage();
+            inputs.armPosition = armTalonFX.getPosition().getValue();
+            inputs.armVelocity = armTalonFX.getVelocity().getValue();
+            inputs.armCurrent = armTalonFX.getSupplyCurrent().getValue();
+            inputs.armTemp = armTalonFX.getDeviceTemp().getValue();
+            inputs.armVoltage = armTalonFX.getMotorVoltage().getValue();
+            inputs.armAppliedOutput = armTalonFX.getSupplyCurrent().getValue();
+            inputs.armBusVoltage = armTalonFX.getMotorVoltage().getValue();;
 
-            if (USE_Arm_ENCODER) {
+            if (Constants.USE_ARM_ENCODER){
                 assert pivotAbsoluteEncoder != null;
-                inputs.ArmAbsolutePosition = pivotAbsoluteEncoder.getPosition() - 180; // Closed is 180 to avoid wrapping issues
+                inputs.armAbsolutePosition = pivotAbsoluteEncoder.getPosition().getValue()- 180; // Closed is 180 to avoid wrapping issues
             }
     }
 
@@ -183,10 +171,10 @@ public class ArmIOSparkMax extends ArmIO {
         armAbsoluteEncoder.setPosition(position);
     }
 
-
-    @Override
+    
     public void setAutoGrab(boolean enabled) {
        //TODO
+
     }
 }
 
