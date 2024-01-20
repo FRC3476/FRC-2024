@@ -8,9 +8,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
-import frc.subsystem.prototype.Prototype;
-import frc.subsystem.prototype.PrototypeIO;
-import frc.subsystem.prototype.PrototypeIOFalcon;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
@@ -22,7 +19,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import javax.naming.ldap.Control;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,7 +46,6 @@ public class Robot extends LoggedRobot {
 
 
     static Drive drive;
-    static Prototype prototype;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -121,8 +116,7 @@ public class Robot extends LoggedRobot {
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
-            drive = new Drive(new ModuleIOFalcon(0), new ModuleIOFalcon(1), new ModuleIOFalcon(2), new ModuleIOFalcon(3), new GyroIOPigeon2());
-            prototype = new Prototype(new PrototypeIOFalcon(Ports.PROTOTYPE_1), new PrototypeIOFalcon(Ports.PROTOTYPE_2));
+            drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -134,7 +128,6 @@ public class Robot extends LoggedRobot {
             }
 
             drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
-            prototype = new Prototype(new PrototypeIO() {}, new PrototypeIO() {});
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -146,7 +139,6 @@ public class Robot extends LoggedRobot {
 
         Logger.start();
         drive.start();
-        prototype.start();
     }
 
     /** This function is called periodically during all modes. */
@@ -188,27 +180,6 @@ public class Robot extends LoggedRobot {
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
-
-        var leftAxis = xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER);
-        var rightAxis = xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER);
-
-        if (leftAxis > 0.1) {
-            prototype.setMotorVoltage(0, leftAxis * 12);
-        } else {
-            prototype.setMotorVoltage(0,0);
-        }
-        if (rightAxis > 0.1) {
-            prototype.setMotorVoltage(1, rightAxis * 12);
-        } else {
-            prototype.setMotorVoltage(1,0);
-        }
-
-        if (xbox.getRisingEdge(XboxButtons.LEFT_BUMPER)) {
-            prototype.invertMotor(0);
-        }
-        if (xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
-            prototype.invertMotor(1);
-        }
     }
 
     /** This function is called once when the robot is disabled. */

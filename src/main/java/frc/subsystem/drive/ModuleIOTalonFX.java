@@ -10,12 +10,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Voltage;
 
 import static frc.robot.Constants.*;
 
-public class ModuleIOFalcon implements ModuleIO {
+public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFX driveMotor;
     private final TalonFX steerMotor;
 
@@ -26,6 +26,7 @@ public class ModuleIOFalcon implements ModuleIO {
     private final StatusSignal<Double> driveMotorTemp;
     private final StatusSignal<Double> steerMotorAbsolutePosition;
     private final StatusSignal<Double> steerMotorRelativePosition;
+    private final StatusSignal<Double> steerMotorVelocity;
     private final StatusSignal<Double> steerMotorVoltage;
     private final StatusSignal<Double> steerMotorAmps;
     private final StatusSignal<Double> steerMotorTemp;
@@ -34,7 +35,7 @@ public class ModuleIOFalcon implements ModuleIO {
     private final double absoluteEncoderOffset;
 
 
-    public ModuleIOFalcon(int id) {
+    public ModuleIOTalonFX(int id) {
         /*
          * Module guide
          *    FL = 0  FR = 2
@@ -71,56 +72,63 @@ public class ModuleIOFalcon implements ModuleIO {
             default -> throw new IllegalArgumentException("Invalid module ID");
         }
 
+        driveMotor.setInverted(false);
         steerMotor.setInverted(true);
 
-        var driveConfigs = new TalonFXConfiguration();
+        driveMotor.getConfigurator().apply(
+            new TalonFXConfiguration()
+                .withSlot0(new Slot0Configs()
+                    .withKP(0)
+                    .withKI(0)
+                    .withKD(0)
+                    .withKS(DRIVE_FEEDFORWARD.ks)
+                    .withKV(DRIVE_FEEDFORWARD.kv)
+                )
+                .withCurrentLimits(new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT)
+                    .withSupplyCurrentLimitEnable(true)
+                    .withStatorCurrentLimitEnable(false)
+                )
+                .withTorqueCurrent(new TorqueCurrentConfigs()
+                    .withPeakForwardTorqueCurrent(DRIVE_MOTOR_CURRENT_LIMIT)
+                    .withPeakReverseTorqueCurrent(-DRIVE_MOTOR_CURRENT_LIMIT)
+                    .withTorqueNeutralDeadband(1)
+                )
+                .withFeedback(new FeedbackConfigs()
+                    .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                    .withSensorToMechanismRatio(1 / (DRIVE_MOTOR_REDUCTION * SWERVE_INCHES_PER_ROTATION))
+                    .withRotorToSensorRatio(1)
+                )
+        );
 
-        driveConfigs.Slot0.kP = 0;
-        driveConfigs.Slot0.kI = 0;
-        driveConfigs.Slot0.kD = 0;
-        driveConfigs.Slot0.kS = DRIVE_FEEDFORWARD.ks;
-        driveConfigs.Slot0.kV = DRIVE_FEEDFORWARD.kv;
+        steerMotor.getConfigurator().apply(
+            new TalonFXConfiguration()
+                .withSlot0(new Slot0Configs()
+                    .withKP(SWERVE_DRIVE_P)
+                    .withKI(SWERVE_DRIVE_I)
+                    .withKD(SWERVE_DRIVE_D)
+                    .withKS(0)
+                    .withKV(0)
+                )
+                .withCurrentLimits(new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(STEER_MOTOR_CURRENT_LIMIT)
+                    .withSupplyCurrentLimitEnable(true)
+                    .withStatorCurrentLimitEnable(false)
+                )
+                .withTorqueCurrent(new TorqueCurrentConfigs()
+                    .withPeakForwardTorqueCurrent(STEER_MOTOR_CURRENT_LIMIT)
+                    .withPeakReverseTorqueCurrent(-STEER_MOTOR_CURRENT_LIMIT)
+                    .withTorqueNeutralDeadband(1)
+                )
+                .withFeedback(new FeedbackConfigs()
+                    .withFeedbackRemoteSensorID(this.swerveCancoder.getDeviceID())
+                    .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
+                    .withSensorToMechanismRatio(1)
+                    .withRotorToSensorRatio(1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR)
+                )
+        );
 
-        driveConfigs.CurrentLimits.SupplyCurrentLimit = DRIVE_MOTOR_CURRENT_LIMIT;
-        driveConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
-        driveConfigs.CurrentLimits.StatorCurrentLimitEnable = false;
-
-        driveConfigs.TorqueCurrent.PeakForwardTorqueCurrent = DRIVE_MOTOR_CURRENT_LIMIT;
-        driveConfigs.TorqueCurrent.PeakReverseTorqueCurrent = -DRIVE_MOTOR_CURRENT_LIMIT;
-        driveConfigs.TorqueCurrent.TorqueNeutralDeadband = 1;
-
-        driveConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        driveConfigs.Feedback.SensorToMechanismRatio = 1 / (DRIVE_MOTOR_REDUCTION * SWERVE_INCHES_PER_ROTATION);
-        driveConfigs.Feedback.RotorToSensorRatio = 1;
-        driveMotor.getConfigurator().apply(driveConfigs);
-
-
-        var steerConfigs = new TalonFXConfiguration();
-
-        steerConfigs.Slot0.kP = SWERVE_DRIVE_P;
-        steerConfigs.Slot0.kI = SWERVE_DRIVE_I;
-        steerConfigs.Slot0.kD = SWERVE_DRIVE_D;
-        steerConfigs.Slot0.kS = 0;
-        steerConfigs.Slot0.kV = 0;
-
-        steerConfigs.CurrentLimits.SupplyCurrentLimit = STEER_MOTOR_CURRENT_LIMIT;
-        steerConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
-        steerConfigs.CurrentLimits.StatorCurrentLimitEnable = false;
-
-        steerConfigs.TorqueCurrent.PeakForwardTorqueCurrent = STEER_MOTOR_CURRENT_LIMIT;
-        steerConfigs.TorqueCurrent.PeakReverseTorqueCurrent = -STEER_MOTOR_CURRENT_LIMIT;
-        steerConfigs.TorqueCurrent.TorqueNeutralDeadband = 1;
-
-        steerConfigs.Feedback.FeedbackRemoteSensorID = this.swerveCancoder.getDeviceID();
-        steerConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        steerConfigs.Feedback.SensorToMechanismRatio = 1;
-        steerConfigs.Feedback.RotorToSensorRatio = 1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR;
-        steerMotor.getConfigurator().apply(steerConfigs);
-
-        swerveCancoder.getConfigurator().apply(new CANcoderConfiguration());
-        MagnetSensorConfigs magneticSensorConfigs = new MagnetSensorConfigs();
-        magneticSensorConfigs.MagnetOffset = absoluteEncoderOffset;
-        swerveCancoder.getConfigurator().apply(magneticSensorConfigs);
+        swerveCancoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset)));
 
 
         driveMotorPosition = driveMotor.getPosition();
@@ -131,6 +139,7 @@ public class ModuleIOFalcon implements ModuleIO {
 
         steerMotorAbsolutePosition = swerveCancoder.getAbsolutePosition();
         steerMotorRelativePosition = steerMotor.getPosition();
+        steerMotorVelocity = steerMotor.getVelocity();
         steerMotorVoltage = steerMotor.getMotorVoltage();
         steerMotorAmps = steerMotor.getSupplyCurrent();
         steerMotorTemp = steerMotor.getDeviceTemp();
@@ -141,6 +150,9 @@ public class ModuleIOFalcon implements ModuleIO {
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();
         swerveCancoder.optimizeBusUtilization();
+
+        isBraking = false;
+        setBrakeMode(true);
     }
     @Override
     public void updateInputs(ModuleInputs inputs) {
@@ -154,6 +166,7 @@ public class ModuleIOFalcon implements ModuleIO {
 
         inputs.steerMotorAbsolutePosition = Units.rotationsToDegrees(steerMotorAbsolutePosition.getValue());
         inputs.steerMotorRelativePosition = Units.rotationsToDegrees(steerMotorRelativePosition.getValue());
+        inputs.steerMotorVelocity = Units.rotationsToRadians(steerMotorVelocity.getValue());
         inputs.steerMotorVoltage = steerMotorVoltage.getValue();
         inputs.steerMotorAmps = steerMotorAmps.getValue();
         inputs.steerMotorTemp = steerMotorTemp.getValue();
@@ -189,6 +202,15 @@ public class ModuleIOFalcon implements ModuleIO {
         positionVoltage.Position = position/360;
         positionVoltage.EnableFOC = true;
         positionVoltage.OverrideBrakeDurNeutral = true;
+        steerMotor.setControl(positionVoltage);
+    }
+
+    @Override
+    public void setSteerMotorPosition(double position, double omega) {
+        positionVoltage.Position = position/360;
+        positionVoltage.EnableFOC = true;
+        positionVoltage.OverrideBrakeDurNeutral = true;
+        positionVoltage.FeedForward = omega * SWERVE_OMEGA_FEEDFORWARD;
         steerMotor.setControl(positionVoltage);
     }
 
