@@ -1,5 +1,6 @@
 package frc.subsystem.arm;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -11,65 +12,49 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 import frc.robot.Constants;
 
-import static frc.robot.Constants.*;
+import static frc.robot.Constants.Ports.*;
 
-public class ArmIOTalonFX extends ArmIO {
 
-    private TalonFX pivotTalonFX;
-    private TalonFX armTalonFX;
+public class ArmIOTalonFX implements ArmIO {
+
+    private final TalonFX pivotTalonFX;
+    private final TalonFX armTalonFX;
     private PhoenixPIDController pivotTalonFXPIDController;
-    private CANcoder pivotAbsoluteEncoder;
-    private CANcoder armAbsoluteEncoder;
+    private final CANcoder pivotAbsoluteEncoder;
+    private final CANcoder armAbsoluteEncoder;
+
+    public StatusSignal<Double> getArmPosition() {
+        return armPosition;
+    }
+
+    private final StatusSignal<Double> pivotPosition;
+    private final StatusSignal<Double> pivotVelocity;
+    private final StatusSignal<Double> pivotCurrent;
+    private final StatusSignal<Double> pivotTemp;
+    private final StatusSignal<Double> pivotVoltage;
+    private final StatusSignal<Double> armVelocity;
+    private final StatusSignal<Double> armPosition;
+    private final StatusSignal<Double> armTemp;
+    private final StatusSignal<Double> armVoltage;
+    private final StatusSignal<Double> armBusVoltage;
+    private final StatusSignal<Double> armCurrent;
 
 
 
     public ArmIOTalonFX() {
-        //pivotTalonFX = new CANcoder(ARM_PIVOT_CAN_ID, CANcoderLowLevel.MotorType.kBrushless);
 
         pivotTalonFX = new TalonFX(ARM_PIVOT_CAN_ID);//second parameter=Canbus
-
         armTalonFX = new TalonFX(ARM_CAN_ID);
-
-        pivotAbsoluteEncoder = new CANcoder(0);
-        armAbsoluteEncoder = new CANcoder(0);
+        pivotAbsoluteEncoder = new CANcoder(PIVOT_ABS_CAN_ID);
+        armAbsoluteEncoder = new CANcoder(ARM_ABS_CAN_ID);
 
         var talonFXConfigs = new TalonFXConfiguration();
-
-/*
-        pivotTalonFX.FeedbackConfigs().setPositionConversionFactor(1.0 / PIVOT_ROTATIONS_PER_DEGREE);
-        pivotTalonFX.FeedbackConfigs().setVelocityConversionFactor((1.0 / PIVOT_ROTATIONS_PER_DEGREE) / SECONDS_PER_MINUTE);
-*/
 
         var armFeedBackConfigs = talonFXConfigs.Feedback;
         armFeedBackConfigs.FeedbackRemoteSensorID = 10;     //TODO change values for line 42,44,45
         armFeedBackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         armFeedBackConfigs.SensorToMechanismRatio = 1;
         armFeedBackConfigs.RotorToSensorRatio = 1;
-
-        //pivotTalonFX.getConfigurator().apply(armFeedBackConfigs);
-/*
-        if (USE_PIVOT_ABSOLUTE_ENCODER) {
-            pivotAbsoluteEncoder = pivotTalonFX.getAbsoluteEncoder(CANcoder.Type.kDutyCycle);
-            pivotAbsoluteEncoder.setPositionConversionFactor(DEGREES_PER_ROTATION);
-            pivotAbsoluteEncoder.setVelocityConversionFactor(DEGREES_PER_ROTATION / SECONDS_PER_MINUTE);
-            resetPivotPosition(pivotAbsoluteEncoder.getPosition());
-        } else {
-            resetPivotPosition(MAX_WRIST_ANGLE);
-        }
-        pivotTalonFX.getPIDController().setFeedbackDevice(pivotTalonFX.getEncoder());
-        pivotTalonFX.getPIDController().setPositionPIDWrappingEnabled(false);
-
-        if (USE_Arm_ENCODER) {
-            pivotAbsoluteEncoder = armTalonFX.getAbsoluteEncoder(CANcoder.Type.kDutyCycle);
-            pivotAbsoluteEncoder.
-            pivotAbsoluteEncoder.setPositionConversionFactor(DEGREES_PER_ROTATION);
-            pivotAbsoluteEncoder.setVelocityConversionFactor(DEGREES_PER_ROTATION / SECONDS_PER_MINUTE);
-            pivotAbsoluteEncoder.setInverted(true);
-            resetArmPosition(pivotAbsoluteEncoder.getPosition());
-        }
-
-        pivotTalonFX.enableVoltageCompensation(Constants.Arm_NOMINAL_VOLTAGE);
-*/      //pivotTalonFX.output
 
         PhoenixPIDController pivotTalonFXPIDController = new PhoenixPIDController(1, 2, 3);
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
@@ -79,60 +64,63 @@ public class ArmIOTalonFX extends ArmIO {
 
         armTalonFX.getConfigurator().apply(talonFXConfigs);
 
-/*
-        pivotTalonFX.getPIDController().setSmartMotionMaxVelocity(Arm_PIVOT_CONSTRAINTS.maxVelocity, 0);
-        pivotTalonFX.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        pivotTalonFX.getPIDController().setSmartMotionAllowedClosedLoopError(2, 0);
-*/
         pivotTalonFXPIDController.setP(Constants.PIVOT_P);
         pivotTalonFXPIDController.setI(Constants.PIVOT_I);
         pivotTalonFXPIDController.setD(Constants.PIVOT_D);
         pivotTalonFXPIDController.setIntegratorRange(1, Constants.PIVOT_IZONE);     //TODO change minimum IZone
 
 
-        //armTalonFX.enableVoltageCompensation(Constants.Arm_NOMINAL_VOLTAGE);
-        //pivotTalonFX.setSmartCurrentLimit(Constants.PIVOT_SMART_CURRENT_LIMIT);
-
         var armCurrentLimitsConfigs = talonFXConfigs.CurrentLimits;
         armTalonFX.clearStickyFault_SupplyCurrLimit(Constants.ARM_SMART_CURRENT_LIMIT);
-//        talonFXConfigs.ClosedLoopRamps = 0.75;
         var closed = talonFXConfigs.ClosedLoopRamps;
         closed.VoltageClosedLoopRampPeriod = 0.75;
 
         armTalonFX.getConfigurator().apply(closed);
-//        armTalonFX.setClosedLoopRampRate(0.75);
         armTalonFX.setNeutralMode(NeutralModeValue.Brake);
-//        armTalonFX.setIdleMode(IdleMode.kBrake);
-//        reverseLimitSwitch = armTalonFX.getReverseLimitSwitch(Type.kNormallyOpen);
+
+
+        pivotPosition = pivotTalonFX.getPosition();
+        pivotVelocity = pivotTalonFX.getVelocity();
+
+        pivotCurrent = pivotTalonFX.getSupplyCurrent();
+        pivotTemp = pivotTalonFX.getDeviceTemp();
+        pivotVoltage = pivotTalonFX.getMotorVoltage();
+
+        armPosition = armTalonFX.getPosition();
+        armVelocity = armTalonFX.getVelocity();
+        armCurrent = armTalonFX.getSupplyCurrent();
+        armTemp = armTalonFX.getDeviceTemp();
+        armVoltage = armTalonFX.getMotorVoltage();
+        armBusVoltage = armTalonFX.getSupplyVoltage();
+
+        BaseStatusSignal.setUpdateFrequencyForAll(0, pivotPosition, armPosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(0, pivotVelocity, pivotVoltage, armPosition,
+                armBusVoltage, armVoltage, armTemp);
+
+
     }
-
-
-
-
 
     private void resetArmPosition(StatusSignal<Double> position) {
     }
 
-    @Override
-    public void updateInputs(ArmInputsAutoLogged inputs){
 
-            inputs.pivotPosition = pivotTalonFX.getPosition().getValue();
-            inputs.pivotVelocity = pivotTalonFX.getVelocity().getValue();;
+    public void updateInputs(ArmInputs inputs) {
+        BaseStatusSignal.refreshAll(pivotPosition, pivotVelocity, pivotCurrent,
+                pivotTemp, pivotVoltage, armPosition, armVelocity, armCurrent, armTemp, armVoltage, armBusVoltage);
 
-            inputs.pivotRelativePosition = pivotTalonFX.getPosition().getValue();
-            inputs.pivotRelativeVelocity = pivotTalonFX.getVelocity().getValue();
+            inputs.pivotPosition = pivotPosition.getValue();
+            inputs.pivotVelocity = pivotVelocity.getValue();;
 
-            inputs.pivotCurrent = pivotTalonFX.getSupplyCurrent().getValue();
-            inputs.pivotTemp = pivotTalonFX.getDeviceTemp().getValue();
-            inputs.pivotVoltage = pivotTalonFX.getMotorVoltage().getValue();
+            inputs.pivotCurrent = pivotCurrent.getValue();
+            inputs.pivotTemp = pivotTemp.getValue();
+            inputs.pivotVoltage =pivotVoltage.getValue();
 
-            inputs.armPosition = armTalonFX.getPosition().getValue();
-            inputs.armVelocity = armTalonFX.getVelocity().getValue();
-            inputs.armCurrent = armTalonFX.getSupplyCurrent().getValue();
-            inputs.armTemp = armTalonFX.getDeviceTemp().getValue();
-            inputs.armVoltage = armTalonFX.getMotorVoltage().getValue();
-            inputs.armAppliedOutput = armTalonFX.getSupplyCurrent().getValue();
-            inputs.armBusVoltage = armTalonFX.getMotorVoltage().getValue();;
+            inputs.armPosition = armPosition.getValue();
+            inputs.armVelocity = armVelocity.getValue();
+            inputs.armCurrent = armCurrent.getValue();
+            inputs.armTemp = armTemp.getValue();
+            inputs.armVoltage = armVoltage.getValue();
+            inputs.armBusVoltage = armBusVoltage.getValue();;
 
             if (Constants.USE_ARM_ENCODER){
                 assert pivotAbsoluteEncoder != null;
@@ -140,31 +128,25 @@ public class ArmIOTalonFX extends ArmIO {
             }
     }
 
-
     @Override
     public void setPivotVoltage(double voltage) {
 
             pivotTalonFX.setVoltage(voltage);
-//        pivotTalonFX.getPIDController().setReference(voltage, CANcoder.ControlType.kVoltage);
     }
 
     @Override
     public void setPivotPosition(double position, double arbFFVoltage) {
             pivotTalonFX.getConfigurator().setPosition(position);
-
-//        pivotTalonFX.getPIDController().setReference(position, ControlType.kPosition, 0, arbFFVoltage);
     }
 
 
     public void setArmVoltage(double voltage) {
         armTalonFX.setVoltage(voltage);
-//        armTalonFX.getPIDController().setReference(current, ControlType.kVoltage);
     }
 
     @Override
     public void resetPivotPosition(double position) {
         pivotAbsoluteEncoder.setPosition(position);
-//        pivotTalonFX.getEncoder().setPosition(position);
     }
 
     public void resetArmPosition(double position) {

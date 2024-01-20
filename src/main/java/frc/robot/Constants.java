@@ -60,6 +60,17 @@ public final class Constants {
 
         public static final int PROTOTYPE_1 = -1;
         public static final int PROTOTYPE_2 = -1;
+
+        public static final int ARM_PIVOT_CAN_ID = 50;
+        public static final int ARM_CAN_ID = 51;
+
+        public static final int PIVOT_ABS_CAN_ID = 0;
+        public static final int ARM_ABS_CAN_ID= 0;
+
+        public static final int PIVOT_MOTOR1 = 0;
+        public static final int PIVOT_MOTOR2 = 0;
+
+
     }
 
 
@@ -123,18 +134,10 @@ public final class Constants {
     public static final int ARM_SMART_CURRENT_LIMIT = 35;
     public static final int ARM_CURRENT_THRESHOLD = ARM_SMART_CURRENT_LIMIT - 10;
     public static final int PIVOT_SMART_CURRENT_LIMIT = 40;
-    public static final int ARM_ROLLER_SMART_CURRENT_LIMIT = 30;
-    public static final double DEGREES_PER_ROTATION = 360;
-    public static final int ARM_PIVOT_CAN_ID = 50;
-    public static final int ARM_CAN_ID = 51;
-    public static final int ARM_ROLLER_MAIN_CAN_ID = 52;
-    public static final int ARM_ROLLER_FOLLOWER_CAN_ID = 53;
 
-    public static final double ARM_ROLLER_VOLTAGE = -6;
-    public static final double ARM_ROLLER_IDLE = -0;
     public static final double ARM_CLOSE_THRESHOLD_DEGREES = 48;
     public static final double ARM_OPEN_THRESHOLD_DEGREES = 55;
-    public static final boolean USE_ARM_ENCODER = !IS_PRACTICE;
+    public static final boolean USE_ARM_ENCODER = false;
     public static final boolean ARM_WHEELS_USED = false;
 
     public static final double ARM_LENGTH = .308;

@@ -145,7 +145,8 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerMotorTemp = steerMotor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(100.0, driveMotorPosition, steerMotorRelativePosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50, driveMotorVelocity, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorAbsolutePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, driveMotorVelocity, driveMotorVoltage, driveMotorAmps,
+                driveMotorTemp, steerMotorAbsolutePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
 
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();

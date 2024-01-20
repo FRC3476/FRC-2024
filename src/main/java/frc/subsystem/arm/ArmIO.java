@@ -2,9 +2,9 @@ package frc.subsystem.arm;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public abstract class ArmIO {
+public interface ArmIO {
     @AutoLog
-    public static class ArmInputs {
+    class ArmInputs {
         double pivotPosition = 0.0;
         double pivotVelocity = 0.0;
         double pivotRelativePosition = 0.0;
@@ -24,16 +24,16 @@ public abstract class ArmIO {
         boolean isLimitSwitchTriggered = false;
     }
 
-    public synchronized void updateInputs(ArmInputsAutoLogged inputs) {}
+    default void updateInputs(ArmInputs inputs) {}
 
-    public void setPivotVoltage(double voltage) {}
+    default void setPivotVoltage(double voltage) {}
 
-    public void setPivotPosition(double position, double arbFFVoltage) {}
+    default void setPivotPosition(double position, double arbFFVoltage) {}
 
-    public void setArmVoltage(double current) {}
+    default void setArmVoltage(double current) {}
 
-    public void resetPivotPosition(double position) {}
+    default void resetPivotPosition(double position) {}
 
-    public void resetArmPosition(double position) {}
+    default void resetArmPosition(double position) {}
 
 }

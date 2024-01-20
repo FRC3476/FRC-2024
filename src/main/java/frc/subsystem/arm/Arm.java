@@ -35,14 +35,14 @@ public class Arm extends AbstractSubsystem {
                 new TrapezoidProfile.State(0,0));
             //TODO: check TrapezoidProfile.State calcposition & currentTime
         trapezoidProfileStartTime = -1;
-        Logger.getInstance().recordOutput("Pivot/Goal position", position);
+        Logger.recordOutput("Pivot/Goal position", position);
     }
 
 
     @Override
     public synchronized void update() {
         io.updateInputs(inputs);
-        Logger.getInstance().processInputs("Arm", inputs);
+        Logger.processInputs("Arm", inputs);
 
         double currentTime = Timer.getFPGATimestamp();
         if (trapezoidProfileStartTime == -1) {
@@ -73,20 +73,16 @@ public class Arm extends AbstractSubsystem {
         double pastVelocity = state.velocity;
         double pastTime = currentTime;
 
-        Logger.getInstance().recordOutput("Pivot/Wanted pos", state.position);
-        Logger.getInstance().recordOutput("Pivot/Wanted vel", state.velocity);
-        Logger.getInstance().recordOutput("Pivot/Wanted accel", acceleration);
-        Logger.getInstance().recordOutput("Pivot/Total trapezoidProfile time", trapezoidProfile.totalTime());
-        Logger.getInstance().recordOutput("Pivot/Profile length", currentTime - trapezoidProfileStartTime);
-        Logger.getInstance().recordOutput("Pivot/TrapezoidProfile error", state.position - inputs.pivotPosition);
-        Logger.getInstance().recordOutput("Pivot/Arb FF", arbFFVoltage);
+        Logger.recordOutput("Pivot/Wanted pos", state.position);
+        Logger.recordOutput("Pivot/Wanted vel", state.velocity);
+        Logger.recordOutput("Pivot/Wanted accel", acceleration);
+        Logger.recordOutput("Pivot/Total trapezoidProfile time", trapezoidProfile.totalTime());
+        Logger.recordOutput("Pivot/Profile length", currentTime - trapezoidProfileStartTime);
+        Logger.recordOutput("Pivot/TrapezoidProfile error", state.position - inputs.pivotPosition);
+        Logger.recordOutput("Pivot/Arb FF", arbFFVoltage);
         }
 
         //position, velocity, and acceleration of the profile at that time
-
-    public void logData() {
-        SmartDashboard.putBoolean("Is Limit Switch Triggered", inputs.isLimitSwitchTriggered);
-    }
 
     public double getPivotDegrees() {
         return inputs.pivotPosition;
