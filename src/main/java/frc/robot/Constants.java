@@ -56,6 +56,9 @@ public final class Constants {
 
         public static final int PIGEON = 30;
 
+        public static final int ELEVATOR_LEAD = 31;
+        public static final int ELEVATOR_FOLLOW = 32;
+
     }
 
 
