@@ -58,6 +58,11 @@ public final class Constants {
 
         public static final int PROTOTYPE_1 = 51;
         public static final int PROTOTYPE_2 = 52;
+
+        public static final int PIVOT = -1;
+        public static final int PIVOT_CANCODER = -1;
+        public static final int ELEVATOR_MAIN = -1;
+        public static final int ELEVATOR_FOLLOWER = -1;
     }
 
 
@@ -65,8 +70,18 @@ public final class Constants {
     public static final double SWERVE_DRIVE_P = 100;
     public static final double SWERVE_DRIVE_D = 0.05;
     public static final double SWERVE_DRIVE_I = 0.00;
+    public static final double PIVOT_P = 0.00;
+    public static final double PIVOT_I = 0.00;
+    public static final double PIVOT_D = 0.00;
+    public static final double PIVOT_G = 0.00;
+    public static final double ELEVATOR_P = 0.00;
+    public static final double ELEVATOR_I = 0.00;
+    public static final double ELEVATOR_D = 0.00;
+    public static final double ELEVATOR_G = 0.00;
 
 
+
+    public static final double PIVOT_OFFSET = 0.00;
     public static final int STEER_MOTOR_CURRENT_LIMIT = 20;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
     public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.281485, 2.3016, 0.45);

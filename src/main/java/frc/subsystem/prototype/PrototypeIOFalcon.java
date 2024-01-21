@@ -36,7 +36,7 @@ public class PrototypeIOFalcon implements PrototypeIO {
 
     @Override
     public void updateInputs(PrototypeInputs inputs) {
-        BaseStatusSignal.refreshAll(motorPosition, motorVelocity, motorVoltage, motorAmps);
+        BaseStatusSignal.refreshAll(motorPosition, motorVelocity, motorVoltage, motorAmps, motorTemp);
 
         inputs.motorPosition = motorPosition.getValue();
         inputs.motorVelocity = motorVelocity.getValue();

@@ -7,10 +7,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.util.Units;
 
 import static frc.robot.Constants.*;
@@ -128,7 +125,14 @@ public class ModuleIOTalonFX implements ModuleIO {
                 )
         );
 
-        swerveCancoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset)));
+        swerveCancoder.getConfigurator().apply(
+            new CANcoderConfiguration()
+                .withMagnetSensor(new MagnetSensorConfigs()
+                    .withMagnetOffset(absoluteEncoderOffset)
+                    .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+                    .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
+                )
+        );
 
 
         driveMotorPosition = driveMotor.getPosition();
