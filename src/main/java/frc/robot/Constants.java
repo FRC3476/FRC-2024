@@ -63,6 +63,8 @@ public final class Constants {
         public static final int PIVOT_CANCODER = -1;
         public static final int ELEVATOR_MAIN = -1;
         public static final int ELEVATOR_FOLLOWER = -1;
+
+        public static final int INTAKE = -1;
     }
 
 

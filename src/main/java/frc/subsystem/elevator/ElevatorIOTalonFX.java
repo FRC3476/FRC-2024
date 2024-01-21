@@ -88,7 +88,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                         .withStatorCurrentLimitEnable(false)
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                        .withSensorToMechanismRatio(1.0)
+                        .withSensorToMechanismRatio(0.25 * 22 * 12 / 60)
                         .withRotorToSensorRatio(1.0)
                 ).withMotionMagic(new MotionMagicConfigs()
                         .withMotionMagicCruiseVelocity(10) // 10 rps max
