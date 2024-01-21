@@ -23,7 +23,6 @@ public class Elevator extends AbstractSubsystem {
     }
 
     public void update() {
-        //m_fx.setPosition(1);
         elevatorIO.updateInputs(elevatorInputs);
     }
 }
