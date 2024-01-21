@@ -70,16 +70,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         FeedbackConfigs fdb = motorConfig.Feedback;
         fdb.SensorToMechanismRatio = Constants.ELEVATOR_INCHES_PER_ROTATION;
 
-        StatusCode status = StatusCode.StatusCodeNotInitialized;
-        StatusCode status2 = StatusCode.StatusCodeNotInitialized;
-        for (int i = 0; i < 5; ++i) {
-            status = leadMotor.getConfigurator().apply(motorConfig);
-            status2 = followMotor.getConfigurator().apply(motorConfig);
-            if (status.isOK() && status2.isOK()) break;
-        }
-        if (!status.isOK()) {
-            System.out.println("Could not configure device. Error: " + status);
-        }
+        leadMotor.getConfigurator().apply(motorConfig);
+        followMotor.getConfigurator().apply(motorConfig);
 
         followMotor.setControl(new Follower(leadMotor.getDeviceID(), false));
     }
