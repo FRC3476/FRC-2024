@@ -20,11 +20,7 @@ public class Arm extends AbstractSubsystem {
     public Arm(ArmIO armio) {
         super();
         this.io = armio;
-        trapezoidProfile = new TrapezoidProfile(Constants.ARM_PIVOT_CONSTRAINTS);
     }
-
-    private TrapezoidProfile trapezoidProfile;
-    private double trapezoidProfileStartTime = 0;
 
     //TODO: conversion degree encoder, where is position relative to,
     // what # would i pass in when i pass value to position
@@ -32,13 +28,9 @@ public class Arm extends AbstractSubsystem {
     /**
     * @param position The position to set the Arm (degrees)
     */
-    public synchronized void setPosition(Constants.ArmPosition position) {
+    public synchronized void setPosition(double position) {
         double currentTime = Timer.getFPGATimestamp();
-        this.targetPosition = position;
-        TrapezoidProfile.State calcPosition = trapezoidProfile.calculate(currentTime - trapezoidProfileStartTime, new TrapezoidProfile.State(56 + 90 - 20, 0),
-                new TrapezoidProfile.State(0,0));
-            //TODO: check TrapezoidProfile.State calc position & currentTime
-        trapezoidProfileStartTime = -1;
+        io.setPosition(position);
         Logger.recordOutput("Pivot/Goal position", position);
     }
 

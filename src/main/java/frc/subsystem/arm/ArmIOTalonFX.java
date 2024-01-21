@@ -121,9 +121,8 @@ public class ArmIOTalonFX implements ArmIO {
 //        followTalonFX.optimizeBusUtilization();
     }
 
-    public void setPosition(Constants.ArmPosition position){
-        leadTalonFX.setControl(motionMagicControl.withPosition(position.rotations()).withSlot(0));
-        leadTalonFX.setPosition(1);
+    public void setPosition(double position){
+        leadTalonFX.setControl(motionMagicControl.withPosition(position).withSlot(0));
     }
 
     public void updateInputs(ArmInputs inputs) {

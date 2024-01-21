@@ -38,6 +38,6 @@ public interface ArmIO {
 
     default void resetFollowPosition(double position) {}
 
-    default void setPosition(Constants.ArmPosition position) {}
+    default void setPosition(double position) {}
 
 }
