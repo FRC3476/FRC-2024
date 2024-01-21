@@ -75,7 +75,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         followMotor.setControl(new Follower(leadMotor.getDeviceID(), false));
     }
-    public void setPosition(Constants.ElevatorPosition targetPosition){
+    public void setPosition(Constants.ElevatorPosition targetPosition) {
         leadMotor.setControl(motionMagicRequest.withPosition(targetPosition.positionLocationInches / Constants.ELEVATOR_INCHES_PER_ROTATION).withSlot(0));
     }
 
