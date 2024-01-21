@@ -17,6 +17,8 @@ public class IntakeIOFalcon implements IntakeIO {
     private final StatusSignal<Double> motorVoltage;
     private final StatusSignal<Double> motorAmps;
 
+    private final StatusSignal <Double>
+
     public IntakeIOFalcon(int id) {
         motor = new TalonFX(id);
 

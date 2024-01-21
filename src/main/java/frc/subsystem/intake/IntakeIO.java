@@ -9,6 +9,7 @@ public interface IntakeIO {
         double motorVelocity;
         double motorVoltage;
         double motorAmps;
+        double motorTemp;
     }
 
     default void updateInputs(IntakeInputsAutoLogged inputs) {}
