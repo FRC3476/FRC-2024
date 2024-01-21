@@ -1,13 +1,22 @@
 package frc.subsystem.arm;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+//import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.utility.PhoenixPIDController;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+
+
 
 
 import frc.robot.Constants;
@@ -17,141 +26,154 @@ import static frc.robot.Constants.Ports.*;
 
 public class ArmIOTalonFX implements ArmIO {
 
-    private final TalonFX pivotTalonFX;
-    private final TalonFX armTalonFX;
-    private PhoenixPIDController pivotTalonFXPIDController;
-    private final CANcoder pivotAbsoluteEncoder;
-    private final CANcoder armAbsoluteEncoder;
+    private final TalonFX leadTalonFX;
+    //private final TalonFX followTalonFX;
+    private PhoenixPIDController leadTalonFXPIDController;
+    private final CANcoder absoluteEncoder;
 
-    public StatusSignal<Double> getArmPosition() {
-        return armPosition;
-    }
 
-    private final StatusSignal<Double> pivotPosition;
-    private final StatusSignal<Double> pivotVelocity;
-    private final StatusSignal<Double> pivotCurrent;
-    private final StatusSignal<Double> pivotTemp;
-    private final StatusSignal<Double> pivotVoltage;
-    private final StatusSignal<Double> armVelocity;
-    private final StatusSignal<Double> armPosition;
-    private final StatusSignal<Double> armTemp;
-    private final StatusSignal<Double> armVoltage;
-    private final StatusSignal<Double> armBusVoltage;
-    private final StatusSignal<Double> armCurrent;
+    private final StatusSignal<Double> leadPosition;
+    private final StatusSignal<Double> leadVelocity;
+    private final StatusSignal<Double> leadCurrent;
+    private final StatusSignal<Double> leadTemp;
+    private final StatusSignal<Double> leadVoltage;
+//    private final StatusSignal<Double> followVelocity;
+//    private final StatusSignal<Double> followPosition;
+//    private final StatusSignal<Double> followTemp;
+//    private final StatusSignal<Double> followVoltage;
+//    private final StatusSignal<Double> followBusVoltage;
+//    private final StatusSignal<Double> followCurrent;
+    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
 
 
 
     public ArmIOTalonFX() {
 
-        pivotTalonFX = new TalonFX(ARM_PIVOT_CAN_ID);//second parameter=Canbus
-        armTalonFX = new TalonFX(ARM_CAN_ID);
-        pivotAbsoluteEncoder = new CANcoder(PIVOT_ABS_CAN_ID);
-        armAbsoluteEncoder = new CANcoder(ARM_ABS_CAN_ID);
+        leadTalonFX = new TalonFX(LEAD_CAN_ID);//second parameter=Canbus
+        //followTalonFX = new TalonFX(FOLLOW_CAN_ID);
+        absoluteEncoder = new CANcoder(ABSOLUTE_CAN_ID);
 
         var talonFXConfigs = new TalonFXConfiguration();
 
         var armFeedBackConfigs = talonFXConfigs.Feedback;
-        armFeedBackConfigs.FeedbackRemoteSensorID = 10;     //TODO change values for line 42,44,45
+        armFeedBackConfigs.FeedbackRemoteSensorID = absoluteEncoder.getDeviceID();     //TODO change values for line 42,44,45
         armFeedBackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         armFeedBackConfigs.SensorToMechanismRatio = 1;
-        armFeedBackConfigs.RotorToSensorRatio = 1;
+        armFeedBackConfigs.RotorToSensorRatio = 1.0 / 144;
 
-        PhoenixPIDController pivotTalonFXPIDController = new PhoenixPIDController(1, 2, 3);
+        PhoenixPIDController leadTalonFXPIDController = new PhoenixPIDController(1, 2, 3);
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
         armMotionMagicConfig.MotionMagicAcceleration = 100;     //TODO change motion magic values
         armMotionMagicConfig.MotionMagicCruiseVelocity = 50;
         armMotionMagicConfig.MotionMagicJerk = 50;
 
-        armTalonFX.getConfigurator().apply(talonFXConfigs);
 
-        pivotTalonFXPIDController.setP(Constants.PIVOT_P);
-        pivotTalonFXPIDController.setI(Constants.PIVOT_I);
-        pivotTalonFXPIDController.setD(Constants.PIVOT_D);
-        pivotTalonFXPIDController.setIntegratorRange(1, Constants.PIVOT_IZONE);     //TODO change minimum IZone
+        TalonFXConfiguration cfg = new TalonFXConfiguration();
+
+        /* Configure current limits */
+        MotionMagicConfigs pivot_current = cfg.MotionMagic;
+        pivot_current.MotionMagicCruiseVelocity = 1; // 5 rotations per second cruise
+        pivot_current.MotionMagicAcceleration = 10; // Take approximately 0.5 seconds to reach max vel
+        // Take approximately 0.2 seconds to reach max accel
+        pivot_current.MotionMagicJerk = 50;
+
+        Slot0Configs slot0 = cfg.Slot0;
+        slot0.kP = 0;
+        slot0.kI = 0;
+        slot0.kD = 0;
+        slot0.kV = 0;
+        slot0.kS = 0; // Approximately 0.25V to get the mechanism moving
+        slot0.kG = 0;
+        slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+        StatusCode status = StatusCode.StatusCodeNotInitialized;
+        leadTalonFX.getConfigurator().apply(cfg);
+//        followTalonFX.getConfigurator().apply(cfg);
+//        followTalonFX.setControl(new Follower(leadTalonFX.getDeviceID(), false));
 
 
-        var armCurrentLimitsConfigs = talonFXConfigs.CurrentLimits;
-        armTalonFX.clearStickyFault_SupplyCurrLimit(Constants.ARM_SMART_CURRENT_LIMIT);
+        var followCurrentLimitsConfigs = talonFXConfigs.CurrentLimits;
+//        followTalonFX.clearStickyFault_SupplyCurrLimit(Constants.ARM_SMART_CURRENT_LIMIT);
         var closed = talonFXConfigs.ClosedLoopRamps;
         closed.VoltageClosedLoopRampPeriod = 0.75;
 
-        armTalonFX.getConfigurator().apply(closed);
-        armTalonFX.setNeutralMode(NeutralModeValue.Brake);
+//        followTalonFX.getConfigurator().apply(closed);
+//        followTalonFX.setNeutralMode(NeutralModeValue.Brake);
 
 
-        pivotPosition = pivotTalonFX.getPosition();
-        pivotVelocity = pivotTalonFX.getVelocity();
+        leadPosition = leadTalonFX.getPosition();
+        leadVelocity = leadTalonFX.getVelocity();
+        leadCurrent = leadTalonFX.getSupplyCurrent();
+        leadTemp = leadTalonFX.getDeviceTemp();
+        leadVoltage = leadTalonFX.getMotorVoltage();
 
-        pivotCurrent = pivotTalonFX.getSupplyCurrent();
-        pivotTemp = pivotTalonFX.getDeviceTemp();
-        pivotVoltage = pivotTalonFX.getMotorVoltage();
+//        followPosition = followTalonFX.getPosition();
+//        followVelocity = followTalonFX.getVelocity();
+//        followCurrent = followTalonFX.getSupplyCurrent();
+//        followTemp = followTalonFX.getDeviceTemp();
+//        followVoltage = followTalonFX.getMotorVoltage();
+//        followBusVoltage = followTalonFX.getSupplyVoltage();
 
-        armPosition = armTalonFX.getPosition();
-        armVelocity = armTalonFX.getVelocity();
-        armCurrent = armTalonFX.getSupplyCurrent();
-        armTemp = armTalonFX.getDeviceTemp();
-        armVoltage = armTalonFX.getMotorVoltage();
-        armBusVoltage = armTalonFX.getSupplyVoltage();
+        BaseStatusSignal.setUpdateFrequencyForAll(4, leadPosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(4, leadVelocity, leadVoltage);
 
-        BaseStatusSignal.setUpdateFrequencyForAll(0, pivotPosition, armPosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(0, pivotVelocity, pivotVoltage, armPosition,
-                armBusVoltage, armVoltage, armTemp);
-
-
+        leadTalonFX.optimizeBusUtilization();
+//        followTalonFX.optimizeBusUtilization();
     }
 
-    private void resetArmPosition(StatusSignal<Double> position) {
+    public void setPosition(Constants.ArmPosition position){
+        leadTalonFX.setControl(motionMagicControl.withPosition(position.rotations()).withSlot(0));
+        leadTalonFX.setPosition(1);
     }
-
 
     public void updateInputs(ArmInputs inputs) {
-        BaseStatusSignal.refreshAll(pivotPosition, pivotVelocity, pivotCurrent,
-                pivotTemp, pivotVoltage, armPosition, armVelocity, armCurrent, armTemp, armVoltage, armBusVoltage);
+        BaseStatusSignal.refreshAll(leadPosition, leadVelocity, leadCurrent,
+                leadTemp, leadVoltage);
 
-            inputs.pivotPosition = pivotPosition.getValue();
-            inputs.pivotVelocity = pivotVelocity.getValue();;
+            inputs.leadPosition = leadPosition.getValue();
+            inputs.leadVelocity = leadVelocity.getValue();;
 
-            inputs.pivotCurrent = pivotCurrent.getValue();
-            inputs.pivotTemp = pivotTemp.getValue();
-            inputs.pivotVoltage =pivotVoltage.getValue();
+            inputs.leadCurrent = leadCurrent.getValue();
+            inputs.leadTemp = leadTemp.getValue();
+            inputs.leadVoltage =leadVoltage.getValue();
 
-            inputs.armPosition = armPosition.getValue();
-            inputs.armVelocity = armVelocity.getValue();
-            inputs.armCurrent = armCurrent.getValue();
-            inputs.armTemp = armTemp.getValue();
-            inputs.armVoltage = armVoltage.getValue();
-            inputs.armBusVoltage = armBusVoltage.getValue();;
+//            inputs.followPosition = followPosition.getValue();
+//            inputs.followVelocity = followVelocity.getValue();
+//            inputs.followCurrent = followCurrent.getValue();
+//            inputs.followTemp = followTemp.getValue();
+//            inputs.followVoltage = followVoltage.getValue();
+//            inputs.followBusVoltage = followBusVoltage.getValue();;
 
             if (Constants.USE_ARM_ENCODER){
-                assert pivotAbsoluteEncoder != null;
-                inputs.armAbsolutePosition = pivotAbsoluteEncoder.getPosition().getValue()- 180; // Closed is 180 to avoid wrapping issues
+                assert absoluteEncoder != null;
+                inputs.followAbsolutePosition = absoluteEncoder.getPosition().getValue();
             }
     }
 
     @Override
-    public void setPivotVoltage(double voltage) {
+    public void setLeadVoltage(double voltage) {
 
-            pivotTalonFX.setVoltage(voltage);
-    }
-
-    @Override
-    public void setPivotPosition(double position, double arbFFVoltage) {
-            pivotTalonFX.getConfigurator().setPosition(position);
+            leadTalonFX.setVoltage(voltage);
     }
 
 
-    public void setArmVoltage(double voltage) {
-        armTalonFX.setVoltage(voltage);
+    public void setLeadVPosition(double position, double arbFFVoltage) {
+            leadTalonFX.getConfigurator().setPosition(position);
     }
 
-    @Override
-    public void resetPivotPosition(double position) {
-        pivotAbsoluteEncoder.setPosition(position);
+
+//    public void setFollowVoltage(double voltage) {
+//        followTalonFX.setVoltage(voltage);
+//    }
+
+
+    public void resetLeadVPosition(double position) {
+        absoluteEncoder.setPosition(position);
     }
 
-    public void resetArmPosition(double position) {
-        armAbsoluteEncoder.setPosition(position);
-    }
+//    public void resetFollowPosition(double position) {
+//        followAbsoluteEncoder.setPosition(position);
+//    }
 
     
     public void setAutoGrab(boolean enabled) {
@@ -159,4 +181,3 @@ public class ArmIOTalonFX implements ArmIO {
 
     }
 }
-

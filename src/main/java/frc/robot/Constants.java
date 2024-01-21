@@ -61,19 +61,34 @@ public final class Constants {
         public static final int PROTOTYPE_1 = -1;
         public static final int PROTOTYPE_2 = -1;
 
-        public static final int ARM_PIVOT_CAN_ID = 50;
-        public static final int ARM_CAN_ID = 51;
+        public static final int LEAD_CAN_ID = 33;
+        public static final int FOLLOW_CAN_ID = 34;
 
-        public static final int PIVOT_ABS_CAN_ID = 0;
-        public static final int ARM_ABS_CAN_ID= 0;
-
-        public static final int PIVOT_MOTOR1 = 0;
-        public static final int PIVOT_MOTOR2 = 0;
+        public static final int ABSOLUTE_CAN_ID = 0;
 
 
     }
+    public enum ArmPosition {
+        BOTTOM("bottom", 0),
+        STOW("stow", 0),
+        INTAKE("intake", 0),
+        SPEAKER("speaker", 0),
+        AMP("amp", 0),
+        TRAP("trap", 0),
+        TOP("top", 0);
 
+        public final String positionArm;
+        public final int armPositionLocationDegree;
 
+        ArmPosition(String positionArm, int armPositionLocationDegree) {
+            this.positionArm = positionArm;
+            this.armPositionLocationDegree = armPositionLocationDegree;
+        }
+
+        public double rotations(){
+            return armPositionLocationDegree/ 360.0;
+        }
+    }
 
     public static final double SWERVE_DRIVE_P = 100;
     public static final double SWERVE_DRIVE_D = 0.05;
@@ -141,5 +156,5 @@ public final class Constants {
     public static final boolean ARM_WHEELS_USED = false;
 
     public static final double ARM_LENGTH = .308;
-
+ 
 }
