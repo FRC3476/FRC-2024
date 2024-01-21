@@ -60,13 +60,15 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     }
     @Override
-    public void invertMotor() {
+    public void invertMotor(boolean invertState) {
 
-        motor.setInverted(true);
-
+            if(invertState == false) {
+                motor.setInverted(false);
+            }
+            else {
+                motor.setInverted(true);
+            }
     }
-
-
 
 
 }

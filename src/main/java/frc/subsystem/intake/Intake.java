@@ -23,12 +23,14 @@ public class Intake extends AbstractSubsystem {
             Logger.processInputs("Intake Motor ", intakeInputs);
     }
 
+
     private void runIntake() {
+        intakeIO.invertMotor(false);
         intakeIO.setMotorVoltage(12);
     }
 
     private void runOuttake() {
-        intakeIO.setInverted();
+        intakeIO.invertMotor(true);
         intakeIO.setMotorVoltage(12);
     }
 
