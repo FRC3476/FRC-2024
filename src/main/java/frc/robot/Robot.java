@@ -8,6 +8,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
+import frc.subsystem.elevator.Elevator;
+import frc.subsystem.elevator.ElevatorIO;
+import frc.subsystem.elevator.ElevatorIOTalonFX;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
@@ -46,6 +49,7 @@ public class Robot extends LoggedRobot {
 
 
     static Drive drive;
+    static Elevator elevator;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -117,6 +121,7 @@ public class Robot extends LoggedRobot {
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
             drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
+            elevator = new Elevator(new ElevatorIOTalonFX());
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -128,6 +133,7 @@ public class Robot extends LoggedRobot {
             }
 
             drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
+            elevator = new Elevator(new ElevatorIO() {});
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -139,6 +145,7 @@ public class Robot extends LoggedRobot {
 
         Logger.start();
         drive.start();
+        elevator.start();
     }
 
     /** This function is called periodically during all modes. */

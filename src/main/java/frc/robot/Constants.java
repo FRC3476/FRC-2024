@@ -19,6 +19,7 @@ public final class Constants {
             100000000 : // 100 MB
             1000000000; // 1 GB
     public static final int DEFAULT_PERIODS_PER_LOG = 0;
+    public static final double ELEVATOR_INCHES_PER_ROTATION = 0.25*22*12/60; //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
 
     public enum KinematicLimits {
         /**
@@ -60,8 +61,23 @@ public final class Constants {
         public static final int ELEVATOR_FOLLOW = 32;
 
     }
+    //TODO: figure out actual values for below
+    public enum ElevatorPosition {
+        BOTTOM("bottom", 0),
+        STOW("stow", 1),
+        INTAKE("intake", 2),
+        SPEAKER("speaker", 3),
+        AMP("amp", 4),
+        TRAP("trap", 5),
+        TOP("top", 6);
 
-
+        public final String positionName;
+        public final double positionLocationInches;
+        ElevatorPosition(String positionName, double positionLocationInches) {
+            this.positionName = positionName;
+            this.positionLocationInches = positionLocationInches;
+        }
+    }
 
     public static final double SWERVE_DRIVE_P = 100;
     public static final double SWERVE_DRIVE_D = 0.05;
