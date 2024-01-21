@@ -75,8 +75,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         followMotor.setControl(new Follower(leadMotor.getDeviceID(), false));
     }
-    public void setPosition(Constants.ElevatorPosition targetPosition) {
-        leadMotor.setControl(motionMagicRequest.withPosition(targetPosition.positionLocationInches / Constants.ELEVATOR_INCHES_PER_ROTATION).withSlot(0));
+    public void setPosition(double targetPositionInRotations) {
+        leadMotor.setControl(motionMagicRequest.withPosition(targetPositionInRotations).withSlot(0));
     }
 
     public void updateInputs(ElevatorInputs inputs) {
@@ -96,5 +96,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         SmartDashboard.putNumber("Elevator motor position in inches", leadMotor.getPosition().getValue() * Constants.ELEVATOR_INCHES_PER_ROTATION);
         SmartDashboard.putNumber("Elevator motor velocity", + leadMotor.getVelocity().getValue());
+    }
+
+    public void setEncoderToZero() {
+        leadMotor.setPosition(0);
+        //elevatorFollower.getEncoder().setPosition(position);
     }
 }

@@ -21,5 +21,7 @@ public interface ElevatorIO {
 
     default void updateInputs(ElevatorInputs inputs) {}
 
-    default void setPosition(Constants.ElevatorPosition targetPosition){}
+    default void setPosition(double targetPositionInRotations){}
+
+    default void setEncoderToZero() {}
 }
