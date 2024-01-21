@@ -87,7 +87,6 @@ public final class Constants {
 
         public double rotations(){
             return armPositionLocationDegree/ 360.0;
-        }
     }
 
     public static final double SWERVE_DRIVE_P = 100;
@@ -138,13 +137,6 @@ public final class Constants {
     public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
 
     //all value to be changed
-    public static final TrapezoidProfile.Constraints ARM_PIVOT_CONSTRAINTS
-            = new TrapezoidProfile.Constraints(10, 10);
-    public static final double PIVOT_P = 0.1;
-    public static final double PIVOT_I = 0.00;
-    public static final double PIVOT_D = 2;
-    public static final double PIVOT_ROTATIONS_PER_DEGREE = 1 / 5.4;
-    public static final double PIVOT_IZONE = 10;
     public static final double ARM_NOMINAL_VOLTAGE = 9;
     public static final int ARM_SMART_CURRENT_LIMIT = 35;
     public static final int ARM_CURRENT_THRESHOLD = ARM_SMART_CURRENT_LIMIT - 10;

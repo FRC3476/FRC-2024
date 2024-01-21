@@ -6,8 +6,6 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Arm extends AbstractSubsystem {
 
@@ -41,17 +39,13 @@ public class Arm extends AbstractSubsystem {
         Logger.processInputs("Arm", inputs);
 
         double currentTime = Timer.getFPGATimestamp();
-        if (trapezoidProfileStartTime == -1) {
-                trapezoidProfileStartTime = currentTime;
-        }
         currentTime = 100000000;
-        TrapezoidProfile.State state = trapezoidProfile.calculate(currentTime - trapezoidProfileStartTime, new TrapezoidProfile.State(56 + 90 - 20, 0),
-                new TrapezoidProfile.State(0,0));
+
         double acceleration = 0; // (state.velocity - pastVelocity) / (currentTime - pastTime);
 
-        double arbFFVoltage = Constants.ARM_FEEDFORWARD.calculate(Math.toRadians(inputs.leadPosition),
-                state.velocity, acceleration);
-            //calculates the arbitrary feedforward voltage for the lead
+//        double arbFFVoltage = Constants.ARM_FEEDFORWARD.calculate(Math.toRadians(inputs.leadPosition),
+//                state.velocity, acceleration);
+//            //calculates the arbitrary feedforward voltage for the lead
 
         if (DriverStation.isTest()) {
             io.setLeadVoltage(Constants.ARM_FEEDFORWARD.calculate(Math.toRadians(inputs.leadPosition), 0, 0));
@@ -73,8 +67,6 @@ public class Arm extends AbstractSubsystem {
         Logger.recordOutput("Pivot/Wanted pos", state.position);
         Logger.recordOutput("Pivot/Wanted vel", state.velocity);
         Logger.recordOutput("Pivot/Wanted accel", acceleration);
-        Logger.recordOutput("Pivot/Total trapezoidProfile time", trapezoidProfile.totalTime());
-        Logger.recordOutput("Pivot/Profile length", currentTime - trapezoidProfileStartTime);
         Logger.recordOutput("Pivot/TrapezoidProfile error", state.position - inputs.leadPosition);
         Logger.recordOutput("Pivot/Arb FF", arbFFVoltage);
         }

@@ -16,11 +16,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
-
-
-
-import frc.robot.Constants;
-
+import static frc.robot.Constants.ArmPosition.USE_ARM_ENCODER;
 import static frc.robot.Constants.Ports.*;
 
 
@@ -143,7 +139,7 @@ public class ArmIOTalonFX implements ArmIO {
 //            inputs.followVoltage = followVoltage.getValue();
 //            inputs.followBusVoltage = followBusVoltage.getValue();;
 
-            if (Constants.USE_ARM_ENCODER){
+            if (USE_ARM_ENCODER){
                 assert absoluteEncoder != null;
                 inputs.followAbsolutePosition = absoluteEncoder.getPosition().getValue();
             }
