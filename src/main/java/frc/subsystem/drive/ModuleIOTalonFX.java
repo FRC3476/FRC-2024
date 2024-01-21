@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 
 import static frc.robot.Constants.*;
+import static frc.robot.Constants.SWERVE_OMEGA_FEEDFORWARD;
 
 public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFX driveMotor;
@@ -76,56 +77,56 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerMotor.setInverted(true);
 
         driveMotor.getConfigurator().apply(
-            new TalonFXConfiguration()
-                .withSlot0(new Slot0Configs()
-                    .withKP(0)
-                    .withKI(0)
-                    .withKD(0)
-                    .withKS(DRIVE_FEEDFORWARD.ks)
-                    .withKV(DRIVE_FEEDFORWARD.kv)
-                )
-                .withCurrentLimits(new CurrentLimitsConfigs()
-                    .withSupplyCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT)
-                    .withSupplyCurrentLimitEnable(true)
-                    .withStatorCurrentLimitEnable(false)
-                )
-                .withTorqueCurrent(new TorqueCurrentConfigs()
-                    .withPeakForwardTorqueCurrent(DRIVE_MOTOR_CURRENT_LIMIT)
-                    .withPeakReverseTorqueCurrent(-DRIVE_MOTOR_CURRENT_LIMIT)
-                    .withTorqueNeutralDeadband(1)
-                )
-                .withFeedback(new FeedbackConfigs()
-                    .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                    .withSensorToMechanismRatio(1 / (DRIVE_MOTOR_REDUCTION * SWERVE_INCHES_PER_ROTATION))
-                    .withRotorToSensorRatio(1)
-                )
+                new TalonFXConfiguration()
+                        .withSlot0(new Slot0Configs()
+                                .withKP(0)
+                                .withKI(0)
+                                .withKD(0)
+                                .withKS(DRIVE_FEEDFORWARD.ks)
+                                .withKV(DRIVE_FEEDFORWARD.kv)
+                        )
+                        .withCurrentLimits(new CurrentLimitsConfigs()
+                                .withSupplyCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT)
+                                .withSupplyCurrentLimitEnable(true)
+                                .withStatorCurrentLimitEnable(false)
+                        )
+                        .withTorqueCurrent(new TorqueCurrentConfigs()
+                                .withPeakForwardTorqueCurrent(DRIVE_MOTOR_CURRENT_LIMIT)
+                                .withPeakReverseTorqueCurrent(-DRIVE_MOTOR_CURRENT_LIMIT)
+                                .withTorqueNeutralDeadband(1)
+                        )
+                        .withFeedback(new FeedbackConfigs()
+                                .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                                .withSensorToMechanismRatio(1 / (DRIVE_MOTOR_REDUCTION * SWERVE_INCHES_PER_ROTATION))
+                                .withRotorToSensorRatio(1)
+                        )
         );
 
         steerMotor.getConfigurator().apply(
-            new TalonFXConfiguration()
-                .withSlot0(new Slot0Configs()
-                    .withKP(SWERVE_DRIVE_P)
-                    .withKI(SWERVE_DRIVE_I)
-                    .withKD(SWERVE_DRIVE_D)
-                    .withKS(0)
-                    .withKV(0)
-                )
-                .withCurrentLimits(new CurrentLimitsConfigs()
-                    .withSupplyCurrentLimit(STEER_MOTOR_CURRENT_LIMIT)
-                    .withSupplyCurrentLimitEnable(true)
-                    .withStatorCurrentLimitEnable(false)
-                )
-                .withTorqueCurrent(new TorqueCurrentConfigs()
-                    .withPeakForwardTorqueCurrent(STEER_MOTOR_CURRENT_LIMIT)
-                    .withPeakReverseTorqueCurrent(-STEER_MOTOR_CURRENT_LIMIT)
-                    .withTorqueNeutralDeadband(1)
-                )
-                .withFeedback(new FeedbackConfigs()
-                    .withFeedbackRemoteSensorID(this.swerveCancoder.getDeviceID())
-                    .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
-                    .withSensorToMechanismRatio(1)
-                    .withRotorToSensorRatio(1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR)
-                )
+                new TalonFXConfiguration()
+                        .withSlot0(new Slot0Configs()
+                                .withKP(SWERVE_DRIVE_P)
+                                .withKI(SWERVE_DRIVE_I)
+                                .withKD(SWERVE_DRIVE_D)
+                                .withKS(0)
+                                .withKV(0)
+                        )
+                        .withCurrentLimits(new CurrentLimitsConfigs()
+                                .withSupplyCurrentLimit(STEER_MOTOR_CURRENT_LIMIT)
+                                .withSupplyCurrentLimitEnable(true)
+                                .withStatorCurrentLimitEnable(false)
+                        )
+                        .withTorqueCurrent(new TorqueCurrentConfigs()
+                                .withPeakForwardTorqueCurrent(STEER_MOTOR_CURRENT_LIMIT)
+                                .withPeakReverseTorqueCurrent(-STEER_MOTOR_CURRENT_LIMIT)
+                                .withTorqueNeutralDeadband(1)
+                        )
+                        .withFeedback(new FeedbackConfigs()
+                                .withFeedbackRemoteSensorID(this.swerveCancoder.getDeviceID())
+                                .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
+                                .withSensorToMechanismRatio(1)
+                                .withRotorToSensorRatio(1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR)
+                        )
         );
 
         swerveCancoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset)));
@@ -145,8 +146,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerMotorTemp = steerMotor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(100.0, driveMotorPosition, steerMotorRelativePosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50, driveMotorVelocity, driveMotorVoltage, driveMotorAmps,
-                driveMotorTemp, steerMotorAbsolutePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, driveMotorVelocity, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorAbsolutePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
 
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();

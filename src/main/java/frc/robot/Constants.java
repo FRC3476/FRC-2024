@@ -85,8 +85,9 @@ public final class Constants {
             this.armPositionLocationDegree = armPositionLocationDegree;
         }
 
-        public double rotations(){
-            return armPositionLocationDegree/ 360.0;
+        public double rotations() {
+            return armPositionLocationDegree / 360.0;
+        }
     }
 
     public static final double SWERVE_DRIVE_P = 100;
