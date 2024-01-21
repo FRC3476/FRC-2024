@@ -21,14 +21,8 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     private final VoltageOut withVoltage;
 
-    private final MotorOutputConfigs invertedMode;
-
-    private final MotorOutputConfigs forwardMode;
-
     public IntakeIOTalonFX(int id) {
         motor = new TalonFX(id);
-
-        motor.getConfigurator().apply(new TalonFXConfiguration());
 
         motorPosition = motor.getPosition();
         motorVelocity = motor.getVelocity();
@@ -37,12 +31,11 @@ public class IntakeIOTalonFX implements IntakeIO {
 
         withVoltage = new voltageOut(0);
 
-        invertedMode = new MotorOutputConfigs();
-        forwardMode = new MotorOutputConfigs();
-
-        forwardMode.NeutralMode = NeutralModeValue.Brake;
-        invertedMode.NeutralMode = NeutralModeValue.Brake;
-        invertedMode.Inverted = InvertedValue.Clockwise_Positive;
+//        invertedMode = new MotorOutputConfigs();
+//        forwardMode = new MotorOutputConfigs();
+//        forwardMode.NeutralMode = NeutralModeValue.Brake;
+//        invertedMode.NeutralMode = NeutralModeValue.Brake;
+//        invertedMode.Inverted = InvertedValue.Clockwise_Positive;
 
 
 
@@ -66,15 +59,14 @@ public class IntakeIOTalonFX implements IntakeIO {
         motor.setControl(withVoltage.withOutput(voltage));
 
     }
-
     @Override
-    public void setToOuttake() {
+    public void invertMotor() {
 
-        motor.apply(invertedMode);
+        motor.setInverted(true);
 
     }
 
-    public void setToIntake() {
-        motor.apply(forwardMode);
-    }
+
+
+
 }
