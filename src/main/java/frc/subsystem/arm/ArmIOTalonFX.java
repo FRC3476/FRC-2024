@@ -16,8 +16,8 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
-import static frc.robot.Constants.ArmPosition.USE_ARM_ENCODER;
 import static frc.robot.Constants.Ports.*;
+import static frc.robot.Constants.USE_ARM_ENCODER;
 
 
 public class ArmIOTalonFX implements ArmIO {
