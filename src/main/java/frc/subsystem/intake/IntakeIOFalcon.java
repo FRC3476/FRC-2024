@@ -17,6 +17,8 @@ public class IntakeIOFalcon implements IntakeIO {
     private final StatusSignal<Double> motorVoltage;
     private final StatusSignal<Double> motorAmps;
 
+    private final VoltageOut voltageControl = new VoltageOut(0);
+
     private final StatusSignal <Double>
 
     public IntakeIOFalcon(int id) {
@@ -46,7 +48,8 @@ public class IntakeIOFalcon implements IntakeIO {
 
     @Override
     public void setMotorVoltage(double voltage) {
-        motor.setControl(new VoltageOut(voltage));
+        motor.setControl(voltageControl.withOutput(voltage));
+
     }
 
     private final MotorOutputConfigs invertedMode = new MotorOutputConfigs();
