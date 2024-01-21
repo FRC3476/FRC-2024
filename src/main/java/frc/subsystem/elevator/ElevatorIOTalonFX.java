@@ -190,4 +190,25 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public void setElevatorBrakeMode(boolean brake) {
         elevatorMain.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
+
+    Slot0Configs pivotPIDConfigs = new Slot0Configs();
+    @Override
+    public void updatePivotPID(double kP, double kI, double kD, double kG) {
+        pivotPIDConfigs.kP = kP;
+        pivotPIDConfigs.kI = kI;
+        pivotPIDConfigs.kD = kD;
+        pivotPIDConfigs.kG = kG;
+        pivotMotor.getConfigurator().apply(pivotPIDConfigs);
+    }
+
+    Slot0Configs elevatorPIDConfigs = new Slot0Configs();
+    @Override
+    public void updateElevatorPID(double kP, double kI, double kD, double kG) {
+        elevatorPIDConfigs.kP = kP;
+        elevatorPIDConfigs.kI = kI;
+        elevatorPIDConfigs.kD = kD;
+        elevatorPIDConfigs.kG = kG;
+        elevatorMain.getConfigurator().apply(elevatorPIDConfigs);
+        elevatorFollower.getConfigurator().apply(elevatorPIDConfigs);
+    }
 }

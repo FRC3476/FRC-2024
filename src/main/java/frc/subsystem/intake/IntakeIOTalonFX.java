@@ -56,4 +56,9 @@ public class IntakeIOTalonFX implements IntakeIO {
     public void setBrakeMode(boolean braked) {
         intakeMotor.setNeutralMode(braked ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
+
+    @Override
+    public void setInverted(boolean inverted) {
+        intakeMotor.setInverted(inverted);
+    }
 }

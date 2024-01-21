@@ -177,25 +177,12 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     private boolean isBraking = false;
-    private final MotorOutputConfigs coastModeInverted = new MotorOutputConfigs();
-    private final MotorOutputConfigs brakeModeInverted = new MotorOutputConfigs();
-    private final MotorOutputConfigs coastMode = new MotorOutputConfigs();
-    private final MotorOutputConfigs brakeMode = new MotorOutputConfigs();
-    {
-        coastMode.NeutralMode = NeutralModeValue.Coast;
-        brakeMode.NeutralMode = NeutralModeValue.Brake;
 
-        coastModeInverted.NeutralMode = NeutralModeValue.Coast;
-        brakeModeInverted.NeutralMode = NeutralModeValue.Brake;
-
-        coastModeInverted.Inverted = InvertedValue.Clockwise_Positive;
-        brakeModeInverted.Inverted = InvertedValue.Clockwise_Positive;
-    }
     @Override
     public void setBrakeMode(boolean enabled) {
         if (isBraking != enabled) {
-            steerMotor.getConfigurator().apply(enabled ? brakeModeInverted : coastModeInverted);
-            driveMotor.getConfigurator().apply(enabled ? brakeMode : coastMode);
+            steerMotor.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+            driveMotor.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
         }
         isBraking = enabled;
     }

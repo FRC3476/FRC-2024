@@ -40,4 +40,8 @@ public interface ElevatorIO {
     default void resetElevatorPosition() {}
 
     default void setElevatorBrakeMode(boolean brake) {}
+
+    default void updatePivotPID(double kP, double kI, double kD, double kG) {}
+
+    default void updateElevatorPID(double kP, double kI, double kD, double kG) {}
 }

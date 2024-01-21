@@ -13,9 +13,11 @@ public interface IntakeIO {
 
     default void updateInputs(IntakeInputs inputs) {}
 
-    default void setVoltage(double voltage) {};
+    default void setVoltage(double voltage) {}
 
-    default void setVelocity(double velocity) {};
+    default void setVelocity(double velocity) {}
 
-    default void setBrakeMode(boolean braked) {};
+    default void setBrakeMode(boolean braked) {}
+
+    default void setInverted(boolean inverted) {}
 }

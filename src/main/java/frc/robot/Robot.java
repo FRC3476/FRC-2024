@@ -6,15 +6,21 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
+import frc.subsystem.elevator.Elevator;
+import frc.subsystem.elevator.ElevatorIO;
+import frc.subsystem.elevator.ElevatorIOTalonFX;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
+import frc.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedDashboardInput;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -44,8 +50,17 @@ public class Robot extends LoggedRobot {
 
     private static PowerDistribution powerDistribution;
 
+    private final LiveEditableValue<Double> pivotP = new LiveEditableValue<>(PIVOT_P, SmartDashboard.getEntry("Pivot P"));
+    private final LiveEditableValue<Double> pivotI = new LiveEditableValue<>(PIVOT_I, SmartDashboard.getEntry("Pivot I"));
+    private final LiveEditableValue<Double> pivotD = new LiveEditableValue<>(PIVOT_D, SmartDashboard.getEntry("Pivot D"));
+    private final LiveEditableValue<Double> pivotG = new LiveEditableValue<>(PIVOT_G, SmartDashboard.getEntry("Pivot G"));
+    private final LiveEditableValue<Double> elevatorP = new LiveEditableValue<>(ELEVATOR_P, SmartDashboard.getEntry("Elevator P"));
+    private final LiveEditableValue<Double> elevatorI = new LiveEditableValue<>(ELEVATOR_I, SmartDashboard.getEntry("Elevator I"));
+    private final LiveEditableValue<Double> elevatorD = new LiveEditableValue<>(ELEVATOR_D, SmartDashboard.getEntry("Elevator D"));
+    private final LiveEditableValue<Double> elevatorG = new LiveEditableValue<>(ELEVATOR_G, SmartDashboard.getEntry("Elevator G"));
 
     static Drive drive;
+    static Elevator elevator;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -117,6 +132,7 @@ public class Robot extends LoggedRobot {
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
             drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
+            elevator = new Elevator(new ElevatorIOTalonFX());
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -128,6 +144,7 @@ public class Robot extends LoggedRobot {
             }
 
             drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
+            elevator = new Elevator(new ElevatorIO() {});
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -139,6 +156,7 @@ public class Robot extends LoggedRobot {
 
         Logger.start();
         drive.start();
+        elevator.start();
     }
 
     /** This function is called periodically during all modes. */
@@ -180,6 +198,11 @@ public class Robot extends LoggedRobot {
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
+
+        if (xbox.getRisingEdge(XboxButtons.A)) {
+            elevator.updatePivotPID(pivotP.get(), pivotI.get(), pivotD.get(), pivotG.get());
+            elevator.updateElevatorPID(elevatorP.get(), elevatorI.get(), elevatorD.get(), elevatorG.get());
+        }
     }
 
     /** This function is called once when the robot is disabled. */
