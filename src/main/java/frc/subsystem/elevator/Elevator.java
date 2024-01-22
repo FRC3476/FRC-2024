@@ -1,13 +1,10 @@
 package frc.subsystem.elevator;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.Constants;
+import static frc.robot.Constants.*;
 import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
-import static frc.robot.Constants.ELEVATOR_HOME_VOLTAGE;
-import static frc.robot.Constants.ELEVATOR_MIN_HOME_TIME;
-import static frc.utility.MathUtil.avg;
 
 public class Elevator extends AbstractSubsystem {
     final ElevatorIO elevatorIO;
@@ -20,18 +17,18 @@ public class Elevator extends AbstractSubsystem {
         this.elevatorIO = elevatorIO;
     }
 
-    public void setPosition(Constants.ElevatorPosition position) {
-        this.setPosition(position.positionLocationInches / Constants.ELEVATOR_INCHES_PER_ROTATION);
+    public void setPosition(ElevatorPosition position) {
+        this.setPosition(position.positionLocationInches / ELEVATOR_INCHES_PER_ROTATION);
     }
 
     public void setPosition(double positionInRotations) {
-        double positionInInches = positionInRotations * Constants.ELEVATOR_INCHES_PER_ROTATION;
-        if (positionInInches < Constants.ELEVATOR_LOWER_LIMIT_INCHES) {
-            positionInInches = Constants.ELEVATOR_LOWER_LIMIT_INCHES;
-        } else if (positionInInches > Constants.ELEVATOR_UPPER_LIMIT_INCHES) {
-            positionInInches = Constants.ELEVATOR_UPPER_LIMIT_INCHES;
+        double positionInInches = positionInRotations * ELEVATOR_INCHES_PER_ROTATION;
+        if (positionInInches < ELEVATOR_LOWER_LIMIT_INCHES) {
+            positionInInches = ELEVATOR_LOWER_LIMIT_INCHES;
+        } else if (positionInInches > ELEVATOR_UPPER_LIMIT_INCHES) {
+            positionInInches = ELEVATOR_UPPER_LIMIT_INCHES;
         }
-        positionInRotations = positionInInches / Constants.ELEVATOR_INCHES_PER_ROTATION;
+        positionInRotations = positionInInches / ELEVATOR_INCHES_PER_ROTATION;
         elevatorIO.setPosition(positionInRotations);
     }
 
@@ -40,20 +37,20 @@ public class Elevator extends AbstractSubsystem {
 
         if (homing) {
             if (DriverStation.isEnabled()) {
-                homeTime -= Constants.NOMINAL_DT;
+                homeTime -= NOMINAL_DT;
                 elevatorIO.setElevatorVoltage(ELEVATOR_HOME_VOLTAGE);
-                if (homeTime <= 0 && avg(inputs.elevatorCurrent) > Constants.ELEVATOR_STALLING_CURRENT) {
+                double avgMotorVoltage = (elevatorInputs.leadMotorVoltage + elevatorInputs.followMotorVoltage) / 2.0;
+                if (homeTime <= 0 && avgMotorVoltage > ELEVATOR_STALLING_CURRENT) {
                     homing = false;
                     elevatorIO.setEncoderToZero();
                 }
                 Logger.getInstance().recordOutput("Elevator/Home time", homeTime);
             }
-            return;
         }
     }
 
     public void home() {
-        homeTime = ELEVATOR_MIN_HOME_TIME;
+        homeTime = MIN_ELEVATOR_HOME_TIME;
         homing = true;
     }
 }

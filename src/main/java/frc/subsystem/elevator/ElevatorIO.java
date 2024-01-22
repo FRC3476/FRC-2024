@@ -1,6 +1,5 @@
 package frc.subsystem.elevator;
 
-import frc.robot.Constants;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ElevatorIO {
@@ -24,4 +23,5 @@ public interface ElevatorIO {
     default void setPosition(double targetPositionInRotations){}
 
     default void setEncoderToZero() {}
+    default void setElevatorVoltage(double voltage) {}
 }

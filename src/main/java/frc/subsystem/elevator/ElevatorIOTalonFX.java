@@ -2,21 +2,21 @@ package frc.subsystem.elevator;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
+import static frc.robot.Constants.ELEVATOR_STALLING_CURRENT;
+
 public class ElevatorIOTalonFX implements ElevatorIO {
     private final TalonFX leadMotor;
     private final TalonFX followMotor;
+    private final VoltageOut withVoltage;
     private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0);
 
     private final StatusSignal<Double> leadMotorPosition;
@@ -33,6 +33,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD);
         followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW);
+        withVoltage = new VoltageOut(0);
 
         leadMotorPosition = leadMotor.getPosition();
         leadMotorVelocity = leadMotor.getVelocity();
@@ -70,6 +71,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         FeedbackConfigs fdb = motorConfig.Feedback;
         fdb.SensorToMechanismRatio = Constants.ELEVATOR_INCHES_PER_ROTATION;
 
+        motorConfig = motorConfig.withCurrentLimits(new CurrentLimitsConfigs()
+                                .withSupplyCurrentLimit(ELEVATOR_STALLING_CURRENT)
+                                .withSupplyCurrentLimitEnable(true)
+                                .withStatorCurrentLimitEnable(false));
+
         leadMotor.getConfigurator().apply(motorConfig);
         followMotor.getConfigurator().apply(motorConfig);
 
@@ -101,5 +107,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public void setEncoderToZero() {
         leadMotor.setPosition(0);
         //elevatorFollower.getEncoder().setPosition(position);
+    }
+    public void setElevatorVoltage(double voltage) {
+        leadMotor.setControl(withVoltage.withOutput(voltage));
     }
 }
