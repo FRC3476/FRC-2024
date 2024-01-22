@@ -55,12 +55,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         MotionMagicConfigs motionMagic = motorConfig.MotionMagic;
 
-        motionMagic.MotionMagicCruiseVelocity = 1; // rotations per second at cruise
-        motionMagic.MotionMagicAcceleration = 10; // Take approximately 0.5 seconds to reach max vel
-        motionMagic.MotionMagicJerk = 50; // Take approximately 0.2 seconds to reach max accel
+        motionMagic.MotionMagicCruiseVelocity = 20; // rotations per second at cruise
+        motionMagic.MotionMagicAcceleration = 40; // time to reach max vel
+        motionMagic.MotionMagicJerk = 200; // time to reach max accel
 
         Slot0Configs slot0 = motorConfig.Slot0;
-        slot0.kP = 0;
+        slot0.kP = 1;
         slot0.kI = 0;
         slot0.kD = 0;
         slot0.kV = 0;
