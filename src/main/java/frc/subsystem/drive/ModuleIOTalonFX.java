@@ -208,9 +208,9 @@ public class ModuleIOTalonFX implements ModuleIO {
     @Override
     public void setSteerMotorPosition(double position, double omega) {
         positionVoltage.Position = position/360;
+        positionVoltage.Velocity = omega/(Math.PI*2);
         positionVoltage.EnableFOC = true;
-        positionVoltage.OverrideBrakeDurNeutral = true;
-        positionVoltage.FeedForward = omega * SWERVE_OMEGA_FEEDFORWARD;
+        positionVoltage.OverrideBrakeDurNeutral = true;;
         steerMotor.setControl(positionVoltage);
     }
 
