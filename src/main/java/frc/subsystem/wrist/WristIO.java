@@ -5,7 +5,8 @@ import org.littletonrobotics.junction.AutoLog;
 public interface WristIO {
     @AutoLog
     class WristInputs {
-        double wristPosition = 0.0;
+        double wristAbsolutePosition = 0.0;
+        double wristRelativePosition = 0.0;
         double wristVelocity = 0.0;
         double wristCurrent = 0.0;
         double wristTemp = 0.0;
@@ -14,8 +15,6 @@ public interface WristIO {
     }
 
     default void updateInputs(WristInputs inputs) {}
-
-    default void setWristVoltage(double voltage) {}
 
     default void zeroWristEncoder() {}
 

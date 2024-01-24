@@ -1,8 +1,6 @@
 package frc.subsystem.wrist;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants;
 import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -17,8 +15,8 @@ public class Wrist extends AbstractSubsystem {
     }
 
 
-    //add armio object here
-    public synchronized void setPositionRelativeToGround(double positionInDegrees) {
+    public synchronized void setWristPosition(double positionInDegrees) {
+        //does NOT set position relative to the ground, just relative to the arm
         double currentTime = Timer.getFPGATimestamp();
         io.setPosition(positionInDegrees);
         Logger.recordOutput("Wrist target position", positionInDegrees);
@@ -31,10 +29,11 @@ public class Wrist extends AbstractSubsystem {
         Logger.processInputs("Wrist", inputs);
     }
 
-    //position, velocity, and acceleration of the profile at that time
+    public double getWristAbsoluteDegrees() {
+        return (inputs.wristAbsolutePosition * 360.0) % 360;
+    }
 
-    public double getWristDegrees() {
-        //may need to add arm degrees here
-        return inputs.wristPosition;
+    public void zeroWristEncoder() {
+        io.zeroWristEncoder();
     }
 }
