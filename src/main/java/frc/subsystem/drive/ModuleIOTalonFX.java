@@ -196,12 +196,11 @@ public class ModuleIOTalonFX implements ModuleIO {
         isBraking = enabled;
     }
 
-    private final PositionVoltage positionVoltage = new PositionVoltage(0);
+    private final PositionVoltage positionVoltage = new PositionVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+
     @Override
     public void setSteerMotorPosition(double position) {
         positionVoltage.Position = position/360;
-        positionVoltage.EnableFOC = true;
-        positionVoltage.OverrideBrakeDurNeutral = true;
         steerMotor.setControl(positionVoltage);
     }
 
@@ -209,8 +208,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     public void setSteerMotorPosition(double position, double omega) {
         positionVoltage.Position = position/360;
         positionVoltage.Velocity = omega/(Math.PI*2);
-        positionVoltage.EnableFOC = true;
-        positionVoltage.OverrideBrakeDurNeutral = true;;
         steerMotor.setControl(positionVoltage);
     }
 

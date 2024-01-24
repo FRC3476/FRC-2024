@@ -26,7 +26,6 @@ public class WristIOTalonFX implements WristIO {
     private final StatusSignal<Double> wristCurrent;
     private final StatusSignal<Double> wristTemp;
     private final StatusSignal<Double> wristVoltage;
-    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
 
 
 
@@ -45,8 +44,8 @@ public class WristIOTalonFX implements WristIO {
         wristFeedBackConfigs.RotorToSensorRatio = 1.0 / 81;
 
         MotionMagicConfigs wristMotionMagicConfig = configs.MotionMagic;
-        wristMotionMagicConfig.MotionMagicAcceleration = 1;     //TODO change motion magic values
-        wristMotionMagicConfig.MotionMagicCruiseVelocity = 10;
+        wristMotionMagicConfig.MotionMagicCruiseVelocity = 5;
+        wristMotionMagicConfig.MotionMagicAcceleration = 10;     //TODO change motion magic values
         wristMotionMagicConfig.MotionMagicJerk = 50;
 
 
@@ -56,8 +55,6 @@ public class WristIOTalonFX implements WristIO {
         slot0.kD = 0;
         slot0.kV = 0;
         slot0.kS = 0; // Approximately 0.25V to get the mechanism moving
-        slot0.kG = 0;
-        slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         wristMotor.getConfigurator().apply(configs);
 
@@ -74,16 +71,16 @@ public class WristIOTalonFX implements WristIO {
         absoluteEncoder.optimizeBusUtilization();
     }
 
+    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
     public void setPosition(double position){
-        wristMotor.setControl(motionMagicControl.withPosition(position).withSlot(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+        wristMotor.setControl(motionMagicControl.withPosition(position));
     }
 
     public void updateInputs(WristInputs inputs) {
         BaseStatusSignal.refreshAll(wristAbsolutePosition, wristRelativePosition, wristVelocity, wristCurrent,
                 wristTemp, wristVoltage);
-        //Not sure if this is the fastest way to get encoder pos
-        //needs optimization!!!!!!
-        inputs.wristAbsolutePosition = absoluteEncoder.getPosition().getValue();
+
+        inputs.wristAbsolutePosition = wristAbsolutePosition.getValue();
         inputs.wristRelativePosition = wristRelativePosition.getValue();
         inputs.wristVelocity = wristVelocity.getValue();
         inputs.wristCurrent = wristCurrent.getValue();

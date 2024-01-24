@@ -19,7 +19,7 @@ public class Wrist extends AbstractSubsystem {
         //does NOT set position relative to the ground, just relative to the arm
         double currentTime = Timer.getFPGATimestamp();
         io.setPosition(positionInDegrees);
-        Logger.recordOutput("Wrist target position", positionInDegrees);
+        Logger.recordOutput("Wrist/Target Position", positionInDegrees);
     }
 
 

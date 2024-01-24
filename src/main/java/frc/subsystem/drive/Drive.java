@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.subsystem.AbstractSubsystem;
@@ -186,7 +187,7 @@ public class Drive extends AbstractSubsystem {
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", moduleState.omega);
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", Units.radiansToRotations(moduleState.omega));
             Logger.recordOutput("Drive/SwerveModule " + i + "/Angle Error", angleDiff);
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Relative Angle",
                     moduleInputs[i].steerMotorRelativePosition + angleDiff);
