@@ -23,13 +23,17 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     public IntakeIOTalonFX(int id) {
         motor = new TalonFX(id);
+        motor.getConfigurator.apply(new TalonFXConfiguration());
+
+
 
         motorPosition = motor.getPosition();
         motorVelocity = motor.getVelocity();
         motorVoltage = motor.getMotorVoltage();
         motorAmps = motor.getSupplyCurrent();
 
-        withVoltage = new voltageOut(0);
+        withVoltage = new voltageOut(0, true, true, false, false);
+
 
 //        invertedMode = new MotorOutputConfigs();
 //        forwardMode = new MotorOutputConfigs();

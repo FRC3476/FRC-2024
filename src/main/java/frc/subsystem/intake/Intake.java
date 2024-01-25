@@ -18,16 +18,16 @@ public class Intake extends AbstractSubsystem {
     public synchronized void update() {
 
         intakeIO.updateInputs(intakeInputs);
-        Logger.processInputs("Intake Motor ", intakeInputs);
+        Logger.processInputs("Intake ", intakeInputs);
     }
 
 
-    private void runIntake() {
+    public void runIntake() {
         intakeIO.invertMotor(false);
         intakeIO.setMotorVoltage(12);
     }
 
-    private void runOuttake() {
+    public void runOuttake() {
         intakeIO.invertMotor(true);
         intakeIO.setMotorVoltage(12);
     }
@@ -37,7 +37,7 @@ public class Intake extends AbstractSubsystem {
 
     }
 
-    private void stop() {
+    public void stop() {
         intakeIO.setMotorVoltage(0);
     }
 }
