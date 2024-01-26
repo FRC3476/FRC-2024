@@ -8,6 +8,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
+import frc.subsystem.wrist.Wrist;
+import frc.subsystem.wrist.WristIO;
+import frc.subsystem.wrist.WristIOTalonFX;
 import frc.subsystem.elevator.Elevator;
 import frc.subsystem.elevator.ElevatorIO;
 import frc.subsystem.elevator.ElevatorIOTalonFX;
@@ -49,6 +52,7 @@ public class Robot extends LoggedRobot {
 
 
     static Drive drive;
+    static Wrist wrist;
     static Elevator elevator;
 
     /**
@@ -121,6 +125,7 @@ public class Robot extends LoggedRobot {
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
             drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
+            wrist = new Wrist(new WristIOTalonFX());
             elevator = new Elevator(new ElevatorIOTalonFX());
         } else {
             setUseTiming(false); // Run as fast as possible
@@ -133,6 +138,7 @@ public class Robot extends LoggedRobot {
             }
 
             drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
+            wrist = new Wrist(new WristIO() {});
             elevator = new Elevator(new ElevatorIO() {});
         }
         // Initialize auto chooser
@@ -145,6 +151,7 @@ public class Robot extends LoggedRobot {
 
         Logger.start();
         drive.start();
+        wrist.start();
         elevator.start();
     }
 
