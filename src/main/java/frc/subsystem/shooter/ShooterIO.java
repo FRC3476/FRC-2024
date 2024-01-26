@@ -3,21 +3,20 @@ package frc.subsystem.shooter;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ShooterIO {
-    @AutoLog
-    public static class ShooterIOInputs {
-        public double positionRad = 0.0;
-        public static double velocityRadPerSec = 0.0;
-        public double appliedVolts = 0.0;
-        public double[] currentAmps = new double[]{};
-    }
+
 
     @AutoLog
     class ShooterInputs {
-        double[] motorPositions = new double[2];
-        double[] motorVelocities = new double[2];
-        double[] motorVoltages = new double[2];
-        double[] motorAmps = new double[2];
-        double[] motorTemps = new double[2];
+        public double leaderPosition = 0.0;
+        public double leaderVelocity = 0.0;
+        public double leaderVoltage = 0.0;
+        public double leaderAmps = 0.0;
+        public double leaderTemp = 0.0;
+        public double followerPosition = 0.0;
+        public double followerVelocity = 0.0;
+        public double followerVoltage = 0.0;
+        public double followerAmps = 0.0;
+        public double followerTemp = 0.0;
 
 
     }
@@ -25,18 +24,13 @@ public interface ShooterIO {
     default void updateInputs(ShooterInputsAutoLogged inputs) {
     }
 
-    default void setMotorVoltage(int id, double voltage) {
+    default void setMotorVoltage(double voltage) {
     }
 
-    default void setVelocity(int motorNum, double velocityRadPerSec, double ffVolts) {
+    default void setVelocity(double velocityRadPerSec, double ffVolts) {
     }
 
     default void stop() {
     }
 
-    public default void configurePID(double kP, double kI, double kD) {
-    }
-
-    default void invertMotor(int id) {
-    }
 }

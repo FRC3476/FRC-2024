@@ -55,6 +55,8 @@ public final class Constants {
         public static final int BR_CANCODER = 20;
 
         public static final int PIGEON = 30;
+        public static final int SHOOTER_MAIN = 61;
+        public static final int SHOOTER_FOLLOWER = 62;
 
     }
 
@@ -102,6 +104,5 @@ public final class Constants {
     public static final double FIELD_HEIGHT_METERS = 8.0137;
     public static final double FIELD_WIDTH_METERS = 16.54175;
 
-    public static final int FIRST_SHOOTER_MOTOR_NUM = 0;
-    public static final int SECOND_SHOOTER_MOTOR_NUM = 1;
+
 }
