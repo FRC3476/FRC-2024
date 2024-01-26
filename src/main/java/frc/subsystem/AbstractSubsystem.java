@@ -68,7 +68,7 @@ public abstract class AbstractSubsystem {
                     subsystem.ticksSinceLastLog = 0;
                 }
             }
-            double executionTimeMS = (Logger.getRealTimestamp() - startTime) * 0.001; //micoseconds to ms
+            double executionTimeMS = (Logger.getRealTimestamp() - startTime) * 0.001; //microseconds to ms
             Logger.recordOutput("SubsystemExecutionTimes/" + subsystem.subsystemName + " Execution Time",
                     executionTimeMS);
         }
