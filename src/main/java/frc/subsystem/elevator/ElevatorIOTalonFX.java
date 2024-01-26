@@ -30,7 +30,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD);
         followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW);
-        withVoltage = new VoltageOut(0);
 
         leadMotorPosition = leadMotor.getPosition();
         leadMotorVelocity = leadMotor.getVelocity();
@@ -73,7 +72,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         followMotor.setControl(new Follower(leadMotor.getDeviceID(), false));
     }
-    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage().withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
     public void setPosition(double targetPositionInRotations) {
         leadMotor.setControl(motionMagicRequest.withPosition(targetPositionInRotations));
     }
@@ -99,7 +98,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         //elevatorFollower.getEncoder().setPosition(position);
     }
     
-    private final VoltageOut withVoltage = new VoltageOut().withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+    private final VoltageOut withVoltage = new VoltageOut(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
 
     public void setElevatorVoltage(double voltage) {
         leadMotor.setControl(withVoltage.withOutput(voltage));
