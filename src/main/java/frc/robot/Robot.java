@@ -14,6 +14,7 @@ import frc.subsystem.wrist.WristIOTalonFX;
 import frc.subsystem.elevator.Elevator;
 import frc.subsystem.elevator.ElevatorIO;
 import frc.subsystem.elevator.ElevatorIOTalonFX;
+import frc.subsystem.shooter.*;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
@@ -54,6 +55,7 @@ public class Robot extends LoggedRobot {
     static Drive drive;
     static Wrist wrist;
     static Elevator elevator;
+    static Shooter shooter;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -127,6 +129,7 @@ public class Robot extends LoggedRobot {
             drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
             wrist = new Wrist(new WristIOTalonFX());
             elevator = new Elevator(new ElevatorIOTalonFX());
+            shooter = new Shooter(new ShooterIOTalonFX());
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -140,6 +143,7 @@ public class Robot extends LoggedRobot {
             drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
             wrist = new Wrist(new WristIO() {});
             elevator = new Elevator(new ElevatorIO() {});
+            shooter = new Shooter(new ShooterIO(){});
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -153,6 +157,7 @@ public class Robot extends LoggedRobot {
         drive.start();
         wrist.start();
         elevator.start();
+        shooter.start();
     }
 
     /** This function is called periodically during all modes. */

@@ -62,6 +62,10 @@ public final class Constants {
         public static final int BR_CANCODER = 20;
 
         public static final int PIGEON = 30;
+
+        public static final int SHOOTER_MAIN = 61;
+        public static final int SHOOTER_FOLLOWER = 62;
+
         public static final int WRIST_MOTOR = 1;
         public static final int WRIST_ENCODER = 2;
 
