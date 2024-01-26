@@ -8,17 +8,11 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 import static frc.robot.Constants.ELEVATOR_STALLING_CURRENT;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
-    private final TalonFX leadMotor;
-    private final TalonFX followMotor;
-    private final VoltageOut withVoltage;
-    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0);
-
     private final StatusSignal<Double> leadMotorPosition;
     private final StatusSignal<Double> leadMotorVelocity;
     private final StatusSignal<Double> leadMotorVoltage;
@@ -29,6 +23,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final StatusSignal<Double> followMotorVoltage;
     private final StatusSignal<Double> followMotorAmps;
     private final StatusSignal<Double> followMotorTemp;
+
+    private final TalonFX leadMotor;
+    private final TalonFX followMotor;
+    private final VoltageOut withVoltage;
+    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0);
 
     public ElevatorIOTalonFX() {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD);
@@ -61,11 +60,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         Slot0Configs slot0 = motorConfig.Slot0;
         slot0.kP = 1;
-        slot0.kI = 0;
-        slot0.kD = 0;
-        slot0.kV = 0;
-        slot0.kS = 0; // Approximately 0.25V would get the mechanism moving
-        slot0.kG = 0;
         slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         FeedbackConfigs fdb = motorConfig.Feedback;
@@ -82,7 +76,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         followMotor.setControl(new Follower(leadMotor.getDeviceID(), false));
     }
     public void setPosition(double targetPositionInRotations) {
-        leadMotor.setControl(motionMagicRequest.withPosition(targetPositionInRotations).withSlot(0));
+        leadMotor.setControl(motionMagicRequest.withPosition(targetPositionInRotations).withSlot(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true));
     }
 
     public void updateInputs(ElevatorInputs inputs) {
@@ -99,9 +93,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.followMotorVoltage = followMotorVoltage.getValue();
         inputs.followMotorAmps = followMotorAmps.getValue();
         inputs.followMotorTemp = followMotorTemp.getValue();
-
-        SmartDashboard.putNumber("Elevator motor position in inches", leadMotor.getPosition().getValue() * Constants.ELEVATOR_INCHES_PER_ROTATION);
-        SmartDashboard.putNumber("Elevator motor velocity", + leadMotor.getVelocity().getValue());
     }
 
     public void setEncoderToZero() {
@@ -109,6 +100,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         //elevatorFollower.getEncoder().setPosition(position);
     }
     public void setElevatorVoltage(double voltage) {
-        leadMotor.setControl(withVoltage.withOutput(voltage));
+        leadMotor.setControl(withVoltage.withOutput(voltage).withEnableFOC(true).withOverrideBrakeDurNeutral(true));
     }
 }
