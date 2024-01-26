@@ -1,9 +1,6 @@
 package frc.subsystem.shooter;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.util.Units;
 import frc.subsystem.AbstractSubsystem;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends AbstractSubsystem {
@@ -21,19 +18,12 @@ public class Shooter extends AbstractSubsystem {
 
     @Override
     public synchronized void update() {
-
-
         ShooterIO.updateInputs(ShooterInputs);
-        Logger.processInputs("Shooter/Motor ", ShooterInputs);
-
+        Logger.processInputs("Shooter", ShooterInputs);
     }
 
     public void runVelocity(double velocityRPM) {
-
-
-        var velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(velocityRPM);
-        ShooterIO.setVelocity(velocityRadPerSec, velocityRadPerSec);
-
+        ShooterIO.setVelocity(velocityRPM, 0);
 
         // Log flywheel setpoint
         Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);

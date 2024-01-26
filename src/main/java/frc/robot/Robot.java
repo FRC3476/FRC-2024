@@ -48,7 +48,7 @@ public class Robot extends LoggedRobot {
 
 
     static Drive drive;
-    private static Shooter shooter;
+    static Shooter shooter;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -120,7 +120,7 @@ public class Robot extends LoggedRobot {
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
             drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
-            shooter = new Shooter(new ShooterIOTalonFX(Constants.Ports.SHOOTER_MAIN, Constants.Ports.SHOOTER_FOLLOWER, 0, 0, 0, 0, 0));
+            shooter = new Shooter(new ShooterIOTalonFX());
         } else {
             setUseTiming(false); // Run as fast as possible
             if (Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -131,7 +131,8 @@ public class Robot extends LoggedRobot {
                 Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             }
 
-            drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
+            drive = new Drive(new ModuleIO(){}, new ModuleIO(){}, new ModuleIO(){}, new ModuleIO(){}, new GyroIO(){});
+            shooter = new Shooter(new ShooterIO(){});
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
