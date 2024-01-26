@@ -61,10 +61,10 @@ public final class Constants {
         public static final int PROTOTYPE_1 = -1;
         public static final int PROTOTYPE_2 = -1;
 
-        public static final int LEAD_CAN_ID = 33;
-        public static final int FOLLOW_CAN_ID = 34;
+        public static final int LEAD = 33;
+        public static final int FOLLOW = 34;
 
-        public static final int ABSOLUTE_CAN_ID = 0;
+        public static final int ABSOLUTE = 0;
 
 
     }

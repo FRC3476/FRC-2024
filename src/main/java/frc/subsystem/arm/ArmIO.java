@@ -28,16 +28,16 @@ public interface ArmIO {
 
     default void updateInputs(ArmInputs inputs) {}
 
-    default void setLeadVoltage(double voltage) {}
+    default void setLeadVoltage(double voltage) {}      //implemented :D
 
-    default void setLeadPosition(double position, double arbFFVoltage) {}
+    default void setLeadPosition(double position, double arbFFVoltage) {}       //implemented :P
 
-    default void setFollowVoltage(double current) {}
+    default void resetLeadPosition(double position) {}      //implemented :)
 
-    default void resetLeadPosition(double position) {}
+    //default void setFollowVoltage(double current) {}
 
-    default void resetFollowPosition(double position) {}
+    //default void resetFollowPosition(double position) {}
 
-    default void setPosition(double position) {}
+    //default void setPosition(double position) {}
 
 }

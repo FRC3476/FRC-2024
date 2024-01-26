@@ -69,7 +69,8 @@ public class Arm extends AbstractSubsystem {
         Logger.recordOutput("Pivot/Wanted accel", acceleration);
         Logger.recordOutput("Pivot/TrapezoidProfile error", state.position - inputs.leadPosition);
         Logger.recordOutput("Pivot/Arb FF", arbFFVoltage);
-        }
+
+    }
 
         //position, velocity, and acceleration of the profile at that time
 
