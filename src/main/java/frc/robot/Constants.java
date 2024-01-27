@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -65,6 +66,12 @@ public final class Constants {
         public static final int ELEVATOR_LEAD = 31;
         public static final int ELEVATOR_FOLLOW = 32;
 
+        public static final int ARM_LEAD = 51;
+        public static final int ARM_FOLLOW = 53;
+
+        public static final int ARM_CANCODER = 52;
+
+
     }
     //TODO: figure out actual values for below
     public enum ElevatorPosition {
@@ -96,6 +103,7 @@ public final class Constants {
     public static final double SWERVE_DRIVE_D = 0.05;
     public static final double SWERVE_DRIVE_I = 0.00;
 
+
     public static final int STEER_MOTOR_CURRENT_LIMIT = 20;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
     public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.281485, 2.3016, 0.45);
@@ -114,6 +122,7 @@ public final class Constants {
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
     public static final double DRIVE_MOTOR_REDUCTION = 1 / 5.9;
 
+    // TODO: check accuracy of these numbers for new drive base. Ask CAD ppl?
     public static final @NotNull Translation2d SWERVE_LEFT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(11.375), Units.inchesToMeters(11.375));
     public static final @NotNull Translation2d SWERVE_LEFT_BACK_LOCATION = new Translation2d(Units.inchesToMeters(-11.375), Units.inchesToMeters(11.375));
     public static final @NotNull Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(11.375), Units.inchesToMeters(-11.375));
@@ -124,13 +133,30 @@ public final class Constants {
             SWERVE_RIGHT_FRONT_LOCATION,
             SWERVE_RIGHT_BACK_LOCATION
     };
-
+    // really, figure out if these locations are correct <_<
     public static final SecondOrderKinematics SWERVE_DRIVE_KINEMATICS = new SecondOrderKinematics(
             SWERVE_MODULE_LOCATIONS
     );
 
     public static final double MAX_ERROR_PRINT_TIME = 0.5;
 
+    // TODO: change these
     public static final double FIELD_HEIGHT_METERS = 8.0137;
     public static final double FIELD_WIDTH_METERS = 16.54175;
+
+    public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
+
+    //all value to be changed
+    public static final double ARM_NOMINAL_VOLTAGE = 9;
+    public static final int ARM_SMART_CURRENT_LIMIT = 35;
+    public static final int ARM_CURRENT_THRESHOLD = ARM_SMART_CURRENT_LIMIT - 10;
+    public static final int PIVOT_SMART_CURRENT_LIMIT = 40;
+
+    public static final double ARM_CLOSE_THRESHOLD_DEGREES = 48;
+    public static final double ARM_OPEN_THRESHOLD_DEGREES = 55;
+    public static final boolean USE_ARM_ENCODER = false;
+    public static final boolean ARM_WHEELS_USED = false;
+
+    public static final double ARM_LENGTH = .308;
+
 }
