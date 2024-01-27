@@ -18,10 +18,6 @@ public class Arm extends AbstractSubsystem {
         super();
         this.io = armio;
     }
-
-    //TODO: conversion degree encoder, where is position relative to,
-    // what # would i pass in when i pass value to position
-
     /**
     * @param position The position to set the Arm (degrees)
     */

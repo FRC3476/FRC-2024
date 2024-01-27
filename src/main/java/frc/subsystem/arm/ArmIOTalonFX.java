@@ -3,20 +3,15 @@ package frc.subsystem.arm;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.mechanisms.swerve.utility.PhoenixPIDController;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 import static frc.robot.Constants.Ports.*;
-import static frc.robot.Constants.USE_ARM_ENCODER;
 
 
 public class ArmIOTalonFX implements ArmIO {
@@ -37,15 +32,15 @@ public class ArmIOTalonFX implements ArmIO {
 //    private final StatusSignal<Double> followVoltage;
 //    private final StatusSignal<Double> followBusVoltage;
 //    private final StatusSignal<Double> followCurrent;
-    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
+    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
 
 
 
     public ArmIOTalonFX() {
 
-        leadTalonFX = new TalonFX(LEAD);//second parameter=Canbus
+        leadTalonFX = new TalonFX(ARM_LEAD);//second parameter=Canbus
         //followTalonFX = new TalonFX(FOLLOW_CAN_ID);
-        absoluteEncoder = new CANcoder(ABSOLUTE);
+        absoluteEncoder = new CANcoder(ARM_CANCODER);
 
         var talonFXConfigs = new TalonFXConfiguration();
 
@@ -56,9 +51,9 @@ public class ArmIOTalonFX implements ArmIO {
         armFeedBackConfigs.RotorToSensorRatio = 1.0 / 144;
 
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
-        armMotionMagicConfig.MotionMagicAcceleration = 100;     //TODO change motion magic values
-        armMotionMagicConfig.MotionMagicCruiseVelocity = 50;
-        armMotionMagicConfig.MotionMagicJerk = 50;
+        armMotionMagicConfig.MotionMagicCruiseVelocity = 10;
+        armMotionMagicConfig.MotionMagicAcceleration = 20;     //TODO change motion magic values
+        armMotionMagicConfig.MotionMagicJerk = 100;
 
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
@@ -136,17 +131,17 @@ public class ArmIOTalonFX implements ArmIO {
 
     @Override
     public void resetLeadPosition(double position) {
-        absoluteEncoder.setControl(motionMagicControl.withPosition(position).withSlot(0));
+        leadTalonFX.setPosition(0);
     }
 
     @Override
     public void setLeadPosition(double position, double arbFFVoltage) {
-        leadTalonFX.setControl(motionMagicControl.withPosition(position).withFeedForward(arbFFVoltage));
+        absoluteEncoder.setControl(motionMagicControl.withPosition(position).withFeedForward(arbFFVoltage));
     }
 
     @Override
     public void setLeadVoltage(double voltage) {
-            leadTalonFX.setControl(new VoltageOut(0).withOutput(voltage));
+        leadTalonFX.setControl(new VoltageOut(0).withOutput(voltage));
     }
 }
 

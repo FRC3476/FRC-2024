@@ -66,10 +66,10 @@ public final class Constants {
         public static final int ELEVATOR_LEAD = 31;
         public static final int ELEVATOR_FOLLOW = 32;
 
-        public static final int LEAD = 33;
-        public static final int FOLLOW = 34;
+        public static final int ARM_LEAD = 51;
+        public static final int ARM_FOLLOW = 53;
 
-        public static final int ABSOLUTE = 0;
+        public static final int ARM_CANCODER = 52;
 
 
     }
