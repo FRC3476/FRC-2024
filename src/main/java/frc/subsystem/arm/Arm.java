@@ -13,6 +13,7 @@ public class Arm extends AbstractSubsystem {
     public Arm(ArmIO armio) {
         super();
         this.io = armio;
+        io.resetLeadPosition();
     }
     /**
     * @param position The position to set the Arm (degrees)
@@ -32,7 +33,10 @@ public class Arm extends AbstractSubsystem {
         //position, velocity, and acceleration of the profile at that time
 
     public double getPivotDegrees() {
-        return inputs.leadPosition;
+        return inputs.leadRelativePosition;
     }
 
+    public void configurePid(double p, double i, double d, double g) {
+        io.configurePid(p, i, d, g);
+    }
 }
