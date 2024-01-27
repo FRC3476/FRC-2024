@@ -167,50 +167,34 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         inputs.steerMotorAbsolutePosition = Units.rotationsToDegrees(steerMotorAbsolutePosition.getValue());
         inputs.steerMotorRelativePosition = Units.rotationsToDegrees(steerMotorRelativePosition.getValue());
+        inputs.steerMotorVelocity = Units.rotationsToRadians(steerMotorVelocity.getValue());
         inputs.steerMotorVoltage = steerMotorVoltage.getValue();
         inputs.steerMotorAmps = steerMotorAmps.getValue();
         inputs.steerMotorTemp = steerMotorTemp.getValue();
     }
 
     private boolean isBraking = false;
-    private final MotorOutputConfigs coastModeInverted = new MotorOutputConfigs();
-    private final MotorOutputConfigs brakeModeInverted = new MotorOutputConfigs();
-    private final MotorOutputConfigs coastMode = new MotorOutputConfigs();
-    private final MotorOutputConfigs brakeMode = new MotorOutputConfigs();
-    {
-        coastMode.NeutralMode = NeutralModeValue.Coast;
-        brakeMode.NeutralMode = NeutralModeValue.Brake;
 
-        coastModeInverted.NeutralMode = NeutralModeValue.Coast;
-        brakeModeInverted.NeutralMode = NeutralModeValue.Brake;
-
-        coastModeInverted.Inverted = InvertedValue.Clockwise_Positive;
-        brakeModeInverted.Inverted = InvertedValue.Clockwise_Positive;
-    }
     @Override
     public void setBrakeMode(boolean enabled) {
         if (isBraking != enabled) {
-            steerMotor.getConfigurator().apply(enabled ? brakeModeInverted : coastModeInverted);
-            driveMotor.getConfigurator().apply(enabled ? brakeMode : coastMode);
+            steerMotor.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+            driveMotor.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
         }
         isBraking = enabled;
     }
 
-    private final PositionVoltage positionVoltage = new PositionVoltage(0);
+    private final PositionVoltage positionVoltage = new PositionVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+
     @Override
     public void setSteerMotorPosition(double position) {
-        positionVoltage.Position = position/360;
-        positionVoltage.EnableFOC = true;
-        positionVoltage.OverrideBrakeDurNeutral = true;
-        steerMotor.setControl(positionVoltage);
+        setSteerMotorPosition(position, 0);
     }
 
     @Override
     public void setSteerMotorPosition(double position, double omega) {
         positionVoltage.Position = position/360;
-        positionVoltage.EnableFOC = true;
-        positionVoltage.OverrideBrakeDurNeutral = true;
-        positionVoltage.FeedForward = omega * SWERVE_OMEGA_FEEDFORWARD;
+        positionVoltage.Velocity = omega/(Math.PI*2);
         steerMotor.setControl(positionVoltage);
     }
 
