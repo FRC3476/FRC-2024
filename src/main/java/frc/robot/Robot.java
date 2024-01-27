@@ -60,8 +60,8 @@ public class Robot extends LoggedRobot {
     static Wrist wrist;
     static Elevator elevator;
     static Shooter shooter;
-    static Superstructure superstructure;
     static Arm arm;
+    static Superstructure superstructure;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -137,7 +137,8 @@ public class Robot extends LoggedRobot {
             elevator = new Elevator(new ElevatorIOTalonFX());
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
-            //superstructure = new Superstructure();
+            superstructure = new Superstructure(arm, wrist,/*intake,*/ shooter, elevator, drive/*, climber*/);
+
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -153,6 +154,7 @@ public class Robot extends LoggedRobot {
             elevator = new Elevator(new ElevatorIO() {});
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
+            superstructure = new Superstructure(arm, wrist,/*intake,*/ shooter, elevator, drive/*, climber*/);
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -168,6 +170,7 @@ public class Robot extends LoggedRobot {
         elevator.start();
         shooter.start();
         arm.start();
+        superstructure.start();
     }
 
     /** This function is called periodically during all modes. */
