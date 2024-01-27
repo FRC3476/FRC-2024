@@ -58,9 +58,6 @@ public final class Constants {
 
         public static final int PIGEON = 30;
 
-        public static final int PROTOTYPE_1 = -1;
-        public static final int PROTOTYPE_2 = -1;
-
         public static final int LEAD = 33;
         public static final int FOLLOW = 34;
 

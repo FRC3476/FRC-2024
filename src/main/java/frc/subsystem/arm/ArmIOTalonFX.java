@@ -22,8 +22,7 @@ import static frc.robot.Constants.USE_ARM_ENCODER;
 public class ArmIOTalonFX implements ArmIO {
 
     private final TalonFX leadTalonFX;
-    private final Follower followTalonFX;
-    private PhoenixPIDController leadTalonFXPIDController;
+//    private final TalonFX followTalonFX;
     private final CANcoder absoluteEncoder;
 
 
@@ -32,37 +31,35 @@ public class ArmIOTalonFX implements ArmIO {
     private final StatusSignal<Double> leadCurrent;
     private final StatusSignal<Double> leadTemp;
     private final StatusSignal<Double> leadVoltage;
-    //    private final StatusSignal<Double> followVelocity;
+//    private final StatusSignal<Double> followVelocity;
 //    private final StatusSignal<Double> followPosition;
 //    private final StatusSignal<Double> followTemp;
 //    private final StatusSignal<Double> followVoltage;
 //    private final StatusSignal<Double> followBusVoltage;
 //    private final StatusSignal<Double> followCurrent;
-
     private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
-    private final double absoluteEncoderOffset;
+
 
 
     public ArmIOTalonFX() {
 
         leadTalonFX = new TalonFX(LEAD);//second parameter=Canbus
-        followTalonFX = new Follower(LEAD, false);
+        //followTalonFX = new TalonFX(FOLLOW_CAN_ID);
         absoluteEncoder = new CANcoder(ABSOLUTE);
-        absoluteEncoderOffset = -0.234130859375+0.5; //TODO: change offset
 
         var talonFXConfigs = new TalonFXConfiguration();
 
         var armFeedBackConfigs = talonFXConfigs.Feedback;
-        armFeedBackConfigs.FeedbackRemoteSensorID = absoluteEncoder.getDeviceID();     //TODO change values for line 42,44,45
+        armFeedBackConfigs.FeedbackRemoteSensorID = absoluteEncoder.getDeviceID();
         armFeedBackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         armFeedBackConfigs.SensorToMechanismRatio = 1;
         armFeedBackConfigs.RotorToSensorRatio = 1.0 / 144;
 
-        PhoenixPIDController leadTalonFXPIDController = new PhoenixPIDController(1, 2, 3);
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
-        armMotionMagicConfig.MotionMagicAcceleration = 50;     //TODO change motion magic values
-        armMotionMagicConfig.MotionMagicCruiseVelocity = 70;
-        armMotionMagicConfig.MotionMagicJerk = 100;
+        armMotionMagicConfig.MotionMagicAcceleration = 100;     //TODO change motion magic values
+        armMotionMagicConfig.MotionMagicCruiseVelocity = 50;
+        armMotionMagicConfig.MotionMagicJerk = 50;
+
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
         slot0.kP = 0;
@@ -108,9 +105,9 @@ public class ArmIOTalonFX implements ArmIO {
 //        followTalonFX.optimizeBusUtilization();
     }
 
-//    public void setPosition(double position) {
-//        leadTalonFX.setControl(motionMagicControl.withPosition(position).withSlot(0));
-//    }
+    public void setPosition(double position){
+        leadTalonFX.setControl(motionMagicControl.withPosition(position).withSlot(0));
+    }
 
     public void updateInputs(ArmInputs inputs) {
         BaseStatusSignal.refreshAll(leadPosition, leadVelocity, leadCurrent,
@@ -123,7 +120,6 @@ public class ArmIOTalonFX implements ArmIO {
         inputs.leadTemp = leadTemp.getValue();
         inputs.leadVoltage = leadVoltage.getValue();
 
-
 //            inputs.followPosition = followPosition.getValue();
 //            inputs.followVelocity = followVelocity.getValue();
 //            inputs.followCurrent = followCurrent.getValue();
@@ -132,11 +128,6 @@ public class ArmIOTalonFX implements ArmIO {
 //            inputs.followBusVoltage = followBusVoltage.getValue();;
 
     }
-
-//    public void setControl(double position, double arbFFVoltage) {
-//
-//        // leadTalonFX.getConfigurator().setPosition(position);
-//    }
 
 
 //    public void setFollowVoltage(double voltage) {
@@ -150,7 +141,7 @@ public class ArmIOTalonFX implements ArmIO {
 
     @Override
     public void setLeadPosition(double position, double arbFFVoltage) {
-            leadTalonFX.setControl(motionMagicControl.withPosition(position).withFeedForward(arbFFVoltage));
+        leadTalonFX.setControl(motionMagicControl.withPosition(position).withFeedForward(arbFFVoltage));
     }
 
     @Override
