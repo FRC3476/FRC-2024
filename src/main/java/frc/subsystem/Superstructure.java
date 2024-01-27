@@ -16,7 +16,7 @@ public class Superstructure extends AbstractSubsystem {
     private final Elevator elevator;
     private final Drive drive;
     //private final Climber climber;
-    private static States currentState = States.REST;
+    private static States currentState = States.STOW;
     public Superstructure(Arm arm, Wrist wrist, /*Intake intake,*/ Shooter shooter, Elevator elevator, Drive drive/*, Climber climber*/) {
         super();
         this.arm = arm;
@@ -41,8 +41,8 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code!
-                //should check if position reached, if so, switch to rest state
-                if(true) {
+                //might need to check if position reached, if so, switch to rest state
+                if(false) {
                     setCurrentState(REST);
                 }
             }
@@ -140,10 +140,10 @@ public class Superstructure extends AbstractSubsystem {
 
     public void setMechanismState(States state) {
         setCurrentState(state);
-        arm.setPosition(state.armPos);
-        elevator.setPosition(state.elevatorPos);
-        wrist.setWristPosition(state.wristPos);
-        //climber.setPosition(state.climberPos);
+        arm.setPosition(currentState.armPos);
+        elevator.setPosition(currentState.elevatorPos);
+        wrist.setWristPosition(currentState.wristPos);
+        //climber.setPosition(currentState.climberPos);
     }
 
     private static States getCurrentState() {
@@ -151,5 +151,9 @@ public class Superstructure extends AbstractSubsystem {
     }
     private static void setCurrentState(States newState) {
         currentState = newState;
+    }
+
+    public void update() {
+        currentState.update();
     }
 }

@@ -171,6 +171,7 @@ public class Robot extends LoggedRobot {
         shooter.start();
         arm.start();
         superstructure.start();
+        superstructure.setMechanismState(Superstructure.States.STOW);
     }
 
     /** This function is called periodically during all modes. */
