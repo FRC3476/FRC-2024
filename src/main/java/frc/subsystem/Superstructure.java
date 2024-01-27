@@ -41,6 +41,10 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code!
+                //should check if position reached, if so, switch to rest state
+                if(true) {
+                    setCurrentState(REST);
+                }
             }
         },
         INTAKE_FRONT(0, 0, 0, 0) {
@@ -135,16 +139,17 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     public void setMechanismState(States state) {
+        setCurrentState(state);
         arm.setPosition(state.armPos);
         elevator.setPosition(state.elevatorPos);
         wrist.setWristPosition(state.wristPos);
         //climber.setPosition(state.climberPos);
     }
 
-    public static States getCurrentState() {
+    private static States getCurrentState() {
         return currentState;
     }
-    public static void setCurrentState(States newState) {
+    private static void setCurrentState(States newState) {
         currentState = newState;
     }
 }

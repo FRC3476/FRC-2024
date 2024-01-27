@@ -7,6 +7,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.subsystem.AbstractSubsystem;
+import frc.subsystem.Superstructure;
 import frc.subsystem.drive.*;
 import frc.subsystem.wrist.Wrist;
 import frc.subsystem.wrist.WristIO;
@@ -56,6 +57,7 @@ public class Robot extends LoggedRobot {
     static Wrist wrist;
     static Elevator elevator;
     static Shooter shooter;
+    static Superstructure superstructure;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -130,6 +132,7 @@ public class Robot extends LoggedRobot {
             wrist = new Wrist(new WristIOTalonFX());
             elevator = new Elevator(new ElevatorIOTalonFX());
             shooter = new Shooter(new ShooterIOTalonFX());
+            //superstructure = new Superstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
