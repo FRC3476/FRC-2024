@@ -29,8 +29,8 @@ public class ShooterIOTalonFX implements ShooterIO {
     private final SimpleMotorFeedforward ffModel;
 
     public ShooterIOTalonFX() {
-        leader = new TalonFX(Ports.SHOOTER_MAIN);
-        follower = new TalonFX(Ports.SHOOTER_FOLLOWER);
+        leader = new TalonFX(Ports.SHOOTER_LEAD);
+        follower = new TalonFX(Ports.SHOOTER_FOLLOW);
         ffModel = new SimpleMotorFeedforward(0, 0); // Need to figure out constants
 
         var config = new TalonFXConfiguration();

@@ -44,7 +44,7 @@ public class Elevator extends AbstractSubsystem {
                     homing = false;
                     elevatorIO.setEncoderToZero();
                 }
-                Logger.getInstance().recordOutput("Elevator/Home time", homeTime);
+                Logger.recordOutput("Elevator/Home time", homeTime);
             }
         }
     }

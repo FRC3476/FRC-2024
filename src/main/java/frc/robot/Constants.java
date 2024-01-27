@@ -57,14 +57,14 @@ public final class Constants {
 
         public static final int PIGEON = 30;
 
-        public static final int SHOOTER_MAIN = 61;
-        public static final int SHOOTER_FOLLOWER = 62;
+        public static final int SHOOTER_LEAD = 61;
+        public static final int SHOOTER_FOLLOW = 62;
 
         public static final int WRIST_MOTOR = 1;
         public static final int WRIST_ENCODER = 2;
 
-        public static final int ELEVATOR_LEAD = 31;
-        public static final int ELEVATOR_FOLLOW = 32;
+        public static final int ELEVATOR_LEAD = 41;
+        public static final int ELEVATOR_FOLLOW = 42;
 
         public static final int ARM_LEAD = 51;
         public static final int ARM_FOLLOW = 53;
