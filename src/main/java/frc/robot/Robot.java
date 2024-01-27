@@ -7,6 +7,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.subsystem.AbstractSubsystem;
+import frc.subsystem.arm.Arm;
+import frc.subsystem.arm.ArmIO;
+import frc.subsystem.arm.ArmIOTalonFX;
 import frc.subsystem.drive.*;
 import frc.subsystem.wrist.Wrist;
 import frc.subsystem.wrist.WristIO;
@@ -56,6 +59,7 @@ public class Robot extends LoggedRobot {
     static Wrist wrist;
     static Elevator elevator;
     static Shooter shooter;
+    static Arm arm;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -130,6 +134,7 @@ public class Robot extends LoggedRobot {
             wrist = new Wrist(new WristIOTalonFX());
             elevator = new Elevator(new ElevatorIOTalonFX());
             shooter = new Shooter(new ShooterIOTalonFX());
+            arm = new Arm(new ArmIOTalonFX());
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -144,6 +149,7 @@ public class Robot extends LoggedRobot {
             wrist = new Wrist(new WristIO() {});
             elevator = new Elevator(new ElevatorIO() {});
             shooter = new Shooter(new ShooterIO(){});
+            arm = new Arm(new ArmIO(){});
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -158,6 +164,7 @@ public class Robot extends LoggedRobot {
         wrist.start();
         elevator.start();
         shooter.start();
+        arm.start();
     }
 
     /** This function is called periodically during all modes. */
