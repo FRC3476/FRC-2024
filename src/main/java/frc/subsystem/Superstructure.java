@@ -1,66 +1,50 @@
 package frc.subsystem;
 
 import frc.subsystem.arm.Arm;
+import frc.subsystem.drive.Drive;
 import frc.subsystem.elevator.Elevator;
 import frc.subsystem.shooter.Shooter;
 import frc.subsystem.wrist.Wrist;
 
 public class Superstructure extends AbstractSubsystem {
-    Arm arm;
-    Wrist wrist;
-    //Intake intake;
-    Shooter shooter;
-    Elevator elevator;
-    public Superstructure(Arm arm, Wrist wrist, /*Intake intake,*/ Shooter shooter, Elevator elevator) {
+    private Arm arm;
+    private Wrist wrist;
+    //private Intake intake;
+    private Shooter shooter;
+    private Elevator elevator;
+    private Drive drive;
+    public Superstructure(Arm arm, Wrist wrist, /*Intake intake,*/ Shooter shooter, Elevator elevator, Drive drive) {
         super();
         this.arm = arm;
         this.wrist = wrist;
         //this.intake = intake;
         this.shooter = shooter;
         this.elevator = elevator;
+        this.drive = drive;
     }
 
-    public enum MechanismStates {
-        STOW, INTAKE_FRONT, INTAKE_BACK, AMP_FRONT, AMP_BACK, SPEAKER_FRONT, SPEAKER_BACK, TRAP;
-    }
-
-    public void setMechanismState(MechanismStates state) {
-        switch(state) {
-            case STOW:
-                arm.setPosition(0);
-                elevator.setPosition(0);
-                wrist.setWristPosition(0);
-                break;
-            case INTAKE_FRONT:
-                arm.setPosition(0);
-                elevator.setPosition(0);
-                wrist.setWristPosition(1);
-                break;
-            case INTAKE_BACK:
-                arm.setPosition(0);
-                elevator.setPosition(1);
-                wrist.setWristPosition(1);
-                break;
-            case AMP_FRONT:
-                arm.setPosition(1);
-                elevator.setPosition(1);
-                wrist.setWristPosition(1);
-                break;
-            case AMP_BACK:
-                arm.setPosition(1);
-                elevator.setPosition(1);
-                wrist.setWristPosition(2);
-                break;
-            case SPEAKER_FRONT:
-                arm.setPosition(1);
-                elevator.setPosition(2);
-                wrist.setWristPosition(2);
-                break;
-            case TRAP:
-                arm.setPosition(2);
-                elevator.setPosition(2);
-                wrist.setWristPosition(2);
-                break;
+    public enum States {
+        STOW(0, 0, 0),
+        INTAKE_FRONT(0, 0, 0),
+        INTAKE_BACK(0, 0, 0),
+        AMP_FRONT(0, 0, 0),
+        AMP_BACK(0, 0, 0),
+        SPEAKER_FRONT(0, 0, 0),
+        SPEAKER_BACK(0, 0, 0),
+        TRAP(0, 0, 0);
+        double elevatorPos;
+        double armPos;
+        double wristPos;
+        States(double elevatorPos, double armPos, double wristPos) {
+            this.elevatorPos = elevatorPos;
+            this.armPos = armPos;
+            this.wristPos = wristPos;
         }
+    }
+
+    public void setMechanismState(States state) {
+        arm.setPosition(state.armPos);
+        elevator.setPosition(state.elevatorPos);
+        wrist.setWristPosition(state.wristPos);
     }
 }

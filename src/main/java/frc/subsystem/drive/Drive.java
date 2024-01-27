@@ -239,5 +239,12 @@ public class Drive extends AbstractSubsystem {
         public static State goal;
         public static double turnErrorRadians;
     }
+
+    public void rotateFrontToSpeaker() {
+        //TODO
+    }
+    public void rotateBackToSpeaker() {
+        //TODO
+    }
 }
 
