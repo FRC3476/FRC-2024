@@ -1,9 +1,5 @@
 package frc.subsystem.arm;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants;
 import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -38,4 +34,5 @@ public class Arm extends AbstractSubsystem {
     public double getPivotDegrees() {
         return inputs.leadPosition;
     }
+
 }
