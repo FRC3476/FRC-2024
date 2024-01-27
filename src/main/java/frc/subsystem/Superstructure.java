@@ -40,6 +40,10 @@ public class Superstructure extends AbstractSubsystem {
             this.armPos = armPos;
             this.wristPos = wristPos;
         }
+
+        double getWristPos() {
+
+        }
     }
 
     public void setMechanismState(States state) {
