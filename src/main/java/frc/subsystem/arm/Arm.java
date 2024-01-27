@@ -11,7 +11,6 @@ public class Arm extends AbstractSubsystem {
 
     private final ArmIO io;
     private final ArmInputsAutoLogged inputs = new ArmInputsAutoLogged();
-    Constants.ArmPosition targetPosition;
 
     /** A robot arm subsystem that moves with a motion profile. */
 
