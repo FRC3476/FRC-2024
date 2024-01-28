@@ -12,6 +12,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
 import frc.utility.swerve.SecondOrderModuleState;
@@ -21,6 +22,8 @@ import frc.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.Optional;
 
 import static frc.robot.Constants.*;
 
@@ -33,6 +36,11 @@ public class Drive extends AbstractSubsystem {
     private SwerveSetpointGenerator.KinematicLimit kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     private final SwerveDrivePoseEstimator poseEstimator;
     private @NotNull DriveState driveState = DriveState.TELEOP;
+
+    Optional<DriverStation.Alliance> ally = DriverStation.getAlliance();
+
+    private final Pose2d redAllianceSpeaker = new Pose2d(FIELD_WIDTH_METERS,(FIELD_HEIGHT_METERS / 2) - Units.inchesToMeters(57),new Rotation2d());
+    private final Pose2d blueAllianceSpeaker = new Pose2d(0,(FIELD_HEIGHT_METERS / 2) - Units.inchesToMeters(57),new Rotation2d());
 
     public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
         super();
@@ -238,6 +246,50 @@ public class Drive extends AbstractSubsystem {
         public static ControllerDriveInputs controllerDriveInputs;
         public static State goal;
         public static double turnErrorRadians;
+    }
+
+    public double findDistanceToSpeaker() {
+
+        double distance = 0;
+        if (ally.isPresent()) {
+            if (ally.get() == DriverStation.Alliance.Red) {
+
+                distance = Math.sqrt(Math.pow(Math.abs(redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()), 2) +
+                        Math.pow(Math.abs(redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY()), 2));
+
+
+
+            }
+            if (ally.get() == DriverStation.Alliance.Blue) {
+                distance = Math.sqrt(Math.pow(Math.abs(blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()), 2) +
+                        Math.pow(Math.abs(blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY()), 2));
+            }
+        }
+        return distance;
+    }
+
+    public double findAngleToSpeaker() {
+
+        double yDistanceToBlue = blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
+        double yDistanceToRed = redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
+
+        if (ally.isPresent()) {
+            if (ally.get() == DriverStation.Alliance.Red) {
+                if (yDistanceToBlue < 0) {
+                    return -Math.atan(yDistanceToRed / redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX());
+                } else {
+                    return Math.atan(yDistanceToRed / redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX());
+                }
+            }
+        }
+            if (ally.get() == DriverStation.Alliance.Blue) {
+                if (yDistanceToBlue < 0) {
+                    return (180 + Math.atan(yDistanceToRed / redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
+                } else {
+                    return (180 - Math.atan(yDistanceToRed / redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
+                }
+            }
+        return 0;
     }
 }
 
