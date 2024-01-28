@@ -5,7 +5,7 @@ import frc.subsystem.arm.Arm;
 import frc.subsystem.drive.Drive;
 import frc.subsystem.elevator.Elevator;
 import frc.subsystem.shooter.Shooter;
-//import frc.subsystem.intake.Intake;
+import frc.subsystem.intake.Intake;
 import frc.subsystem.wrist.Wrist;
 //import frc.subsystem.climber.Climber;
 
@@ -145,14 +145,6 @@ public class Superstructure extends AbstractSubsystem {
         public abstract void update();
     }
 
-    public void setMechanismState(States state) {
-        setCurrentState(state);
-        arm.setPosition(currentState.armPos);
-        elevator.setPosition(currentState.elevatorPos);
-        wrist.setWristPosition(getWristDegreesRelativeToGround(currentState.wristPos, arm.getPivotDegrees()));
-        //climber.setPosition(currentState.climberPos);
-    }
-
     private static States getCurrentState() {
         return currentState;
     }
@@ -162,6 +154,9 @@ public class Superstructure extends AbstractSubsystem {
 
     public void update() {
         currentState.update();
+        arm.setPosition(currentState.armPos);
+        elevator.setPosition(currentState.elevatorPos);
+        wrist.setWristPosition(getWristDegreesRelativeToGround(currentState.wristPos, arm.getPivotDegrees()));
     }
 
     public double getWristDegreesRelativeToGround(double degreesRelativeToArm, double armPivotDegrees) {
