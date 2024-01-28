@@ -20,4 +20,6 @@ public interface WristIO {
 
     default void setPosition(double position) {}
 
+    default void setBrakeMode(boolean braked) {}
+
 }

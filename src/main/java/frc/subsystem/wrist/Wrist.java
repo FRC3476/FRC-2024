@@ -12,12 +12,12 @@ public class Wrist extends AbstractSubsystem {
     public Wrist(WristIO wristio) {
         super();
         this.io = wristio;
+        io.setBrakeMode(true);
     }
 
 
     public synchronized void setWristPosition(double positionInDegrees) {
         //does NOT set position relative to the ground, just relative to the arm
-        double currentTime = Timer.getFPGATimestamp();
         io.setPosition(positionInDegrees);
         Logger.recordOutput("Wrist/Target Position", positionInDegrees);
     }
