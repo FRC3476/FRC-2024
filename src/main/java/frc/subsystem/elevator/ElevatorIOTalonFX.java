@@ -9,6 +9,8 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Constants;
 
 import static frc.robot.Constants.ELEVATOR_STALLING_CURRENT;
@@ -60,7 +62,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                                 .withSupplyCurrentLimit(ELEVATOR_STALLING_CURRENT)
                                 .withSupplyCurrentLimitEnable(true)
                                 .withStatorCurrentLimitEnable(false)
-                );
+                ).withMotorOutput(new MotorOutputConfigs()
+                        .withInverted(InvertedValue.Clockwise_Positive)
+                        .withNeutralMode(NeutralModeValue.Brake));
 
         leadMotor.getConfigurator().apply(motorConfig);
         followMotor.getConfigurator().apply(motorConfig);
@@ -93,6 +97,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     public void setEncoderToZero() {
         leadMotor.setPosition(0);
+        followMotor.setPosition(0);
         //elevatorFollower.getEncoder().setPosition(position);
     }
     

@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import static frc.robot.Constants.Ports.*;
 
@@ -40,17 +41,17 @@ public class WristIOTalonFX implements WristIO {
         wristFeedBackConfigs.FeedbackRemoteSensorID = absoluteEncoder.getDeviceID();
         wristFeedBackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         //ask amber about below
-        wristFeedBackConfigs.SensorToMechanismRatio = 1;
-        wristFeedBackConfigs.RotorToSensorRatio = 1.0 / 81;
+        wristFeedBackConfigs.SensorToMechanismRatio = 1.0;
+        wristFeedBackConfigs.RotorToSensorRatio = 81.0;
 
         MotionMagicConfigs wristMotionMagicConfig = configs.MotionMagic;
-        wristMotionMagicConfig.MotionMagicCruiseVelocity = 5;
-        wristMotionMagicConfig.MotionMagicAcceleration = 10;     //TODO change motion magic values
-        wristMotionMagicConfig.MotionMagicJerk = 50;
+        wristMotionMagicConfig.MotionMagicCruiseVelocity = 1;
+        wristMotionMagicConfig.MotionMagicAcceleration = 2;     //TODO change motion magic values
+        wristMotionMagicConfig.MotionMagicJerk = 10;
 
 
         Slot0Configs slot0 = configs.Slot0;
-        slot0.kP = 0;
+        slot0.kP = 10;
         slot0.kI = 0;
         slot0.kD = 0;
         slot0.kV = 0;
@@ -91,5 +92,9 @@ public class WristIOTalonFX implements WristIO {
 
     public void zeroWristEncoder() {
         absoluteEncoder.setPosition(0);
+    }
+
+    public void setBrakeMode(boolean braked) {
+        wristMotor.setNeutralMode(braked ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
 }

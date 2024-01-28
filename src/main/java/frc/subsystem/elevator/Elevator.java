@@ -21,19 +21,18 @@ public class Elevator extends AbstractSubsystem {
         this.setPosition(position.positionLocationInches / ELEVATOR_INCHES_PER_ROTATION);
     }
 
-    public void setPosition(double positionInRotations) {
-        double positionInInches = positionInRotations * ELEVATOR_INCHES_PER_ROTATION;
+    public void setPosition(double positionInInches) {
         if (positionInInches < ELEVATOR_LOWER_LIMIT_INCHES) {
             positionInInches = ELEVATOR_LOWER_LIMIT_INCHES;
         } else if (positionInInches > ELEVATOR_UPPER_LIMIT_INCHES) {
             positionInInches = ELEVATOR_UPPER_LIMIT_INCHES;
         }
-        positionInRotations = positionInInches / ELEVATOR_INCHES_PER_ROTATION;
-        elevatorIO.setPosition(positionInRotations);
+        elevatorIO.setPosition(positionInInches);
     }
 
     public void update() {
         elevatorIO.updateInputs(elevatorInputs);
+        Logger.processInputs("Elevator", elevatorInputs);
 
         if (homing) {
             if (DriverStation.isEnabled()) {
@@ -52,5 +51,8 @@ public class Elevator extends AbstractSubsystem {
     public void home() {
         homeTime = MIN_ELEVATOR_HOME_TIME;
         homing = true;
+    }
+    public void zeroEncoder() {
+        elevatorIO.setEncoderToZero();
     }
 }

@@ -93,7 +93,7 @@ public final class Constants {
 
     public static final double ELEVATOR_INCHES_PER_ROTATION = 0.25*22*12/60; //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
     public static final double ELEVATOR_LOWER_LIMIT_INCHES = 0;
-    public static final double ELEVATOR_UPPER_LIMIT_INCHES = 12;
+    public static final double ELEVATOR_UPPER_LIMIT_INCHES = 20;
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
     public static final double ELEVATOR_STALLING_CURRENT = 35;
