@@ -1,5 +1,6 @@
 package frc.subsystem;
 
+import frc.robot.Constants;
 import frc.subsystem.arm.Arm;
 import frc.subsystem.drive.Drive;
 import frc.subsystem.elevator.Elevator;
@@ -9,23 +10,24 @@ import frc.subsystem.wrist.Wrist;
 //import frc.subsystem.climber.Climber;
 
 public class Superstructure extends AbstractSubsystem {
-    private final Arm arm;
-    private final Wrist wrist;
-    //private Intake intake;
-    private final Shooter shooter;
-    private final Elevator elevator;
-    private final Drive drive;
-    //private final Climber climber;
+    //unfortunately all of these need to be static so that the enum can access them
+    private static Arm arm = null;
+    private static Wrist wrist = null;
+    //private static final Intake intake = null;
+    private static Shooter shooter = null;
+    private static Elevator elevator = null;
+    private static Drive drive = null;
+    //private static Climber climber = null;
     private static States currentState = States.STOW;
-    public Superstructure(Arm arm, Wrist wrist, /*Intake intake,*/ Shooter shooter, Elevator elevator, Drive drive/*, Climber climber*/) {
+    public Superstructure(Arm theArm, Wrist theWrist, /*Intake theIntake,*/ Shooter theShooter, Elevator theElevator, Drive theDrive/*, Climber theClimber*/) {
         super();
-        this.arm = arm;
-        this.wrist = wrist;
-        //this.intake = intake;
-        this.shooter = shooter;
-        this.elevator = elevator;
-        this.drive = drive;
-        //this.climber = climber;
+        arm = theArm;
+        wrist = theWrist;
+        //intake = theIntake;
+        shooter = theShooter;
+        elevator = theElevator;
+        drive = theDrive;
+        //climber = theClimber;
     }
 
     public enum States {
@@ -47,13 +49,18 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        INTAKE_FRONT(0, 0, 0, 0) {
+        INTAKE_1(Constants.ElevatorPosition.INTAKE.positionLocationInches, 20, 0, 0) {
+            //moves elevator and arm while keeping wrist at a safe angle so it doesn't get smashed
             @Override
             public void update() {
-                //code!
+                //constantly checks whether the elevator and arm are within an
+                if(elevator.getPositionInInches() >= elevatorPos - 1 && elevator.getPositionInInches() <= elevatorPos + 1 && arm.getPivotDegrees() >= armPos - 1 && arm.getPivotDegrees() <= armPos + 1) {
+                    setCurrentState(INTAKE_2);
+                }
             }
         },
-        INTAKE_BACK(0, 0, 0, 0) {
+        INTAKE_2(Constants.ElevatorPosition.INTAKE.positionLocationInches, 20, -45, 0) {
+            //elevator and arm have extended, now move the wrist to the correct angle
             @Override
             public void update() {
                 //code!

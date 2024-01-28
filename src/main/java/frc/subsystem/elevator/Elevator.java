@@ -53,4 +53,10 @@ public class Elevator extends AbstractSubsystem {
         homeTime = MIN_ELEVATOR_HOME_TIME;
         homing = true;
     }
+
+    public double getPositionInInches() {
+        double positionInRotations = elevatorInputs.leadMotorPosition;
+        double positionInInches = positionInRotations * ELEVATOR_INCHES_PER_ROTATION;
+        return positionInInches;
+    }
 }
