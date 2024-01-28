@@ -77,7 +77,7 @@ public final class Constants {
     public enum ElevatorPosition {
         BOTTOM("bottom", 0),
         STOW("stow", 1),
-        INTAKE("intake", 2),
+        INTAKE("intake", 14.1),
         SPEAKER("speaker", 3),
         AMP("amp", 4),
         TRAP("trap", 5),

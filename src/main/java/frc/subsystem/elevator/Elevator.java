@@ -17,19 +17,13 @@ public class Elevator extends AbstractSubsystem {
         this.elevatorIO = elevatorIO;
     }
 
-    public void setPosition(ElevatorPosition position) {
-        this.setPosition(position.positionLocationInches / ELEVATOR_INCHES_PER_ROTATION);
-    }
-
-    public void setPosition(double positionInRotations) {
-        double positionInInches = positionInRotations * ELEVATOR_INCHES_PER_ROTATION;
+    public void setPosition(double positionInInches) {
         if (positionInInches < ELEVATOR_LOWER_LIMIT_INCHES) {
             positionInInches = ELEVATOR_LOWER_LIMIT_INCHES;
         } else if (positionInInches > ELEVATOR_UPPER_LIMIT_INCHES) {
             positionInInches = ELEVATOR_UPPER_LIMIT_INCHES;
         }
-        positionInRotations = positionInInches / ELEVATOR_INCHES_PER_ROTATION;
-        elevatorIO.setPosition(positionInRotations);
+        elevatorIO.setPosition(positionInInches);
     }
 
     public void update() {
@@ -55,8 +49,7 @@ public class Elevator extends AbstractSubsystem {
     }
 
     public double getPositionInInches() {
-        double positionInRotations = elevatorInputs.leadMotorPosition;
-        double positionInInches = positionInRotations * ELEVATOR_INCHES_PER_ROTATION;
-        return positionInInches;
+        //apparently leadMotorPosition already returns in inches! yay!
+        return elevatorInputs.leadMotorPosition;
     }
 }

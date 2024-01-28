@@ -53,6 +53,7 @@ public class Robot extends LoggedRobot {
     private static final String customAuto = "My Auto";
     private String autoSelected;
     private Controller xbox;
+    private Controller buttonPanel;
     private final LoggedDashboardChooser<String> chooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
 
@@ -142,7 +143,8 @@ public class Robot extends LoggedRobot {
             elevator = new Elevator(new ElevatorIOTalonFX());
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
-            superstructure = new Superstructure(arm, wrist,/*intake,*/ shooter, elevator, drive/*, climber*/);
+            intake = new Intake(new IntakeIOTalonFX());
+            superstructure = new Superstructure();
 
         } else {
             setUseTiming(false); // Run as fast as possible
@@ -160,7 +162,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
             intake = new Intake(new IntakeIO() {});
-            superstructure = new Superstructure(arm, wrist,/*intake,*/ shooter, elevator, drive/*, climber*/);
+            superstructure = new Superstructure();
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -178,7 +180,7 @@ public class Robot extends LoggedRobot {
         arm.start();
         intake.start();
         superstructure.start();
-        superstructure.setMechanismState(Superstructure.States.STOW);
+        superstructure.setCurrentState(Superstructure.States.STOW);
     }
 
     /** This function is called periodically during all modes. */
@@ -300,5 +302,24 @@ public class Robot extends LoggedRobot {
         while (!toRunOnMainThread.isEmpty()) {
             toRunOnMainThread.poll().run();
         }
+    }
+
+    public static Arm getArm() {
+        return arm;
+    }
+    public static Drive getDrive() {
+        return drive;
+    }
+    public static Elevator getElevator() {
+        return elevator;
+    }
+    public static Intake getIntake() {
+        return intake;
+    }
+    public static Shooter getShooter() {
+        return shooter;
+    }
+    public static Wrist getWrist() {
+        return wrist;
     }
 }

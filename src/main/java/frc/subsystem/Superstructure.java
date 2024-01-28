@@ -1,6 +1,6 @@
 package frc.subsystem;
 
-import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.subsystem.arm.Arm;
 import frc.subsystem.drive.Drive;
 import frc.subsystem.elevator.Elevator;
@@ -9,25 +9,20 @@ import frc.subsystem.shooter.Shooter;
 import frc.subsystem.wrist.Wrist;
 //import frc.subsystem.climber.Climber;
 
+import static frc.robot.Constants.*;
+
 public class Superstructure extends AbstractSubsystem {
     //unfortunately all of these need to be static so that the enum can access them
-    private static Arm arm = null;
-    private static Wrist wrist = null;
-    //private static final Intake intake = null;
-    private static Shooter shooter = null;
-    private static Elevator elevator = null;
-    private static Drive drive = null;
+    private static Arm arm = Robot.getArm();
+    private static Wrist wrist = Robot.getWrist();
+    private static Intake intake = Robot.getIntake();
+    private static Shooter shooter = Robot.getShooter();
+    private static Elevator elevator = Robot.getElevator();
+    private static Drive drive = Robot.getDrive();
     //private static Climber climber = null;
     private static States currentState = States.STOW;
-    public Superstructure(Arm theArm, Wrist theWrist, /*Intake theIntake,*/ Shooter theShooter, Elevator theElevator, Drive theDrive/*, Climber theClimber*/) {
+    public Superstructure() {
         super();
-        arm = theArm;
-        wrist = theWrist;
-        //intake = theIntake;
-        shooter = theShooter;
-        elevator = theElevator;
-        drive = theDrive;
-        //climber = theClimber;
     }
 
     public enum States {
@@ -49,35 +44,40 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        INTAKE_1(Constants.ElevatorPosition.INTAKE.positionLocationInches, 20, 0, 0) {
-            //moves elevator and arm while keeping wrist at a safe angle so it doesn't get smashed
+        INTAKE_FROM_STOW(0, 0.1, 0, 0) {
+            //moves arm up so that the elevator can extend. keeps wrist at safe angle so that it does not go crash :(
             @Override
             public void update() {
-                //constantly checks whether the elevator and arm are within an
-                if(elevator.getPositionInInches() >= elevatorPos - 1 && elevator.getPositionInInches() <= elevatorPos + 1 && arm.getPivotDegrees() >= armPos - 1 && arm.getPivotDegrees() <= armPos + 1) {
+                //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
+                if(Math.abs(elevator.getPositionInInches() - elevatorPos) >= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) >= 0.05) {
+                    setCurrentState(INTAKE_1);
+                }
+            }
+        },
+        INTAKE_1(14.1, 0.1, -0.1, 0) {
+            //arm is up high enough, now move elevator out and wrist down.
+            @Override
+            public void update() {
+                //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
+                if(Math.abs(elevator.getPositionInInches() - elevatorPos) >= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) >= 0.05) {
                     setCurrentState(INTAKE_2);
                 }
             }
         },
-        INTAKE_2(Constants.ElevatorPosition.INTAKE.positionLocationInches, 20, -45, 0) {
-            //elevator and arm have extended, now move the wrist to the correct angle
+        INTAKE_2(14.1, 0, -0.1, 0) {
+            //elevator and wrist are to position, move arm back down
+            @Override
+            public void update() {
+                //code and such
+            }
+        },
+        AMP(21.6, 0.16, -0.24, 0) {
             @Override
             public void update() {
                 //code!
             }
         },
-        AMP_FRONT(0, 0, 0, 0) {
-            @Override
-            public void update() {
-                //code!
-            }
-        },
-        AMP_BACK(0, 0, 0, 0) {
-            @Override
-            public void update() {
-                //code!
-            }
-        },
+
         SPEAKER_FRONT(0, 0, 0, 0) {
             @Override
             //spin drivebase + aim mechanisms
@@ -139,7 +139,7 @@ public class Superstructure extends AbstractSubsystem {
         double getWristPos() {
             //this does nothing yet :(
             //it should eventually calculate the wrist position needed for shooting so that the mechanisms can be aimed properly
-            return 10421903.3149;
+            return 212312321.321;
         }
 
         public abstract void update();
@@ -156,7 +156,7 @@ public class Superstructure extends AbstractSubsystem {
     private static States getCurrentState() {
         return currentState;
     }
-    private static void setCurrentState(States newState) {
+    public static void setCurrentState(States newState) {
         currentState = newState;
     }
 
