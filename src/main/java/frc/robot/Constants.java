@@ -71,7 +71,7 @@ public final class Constants {
 
         public static final int ARM_CANCODER = 52;
 
-
+        public static final int INTAKE_MOTOR_ID = 31;
     }
     //TODO: figure out actual values for below
     public enum ElevatorPosition {
@@ -100,7 +100,7 @@ public final class Constants {
     public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
 
     public static final double SWERVE_DRIVE_P = 100;
-    public static final double SWERVE_DRIVE_D = 0.05;
+    public static final double SWERVE_DRIVE_D = 0.00;
     public static final double SWERVE_DRIVE_I = 0.00;
 
 

@@ -12,6 +12,7 @@ import frc.subsystem.arm.ArmIO;
 import frc.subsystem.arm.ArmIOTalonFX;
 import frc.subsystem.Superstructure;
 import frc.subsystem.drive.*;
+import frc.subsystem.intake.IntakeIO;
 import frc.subsystem.wrist.Wrist;
 import frc.subsystem.wrist.WristIO;
 import frc.subsystem.wrist.WristIOTalonFX;
@@ -19,6 +20,8 @@ import frc.subsystem.elevator.Elevator;
 import frc.subsystem.elevator.ElevatorIO;
 import frc.subsystem.elevator.ElevatorIOTalonFX;
 import frc.subsystem.shooter.*;
+import frc.subsystem.intake.Intake;
+import frc.subsystem.intake.IntakeIOTalonFX;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
@@ -61,6 +64,8 @@ public class Robot extends LoggedRobot {
     static Elevator elevator;
     static Shooter shooter;
     static Arm arm;
+    static Intake intake;
+
     static Superstructure superstructure;
 
     /**
@@ -154,6 +159,7 @@ public class Robot extends LoggedRobot {
             elevator = new Elevator(new ElevatorIO() {});
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
+            intake = new Intake(new IntakeIO() {});
             superstructure = new Superstructure(arm, wrist,/*intake,*/ shooter, elevator, drive/*, climber*/);
         }
         // Initialize auto chooser
@@ -170,6 +176,7 @@ public class Robot extends LoggedRobot {
         elevator.start();
         shooter.start();
         arm.start();
+        intake.start();
         superstructure.start();
         superstructure.setMechanismState(Superstructure.States.STOW);
     }
@@ -240,6 +247,7 @@ public class Robot extends LoggedRobot {
             drive.resetAbsoluteZeros();
         }
     }
+
     @SuppressWarnings("Magic Number")
     private ControllerDriveInputs getControllerDriveInputs() {
         ControllerDriveInputs inputs;
