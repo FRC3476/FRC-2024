@@ -8,71 +8,46 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import frc.robot.Constants;
 
 public class IntakeIOTalonFX implements IntakeIO {
     private final TalonFX motor;
 
-    private final StatusSignal<Double> intakePosition;
     private final StatusSignal<Double> intakeVelocity;
     private final StatusSignal<Double> intakeVoltage;
     private final StatusSignal<Double> intakeAmps;
-
     private final StatusSignal <Double> intakeTemp;
 
-    private final VoltageOut withVoltage;
+    public IntakeIOTalonFX() {
+        motor = new TalonFX(Constants.Ports.INTAKE_MOTOR_ID);
+        motor.getConfigurator().apply(new TalonFXConfiguration());
 
-    public IntakeIOTalonFX(int id) {
-        motor = new TalonFX(id);
-        motor.getConfigurator.apply(new TalonFXConfiguration());
+        intakeVelocity = motor.getVelocity();
+        intakeVoltage = motor.getMotorVoltage();
+        intakeAmps = motor.getSupplyCurrent();
+        intakeTemp = motor.getDeviceTemp();
 
-
-
-        motorPosition = motor.getPosition();
-        motorVelocity = motor.getVelocity();
-        motorVoltage = motor.getMotorVoltage();
-        motorAmps = motor.getSupplyCurrent();
-
-        withVoltage = new voltageOut(0, true, true, false, false);
-
-
-//        invertedMode = new MotorOutputConfigs();
-//        forwardMode = new MotorOutputConfigs();
-//        forwardMode.NeutralMode = NeutralModeValue.Brake;
-//        invertedMode.NeutralMode = NeutralModeValue.Brake;
-//        invertedMode.Inverted = InvertedValue.Clockwise_Positive;
-
-
-
-        BaseStatusSignal.setUpdateFrequencyForAll(100.0, motorPosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50.0, motorVelocity, motorVoltage, motorAmps);
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0, intakeVelocity, intakeVoltage, intakeAmps, intakeTemp);
     }
 
     @Override
-    public void updateInputs(IntakeInputsAutoLogged inputs) {
-        BaseStatusSignal.refreshAll(motorPosition, motorVelocity, motorVoltage, motorAmps);
+    public void updateInputs(IntakeInputs inputs) {
+        BaseStatusSignal.refreshAll(intakeVelocity, intakeVoltage, intakeAmps, intakeTemp);
 
-        inputs.motorPosition = motorPosition.getValue();
-        inputs.motorVelocity = motorVelocity.getValue();
-        inputs.motorVoltage = motorVoltage.getValue();
-        inputs.motorAmps = motorAmps.getValue();
+        inputs.motorVelocity = intakeVelocity.getValue();
+        inputs.motorVoltage = intakeVoltage.getValue();
+        inputs.motorAmps = intakeAmps.getValue();
+        inputs.motorTemp = intakeTemp.getValue();
     }
 
+    VoltageOut withVoltage = new VoltageOut(0, true, true, false, false);
     @Override
     public void setMotorVoltage(double voltage) {
-
         motor.setControl(withVoltage.withOutput(voltage));
 
     }
     @Override
     public void invertMotor(boolean invertState) {
-
-            if(invertState == false) {
-                motor.setInverted(false);
-            }
-            else {
-                motor.setInverted(true);
-            }
+        motor.setInverted(invertState);
     }
-
-
 }

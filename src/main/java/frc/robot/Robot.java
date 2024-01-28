@@ -10,8 +10,8 @@ import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
 
 import frc.subsystem.intake.Intake;
-import frc.subsystem.intake.IntakeIOFalcon;
 
+import frc.subsystem.intake.IntakeIOTalonFX;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
@@ -133,12 +133,8 @@ public class Robot extends LoggedRobot {
                 Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             }
 
-            drive = new Drive(new ModuleIO() {
-            }, new ModuleIO() {
-            }, new ModuleIO() {
-            }, new ModuleIO() {
-            }, new GyroIO() {
-            });
+            drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
+            intake = new Intake(new IntakeIOTalonFX());
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -147,7 +143,6 @@ public class Robot extends LoggedRobot {
         sideChooser.addOption("Red", "red");
 
         xbox = new Controller(0);
-        intake = new Intake(new IntakeIOFalcon(INTAKE_MOTOR_ID));
 
         Logger.start();
         drive.start();
