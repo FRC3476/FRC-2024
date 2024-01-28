@@ -7,22 +7,30 @@ import frc.subsystem.elevator.Elevator;
 import frc.subsystem.shooter.Shooter;
 import frc.subsystem.intake.Intake;
 import frc.subsystem.wrist.Wrist;
+import org.littletonrobotics.junction.Logger;
 //import frc.subsystem.climber.Climber;
 
-import static frc.robot.Constants.*;
 
 public class Superstructure extends AbstractSubsystem {
     //unfortunately all of these need to be static so that the enum can access them
-    private static Arm arm = Robot.getArm();
-    private static Wrist wrist = Robot.getWrist();
-    private static Intake intake = Robot.getIntake();
-    private static Shooter shooter = Robot.getShooter();
-    private static Elevator elevator = Robot.getElevator();
-    private static Drive drive = Robot.getDrive();
+    private static Arm arm;
+    private static Wrist wrist;
+    private static Intake intake;
+    private static Shooter shooter;
+    private static Elevator elevator;
+    private static Drive drive;
+    private static Superstructure superstructure = new Superstructure();
     //private static Climber climber = null;
-    private static States currentState = States.STOW;
+    private States currentState = States.STOW;
+    private States goalState = States.STOW;
     public Superstructure() {
         super();
+        arm = Robot.getArm();
+        intake = Robot.getIntake();
+        wrist = Robot.getWrist();
+        drive = Robot.getDrive();
+        elevator = Robot.getElevator();
+        shooter = Robot.getShooter();
     }
 
     public enum States {
@@ -40,41 +48,71 @@ public class Superstructure extends AbstractSubsystem {
                 //code!
                 //might need to check if position reached, if so, switch to rest state
                 if(false) {
-                    setCurrentState(REST);
+                    superstructure.setCurrentState(REST);
+                }
+                if(
+                        superstructure.goalState == States.INTAKE_FINAL
+                        || superstructure.goalState == States.AMP
+                ){
+                    superstructure.setCurrentState(GENERAL_INTERMEDIATE);
                 }
             }
         },
-        INTAKE_FROM_STOW(0, 0.1, 0, 0) {
+        GENERAL_INTERMEDIATE(0, 0.1, 0, 0) {
             //moves arm up so that the elevator can extend. keeps wrist at safe angle so that it does not go crash :(
             @Override
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
-                if(Math.abs(elevator.getPositionInInches() - elevatorPos) >= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) >= 0.05) {
-                    setCurrentState(INTAKE_1);
+                if(Math.abs(elevator.getPositionInInches() - elevatorPos) <= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) <= 0.05) {
+                    if(superstructure.goalState == States.INTAKE_FINAL){
+                        superstructure.setCurrentState(INTAKE_INT_2);
+                    }
+                    if(superstructure.goalState == States.AMP) {
+                        superstructure.setCurrentState(AMP);
+                    }
+                    if(superstructure.goalState == States.STOW) {
+                        superstructure.setCurrentState(STOW);
+                    }
                 }
             }
         },
-        INTAKE_1(14.1, 0.1, -0.1, 0) {
+        INTAKE_INT_2(14.1, 0.1, -0.1, 0) {
             //arm is up high enough, now move elevator out and wrist down.
             @Override
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
-                if(Math.abs(elevator.getPositionInInches() - elevatorPos) >= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) >= 0.05) {
-                    setCurrentState(INTAKE_2);
+                if(Math.abs(elevator.getPositionInInches() - elevatorPos) <= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) <= 0.05) {
+                    if(superstructure.goalState == States.INTAKE_FINAL){
+                        superstructure.setCurrentState(INTAKE_FINAL);
+                    }
+                    if(superstructure.goalState == States.STOW) {
+                        superstructure.setCurrentState(GENERAL_INTERMEDIATE);
+                    }
                 }
             }
         },
-        INTAKE_2(14.1, 0, -0.1, 0) {
+        INTAKE_FINAL(14.1, 0, -0.1, 0) {
             //elevator and wrist are to position, move arm back down
             @Override
             public void update() {
                 //code and such
+                if(superstructure.goalState == States.STOW) {
+                    superstructure.setCurrentState(INTAKE_INT_2);
+                }
+                if(superstructure.goalState == States.AMP) {
+                    superstructure.setCurrentState(AMP);
+                }
             }
         },
         AMP(21.6, 0.16, -0.24, 0) {
             @Override
             public void update() {
-                //code!
+                if(superstructure.goalState == States.STOW) {
+                    superstructure.setCurrentState(GENERAL_INTERMEDIATE);
+                }
+                if(superstructure.goalState == States.INTAKE_FINAL) {
+                    superstructure.setCurrentState(INTAKE_INT_2);
+                }
             }
         },
 
@@ -104,7 +142,7 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 //needs to check whether mechanisms are out of the way before proceeding
                 if(true) {
-                    setCurrentState(CLIMB_2);
+                    superstructure.setCurrentState(CLIMB_2);
                 }
             }
         },
@@ -114,7 +152,7 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 //needs to check whether climb arm is extended + maybe check if it's actually around the chain
                 if(true) {
-                    setCurrentState(CLIMB_3);
+                    superstructure.setCurrentState(CLIMB_3);
                 }
             }
         },
@@ -145,22 +183,31 @@ public class Superstructure extends AbstractSubsystem {
         public abstract void update();
     }
 
-    private static States getCurrentState() {
+    private States getCurrentState() {
         return currentState;
     }
-    public static void setCurrentState(States newState) {
+    public void setCurrentState(States newState) {
         currentState = newState;
+        Logger.recordOutput("Superstructure/Wanted State", newState);
     }
 
     public void update() {
         currentState.update();
         arm.setPosition(currentState.armPos);
         elevator.setPosition(currentState.elevatorPos);
-        wrist.setWristPosition(getWristDegreesRelativeToGround(currentState.wristPos, arm.getPivotDegrees()));
+        wrist.setWristPosition(currentState.wristPos);
     }
 
     public double getWristDegreesRelativeToGround(double degreesRelativeToArm, double armPivotDegrees) {
         double degreesRelativeToGround = degreesRelativeToArm + armPivotDegrees;
         return degreesRelativeToGround;
+    }
+    
+    public void setGoalState(States goalState) {
+        this.goalState = goalState;
+    }
+
+    public static Superstructure getSuperstructure() {
+        return superstructure;
     }
 }

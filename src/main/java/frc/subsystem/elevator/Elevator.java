@@ -28,6 +28,7 @@ public class Elevator extends AbstractSubsystem {
 
     public void update() {
         elevatorIO.updateInputs(elevatorInputs);
+        Logger.processInputs("Elevator", elevatorInputs);
 
         if (homing) {
             if (DriverStation.isEnabled()) {
@@ -51,5 +52,8 @@ public class Elevator extends AbstractSubsystem {
     public double getPositionInInches() {
         //apparently leadMotorPosition already returns in inches! yay!
         return elevatorInputs.leadMotorPosition;
+    }
+    public void zeroEncoder() {
+        elevatorIO.setEncoderToZero();
     }
 }

@@ -153,7 +153,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
-            superstructure = new Superstructure();
+            superstructure = Superstructure.getSuperstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -170,7 +170,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
             intake = new Intake(new IntakeIO() {});
-            superstructure = new Superstructure();
+            superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -183,7 +183,7 @@ public class Robot extends LoggedRobot {
         buttonPanel = new Controller(2);
 
         Logger.start();
-        drive.start();
+        // drive.start();
         wrist.start();
         elevator.start();
         shooter.start();
@@ -227,16 +227,33 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        drive.setBrakeMode(true);
+        drive.setBrakeMode(false);
     }
 
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        xbox.update();
-
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
+        if(buttonPanel.getRisingEdge(1)) {
+            superstructure.setGoalState(Superstructure.States.STOW);
+        }
+
+        if(buttonPanel.getRisingEdge(2)) {
+            superstructure.setGoalState(Superstructure.States.INTAKE_FINAL);
+        }
+
+        if(buttonPanel.getRisingEdge(3)) {
+            superstructure.setGoalState(Superstructure.States.AMP);
+        }
+
+        if(xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
+            intake.runIntake();
+        } else if (xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
+            intake.runOuttake();
+        } else {
+            intake.stop();
+        }
     }
 
     /** This function is called once when the robot is disabled. */
@@ -335,5 +352,9 @@ public class Robot extends LoggedRobot {
     }
     public static Wrist getWrist() {
         return wrist;
+    }
+
+    public static Superstructure getSuperstructure() {
+        return superstructure;
     }
 }
