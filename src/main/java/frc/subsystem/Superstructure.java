@@ -142,7 +142,7 @@ public class Superstructure extends AbstractSubsystem {
         setCurrentState(state);
         arm.setPosition(currentState.armPos);
         elevator.setPosition(currentState.elevatorPos);
-        wrist.setWristPosition(currentState.wristPos);
+        wrist.setWristPosition(getWristDegreesRelativeToGround(currentState.wristPos, arm.getPivotDegrees()));
         //climber.setPosition(currentState.climberPos);
     }
 
@@ -155,5 +155,10 @@ public class Superstructure extends AbstractSubsystem {
 
     public void update() {
         currentState.update();
+    }
+
+    public double getWristDegreesRelativeToGround(double degreesRelativeToArm, double armPivotDegrees) {
+        double degreesRelativeToGround = degreesRelativeToArm + armPivotDegrees;
+        return degreesRelativeToGround;
     }
 }
