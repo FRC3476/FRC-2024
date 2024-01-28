@@ -1,6 +1,7 @@
 package frc.subsystem.drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.util.Units;
@@ -8,17 +9,24 @@ import edu.wpi.first.math.util.Units;
 import static frc.robot.Constants.*;
 
 public class GyroIOPigeon2 implements GyroIO {
-    private final Pigeon2 pigeon = new Pigeon2(Ports.PIGEON);
+    private final Pigeon2 pigeon;
+
+    private final StatusSignal<Double> yawPositionDeg;
+    private final StatusSignal<Double> yawVelocityDegPerSec;
+
 
     public GyroIOPigeon2() {
-        var pigeonConfig = new Pigeon2Configuration();
+        pigeon = new Pigeon2(Ports.PIGEON);
 
-        // change pigeon config if needed
-
-        pigeon.getConfigurator().apply(pigeonConfig);
+        pigeon.getConfigurator().apply(new Pigeon2Configuration());
         pigeon.reset();
         pigeon.getConfigurator().setYaw(0.0);
-        pigeon.getYaw().setUpdateFrequency(50.0);
+
+        yawPositionDeg = pigeon.getYaw();
+        yawVelocityDegPerSec = pigeon.getAngularVelocityZWorld();
+
+        BaseStatusSignal.setUpdateFrequencyForAll(50, yawPositionDeg, yawVelocityDegPerSec);
+
         pigeon.optimizeBusUtilization();
     }
 
@@ -31,8 +39,8 @@ public class GyroIOPigeon2 implements GyroIO {
          * Z-axis points to the sky
          */
 
-        inputs.yawPositionRad = Units.degreesToRadians(pigeon.getYaw().getValue()); // counterclockwise positive
-        inputs.yawVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityZWorld().getValue());
+        inputs.yawPositionRad = Units.degreesToRadians(yawPositionDeg.getValue()); // counterclockwise positive
+        inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocityDegPerSec.getValue());
 
         inputs.rotation3d = pigeon.getRotation3d();
         inputs.rotation2d = pigeon.getRotation2d();

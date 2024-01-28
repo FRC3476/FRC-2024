@@ -18,7 +18,7 @@ public class Intake extends AbstractSubsystem {
     public synchronized void update() {
 
         intakeIO.updateInputs(intakeInputs);
-        Logger.processInputs("Intake ", intakeInputs);
+        Logger.processInputs("Intake", intakeInputs);
     }
 
 

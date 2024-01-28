@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -56,11 +57,47 @@ public final class Constants {
 
         public static final int PIGEON = 30;
 
-        public static final int INTAKE_MOTOR_ID = 31;
+        public static final int SHOOTER_LEAD = 61;
+        public static final int SHOOTER_FOLLOW = 62;
 
+        public static final int WRIST_MOTOR = 1;
+        public static final int WRIST_ENCODER = 2;
+
+        public static final int ELEVATOR_LEAD = 41;
+        public static final int ELEVATOR_FOLLOW = 42;
+
+        public static final int ARM_LEAD = 51;
+        public static final int ARM_FOLLOW = 53;
+
+        public static final int ARM_CANCODER = 52;
+
+        public static final int INTAKE_MOTOR_ID = 31;
+    }
+    //TODO: figure out actual values for below
+    public enum ElevatorPosition {
+        BOTTOM("bottom", 0),
+        STOW("stow", 1),
+        INTAKE("intake", 2),
+        SPEAKER("speaker", 3),
+        AMP("amp", 4),
+        TRAP("trap", 5),
+        TOP("top", 6);
+
+        public final String positionName;
+        public final double positionLocationInches;
+        ElevatorPosition(String positionName, double positionLocationInches) {
+            this.positionName = positionName;
+            this.positionLocationInches = positionLocationInches;
+        }
     }
 
-
+    public static final double ELEVATOR_INCHES_PER_ROTATION = 0.25*22*12/60; //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
+    public static final double ELEVATOR_LOWER_LIMIT_INCHES = 0;
+    public static final double ELEVATOR_UPPER_LIMIT_INCHES = 12;
+    public static final double NOMINAL_DT = 0.02;
+    public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
+    public static final double ELEVATOR_STALLING_CURRENT = 35;
+    public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
 
     public static final double SWERVE_DRIVE_P = 100;
     public static final double SWERVE_DRIVE_D = 0.00;
@@ -79,7 +116,9 @@ public final class Constants {
 
     //TODO: figure out how tf these numbers were obtained
     public static final double SWERVE_INCHES_PER_ROTATION = 12.5 * 0.976 * 0.96488764044943820224719101123596;
+    public static final double SWERVE_WHEEL_RADIUS = 2; // inches
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
+    public static final double SWERVE_OMEGA_FEEDFORWARD = 0.0;
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
     public static final double DRIVE_MOTOR_REDUCTION = 1 / 5.9;
 
@@ -104,4 +143,20 @@ public final class Constants {
     // TODO: change these
     public static final double FIELD_HEIGHT_METERS = 8.0137;
     public static final double FIELD_WIDTH_METERS = 16.54175;
+
+    public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
+
+    //all value to be changed
+    public static final double ARM_NOMINAL_VOLTAGE = 9;
+    public static final int ARM_SMART_CURRENT_LIMIT = 35;
+    public static final int ARM_CURRENT_THRESHOLD = ARM_SMART_CURRENT_LIMIT - 10;
+    public static final int PIVOT_SMART_CURRENT_LIMIT = 40;
+
+    public static final double ARM_CLOSE_THRESHOLD_DEGREES = 48;
+    public static final double ARM_OPEN_THRESHOLD_DEGREES = 55;
+    public static final boolean USE_ARM_ENCODER = false;
+    public static final boolean ARM_WHEELS_USED = false;
+
+    public static final double ARM_LENGTH = .308;
+
 }
