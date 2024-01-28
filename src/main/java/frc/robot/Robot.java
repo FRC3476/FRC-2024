@@ -6,6 +6,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.arm.Arm;
 import frc.subsystem.arm.ArmIO;
@@ -25,6 +26,7 @@ import frc.subsystem.intake.IntakeIOTalonFX;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
+import frc.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -53,11 +55,18 @@ public class Robot extends LoggedRobot {
     private static final String customAuto = "My Auto";
     private String autoSelected;
     private Controller xbox;
+    private Controller logitechThing;
     private Controller buttonPanel;
     private final LoggedDashboardChooser<String> chooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
 
     private static PowerDistribution powerDistribution;
+
+    public static final LiveEditableValue<Double> kP = new LiveEditableValue<>(100.0, SmartDashboard.getEntry("Arm/P"));
+    public static final LiveEditableValue<Double> kI = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Arm/I"));
+    public static final LiveEditableValue<Double> kD = new LiveEditableValue<>(5.0, SmartDashboard.getEntry("Arm/D"));
+    public static final LiveEditableValue<Double> kG = new LiveEditableValue<>(0.85, SmartDashboard.getEntry("Arm/G"));
+    public static final LiveEditableValue<Double> wantedPos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Arm/Goal position"));
 
 
     static Drive drive;
@@ -145,7 +154,6 @@ public class Robot extends LoggedRobot {
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
             superstructure = new Superstructure();
-
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -171,6 +179,8 @@ public class Robot extends LoggedRobot {
         sideChooser.addOption("Red", "red");
 
         xbox = new Controller(0);
+        logitechThing = new Controller(1);
+        buttonPanel = new Controller(2);
 
         Logger.start();
         drive.start();
@@ -186,7 +196,12 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
+        xbox.update();
+        buttonPanel.update();
         AbstractSubsystem.tick();
+        if(buttonPanel.getRisingEdge(10)) {
+            elevator.zeroEncoder();
+        }
     }
 
     /** This function is called once when autonomous is enabled. */
@@ -237,13 +252,12 @@ public class Robot extends LoggedRobot {
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
-        drive.setBrakeMode(false);
+        // drive.setBrakeMode(false);
     }
 
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
-        xbox.update();
         if (xbox.getRawButton(XboxButtons.X) && xbox.getRawButton(XboxButtons.B)
                 && xbox.getRisingEdge(XboxButtons.X) && xbox.getRisingEdge(XboxButtons.B)) {
             drive.resetAbsoluteZeros();
