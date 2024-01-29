@@ -5,26 +5,26 @@ import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends AbstractSubsystem {
 
-    private final WristIO io;
+    private final WristIO wristIO;
     private final WristInputsAutoLogged inputs = new WristInputsAutoLogged();
 
-    public Wrist(WristIO wristio) {
+    public Wrist(WristIO wristIO) {
         super();
-        this.io = wristio;
-        io.setBrakeMode(true);
+        this.wristIO = wristIO;
+        wristIO.setBrakeMode(true);
     }
 
 
     public synchronized void setWristPosition(double positionInDegrees) {
         //does NOT set position relative to the ground, just relative to the arm
-        io.setPosition(positionInDegrees);
+        wristIO.setPosition(positionInDegrees);
         Logger.recordOutput("Wrist/Target Position", positionInDegrees);
     }
 
 
     @Override
     public synchronized void update() {
-        io.updateInputs(inputs);
+        wristIO.updateInputs(inputs);
         Logger.processInputs("Wrist", inputs);
     }
 
@@ -33,6 +33,6 @@ public class Wrist extends AbstractSubsystem {
     }
 
     public void zeroWristEncoder() {
-        io.zeroWristEncoder();
+        wristIO.zeroWristEncoder();
     }
 }

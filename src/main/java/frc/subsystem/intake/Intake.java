@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Intake extends AbstractSubsystem {
 
-    private IntakeIO intakeIO;
+    private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged intakeInputs = new IntakeInputsAutoLogged();
 
 
@@ -16,7 +16,6 @@ public class Intake extends AbstractSubsystem {
 
     @Override
     public synchronized void update() {
-
         intakeIO.updateInputs(intakeInputs);
         Logger.processInputs("Intake", intakeInputs);
     }

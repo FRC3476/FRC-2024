@@ -21,7 +21,8 @@ public class Superstructure extends AbstractSubsystem {
     private static Elevator elevator;
     private static Drive drive;
     private static Superstructure superstructure = new Superstructure();
-    //private static Climber climber = null;
+    //private static Climber climber;
+    //private static Vision vision;
     private States currentState = States.STOW;
     private States goalState = States.STOW;
     public Superstructure() {

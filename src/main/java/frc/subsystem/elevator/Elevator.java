@@ -7,7 +7,7 @@ import org.littletonrobotics.junction.Logger;
 
 
 public class Elevator extends AbstractSubsystem {
-    final ElevatorIO elevatorIO;
+    private final ElevatorIO elevatorIO;
     private final ElevatorInputsAutoLogged elevatorInputs = new ElevatorInputsAutoLogged();
 
     private boolean homing = false;
