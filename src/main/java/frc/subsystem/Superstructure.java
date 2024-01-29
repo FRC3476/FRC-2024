@@ -1,5 +1,6 @@
 package frc.subsystem;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Robot;
 import frc.subsystem.arm.Arm;
 import frc.subsystem.drive.Drive;
@@ -47,7 +48,7 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 //code!
                 //might need to check if position reached, if so, switch to rest state
-                if(false) {
+                if(DriverStation.isDisabled()) {
                     superstructure.setCurrentState(REST);
                 }
                 if(superstructure.goalState == States.SPEAKER_FRONT) {
@@ -160,6 +161,17 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 //code????
             }
+        },
+        HOMING(0,0.1, 0, 0) {
+            @Override
+            public void update() {
+                try {
+                    elevator.home();
+                } finally {
+                    superstructure.setCurrentState(States.STOW);
+                    superstructure.setGoalState(States.STOW);
+                }
+            }
         };
         double elevatorPos;
         double armPos;
@@ -193,7 +205,9 @@ public class Superstructure extends AbstractSubsystem {
     public void update() {
         currentState.update();
         arm.setPosition(currentState.armPos);
-        elevator.setPosition(currentState.elevatorPos);
+        if(superstructure.currentState != States.HOMING) {
+            elevator.setPosition(currentState.elevatorPos);
+        }
         wrist.setWristPosition(currentState.wristPos + wantedShooterPosition);
     }
 
