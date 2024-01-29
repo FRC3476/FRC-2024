@@ -63,7 +63,7 @@ public class ArmIOTalonFX implements ArmIO {
         slot0.kD = 5;
         slot0.kV = 0;
         slot0.kS = 0.5; // Approximately 0.25V to get the mechanism moving
-        slot0.kG = 0.85;
+        slot0.kG = 1;
         slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         leadTalonFX.getConfigurator().apply(talonFXConfigs);

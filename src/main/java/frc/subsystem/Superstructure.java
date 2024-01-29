@@ -50,10 +50,9 @@ public class Superstructure extends AbstractSubsystem {
                 if(false) {
                     superstructure.setCurrentState(REST);
                 }
-                if(
-                        superstructure.goalState == States.INTAKE_FINAL
-                        || superstructure.goalState == States.AMP
-                ){
+                if(superstructure.goalState == States.SPEAKER_FRONT) {
+                    superstructure.setCurrentState(SPEAKER_FRONT);
+                } else if(superstructure.goalState != States.STOW){
                     superstructure.setCurrentState(GENERAL_INTERMEDIATE);
                 }
             }
@@ -63,15 +62,11 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
-                if(Math.abs(elevator.getPositionInInches() - elevatorPos) <= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) <= 0.05) {
+                if(Math.abs(elevator.getPositionInInches() - elevatorPos) <= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) <= 0.05 && Math.abs(wristPos - wrist.getWristAbsolutePosition()) <= 0.05) {
                     if(superstructure.goalState == States.INTAKE_FINAL){
                         superstructure.setCurrentState(INTAKE_INT_2);
-                    }
-                    if(superstructure.goalState == States.AMP) {
-                        superstructure.setCurrentState(AMP);
-                    }
-                    if(superstructure.goalState == States.STOW) {
-                        superstructure.setCurrentState(STOW);
+                    } else {
+                        superstructure.setCurrentState(superstructure.goalState);
                     }
                 }
             }
@@ -98,29 +93,32 @@ public class Superstructure extends AbstractSubsystem {
                 //code and such
                 if(superstructure.goalState == States.STOW) {
                     superstructure.setCurrentState(INTAKE_INT_2);
-                }
-                if(superstructure.goalState == States.AMP) {
-                    superstructure.setCurrentState(AMP);
+                } else if(superstructure.goalState != States.INTAKE_FINAL) {
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
         AMP(21.6, 0.16, -0.24, 0) {
             @Override
             public void update() {
-                if(superstructure.goalState == States.STOW) {
-                    superstructure.setCurrentState(GENERAL_INTERMEDIATE);
-                }
                 if(superstructure.goalState == States.INTAKE_FINAL) {
                     superstructure.setCurrentState(INTAKE_INT_2);
+                } else if(superstructure.goalState == States.STOW) {
+                    superstructure.setCurrentState(GENERAL_INTERMEDIATE);
+                } else if(superstructure.goalState != States.AMP) {
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
 
-        SPEAKER_FRONT(0, 0, 0, 0) {
+        SPEAKER_FRONT(0, 0.125, 0, 0) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
-                //code!
+                if(superstructure.goalState != States.SPEAKER_FRONT) {
+                    superstructure.setWantedShooterPosition(0);
+                    superstructure.setCurrentState(States.GENERAL_INTERMEDIATE);
+                }
             }
         },
         SPEAKER_BACK(0, 0, 0, 0) {
@@ -191,11 +189,16 @@ public class Superstructure extends AbstractSubsystem {
         Logger.recordOutput("Superstructure/Wanted State", newState);
     }
 
+    private double wantedShooterPosition;
     public void update() {
         currentState.update();
         arm.setPosition(currentState.armPos);
         elevator.setPosition(currentState.elevatorPos);
-        wrist.setWristPosition(currentState.wristPos);
+        wrist.setWristPosition(currentState.wristPos + wantedShooterPosition);
+    }
+
+    public void setWantedShooterPosition(double wantedPos) {
+        wantedShooterPosition = superstructure.currentState == States.SPEAKER_FRONT ? wantedPos : 0;
     }
 
     public double getWristDegreesRelativeToGround(double degreesRelativeToArm, double armPivotDegrees) {

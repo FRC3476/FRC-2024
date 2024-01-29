@@ -100,7 +100,7 @@ public final class Constants {
     public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
 
     public static final double SWERVE_DRIVE_P = 100;
-    public static final double SWERVE_DRIVE_D = 0.00;
+    public static final double SWERVE_DRIVE_D = 0.05;
     public static final double SWERVE_DRIVE_I = 0.00;
 
 
@@ -111,7 +111,7 @@ public final class Constants {
     public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
     public static final int MAX_TELEOP_TURN_SPEED = 10;
     public static final boolean USE_RELATIVE_ENCODER_POSITION = true;
-    public static final double ALLOWED_SWERVE_ANGLE_ERROR = 0;
+    public static final double ALLOWED_SWERVE_ANGLE_ERROR = 2;
     public static final boolean USE_CANCODERS = true;
 
     //TODO: figure out how tf these numbers were obtained

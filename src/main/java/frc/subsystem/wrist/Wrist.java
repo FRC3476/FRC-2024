@@ -1,6 +1,5 @@
 package frc.subsystem.wrist;
 
-import edu.wpi.first.wpilibj.Timer;
 import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -29,8 +28,8 @@ public class Wrist extends AbstractSubsystem {
         Logger.processInputs("Wrist", inputs);
     }
 
-    public double getWristAbsoluteDegrees() {
-        return (inputs.wristAbsolutePosition * 360.0) % 360;
+    public double getWristAbsolutePosition() {
+        return inputs.wristAbsolutePosition;
     }
 
     public void zeroWristEncoder() {

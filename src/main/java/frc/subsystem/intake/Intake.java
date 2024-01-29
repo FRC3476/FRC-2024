@@ -24,12 +24,12 @@ public class Intake extends AbstractSubsystem {
 
     public void runIntake() {
         intakeIO.invertMotor(false);
-        intakeIO.setMotorVoltage(8);
+        intakeIO.setMotorVoltage(5);
     }
 
     public void runOuttake() {
         intakeIO.invertMotor(true);
-        intakeIO.setMotorVoltage(8);
+        intakeIO.setMotorVoltage(5);
     }
 
     public void setMotorVoltage(double voltage) {

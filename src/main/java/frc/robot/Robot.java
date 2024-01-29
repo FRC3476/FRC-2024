@@ -183,7 +183,7 @@ public class Robot extends LoggedRobot {
         buttonPanel = new Controller(2);
 
         Logger.start();
-        // drive.start();
+        drive.start();
         wrist.start();
         elevator.start();
         shooter.start();
@@ -227,7 +227,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        drive.setBrakeMode(false);
+        drive.setBrakeMode(true);
     }
 
     /** This function is called periodically during operator control. */
@@ -238,21 +238,33 @@ public class Robot extends LoggedRobot {
         if(buttonPanel.getRisingEdge(1)) {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
-
         if(buttonPanel.getRisingEdge(2)) {
             superstructure.setGoalState(Superstructure.States.INTAKE_FINAL);
         }
-
         if(buttonPanel.getRisingEdge(3)) {
             superstructure.setGoalState(Superstructure.States.AMP);
         }
+        if(buttonPanel.getRisingEdge(5)) {
+            superstructure.setGoalState(Superstructure.States.SPEAKER_FRONT);
+        }
+        if(buttonPanel.getRisingEdge(11)) {
+            superstructure.setWantedShooterPosition(-0.25);
+        }
+        if(buttonPanel.getRisingEdge(12)) {
+            superstructure.setWantedShooterPosition(-0.3);
+        }
 
-        if(xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
+        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
             intake.runIntake();
-        } else if (xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
+        } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
             intake.runOuttake();
         } else {
             intake.stop();
+        }
+        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
+            shooter.setMotorVoltage(6);
+        } else {
+            shooter.setMotorVoltage(0);
         }
     }
 
@@ -289,9 +301,9 @@ public class Robot extends LoggedRobot {
         if (isRed) {
             // Flip the x-axis for red
             inputs = new ControllerDriveInputs(-xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), -xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
-                    -xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
+                    xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
         } else {
-            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), -xbox.getRawAxis(4));
+            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
         }
 
         if (xbox.getRawButton(Controller.XboxButtons.X)) {
