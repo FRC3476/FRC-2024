@@ -7,10 +7,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.util.Units;
 
 import static frc.robot.Constants.*;
@@ -73,9 +70,6 @@ public class ModuleIOTalonFX implements ModuleIO {
             default -> throw new IllegalArgumentException("Invalid module ID");
         }
 
-        driveMotor.setInverted(false);
-        steerMotor.setInverted(true);
-
         driveMotor.getConfigurator().apply(
                 new TalonFXConfiguration()
                         .withSlot0(new Slot0Configs()
@@ -127,9 +121,12 @@ public class ModuleIOTalonFX implements ModuleIO {
                                 .withSensorToMechanismRatio(1)
                                 .withRotorToSensorRatio(1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR)
                         )
+                        .withMotorOutput(new MotorOutputConfigs()
+                                .withInverted(InvertedValue.Clockwise_Positive)
+                        )
         );
 
-        swerveCancoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset)));
+        swerveCancoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)));
 
 
         driveMotorPosition = driveMotor.getPosition();
@@ -146,14 +143,15 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerMotorTemp = steerMotor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(100.0, driveMotorPosition, steerMotorRelativePosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50, driveMotorVelocity, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorAbsolutePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, driveMotorVelocity, steerMotorAbsolutePosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(2.0, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
 
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();
         swerveCancoder.optimizeBusUtilization();
 
         isBraking = false;
-        setBrakeMode(true);
+        setBrakeMode(false);
     }
     @Override
     public void updateInputs(ModuleInputs inputs) {

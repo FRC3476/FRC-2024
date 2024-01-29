@@ -7,7 +7,7 @@ import org.littletonrobotics.junction.Logger;
 
 
 public class Elevator extends AbstractSubsystem {
-    final ElevatorIO elevatorIO;
+    private final ElevatorIO elevatorIO;
     private final ElevatorInputsAutoLogged elevatorInputs = new ElevatorInputsAutoLogged();
 
     private boolean homing = false;
@@ -15,10 +15,6 @@ public class Elevator extends AbstractSubsystem {
     public Elevator(ElevatorIO elevatorIO){
         super();
         this.elevatorIO = elevatorIO;
-    }
-
-    public void setPosition(ElevatorPosition position) {
-        this.setPosition(position.positionLocationInches / ELEVATOR_INCHES_PER_ROTATION);
     }
 
     public void setPosition(double positionInInches) {
@@ -51,6 +47,11 @@ public class Elevator extends AbstractSubsystem {
     public void home() {
         homeTime = MIN_ELEVATOR_HOME_TIME;
         homing = true;
+    }
+
+    public double getPositionInInches() {
+        //apparently leadMotorPosition already returns in inches! yay!
+        return elevatorInputs.leadMotorPosition;
     }
     public void zeroEncoder() {
         elevatorIO.setEncoderToZero();

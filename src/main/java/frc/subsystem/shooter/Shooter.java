@@ -4,13 +4,13 @@ import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends AbstractSubsystem {
-    private final ShooterIO ShooterIO;
+    private final ShooterIO shooterIO;
     private final ShooterInputsAutoLogged ShooterInputs = new ShooterInputsAutoLogged();
 
 
-    public Shooter(ShooterIO ShooterIO) {
+    public Shooter(ShooterIO shooterIO) {
         super();
-        this.ShooterIO = ShooterIO;
+        this.shooterIO = shooterIO;
 
 
     }
@@ -18,23 +18,23 @@ public class Shooter extends AbstractSubsystem {
 
     @Override
     public synchronized void update() {
-        ShooterIO.updateInputs(ShooterInputs);
+        shooterIO.updateInputs(ShooterInputs);
         Logger.processInputs("Shooter", ShooterInputs);
     }
 
     public void runVelocity(double velocityRPM) {
-        ShooterIO.setVelocity(velocityRPM, 0);
+        shooterIO.setVelocity(velocityRPM, 0);
 
         // Log flywheel setpoint
         Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
     }
 
     public void stop() {
-        ShooterIO.stop();
+        shooterIO.stop();
     }
 
 
     public synchronized void setMotorVoltage(double voltage) {
-        ShooterIO.setMotorVoltage(voltage);
+        shooterIO.setMotorVoltage(voltage);
     }
 }

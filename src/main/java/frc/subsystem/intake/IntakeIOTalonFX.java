@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import frc.robot.Constants;
 
 public class IntakeIOTalonFX implements IntakeIO {
@@ -27,7 +28,10 @@ public class IntakeIOTalonFX implements IntakeIO {
         intakeAmps = motor.getSupplyCurrent();
         intakeTemp = motor.getDeviceTemp();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(50.0, intakeVelocity, intakeVoltage, intakeAmps, intakeTemp);
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0, intakeVelocity, intakeVoltage);
+        BaseStatusSignal.setUpdateFrequencyForAll(2.0, intakeAmps, intakeTemp);
+
+        motor.optimizeBusUtilization();
     }
 
     @Override

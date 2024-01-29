@@ -161,11 +161,14 @@ public class Drive extends AbstractSubsystem {
         lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
     }
 
+    SwerveModuleState[] wantedStates = new SwerveModuleState[4];
+    SwerveModuleState[] realStates = new SwerveModuleState[4];
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates) {
 
         for (int i = 0; i < 4; i++) {
 
             var moduleState = swerveModuleStates[i];
+            wantedStates[i] = swerveModuleStates[i].toFirstOrder();
             moduleState = SecondOrderModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
             double currentAngle = getWheelRotation(i);
 
@@ -173,9 +176,9 @@ public class Drive extends AbstractSubsystem {
 
             if (Math.abs(angleDiff) > ALLOWED_SWERVE_ANGLE_ERROR) {
                 if (USE_CANCODERS) {
-                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff, moduleState.omega);
+                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff);
                 } else {
-                    moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees(), moduleState.omega);
+                    moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
                 }
             } else {
                 moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
@@ -191,7 +194,12 @@ public class Drive extends AbstractSubsystem {
             Logger.recordOutput("Drive/SwerveModule " + i + "/Angle Error", angleDiff);
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Relative Angle",
                     moduleInputs[i].steerMotorRelativePosition + angleDiff);
+
+            realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
         }
+        Logger.recordOutput("Drive/Wanted States", wantedStates);
+        Logger.recordOutput("Drive/Real States", realStates);
+
     }
 
 
@@ -238,6 +246,13 @@ public class Drive extends AbstractSubsystem {
         public static ControllerDriveInputs controllerDriveInputs;
         public static State goal;
         public static double turnErrorRadians;
+    }
+
+    public void rotateFrontToSpeaker() {
+        //TODO
+    }
+    public void rotateBackToSpeaker() {
+        //TODO
     }
 }
 

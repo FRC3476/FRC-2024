@@ -11,6 +11,7 @@ import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.arm.Arm;
 import frc.subsystem.arm.ArmIO;
 import frc.subsystem.arm.ArmIOTalonFX;
+import frc.subsystem.Superstructure;
 import frc.subsystem.drive.*;
 import frc.subsystem.intake.IntakeIO;
 import frc.subsystem.wrist.Wrist;
@@ -75,6 +76,7 @@ public class Robot extends LoggedRobot {
     static Arm arm;
     static Intake intake;
 
+    static Superstructure superstructure;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -151,6 +153,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
+            superstructure = Superstructure.getSuperstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -167,6 +170,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
             intake = new Intake(new IntakeIO() {});
+            superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -185,6 +189,8 @@ public class Robot extends LoggedRobot {
         shooter.start();
         arm.start();
         intake.start();
+        superstructure.start();
+        superstructure.setCurrentState(Superstructure.States.STOW);
     }
 
     /** This function is called periodically during all modes. */
@@ -221,17 +227,45 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        // drive.setBrakeMode(true);
+        drive.setBrakeMode(true);
     }
 
     /** This function is called periodically during operator control. */
-    public static double wantedArmPos = 0.0;
-    public static double wantedElevatorPos = 0.0;
-    public static double wantedWristPos = 0.0;
     @Override
     public void teleopPeriodic() {
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
+        if(buttonPanel.getRisingEdge(1)) {
+            superstructure.setGoalState(Superstructure.States.STOW);
+        }
+        if(buttonPanel.getRisingEdge(2)) {
+            superstructure.setGoalState(Superstructure.States.INTAKE_FINAL);
+        }
+        if(buttonPanel.getRisingEdge(3)) {
+            superstructure.setGoalState(Superstructure.States.AMP);
+        }
+        if(buttonPanel.getRisingEdge(5)) {
+            superstructure.setGoalState(Superstructure.States.SPEAKER_FRONT);
+        }
+        if(buttonPanel.getRisingEdge(11)) {
+            superstructure.setWantedShooterPosition(-0.25);
+        }
+        if(buttonPanel.getRisingEdge(12)) {
+            superstructure.setWantedShooterPosition(-0.3);
+        }
+
+        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
+            intake.runIntake();
+        } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
+            intake.runOuttake();
+        } else {
+            intake.stop();
+        }
+        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
+            shooter.setMotorVoltage(6);
+        } else {
+            shooter.setMotorVoltage(0);
+        }
     }
 
     /** This function is called once when the robot is disabled. */
@@ -267,9 +301,9 @@ public class Robot extends LoggedRobot {
         if (isRed) {
             // Flip the x-axis for red
             inputs = new ControllerDriveInputs(-xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), -xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
-                    -xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
+                    xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
         } else {
-            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), -xbox.getRawAxis(4));
+            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
         }
 
         if (xbox.getRawButton(Controller.XboxButtons.X)) {
@@ -311,5 +345,28 @@ public class Robot extends LoggedRobot {
         while (!toRunOnMainThread.isEmpty()) {
             toRunOnMainThread.poll().run();
         }
+    }
+
+    public static Arm getArm() {
+        return arm;
+    }
+    public static Drive getDrive() {
+        return drive;
+    }
+    public static Elevator getElevator() {
+        return elevator;
+    }
+    public static Intake getIntake() {
+        return intake;
+    }
+    public static Shooter getShooter() {
+        return shooter;
+    }
+    public static Wrist getWrist() {
+        return wrist;
+    }
+
+    public static Superstructure getSuperstructure() {
+        return superstructure;
     }
 }
