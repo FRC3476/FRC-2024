@@ -28,4 +28,7 @@ public class SecondOrderModuleState extends SwerveModuleState {
         }
     }
 
+    public SwerveModuleState toFirstOrder() {
+        return new SwerveModuleState(speedMetersPerSecond, angle);
+    }
 }
