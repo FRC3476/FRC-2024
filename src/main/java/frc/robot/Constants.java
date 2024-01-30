@@ -118,7 +118,7 @@ public final class Constants {
     public static final double SWERVE_INCHES_PER_ROTATION = 12.5 * 0.976 * 0.96488764044943820224719101123596;
     public static final double SWERVE_WHEEL_RADIUS = 2; // inches
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
-    public static final double SWERVE_OMEGA_FEEDFORWARD = 0.0;
+    public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
     public static final double DRIVE_MOTOR_REDUCTION = 1 / 5.9;
 

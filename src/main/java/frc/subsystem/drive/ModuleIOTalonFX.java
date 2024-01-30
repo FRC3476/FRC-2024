@@ -11,7 +11,6 @@ import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.util.Units;
 
 import static frc.robot.Constants.*;
-import static frc.robot.Constants.SWERVE_OMEGA_FEEDFORWARD;
 
 public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFX driveMotor;

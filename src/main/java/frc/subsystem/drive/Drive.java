@@ -176,9 +176,9 @@ public class Drive extends AbstractSubsystem {
 
             if (Math.abs(angleDiff) > ALLOWED_SWERVE_ANGLE_ERROR) {
                 if (USE_CANCODERS) {
-                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff);
+                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff, USE_SECOND_ORDER_KINEMATICS ? moduleState.omega : 0);
                 } else {
-                    moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
+                    moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees(), USE_SECOND_ORDER_KINEMATICS ? moduleState.omega : 0);
                 }
             } else {
                 moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
