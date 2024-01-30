@@ -1,5 +1,6 @@
 package frc.subsystem.intake;
 
+import edu.wpi.first.math.MathUtil;
 import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -32,7 +33,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public void setMotorVoltage(double voltage) {
-        intakeIO.setMotorVoltage(voltage);
+        intakeIO.setMotorVoltage(MathUtil.clamp(voltage, -6, 6));
 
     }
 
