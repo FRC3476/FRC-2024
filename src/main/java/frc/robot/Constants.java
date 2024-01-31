@@ -103,6 +103,13 @@ public final class Constants {
     public static final double SWERVE_DRIVE_D = 0.05;
     public static final double SWERVE_DRIVE_I = 0.00;
 
+    public static final double TURN_P = 4.5;
+    public static final double TURN_I = 0.0;
+    public static final double TURN_D = 0.3;
+
+    public static final double MAX_TURN_SPEED = 2 * Math.PI;
+    public static final double MAX_TURN_ACCEL = 8 * Math.PI;
+
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 20;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;

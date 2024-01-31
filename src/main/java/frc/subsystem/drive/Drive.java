@@ -1,6 +1,7 @@
 package frc.subsystem.drive;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -8,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -33,6 +35,16 @@ public class Drive extends AbstractSubsystem {
     private SwerveSetpointGenerator.KinematicLimit kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     private final SwerveDrivePoseEstimator poseEstimator;
     private @NotNull DriveState driveState = DriveState.TELEOP;
+    private final @NotNull ProfiledPIDController turnPID;
+    {
+        turnPID = new ProfiledPIDController(
+                TURN_P,
+                TURN_I,
+                TURN_D,
+                new TrapezoidProfile.Constraints(MAX_TURN_SPEED, MAX_TURN_ACCEL)
+        );
+        turnPID.enableContinuousInput(-Math.PI, Math.PI);
+    }
 
     public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
         super();
@@ -232,6 +244,15 @@ public class Drive extends AbstractSubsystem {
                 gyroInputs.rotation2d);
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
+
+    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad) {
+        double turn = turnPID.calculate(gyroInputs.rotation2d.getRadians(), targetAngleRad);
+        nextChassisSpeeds = new ChassisSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
+                DRIVE_HIGH_SPEED_M * inputs.getY(),
+                turn * MAX_TELEOP_TURN_SPEED);
+        kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
+    }
+
     public synchronized void resetAbsoluteZeros() {
         for (ModuleIO module : moduleIO) {
             module.resetAbsoluteZeros();

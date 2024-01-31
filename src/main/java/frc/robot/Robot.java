@@ -233,8 +233,6 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        drive.swerveDriveFieldRelative(controllerDriveInputs);
         if(buttonPanel.getRisingEdge(1)) {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
@@ -265,6 +263,12 @@ public class Robot extends LoggedRobot {
             shooter.setMotorVoltage(6);
         } else {
             shooter.setMotorVoltage(0);
+        }
+        ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
+        if(superstructure.getCurrentState() == Superstructure.States.SPEAKER_FRONT) {
+            drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngleRad());
+        } else {
+            drive.swerveDriveFieldRelative(controllerDriveInputs);
         }
     }
 
