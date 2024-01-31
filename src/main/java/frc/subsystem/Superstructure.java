@@ -8,6 +8,7 @@ import frc.subsystem.elevator.Elevator;
 import frc.subsystem.shooter.Shooter;
 import frc.subsystem.intake.Intake;
 import frc.subsystem.wrist.Wrist;
+import frc.utility.ControllerDriveInputs;
 import org.littletonrobotics.junction.Logger;
 //import frc.subsystem.climber.Climber;
 
@@ -121,6 +122,7 @@ public class Superstructure extends AbstractSubsystem {
                     superstructure.setWantedShooterPosition(0);
                     superstructure.setCurrentState(States.GENERAL_INTERMEDIATE);
                 }
+                superstructure.targetAngleRad = 0; // get the target angle needed to aim at speaker
             }
         },
         SPEAKER_BACK(0, 0, 0, 0) {
@@ -194,7 +196,7 @@ public class Superstructure extends AbstractSubsystem {
         public abstract void update();
     }
 
-    private States getCurrentState() {
+    public States getCurrentState() {
         return currentState;
     }
     public void setCurrentState(States newState) {
@@ -203,6 +205,7 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     private double wantedShooterPosition;
+    private double targetAngleRad;
     public void update() {
         currentState.update();
         arm.setPosition(currentState.armPos);
@@ -227,5 +230,9 @@ public class Superstructure extends AbstractSubsystem {
 
     public static Superstructure getSuperstructure() {
         return superstructure;
+    }
+
+    public double getTargetAngleRad() {
+        return targetAngleRad;
     }
 }
