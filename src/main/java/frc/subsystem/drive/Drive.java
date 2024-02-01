@@ -3,7 +3,6 @@ package frc.subsystem.drive;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -13,7 +12,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
 import frc.utility.swerve.SecondOrderModuleState;
@@ -21,7 +19,6 @@ import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import frc.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.Constants.*;
@@ -55,14 +52,7 @@ public class Drive extends AbstractSubsystem {
             module.setBrakeMode(false);
         }
 
-        poseEstimator = new SwerveDrivePoseEstimator(
-                SWERVE_DRIVE_KINEMATICS,
-                gyroInputs.rotation2d,
-                getModulePositions(),
-                new Pose2d(),
-                VecBuilder.fill(0.1, 0.1, 0.1),
-                VecBuilder.fill(0.9, 0.9, 0.9)
-        );
+        poseEstimator = new SwerveDrivePoseEstimatorBuilder().setKinematics(SWERVE_DRIVE_KINEMATICS).setGyroAngle(gyroInputs.rotation2d).setModulePositions(getModulePositions()).setInitialPoseMeters(new Pose2d()).setStateStdDevs(VecBuilder.fill(0.1, 0.1, 0.1)).setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.9)).createSwerveDrivePoseEstimator();
     }
 
     double lastTimeStep;
@@ -97,6 +87,8 @@ public class Drive extends AbstractSubsystem {
                 getModulePositions()
         );
         lastTimeStep = Logger.getRealTimestamp() * 1e-6;
+
+
     }
 
     public synchronized void setBrakeMode(boolean brakeMode) {
@@ -247,9 +239,10 @@ public class Drive extends AbstractSubsystem {
 
     public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad) {
         double turn = turnPID.calculate(gyroInputs.rotation2d.getRadians(), targetAngleRad);
-        nextChassisSpeeds = new ChassisSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
+        nextChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
                 DRIVE_HIGH_SPEED_M * inputs.getY(),
-                turn * MAX_TELEOP_TURN_SPEED);
+                turn * MAX_TELEOP_TURN_SPEED,
+                gyroInputs.rotation2d);
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
 
