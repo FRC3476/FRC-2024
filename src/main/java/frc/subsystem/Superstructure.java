@@ -176,10 +176,10 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         };
-        double elevatorPos;
-        double armPos;
-        double wristPos;
-        double climberPos;
+        final double elevatorPos;
+        final double armPos;
+        final double wristPos;
+        final double climberPos;
         States(double elevatorPos, double armPos, double wristPos, double climberPos) {
             this.elevatorPos = elevatorPos;
             this.armPos = armPos;
