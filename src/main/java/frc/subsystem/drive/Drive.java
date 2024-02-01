@@ -52,7 +52,13 @@ public class Drive extends AbstractSubsystem {
             module.setBrakeMode(false);
         }
 
-        poseEstimator = new SwerveDrivePoseEstimatorBuilder().setKinematics(SWERVE_DRIVE_KINEMATICS).setGyroAngle(gyroInputs.rotation2d).setModulePositions(getModulePositions()).setInitialPoseMeters(new Pose2d()).setStateStdDevs(VecBuilder.fill(0.1, 0.1, 0.1)).setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.9)).createSwerveDrivePoseEstimator();
+        poseEstimator = new SwerveDrivePoseEstimator(
+                SWERVE_DRIVE_KINEMATICS,
+                gyroInputs.rotation2d,
+                getModulePositions(),
+                new Pose2d(),
+                VecBuilder.fill(0.1, 0.1, 0.1),
+                VecBuilder.fill(0.9, 0.9, 0.9));
     }
 
     double lastTimeStep;

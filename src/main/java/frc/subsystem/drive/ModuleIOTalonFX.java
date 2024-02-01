@@ -28,8 +28,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final StatusSignal<Double> steerMotorAmps;
     private final StatusSignal<Double> steerMotorTemp;
 
+
     private final CANcoder swerveCancoder;
-    private final double absoluteEncoderOffset;
 
 
     public ModuleIOTalonFX(int id) {
@@ -41,6 +41,7 @@ public class ModuleIOTalonFX implements ModuleIO {
          */
         // initialize drive hardware
 
+        double absoluteEncoderOffset;
         switch(id) {
             case 0 -> {
                 driveMotor = new TalonFX(Ports.FL_DRIVE);
