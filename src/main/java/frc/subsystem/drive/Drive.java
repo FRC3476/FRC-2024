@@ -268,11 +268,32 @@ public class Drive extends AbstractSubsystem {
         public static double turnErrorRadians;
     }
 
+    public void resetPoseEstimator(Pose2d pose) {
+        poseEstimator.resetPosition(
+                gyroInputs.rotation2d,
+                new SwerveModulePosition[] {
+                        new SwerveModulePosition(getDrivePosition(0), Rotation2d.fromDegrees(getWheelRotation(0))),
+                        new SwerveModulePosition(getDrivePosition(1), Rotation2d.fromDegrees(getWheelRotation(1))),
+                        new SwerveModulePosition(getDrivePosition(2), Rotation2d.fromDegrees(getWheelRotation(2))),
+                        new SwerveModulePosition(getDrivePosition(3), Rotation2d.fromDegrees(getWheelRotation(3)))
+                },
+                pose
+        );
+    }
+
+    public void resetGyro(double yawPositionRot) {
+        gyroIO.resetGyroYaw(yawPositionRot);
+    }
+
     public void rotateFrontToSpeaker() {
         //TODO
     }
     public void rotateBackToSpeaker() {
         //TODO
+    }
+
+    public void setNextChassisSpeeds(ChassisSpeeds nextChassisSpeeds) {
+        this.nextChassisSpeeds = nextChassisSpeeds;
     }
 }
 

@@ -17,4 +17,6 @@ public interface GyroIO {
     }
 
     default void updateInputs(GyroInputs inputs) {}
+
+    default void resetGyroYaw(double yawPositionRot) {}
 }

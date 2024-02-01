@@ -5,6 +5,9 @@
 
 package frc.robot;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.subsystem.AbstractSubsystem;
@@ -84,7 +87,6 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-
         String logPath = null;
 
         // record metadata
@@ -204,18 +206,25 @@ public class Robot extends LoggedRobot {
         }
     }
 
+    ChoreoTrajectory traj;
+
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
         autoSelected = chooser.get();
+        traj = Choreo.getTrajectory(autoSelected);
+
+        drive.resetPoseEstimator(traj.getInitialPose());
+        drive.resetGyro(traj.getInitialPose().getRotation().getRotations());
     }
 
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
+        var nextChassisSpeeds = traj.sample(Logger.getTimestamp() * 1e-6).getChassisSpeeds();
+        drive.setNextChassisSpeeds(nextChassisSpeeds);
         switch (autoSelected) {
             case customAuto:
-                // Put custom auto code here
                 break;
             case defaultAuto:
             default:

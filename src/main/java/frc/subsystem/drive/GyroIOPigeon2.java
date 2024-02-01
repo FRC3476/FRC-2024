@@ -48,4 +48,9 @@ public class GyroIOPigeon2 implements GyroIO {
         inputs.rotation3d = pigeon.getRotation3d();
         inputs.rotation2d = pigeon.getRotation2d();
     }
+
+    @Override
+    public void resetGyroYaw(double yawPositionRot) {
+        pigeon.getConfigurator().setYaw(yawPositionRot * 360);
+    }
 }
