@@ -219,16 +219,7 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-        var nextChassisSpeeds = traj.sample(Logger.getTimestamp() * 1e-6).getChassisSpeeds();
-        drive.setNextChassisSpeeds(nextChassisSpeeds);
-        switch (autoSelected) {
-            case customAuto:
-                break;
-            case defaultAuto:
-            default:
-                // Put default auto code here
-                break;
-        }
+        AutoManager.getInstance().runAuto();
     }
 
     /** This function is called once when teleop is enabled. */
