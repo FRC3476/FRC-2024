@@ -19,6 +19,7 @@ import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import frc.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.Constants.*;
@@ -285,6 +286,7 @@ public class Drive extends AbstractSubsystem {
         gyroIO.resetGyroYaw(yawPositionRot);
     }
 
+    @AutoLogOutput(key = "Drive/Estimated Pose")
     public Pose2d getPose() {
         return poseEstimator.getEstimatedPosition();
     }
