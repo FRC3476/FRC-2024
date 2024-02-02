@@ -60,7 +60,7 @@ public class Robot extends LoggedRobot {
     private Controller xbox;
     private Controller logitechThing;
     private Controller buttonPanel;
-    private final LoggedDashboardChooser<String> chooser = new LoggedDashboardChooser<>("Auto Chooser");
+    public final LoggedDashboardChooser<String> autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
 
     private static PowerDistribution powerDistribution;
@@ -175,8 +175,8 @@ public class Robot extends LoggedRobot {
             superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
-        chooser.addDefaultOption("Default Auto", defaultAuto);
-        chooser.addOption("My Auto", customAuto);
+        autoChooser.addDefaultOption("Do Nothing", "Do Nothing");
+        autoChooser.addOption("Test", "Test");
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 
@@ -193,6 +193,8 @@ public class Robot extends LoggedRobot {
         intake.start();
         superstructure.start();
         superstructure.setCurrentState(Superstructure.States.STOW);
+
+        AutoManager.getInstance();
     }
 
     /** This function is called periodically during all modes. */
@@ -211,11 +213,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        autoSelected = chooser.get();
-        traj = Choreo.getTrajectory(autoSelected);
-
-        drive.resetPoseEstimator(traj.getInitialPose());
-        drive.resetGyro(traj.getInitialPose().getRotation().getRotations());
+        AutoManager.getInstance().autoInit(autoChooser.get());
     }
 
     /** This function is called periodically during autonomous. */

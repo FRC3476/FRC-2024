@@ -285,6 +285,10 @@ public class Drive extends AbstractSubsystem {
         gyroIO.resetGyroYaw(yawPositionRot);
     }
 
+    public Pose2d getPose() {
+        return poseEstimator.getEstimatedPosition();
+    }
+
     public void rotateFrontToSpeaker() {
         //TODO
     }
