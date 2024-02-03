@@ -1,4 +1,5 @@
 package frc.subsystem.climber;
+import edu.wpi.first.math.MathUtil;
 import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -21,17 +22,12 @@ public class Climber extends AbstractSubsystem {
     }
 
     public void setPosition(double positionInRotations) {
-        if (positionInRotations < CLIMBER_LOWER_LIMIT_ROTATIONS) {
-            positionInRotations = CLIMBER_LOWER_LIMIT_ROTATIONS;
-        } else if (positionInRotations > CLIMBER_UPPER_LIMIT_ROTATIONS) {
-            positionInRotations = CLIMBER_UPPER_LIMIT_ROTATIONS;
-        }
-        climberIO.setPosition(positionInRotations);
+        climberIO.setPosition(MathUtil.clamp(positionInRotations, CLIMBER_LOWER_LIMIT_ROTATIONS, CLIMBER_UPPER_LIMIT_ROTATIONS));
     }
 
     public void update() {
         climberIO.updateInputs(climberInputs);
-        Logger.processInputs("Climber!!!!!!!!!!!", climberInputs);
+        Logger.processInputs("Climber", climberInputs);
     }
 
     public double getPositionInRotations() {
