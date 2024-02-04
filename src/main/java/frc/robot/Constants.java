@@ -7,6 +7,7 @@ import edu.wpi.first.math.util.Units;
 import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
 
 import java.io.File;
 import java.nio.file.Files;

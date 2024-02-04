@@ -91,7 +91,7 @@ public class Limelight {
         }
 
  //TODO: change this to manually off-setting to field coordinate
-        Pose2d estimatedRobotPoseMeters = FieldConversions.convertToField(Constants.kLimelightFieldOrigin, robotPoseInLimelightCoordinates);
+        Pose2d estimatedRobotPoseMeters = FieldConversions.convertToField(kLimelightFieldOrigin, robotPoseInLimelightCoordinates);
         Pose2d estimatedRobotPoseInches = Units.metersToInches(estimatedRobotPoseMeters);
 
         // Only accept vision updates if they place the robot within our own community or loading zone
@@ -105,7 +105,8 @@ public class Limelight {
         double translationalStdDev = translationalStandardDeviationRamp.calculate(cameraDistanceInches);
         double rotationalStdDev = rotationalStandardDeviationRamp.calculate(cameraDistanceInches);
         Matrix<N3, N1> standardDeviations = VecBuilder.fill(translationalStdDev, translationalStdDev, rotationalStdDev);
-        Swerve.getInstance().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results), standardDeviations);
+        Swerve.getInstance().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results),
+                standardDeviations);
 
         // For debugging purposes
         if (Swerve.getInstance().getState() == Swerve.ControlState.VISION_PID) {
