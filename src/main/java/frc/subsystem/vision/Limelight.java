@@ -4,10 +4,13 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import frc.subsystem.drive.Drive;
 import frc.utility.LimelightHelpers.LimelightResults;
 import frc.utility.LimelightHelpers.LimelightTarget_Fiducial;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -73,7 +76,7 @@ public class Limelight {
         Pose2d robotPoseInLimelightCoordinates;
         Pose3d cameraPose;
         List<LimelightTarget_Fiducial> fiducials = Arrays.asList(results.targetingResults.targets_Fiducials);
-        if (fiducials.stream().allMatch(fiducial -> fiducial.ta >= MIN_FIDUCIAL_AREA)) {
+        if (fiducials.stream().allMatch(fiducial -> fiducial.ta > MIN_FIDUCIAL_AREA)) {
             // All tags in view are close enough to trust the Limelight MegaTag localization
             robotPoseInLimelightCoordinates = LimelightHelpers.getBotPose2d(limelightName);
             cameraPose = LimelightHelpers.getCameraPose3d_TargetSpace(limelightName);
@@ -89,28 +92,19 @@ public class Limelight {
         if (robotPoseInLimelightCoordinates.equals(new Pose2d()) || cameraPose.equals(new Pose3d())) {
             return;
         }
+        Translation2d estimatedRobotTranslation = new Translation2d(kLimelightFieldOrigin.get(0) + FIELD_LENGTH_METERS/2,
+                kLimelightFieldOrigin.get(1) + FIELD_WIDTH_METERS/2);
+        Rotation2d defaultRotation = new Rotation2d();
 
- //TODO: change this to manually off-setting to field coordinate
-        Pose2d estimatedRobotPoseMeters = FieldConversions.convertToField(kLimelightFieldOrigin, robotPoseInLimelightCoordinates);
-        Pose2d estimatedRobotPoseInches = Units.metersToInches(estimatedRobotPoseMeters);
+        Pose2d estimatedRobotPoseMeters = new Pose2d(estimatedRobotTranslation, defaultRotation);
 
         // Only accept vision updates if they place the robot within our own community or loading zone
-        if (estimatedRobotPoseMeters.getTranslation() !> FIELD_LENGTH_METERS) &&
-            (estimatedRobotPoseMeters.getTranslation() !> FIELD_WIDTH_METERS) {
+        if (estimatedRobotPoseMeters.getTranslation().getX() < FIELD_LENGTH_METERS &&
+            (estimatedRobotPoseMeters.getTranslation().getY() < FIELD_WIDTH_METERS)) {
             return;
         }
 
         double cameraDistanceInches = Units.metersToInches(cameraPose.getTranslation().getNorm());
-
-        double translationalStdDev = translationalStandardDeviationRamp.calculate(cameraDistanceInches);
-        double rotationalStdDev = rotationalStandardDeviationRamp.calculate(cameraDistanceInches);
-        Matrix<N3, N1> standardDeviations = VecBuilder.fill(translationalStdDev, translationalStdDev, rotationalStdDev);
-        Swerve.getInstance().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results),
-                standardDeviations);
-
-        // For debugging purposes
-        if (Swerve.getInstance().getState() == Swerve.ControlState.VISION_PID) {
-            SmartDashboard.putNumberArray("Path Pose", new double[]{estimatedRobotPoseInches.getTranslation().x(), estimatedRobotPoseInches.getTranslation().y(), estimatedRobotPoseInches.getRotation().getDegrees()});
-        }
+        Drive.getInstance().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results));
     }
 }
