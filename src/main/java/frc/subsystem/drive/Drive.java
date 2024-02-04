@@ -254,19 +254,24 @@ public class Drive extends AbstractSubsystem {
         if (ally.isPresent()) {
             if (ally.get() == DriverStation.Alliance.Red) {
 
-                distance = Math.sqrt(Math.pow(Math.abs(redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()), 2) +
-                        Math.pow(Math.abs(redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY()), 2));
+                distance = Math.hypot(redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX(),
+                        redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY());
 
 
 
             }
             if (ally.get() == DriverStation.Alliance.Blue) {
-                distance = Math.sqrt(Math.pow(Math.abs(blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()), 2) +
-                        Math.pow(Math.abs(blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY()), 2));
+                distance = Math.hypot(blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX(),
+                        blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY());
             }
         }
         return distance;
     }
+
+    /**
+     * Returns the angle of the robot needed to face the speaker, not how far to rotate the robot
+     * @return angle of robot needed to face speaker
+     */
 
     public double findAngleToSpeaker() {
 
@@ -276,19 +281,20 @@ public class Drive extends AbstractSubsystem {
         if (ally.isPresent()) {
             if (ally.get() == DriverStation.Alliance.Red) {
                 if (yDistanceToBlue < 0) {
-                    return -Math.atan(yDistanceToRed / redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX());
+                    return -Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
                 } else {
-                    return Math.atan(yDistanceToRed / redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX());
+                    return Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
+                }
+            }
+
+            if (ally.get() == DriverStation.Alliance.Blue) {
+                if (yDistanceToBlue < 0) {
+                    return (180 + Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
+                } else {
+                    return (180 - Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
                 }
             }
         }
-            if (ally.get() == DriverStation.Alliance.Blue) {
-                if (yDistanceToBlue < 0) {
-                    return (180 + Math.atan(yDistanceToRed / redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
-                } else {
-                    return (180 - Math.atan(yDistanceToRed / redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
-                }
-            }
         return 0;
     }
 }
