@@ -148,7 +148,7 @@ public final class Constants {
 
     public static final double MAX_ERROR_PRINT_TIME = 0.5;
 
-    // TODO: change these
+    // perimeters of the field, Width is the side where drivers stand
     public static final double FIELD_WIDTH_METERS = 8.0137;
     public static final double FIELD_LENGTH_METERS = 16.54175;
 

@@ -15,6 +15,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Robot;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
 import frc.utility.swerve.SecondOrderModuleState;
@@ -64,20 +65,10 @@ public class Drive extends AbstractSubsystem {
                 getModulePositions(),
                 new Pose2d(),
                 VecBuilder.fill(0.1, 0.1, 0.1),
-                VecBuilder.fill(0.9, 0.9, 0.9));
-    }
-
-    private static Drive instance = null;
-
-    public static Drive getInstance(){
-        if(instance == null)
-            instance = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {},
-                    new ModuleIO() {}, new GyroIO() {});
-        return instance;
+                VecBuilder.fill(0.3, 0.3, 0.3));
     }
 
     public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp) {
-
         poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp);
     }
 

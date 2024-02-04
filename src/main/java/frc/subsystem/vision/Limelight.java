@@ -7,12 +7,12 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Robot;
 import frc.subsystem.drive.Drive;
 import frc.utility.LimelightHelpers.LimelightResults;
 import frc.utility.LimelightHelpers.LimelightTarget_Fiducial;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.utility.LimelightHelpers;
-import frc.utility.Stopwatch;
 import org.littletonrobotics.junction.Logger;
 import static frc.robot.Constants.*;
 
@@ -24,7 +24,7 @@ import java.util.List;
 public class Limelight {
 
     private final String limelightName;
-    private final Stopwatch lastUpdateStopwatch = new Stopwatch();
+    private final Timer lastUpdateStopwatch = new Timer();
     private double previousHeartbeat = -1.0;
     private boolean limelightConnected = true;
 
@@ -53,8 +53,8 @@ public class Limelight {
 
             previousHeartbeat = currentHeartbeat;
         } else {
-            lastUpdateStopwatch.startIfNotRunning();
-            if (lastUpdateStopwatch.getTime() > 0.5) {
+            lastUpdateStopwatch.start();
+            if (lastUpdateStopwatch.get() > 0.5) {
                 limelightConnected = false;
                 SmartDashboard.putBoolean("Limelight Connected", limelightConnected);
             }
@@ -100,6 +100,6 @@ public class Limelight {
         }
 
         double cameraDistanceInches = cameraPose.getTranslation().getNorm();
-        Drive.getInstance().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results));
+        Robot.getDrive().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results));
     }
 }
