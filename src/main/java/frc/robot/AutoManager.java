@@ -28,11 +28,15 @@ public class AutoManager {
     private ArrayList<ChoreoTrajectory> trajectories;
     private String trajectoryKey;
 
+    private final Timer autoTimer = new Timer();
+
     public void autoInit(String key) {
         this.trajectoryKey = key;
         trajectories = Choreo.getTrajectoryGroup(key);
         drive.resetGyro(trajectories.get(0).getInitialPose().getRotation().getRotations());
         drive.resetPoseEstimator(trajectories.get(0).getInitialPose());
+        autoTimer.reset();
+        autoTimer.start();
     }
 
     private final PIDController xController = new PIDController(1, 0, 0);
@@ -42,21 +46,20 @@ public class AutoManager {
 
     private ChoreoTrajectoryState state;
     public void runAuto() {
-        var currentTime = Logger.getTimestamp() * 1e-6;
         switch(trajectoryKey) {
             case "Do Nothing" -> {
-                state = trajectories.get(0).sample(currentTime);
+                state = trajectories.get(0).sample(autoTimer.get());
             }
             case "Test" -> { // just an example of what the plan is, lol
-                if (currentTime < 0.85) {
-                    state = trajectories.get(0).sample(currentTime);
+                if (!autoTimer.hasElapsed(0.85)) {
                     superstructure.setGoalState(Superstructure.States.INTAKE_FINAL);
-                } else if (0.85 <= currentTime && currentTime <= 1.5) {
-                    state = trajectories.get(0).getFinalState();
+                    state = trajectories.get(0).sample(autoTimer.get());
+                } else if (!autoTimer.hasElapsed(1.5)) {
                     superstructure.setGoalState(Superstructure.States.SPEAKER_FRONT);
+                    state = trajectories.get(0).getFinalState();
                 } else {
-                    state = trajectories.get(1).sample(currentTime - 1.5);
                     superstructure.setGoalState(Superstructure.States.INTAKE_FINAL);
+                    state = trajectories.get(1).sample(autoTimer.get());
                 }
             }
         }
