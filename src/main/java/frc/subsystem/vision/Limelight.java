@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.utility.LimelightHelpers;
 import frc.utility.Stopwatch;
 import org.littletonrobotics.junction.Logger;
+import static frc.robot.Constants.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -89,13 +90,13 @@ public class Limelight {
             return;
         }
 
-/* TODO: Uncomment the remaining code and convert into something we can use to update our pose estimator
+ //TODO: change this to manually off-setting to field coordinate
         Pose2d estimatedRobotPoseMeters = FieldConversions.convertToField(Constants.kLimelightFieldOrigin, robotPoseInLimelightCoordinates);
         Pose2d estimatedRobotPoseInches = Units.metersToInches(estimatedRobotPoseMeters);
 
         // Only accept vision updates if they place the robot within our own community or loading zone
-        if (!AllianceChooser.getCommunityBoundingBox().pointWithinBox(estimatedRobotPoseInches.getTranslation()) &&
-                !AllianceChooser.getLoadingZoneBoundingBox().pointWithinBox(estimatedRobotPoseInches.getTranslation())) {
+        if (estimatedRobotPoseMeters.getTranslation() !> FIELD_LENGTH_METERS) &&
+            (estimatedRobotPoseMeters.getTranslation() !> FIELD_WIDTH_METERS) {
             return;
         }
 
@@ -110,6 +111,5 @@ public class Limelight {
         if (Swerve.getInstance().getState() == Swerve.ControlState.VISION_PID) {
             SmartDashboard.putNumberArray("Path Pose", new double[]{estimatedRobotPoseInches.getTranslation().x(), estimatedRobotPoseInches.getTranslation().y(), estimatedRobotPoseInches.getRotation().getDegrees()});
         }
- */
     }
 }
