@@ -7,6 +7,7 @@ import edu.wpi.first.math.util.Units;
 import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -154,9 +155,9 @@ public final class Constants {
 
     public static final double MAX_ERROR_PRINT_TIME = 0.5;
 
-    // TODO: change these
-    public static final double FIELD_HEIGHT_METERS = 8.0137;
-    public static final double FIELD_WIDTH_METERS = 16.54175;
+    // perimeters of the field, Width is the side where drivers stand
+    public static final double FIELD_WIDTH_METERS = 8.0137;
+    public static final double FIELD_LENGTH_METERS = 16.54175;
 
     public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
 

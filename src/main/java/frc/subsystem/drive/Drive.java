@@ -1,5 +1,6 @@
 package frc.subsystem.drive;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -8,10 +9,13 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Robot;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
 import frc.utility.swerve.SecondOrderModuleState;
@@ -43,10 +47,13 @@ public class Drive extends AbstractSubsystem {
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
+
     public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
         super();
         this.gyroIO = gyroIO;
         moduleIO = new ModuleIO[]{flModule, blModule, frModule, brModule};
+
+
 
         for(ModuleIO module : moduleIO) {
             module.setBrakeMode(false);
@@ -58,7 +65,11 @@ public class Drive extends AbstractSubsystem {
                 getModulePositions(),
                 new Pose2d(),
                 VecBuilder.fill(0.1, 0.1, 0.1),
-                VecBuilder.fill(0.9, 0.9, 0.9));
+                VecBuilder.fill(0.3, 0.3, 0.3));
+    }
+
+    public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp) {
+        poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp);
     }
 
     double lastTimeStep;

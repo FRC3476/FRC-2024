@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static frc.robot.Constants.FIELD_HEIGHT_METERS;
+import static frc.robot.Constants.FIELD_WIDTH_METERS;
 
 public final class OrangeUtility {
 
@@ -280,7 +280,7 @@ public final class OrangeUtility {
      * Fix the coordinates to they work with advantage kit
      */
     public static Pose3d fixCoords(Pose3d pose3d) {
-        return new Pose3d(new Translation3d(pose3d.getX(), pose3d.getY() + FIELD_HEIGHT_METERS / 2, pose3d.getZ()),
+        return new Pose3d(new Translation3d(pose3d.getX(), pose3d.getY() + FIELD_WIDTH_METERS / 2, pose3d.getZ()),
                 pose3d.getRotation());
     }
 }
