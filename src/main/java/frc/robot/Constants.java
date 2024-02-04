@@ -151,7 +151,6 @@ public final class Constants {
     // TODO: change these
     public static final double FIELD_WIDTH_METERS = 8.0137;
     public static final double FIELD_LENGTH_METERS = 16.54175;
-    public static final Vector3d kLimelightFieldOrigin = new Vector3d(8.270875, 4.00685, 0.0);
 
     public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
 
