@@ -2,10 +2,7 @@ package frc.subsystem.vision;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -92,19 +89,17 @@ public class Limelight {
         if (robotPoseInLimelightCoordinates.equals(new Pose2d()) || cameraPose.equals(new Pose3d())) {
             return;
         }
-        Translation2d estimatedRobotTranslation = new Translation2d(kLimelightFieldOrigin.get(0) + FIELD_LENGTH_METERS/2,
-                kLimelightFieldOrigin.get(1) + FIELD_WIDTH_METERS/2);
-        Rotation2d defaultRotation = new Rotation2d();
+        Transform2d offsetToFieldOrigin = new Transform2d(FIELD_LENGTH_METERS/2,
+                FIELD_WIDTH_METERS/2, new Rotation2d());
 
-        Pose2d estimatedRobotPoseMeters = new Pose2d(estimatedRobotTranslation, defaultRotation);
+        Pose2d estimatedRobotPoseMeters = robotPoseInLimelightCoordinates.plus(offsetToFieldOrigin);
 
-        // Only accept vision updates if they place the robot within our own community or loading zone
         if (estimatedRobotPoseMeters.getTranslation().getX() < FIELD_LENGTH_METERS &&
             (estimatedRobotPoseMeters.getTranslation().getY() < FIELD_WIDTH_METERS)) {
             return;
         }
 
-        double cameraDistanceInches = Units.metersToInches(cameraPose.getTranslation().getNorm());
+        double cameraDistanceInches = cameraPose.getTranslation().getNorm();
         Drive.getInstance().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results));
     }
 }
