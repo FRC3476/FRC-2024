@@ -1,18 +1,23 @@
 package frc.subsystem.drive;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
 import frc.utility.swerve.SecondOrderModuleState;
@@ -20,7 +25,6 @@ import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import frc.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -36,6 +40,17 @@ public class Drive extends AbstractSubsystem {
     private SwerveSetpointGenerator.KinematicLimit kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     private final SwerveDrivePoseEstimator poseEstimator;
     private @NotNull DriveState driveState = DriveState.TELEOP;
+    private final @NotNull ProfiledPIDController turnPID;
+    {
+        turnPID = new ProfiledPIDController(
+                TURN_P,
+                TURN_I,
+                TURN_D,
+                new TrapezoidProfile.Constraints(MAX_TURN_SPEED, MAX_TURN_ACCEL)
+        );
+        turnPID.enableContinuousInput(-Math.PI, Math.PI);
+    }
+
 
     Optional<DriverStation.Alliance> ally = DriverStation.getAlliance();
 
@@ -47,6 +62,8 @@ public class Drive extends AbstractSubsystem {
         this.gyroIO = gyroIO;
         moduleIO = new ModuleIO[]{flModule, blModule, frModule, brModule};
 
+
+
         for(ModuleIO module : moduleIO) {
             module.setBrakeMode(false);
         }
@@ -57,8 +74,11 @@ public class Drive extends AbstractSubsystem {
                 getModulePositions(),
                 new Pose2d(),
                 VecBuilder.fill(0.1, 0.1, 0.1),
-                VecBuilder.fill(0.9, 0.9, 0.9)
-        );
+                VecBuilder.fill(0.3, 0.3, 0.3));
+    }
+
+    public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp) {
+        poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp);
     }
 
     double lastTimeStep;
@@ -93,6 +113,8 @@ public class Drive extends AbstractSubsystem {
                 getModulePositions()
         );
         lastTimeStep = Logger.getRealTimestamp() * 1e-6;
+
+
     }
 
     public synchronized void setBrakeMode(boolean brakeMode) {
@@ -169,11 +191,14 @@ public class Drive extends AbstractSubsystem {
         lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
     }
 
+    SwerveModuleState[] wantedStates = new SwerveModuleState[4];
+    SwerveModuleState[] realStates = new SwerveModuleState[4];
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates) {
 
         for (int i = 0; i < 4; i++) {
 
             var moduleState = swerveModuleStates[i];
+            wantedStates[i] = swerveModuleStates[i].toFirstOrder();
             moduleState = SecondOrderModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
             double currentAngle = getWheelRotation(i);
 
@@ -181,9 +206,9 @@ public class Drive extends AbstractSubsystem {
 
             if (Math.abs(angleDiff) > ALLOWED_SWERVE_ANGLE_ERROR) {
                 if (USE_CANCODERS) {
-                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff, moduleState.omega);
+                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff, USE_SECOND_ORDER_KINEMATICS ? moduleState.omega : 0);
                 } else {
-                    moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees(), moduleState.omega);
+                    moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees(), USE_SECOND_ORDER_KINEMATICS ? moduleState.omega : 0);
                 }
             } else {
                 moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
@@ -199,7 +224,12 @@ public class Drive extends AbstractSubsystem {
             Logger.recordOutput("Drive/SwerveModule " + i + "/Angle Error", angleDiff);
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Relative Angle",
                     moduleInputs[i].steerMotorRelativePosition + angleDiff);
+
+            realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
         }
+        Logger.recordOutput("Drive/Wanted States", wantedStates);
+        Logger.recordOutput("Drive/Real States", realStates);
+
     }
 
 
@@ -232,6 +262,16 @@ public class Drive extends AbstractSubsystem {
                 gyroInputs.rotation2d);
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
+
+    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad) {
+        double turn = turnPID.calculate(gyroInputs.rotation2d.getRadians(), targetAngleRad);
+        nextChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
+                DRIVE_HIGH_SPEED_M * inputs.getY(),
+                turn * MAX_TELEOP_TURN_SPEED,
+                gyroInputs.rotation2d);
+        kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
+    }
+
     public synchronized void resetAbsoluteZeros() {
         for (ModuleIO module : moduleIO) {
             module.resetAbsoluteZeros();

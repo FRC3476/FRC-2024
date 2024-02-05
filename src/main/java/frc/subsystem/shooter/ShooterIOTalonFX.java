@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 
@@ -29,14 +30,15 @@ public class ShooterIOTalonFX implements ShooterIO {
     private final SimpleMotorFeedforward ffModel;
 
     public ShooterIOTalonFX() {
-        leader = new TalonFX(Ports.SHOOTER_MAIN);
-        follower = new TalonFX(Ports.SHOOTER_FOLLOWER);
+        leader = new TalonFX(Ports.SHOOTER_LEAD);
+        follower = new TalonFX(Ports.SHOOTER_FOLLOW);
         ffModel = new SimpleMotorFeedforward(0, 0); // Need to figure out constants
 
         var config = new TalonFXConfiguration();
         config.CurrentLimits.StatorCurrentLimit = 30.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         config.Slot0.kP = 0;
         config.Slot0.kI = 0;
         config.Slot0.kD = 0;
@@ -55,9 +57,11 @@ public class ShooterIOTalonFX implements ShooterIO {
         followerAmps = follower.getSupplyCurrent();
         followerTemp = follower.getDeviceTemp();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(100.0, leaderVelocity, followerVelocity);
+        BaseStatusSignal.setUpdateFrequencyForAll(100.0, leaderVelocity);
         BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0, leaderVoltage, leaderAmps, leaderTemp, followerVoltage, followerAmps, followerTemp);
+                50.0, leaderVoltage);
+        BaseStatusSignal.setUpdateFrequencyForAll(2.0, followerVelocity, leaderAmps, leaderTemp, followerVoltage, followerAmps, followerTemp);
+        leader.optimizeBusUtilization();
         follower.optimizeBusUtilization();
 
         follower.setControl(new Follower(leader.getDeviceID(), true)); //this is prob true

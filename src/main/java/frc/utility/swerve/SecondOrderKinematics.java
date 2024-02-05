@@ -19,6 +19,16 @@ import java.util.Collections;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+/**
+ * Helper class that extends default WPILib kinematics functionality to convert a chassis velocity
+ * (dx, dy, and dtheta components) into individual module states (speed, angle, angular velocity).
+ *
+ * <p>The inverse kinematics (converting from a desired chassis velocity to individual module
+ * states) uses the relative locations of the modules with respect to the center of rotation. The
+ * center of rotation for inverse kinematics is also variable.
+ *
+ */
+@SuppressWarnings("ReassignedVariable")
 public class SecondOrderKinematics extends SwerveDriveKinematics {
     public static class SwerveDriveWheelStates extends SwerveDriveKinematics.SwerveDriveWheelStates {
         /** Swerve module states. */
@@ -49,7 +59,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
     private Translation2d m_prevCoR = new Translation2d();
 
     /**
-     * Constructs a swerve drive kinematics object. This takes in a variable number of module
+     * Constructs a second-order swerve drive kinematics object. This takes in a variable number of module
      * locations as Translation2d objects. The order in which you pass in the module locations is the
      * same order that you will receive the module states when performing inverse kinematics. It is
      * also expected that you pass in the module states in the same order when calling the forward
@@ -115,7 +125,7 @@ public class SecondOrderKinematics extends SwerveDriveKinematics {
      *     component, the robot will rotate around that corner.
      * @return An array containing the module states. Use caution because these module states are not
      *     normalized. Sometimes, a user input may cause one of the module speeds to go above the
-     *     attainable max velocity. Use the {@link #desaturateWheelSpeeds(SwerveModuleState[], double)
+     *     attainable max velocity. Use the {@link #desaturateWheelSpeeds(SecondOrderModuleState[], double)
      *     DesaturateWheelSpeeds} function to rectify this issue.
      */
     public SecondOrderModuleState[] toSwerveModuleStates(

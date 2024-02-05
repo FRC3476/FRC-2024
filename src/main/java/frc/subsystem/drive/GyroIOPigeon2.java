@@ -18,6 +18,7 @@ public class GyroIOPigeon2 implements GyroIO {
 
     private final StatusSignal<Double> yawPositionDeg;
     private final StatusSignal<Double> yawVelocityDegPerSec;
+    private final StatusSignal<Double> uptime;
 
 
 
@@ -30,8 +31,9 @@ public class GyroIOPigeon2 implements GyroIO {
 
         yawPositionDeg = pigeon.getYaw();
         yawVelocityDegPerSec = pigeon.getAngularVelocityZWorld();
+        uptime = pigeon.getUpTime();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(50, yawPositionDeg, yawVelocityDegPerSec);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, yawPositionDeg, yawVelocityDegPerSec, uptime);
 
         pigeon.optimizeBusUtilization();
     }
@@ -39,7 +41,8 @@ public class GyroIOPigeon2 implements GyroIO {
 
     @Override
     public void updateInputs(GyroInputs inputs) {
-        inputs.connected = pigeon.getUpTime().getValue() > 0;
+        BaseStatusSignal.refreshAll(uptime, yawPositionDeg, yawVelocityDegPerSec);
+        inputs.connected = uptime.getValue() > 0;
         /*
          * X-axis points forward
          * Y-axis points to the left

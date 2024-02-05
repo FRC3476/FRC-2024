@@ -6,11 +6,17 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.arm.Arm;
 import frc.subsystem.arm.ArmIO;
 import frc.subsystem.arm.ArmIOTalonFX;
+import frc.subsystem.Superstructure;
+import frc.subsystem.climber.Climber;
+import frc.subsystem.climber.ClimberIO;
+import frc.subsystem.climber.ClimberIOTalonFX;
 import frc.subsystem.drive.*;
+import frc.subsystem.intake.IntakeIO;
 import frc.subsystem.wrist.Wrist;
 import frc.subsystem.wrist.WristIO;
 import frc.subsystem.wrist.WristIOTalonFX;
@@ -18,9 +24,12 @@ import frc.subsystem.elevator.Elevator;
 import frc.subsystem.elevator.ElevatorIO;
 import frc.subsystem.elevator.ElevatorIOTalonFX;
 import frc.subsystem.shooter.*;
+import frc.subsystem.intake.Intake;
+import frc.subsystem.intake.IntakeIOTalonFX;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
+import frc.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -49,10 +58,18 @@ public class Robot extends LoggedRobot {
     private static final String customAuto = "My Auto";
     private String autoSelected;
     private Controller xbox;
+    private Controller logitechThing;
+    private Controller buttonPanel;
     private final LoggedDashboardChooser<String> chooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
 
     private static PowerDistribution powerDistribution;
+
+    public static final LiveEditableValue<Double> kP = new LiveEditableValue<>(100.0, SmartDashboard.getEntry("Arm/P"));
+    public static final LiveEditableValue<Double> kI = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Arm/I"));
+    public static final LiveEditableValue<Double> kD = new LiveEditableValue<>(5.0, SmartDashboard.getEntry("Arm/D"));
+    public static final LiveEditableValue<Double> kG = new LiveEditableValue<>(0.85, SmartDashboard.getEntry("Arm/G"));
+    public static final LiveEditableValue<Double> wantedPos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Arm/Goal position"));
 
 
     static Drive drive;
@@ -60,6 +77,10 @@ public class Robot extends LoggedRobot {
     static Elevator elevator;
     static Shooter shooter;
     static Arm arm;
+    static Intake intake;
+    static Climber climber;
+
+    static Superstructure superstructure;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -135,6 +156,9 @@ public class Robot extends LoggedRobot {
             elevator = new Elevator(new ElevatorIOTalonFX());
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
+            intake = new Intake(new IntakeIOTalonFX());
+            climber = new Climber(new ClimberIOTalonFX());
+            superstructure = Superstructure.getSuperstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -150,6 +174,9 @@ public class Robot extends LoggedRobot {
             elevator = new Elevator(new ElevatorIO() {});
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
+            intake = new Intake(new IntakeIO() {});
+            climber = new Climber(new ClimberIO() {});
+            superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -158,6 +185,8 @@ public class Robot extends LoggedRobot {
         sideChooser.addOption("Red", "red");
 
         xbox = new Controller(0);
+        logitechThing = new Controller(1);
+        buttonPanel = new Controller(2);
 
         Logger.start();
         drive.start();
@@ -165,12 +194,21 @@ public class Robot extends LoggedRobot {
         elevator.start();
         shooter.start();
         arm.start();
+        intake.start();
+        climber.start();
+        superstructure.start();
+        superstructure.setCurrentState(Superstructure.States.STOW);
     }
 
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
+        xbox.update();
+        buttonPanel.update();
         AbstractSubsystem.tick();
+        if(buttonPanel.getRisingEdge(10)) {
+            elevator.zeroEncoder();
+        }
     }
 
     /** This function is called once when autonomous is enabled. */
@@ -202,10 +240,43 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        xbox.update();
+        if(buttonPanel.getRisingEdge(1)) {
+            superstructure.setGoalState(Superstructure.States.STOW);
+        }
+        if(buttonPanel.getRisingEdge(2)) {
+            superstructure.setGoalState(Superstructure.States.INTAKE_FINAL);
+        }
+        if(buttonPanel.getRisingEdge(3)) {
+            superstructure.setGoalState(Superstructure.States.AMP);
+        }
+        if(buttonPanel.getRisingEdge(5)) {
+            superstructure.setGoalState(Superstructure.States.SPEAKER_FRONT);
+        }
+        if(buttonPanel.getRisingEdge(11)) {
+            superstructure.setWantedShooterPosition(-0.25);
+        }
+        if(buttonPanel.getRisingEdge(12)) {
+            superstructure.setWantedShooterPosition(-0.3);
+        }
 
+        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
+            intake.runIntake();
+        } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
+            intake.runOuttake();
+        } else {
+            intake.stop();
+        }
+        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
+            shooter.setMotorVoltage(6);
+        } else {
+            shooter.setMotorVoltage(0);
+        }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        drive.swerveDriveFieldRelative(controllerDriveInputs);
+        if(superstructure.getCurrentState() == Superstructure.States.SPEAKER_FRONT) {
+            drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngleRad());
+        } else {
+            drive.swerveDriveFieldRelative(controllerDriveInputs);
+        }
     }
 
     /** This function is called once when the robot is disabled. */
@@ -221,18 +292,18 @@ public class Robot extends LoggedRobot {
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
-        drive.setBrakeMode(false);
+        // drive.setBrakeMode(false);
     }
 
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
-        xbox.update();
         if (xbox.getRawButton(XboxButtons.X) && xbox.getRawButton(XboxButtons.B)
                 && xbox.getRisingEdge(XboxButtons.X) && xbox.getRisingEdge(XboxButtons.B)) {
             drive.resetAbsoluteZeros();
         }
     }
+
     @SuppressWarnings("Magic Number")
     private ControllerDriveInputs getControllerDriveInputs() {
         ControllerDriveInputs inputs;
@@ -241,9 +312,9 @@ public class Robot extends LoggedRobot {
         if (isRed) {
             // Flip the x-axis for red
             inputs = new ControllerDriveInputs(-xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), -xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
-                    -xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
+                    xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
         } else {
-            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), -xbox.getRawAxis(4));
+            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
         }
 
         if (xbox.getRawButton(Controller.XboxButtons.X)) {
@@ -285,5 +356,29 @@ public class Robot extends LoggedRobot {
         while (!toRunOnMainThread.isEmpty()) {
             toRunOnMainThread.poll().run();
         }
+    }
+
+    public static Arm getArm() {
+        return arm;
+    }
+    public static Drive getDrive() {
+        return drive;
+    }
+    public static Elevator getElevator() {
+        return elevator;
+    }
+    public static Intake getIntake() {
+        return intake;
+    }
+    public static Shooter getShooter() {
+        return shooter;
+    }
+    public static Wrist getWrist() {
+        return wrist;
+    }
+    public static Climber getClimber() { return climber; }
+
+    public static Superstructure getSuperstructure() {
+        return superstructure;
     }
 }

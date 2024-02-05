@@ -7,7 +7,10 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Constants;
 
 import static frc.robot.Constants.ELEVATOR_STALLING_CURRENT;
@@ -31,6 +34,29 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD);
         followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW);
 
+        TalonFXConfiguration motorConfig = new TalonFXConfiguration()
+                .withMotionMagic(new MotionMagicConfigs()
+                        .withMotionMagicCruiseVelocity(20)
+                        .withMotionMagicAcceleration(40)
+                        .withMotionMagicJerk(200)
+                ).withSlot0(new Slot0Configs()
+                        .withKP(1)
+                ).withFeedback(new FeedbackConfigs()
+                        .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                        .withSensorToMechanismRatio(Constants.ELEVATOR_INCHES_PER_ROTATION)
+                ).withCurrentLimits(new CurrentLimitsConfigs()
+                                .withSupplyCurrentLimit(ELEVATOR_STALLING_CURRENT)
+                                .withSupplyCurrentLimitEnable(true)
+                                .withStatorCurrentLimitEnable(false)
+                ).withMotorOutput(new MotorOutputConfigs()
+                        .withInverted(InvertedValue.Clockwise_Positive)
+                        .withNeutralMode(NeutralModeValue.Brake));
+
+        leadMotor.getConfigurator().apply(motorConfig);
+        followMotor.getConfigurator().apply(motorConfig);
+
+        followMotor.setControl(new Follower(leadMotor.getDeviceID(), false));
+
         leadMotorPosition = leadMotor.getPosition();
         leadMotorVelocity = leadMotor.getVelocity();
         leadMotorVoltage = leadMotor.getMotorVoltage();
@@ -43,50 +69,27 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         followMotorAmps = followMotor.getSupplyCurrent();
         followMotorTemp = followMotor.getDeviceTemp();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(50, leadMotorPosition, leadMotorVelocity, leadMotorVoltage, leadMotorAmps, leadMotorTemp, followMotorPosition, followMotorVelocity, followMotorVoltage, followMotorAmps, followMotorTemp);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, leadMotorPosition, leadMotorVelocity, leadMotorVoltage);
+        BaseStatusSignal.setUpdateFrequencyForAll(2.0, leadMotorAmps, leadMotorTemp, followMotorPosition, followMotorVelocity, followMotorVoltage, followMotorAmps, followMotorTemp);
 
         leadMotor.optimizeBusUtilization();
         followMotor.optimizeBusUtilization();
-
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        MotionMagicConfigs motionMagic = motorConfig.MotionMagic;
-
-        motionMagic.MotionMagicCruiseVelocity = 20; // rotations per second at cruise
-        motionMagic.MotionMagicAcceleration = 40; // time to reach max vel
-        motionMagic.MotionMagicJerk = 200; // time to reach max accel
-
-        Slot0Configs slot0 = motorConfig.Slot0;
-        slot0.kP = 1;
-        slot0.GravityType = GravityTypeValue.Elevator_Static;
-
-        FeedbackConfigs fdb = motorConfig.Feedback;
-        fdb.SensorToMechanismRatio = Constants.ELEVATOR_INCHES_PER_ROTATION;
-
-        motorConfig = motorConfig.withCurrentLimits(new CurrentLimitsConfigs()
-                                .withSupplyCurrentLimit(ELEVATOR_STALLING_CURRENT)
-                                .withSupplyCurrentLimitEnable(true)
-                                .withStatorCurrentLimitEnable(false));
-
-        leadMotor.getConfigurator().apply(motorConfig);
-        followMotor.getConfigurator().apply(motorConfig);
-
-        followMotor.setControl(new Follower(leadMotor.getDeviceID(), false));
     }
     private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
-    public void setPosition(double targetPositionInRotations) {
-        leadMotor.setControl(motionMagicRequest.withPosition(targetPositionInRotations));
+    public void setPosition(double targetPosition) {
+        leadMotor.setControl(motionMagicRequest.withPosition(targetPosition));
     }
 
     public void updateInputs(ElevatorInputs inputs) {
         BaseStatusSignal.refreshAll(leadMotorPosition, leadMotorVelocity, leadMotorVoltage, leadMotorAmps, leadMotorTemp, followMotorPosition, followMotorVoltage, followMotorAmps, followMotorTemp);
 
-        inputs.leadMotorPosition = leadMotorPosition.getValue() * Constants.ELEVATOR_INCHES_PER_ROTATION;
+        inputs.leadMotorPosition = leadMotorPosition.getValue();
         inputs.leadMotorVelocity = leadMotorVelocity.getValue();
         inputs.leadMotorVoltage = leadMotorVoltage.getValue();
         inputs.leadMotorAmps = leadMotorAmps.getValue();
         inputs.leadMotorTemp = leadMotorTemp.getValue();
 
-        inputs.followMotorPosition = followMotorPosition.getValue() * Constants.ELEVATOR_INCHES_PER_ROTATION;
+        inputs.followMotorPosition = followMotorPosition.getValue();
         inputs.followMotorVelocity = followMotorVelocity.getValue();
         inputs.followMotorVoltage = followMotorVoltage.getValue();
         inputs.followMotorAmps = followMotorAmps.getValue();
@@ -95,6 +98,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     public void setEncoderToZero() {
         leadMotor.setPosition(0);
+        followMotor.setPosition(0);
         //elevatorFollower.getEncoder().setPosition(position);
     }
     
