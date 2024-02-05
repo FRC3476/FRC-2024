@@ -28,7 +28,7 @@ public class Superstructure extends AbstractSubsystem {
     //private static Vision vision;
     private States currentState = States.STOW;
     private States goalState = States.STOW;
-    public Superstructure() {
+    private Superstructure() {
         super();
         arm = Robot.getArm();
         intake = Robot.getIntake();
@@ -125,7 +125,7 @@ public class Superstructure extends AbstractSubsystem {
                     superstructure.setWantedShooterPosition(0);
                     superstructure.setCurrentState(States.GENERAL_INTERMEDIATE);
                 }
-                superstructure.targetAngleRad = 0; // get the target angle needed to aim at speaker
+                superstructure.targetAngleRad = drive.findAngleToSpeaker(); // get the target angle needed to aim at speaker
             }
         },
         SPEAKER_BACK(0, 0, 0, 0) {
