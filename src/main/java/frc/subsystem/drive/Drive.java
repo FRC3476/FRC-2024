@@ -269,7 +269,7 @@ public class Drive extends AbstractSubsystem {
         public static double turnErrorRadians;
     }
 
-    public void resetPoseEstimator(Pose2d pose) {
+    public void resetOdometry(Pose2d pose) {
         poseEstimator.resetPosition(
                 gyroInputs.rotation2d,
                 new SwerveModulePosition[] {
@@ -280,6 +280,7 @@ public class Drive extends AbstractSubsystem {
                 },
                 pose
         );
+        resetGyro(pose.getRotation().getDegrees());
     }
 
     public void resetGyro(double yawPositionRot) {

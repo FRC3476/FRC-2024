@@ -8,7 +8,6 @@ import frc.subsystem.elevator.Elevator;
 import frc.subsystem.shooter.Shooter;
 import frc.subsystem.intake.Intake;
 import frc.subsystem.wrist.Wrist;
-import frc.utility.ControllerDriveInputs;
 import org.littletonrobotics.junction.Logger;
 //import frc.subsystem.climber.Climber;
 
@@ -53,8 +52,8 @@ public class Superstructure extends AbstractSubsystem {
                 if(DriverStation.isDisabled()) {
                     superstructure.setCurrentState(REST);
                 }
-                if(superstructure.goalState == States.SPEAKER_FRONT) {
-                    superstructure.setCurrentState(SPEAKER_FRONT);
+                if(superstructure.goalState == States.SPEAKER) {
+                    superstructure.setCurrentState(SPEAKER);
                 } else if(superstructure.goalState != States.STOW){
                     superstructure.setCurrentState(GENERAL_INTERMEDIATE);
                 }
@@ -114,22 +113,16 @@ public class Superstructure extends AbstractSubsystem {
             }
         },
 
-        SPEAKER_FRONT(0, 0.125, 0, 0) {
+        SPEAKER(0, 0.125, 0, 0) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
-                if(superstructure.goalState != States.SPEAKER_FRONT) {
+                if(superstructure.goalState != States.SPEAKER) {
                     superstructure.setWantedShooterPosition(0);
                     superstructure.setCurrentState(States.GENERAL_INTERMEDIATE);
                 }
                 superstructure.targetAngleRad = 0; // get the target angle needed to aim at speaker
-            }
-        },
-        SPEAKER_BACK(0, 0, 0, 0) {
-            @Override
-            //spin drivebase + aim mechanisms
-            public void update() {
-                //code!
+                // set target angle and wrist position based on other logic to determine front or back
             }
         },
         TRAP(0, 0, 0, 0) {
@@ -216,7 +209,7 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     public void setWantedShooterPosition(double wantedPos) {
-        wantedShooterPosition = superstructure.currentState == States.SPEAKER_FRONT ? wantedPos : 0;
+        wantedShooterPosition = superstructure.currentState == States.SPEAKER ? wantedPos : 0;
     }
 
     public double getWristDegreesRelativeToGround(double degreesRelativeToArm, double armPivotDegrees) {
@@ -226,6 +219,10 @@ public class Superstructure extends AbstractSubsystem {
     
     public void setGoalState(States goalState) {
         this.goalState = goalState;
+    }
+
+    public boolean isAtGoalState() {
+        return currentState == goalState;
     }
 
     public static Superstructure getSuperstructure() {
