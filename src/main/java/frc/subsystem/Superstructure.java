@@ -1,15 +1,17 @@
 package frc.subsystem;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.subsystem.arm.Arm;
+import frc.subsystem.climber.Climber;
 import frc.subsystem.drive.Drive;
 import frc.subsystem.elevator.Elevator;
 import frc.subsystem.shooter.Shooter;
 import frc.subsystem.intake.Intake;
 import frc.subsystem.wrist.Wrist;
 import org.littletonrobotics.junction.Logger;
-//import frc.subsystem.climber.Climber;
+import frc.subsystem.climber.Climber;
 
 
 public class Superstructure extends AbstractSubsystem {
@@ -21,11 +23,11 @@ public class Superstructure extends AbstractSubsystem {
     private static Elevator elevator;
     private static Drive drive;
     private static Superstructure superstructure = new Superstructure();
-    //private static Climber climber;
+    private static Climber climber;
     //private static Vision vision;
     private States currentState = States.STOW;
     private States goalState = States.STOW;
-    public Superstructure() {
+    private Superstructure() {
         super();
         arm = Robot.getArm();
         intake = Robot.getIntake();
@@ -33,6 +35,7 @@ public class Superstructure extends AbstractSubsystem {
         drive = Robot.getDrive();
         elevator = Robot.getElevator();
         shooter = Robot.getShooter();
+        climber = Robot.getClimber();
     }
 
     public enum States {
@@ -131,31 +134,29 @@ public class Superstructure extends AbstractSubsystem {
                 //code!
             }
         },
-        CLIMB_1(0, 0, 0, 0) {
+        DEPLOY_CLIMBER_1(0, 0, 0, 0) {
             @Override
             //should move mechanisms out of the way
             public void update() {
                 //needs to check whether mechanisms are out of the way before proceeding
                 if(true) {
-                    superstructure.setCurrentState(CLIMB_2);
+                    superstructure.setCurrentState(DEPLOY_CLIMBER_2);
                 }
             }
         },
-        CLIMB_2(0, 0, 0, 0) {
+        DEPLOY_CLIMBER_2(0, 0, 0, Constants.CLIMBER_UPPER_LIMIT_ROTATIONS) {
             @Override
             //should extend climb arm to be on the chain
             public void update() {
                 //needs to check whether climb arm is extended + maybe check if it's actually around the chain
-                if(true) {
-                    superstructure.setCurrentState(CLIMB_3);
-                }
+                climber.disengageRatchet();
             }
         },
-        CLIMB_3(0, 0, 0, 0) {
+        CLIMB(0, 0, 0, Constants.CLIMBER_HANG_POSITION) {
             @Override
             //should pull robot up?? maybe??
             public void update() {
-                //code????
+                climber.engageRatchet();
             }
         },
         HOMING(0,0.1, 0, 0) {
@@ -206,6 +207,7 @@ public class Superstructure extends AbstractSubsystem {
             elevator.setPosition(currentState.elevatorPos);
         }
         wrist.setWristPosition(currentState.wristPos + wantedShooterPosition);
+        climber.setPosition(currentState.climberPos);
     }
 
     public void setWantedShooterPosition(double wantedPos) {

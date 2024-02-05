@@ -1,17 +1,24 @@
 package frc.subsystem.drive;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
 import frc.utility.swerve.SecondOrderModuleState;
@@ -21,6 +28,8 @@ import frc.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.Optional;
 
 import static frc.robot.Constants.*;
 
@@ -44,6 +53,13 @@ public class Drive extends AbstractSubsystem {
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
+
+    Optional<DriverStation.Alliance> ally = DriverStation.getAlliance();
+
+    private final Translation2d redAllianceSpeaker = new Translation2d(FIELD_LENGTH_METERS,(FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
+    private final Translation2d blueAllianceSpeaker = new Translation2d(0,(FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
+    // we want 0,0 at the bottom left relative to Choreo's field drawing
+
     public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
         super();
         this.gyroIO = gyroIO;
@@ -59,7 +75,11 @@ public class Drive extends AbstractSubsystem {
                 getModulePositions(),
                 new Pose2d(),
                 VecBuilder.fill(0.1, 0.1, 0.1),
-                VecBuilder.fill(0.9, 0.9, 0.9));
+                VecBuilder.fill(0.3, 0.3, 0.3));
+    }
+
+    public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp) {
+        poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp);
     }
 
     double lastTimeStep;
@@ -269,6 +289,48 @@ public class Drive extends AbstractSubsystem {
         public static double turnErrorRadians;
     }
 
+    public double findDistanceToSpeaker() {
+
+        double distance = 0;
+        if (ally.isPresent()) {
+            if (ally.get() == DriverStation.Alliance.Red) {
+                distance = redAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
+            }
+            if (ally.get() == DriverStation.Alliance.Blue) {
+                distance = blueAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
+            }
+        }
+        return distance;
+    }
+
+    /**
+     * @return angle of robot needed to face speaker
+     */
+    public double findAngleToSpeaker() {
+
+        double yDistanceToBlue = blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
+        double yDistanceToRed = redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
+
+        if (ally.isPresent()) {
+            if (ally.get() == DriverStation.Alliance.Red) {
+                if (yDistanceToRed < 0) {
+                    return -Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
+                } else {
+                    return Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
+                }
+            }
+
+            if (ally.get() == DriverStation.Alliance.Blue) {
+                if (yDistanceToBlue < 0) {
+                    return (180 + Math.atan(yDistanceToBlue / (blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
+                } else {
+                    return (180 - Math.atan(yDistanceToBlue / (blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
+                }
+            }
+        }
+        return 0;
+    }
+
     public void resetOdometry(Pose2d pose) {
         poseEstimator.resetPosition(
                 gyroInputs.rotation2d,
@@ -290,13 +352,6 @@ public class Drive extends AbstractSubsystem {
     @AutoLogOutput(key = "Drive/Estimated Pose")
     public Pose2d getPose() {
         return poseEstimator.getEstimatedPosition();
-    }
-
-    public void rotateFrontToSpeaker() {
-        //TODO
-    }
-    public void rotateBackToSpeaker() {
-        //TODO
     }
 
     public void setNextChassisSpeeds(ChassisSpeeds nextChassisSpeeds) {

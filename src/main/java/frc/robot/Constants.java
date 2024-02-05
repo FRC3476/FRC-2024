@@ -7,6 +7,7 @@ import edu.wpi.first.math.util.Units;
 import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -72,7 +73,11 @@ public final class Constants {
         public static final int ARM_CANCODER = 52;
 
         public static final int INTAKE_MOTOR_ID = 31;
+        public static final int CLIMBER = 36;
+        public static final int CLIMBER_RELAY = 37;
     }
+
+    public static final int CLIMBER_PWM_RELAY_CHANNEL = 1; //TODO: get real channel #
     //TODO: figure out actual values for below
     public enum ElevatorPosition {
         BOTTOM("bottom", 0),
@@ -94,6 +99,9 @@ public final class Constants {
     public static final double ELEVATOR_INCHES_PER_ROTATION = 0.25*22*12/60; //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
     public static final double ELEVATOR_LOWER_LIMIT_INCHES = 0;
     public static final double ELEVATOR_UPPER_LIMIT_INCHES = 20;
+    public static final double CLIMBER_LOWER_LIMIT_ROTATIONS = 0;
+    public static final double CLIMBER_HANG_POSITION = 2;
+    public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 5;//TODO: find this
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
     public static final double ELEVATOR_STALLING_CURRENT = 35;
@@ -147,9 +155,9 @@ public final class Constants {
 
     public static final double MAX_ERROR_PRINT_TIME = 0.5;
 
-    // TODO: change these
-    public static final double FIELD_HEIGHT_METERS = 8.0137;
-    public static final double FIELD_WIDTH_METERS = 16.54175;
+    // perimeters of the field, Width is the side where drivers stand
+    public static final double FIELD_WIDTH_METERS = 8.0137;
+    public static final double FIELD_LENGTH_METERS = 16.54175;
 
     public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
 
