@@ -15,6 +15,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
@@ -24,6 +26,8 @@ import frc.utility.swerve.SecondOrderKinematics;
 import frc.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.Optional;
 
 import static frc.robot.Constants.*;
 
@@ -47,6 +51,11 @@ public class Drive extends AbstractSubsystem {
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
+
+    Optional<DriverStation.Alliance> ally = DriverStation.getAlliance();
+
+    private final Pose2d redAllianceSpeaker = new Pose2d(FIELD_WIDTH_METERS,(FIELD_HEIGHT_METERS / 2) - Units.inchesToMeters(57),new Rotation2d());
+    private final Pose2d blueAllianceSpeaker = new Pose2d(0,(FIELD_HEIGHT_METERS / 2) - Units.inchesToMeters(57),new Rotation2d());
 
     public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
         super();
@@ -279,11 +288,54 @@ public class Drive extends AbstractSubsystem {
         public static double turnErrorRadians;
     }
 
-    public void rotateFrontToSpeaker() {
-        //TODO
+    public double findDistanceToSpeaker() {
+
+        double distance = 0;
+        if (ally.isPresent()) {
+            if (ally.get() == DriverStation.Alliance.Red) {
+
+                distance = Math.hypot(redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX(),
+                        redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY());
+
+
+
+            }
+            if (ally.get() == DriverStation.Alliance.Blue) {
+                distance = Math.hypot(blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX(),
+                        blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY());
+            }
+        }
+        return distance;
     }
-    public void rotateBackToSpeaker() {
-        //TODO
+
+    /**
+     * Returns the angle of the robot needed to face the speaker, not how far to rotate the robot
+     * @return angle of robot needed to face speaker
+     */
+
+    public double findAngleToSpeaker() {
+
+        double yDistanceToBlue = blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
+        double yDistanceToRed = redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
+
+        if (ally.isPresent()) {
+            if (ally.get() == DriverStation.Alliance.Red) {
+                if (yDistanceToBlue < 0) {
+                    return -Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
+                } else {
+                    return Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
+                }
+            }
+
+            if (ally.get() == DriverStation.Alliance.Blue) {
+                if (yDistanceToBlue < 0) {
+                    return (180 + Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
+                } else {
+                    return (180 - Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
+                }
+            }
+        }
+        return 0;
     }
 }
 
