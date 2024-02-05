@@ -9,13 +9,10 @@ public abstract class BaseRoutine {
     protected boolean isActive = false;
     private final Drive drive = Robot.getDrive();
 
-    protected String path1 = "";
-
     protected abstract void routine();
 
     public void run() {
         isActive = true;
-        drive.resetOdometry(Choreo.getTrajectory(path1).getInitialPose());
 
         try {
             routine();
