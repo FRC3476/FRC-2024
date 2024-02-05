@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -54,8 +55,9 @@ public class Drive extends AbstractSubsystem {
 
     Optional<DriverStation.Alliance> ally = DriverStation.getAlliance();
 
-    private final Pose2d redAllianceSpeaker = new Pose2d(FIELD_WIDTH_METERS,(FIELD_HEIGHT_METERS / 2) - Units.inchesToMeters(57),new Rotation2d());
-    private final Pose2d blueAllianceSpeaker = new Pose2d(0,(FIELD_HEIGHT_METERS / 2) - Units.inchesToMeters(57),new Rotation2d());
+    private final Translation2d redAllianceSpeaker = new Translation2d(FIELD_LENGTH_METERS,(FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
+    private final Translation2d blueAllianceSpeaker = new Translation2d(0,(FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
+    // we want 0,0 at the bottom left relative to Choreo's field drawing
 
     public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
         super();
@@ -293,26 +295,18 @@ public class Drive extends AbstractSubsystem {
         double distance = 0;
         if (ally.isPresent()) {
             if (ally.get() == DriverStation.Alliance.Red) {
-
-                distance = Math.hypot(redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX(),
-                        redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY());
-
-
-
+                distance = redAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
             }
             if (ally.get() == DriverStation.Alliance.Blue) {
-                distance = Math.hypot(blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX(),
-                        blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY());
+                distance = blueAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
             }
         }
         return distance;
     }
 
     /**
-     * Returns the angle of the robot needed to face the speaker, not how far to rotate the robot
      * @return angle of robot needed to face speaker
      */
-
     public double findAngleToSpeaker() {
 
         double yDistanceToBlue = blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
@@ -320,7 +314,7 @@ public class Drive extends AbstractSubsystem {
 
         if (ally.isPresent()) {
             if (ally.get() == DriverStation.Alliance.Red) {
-                if (yDistanceToBlue < 0) {
+                if (yDistanceToRed < 0) {
                     return -Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
                 } else {
                     return Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
@@ -329,9 +323,9 @@ public class Drive extends AbstractSubsystem {
 
             if (ally.get() == DriverStation.Alliance.Blue) {
                 if (yDistanceToBlue < 0) {
-                    return (180 + Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
+                    return (180 + Math.atan(yDistanceToBlue / (blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
                 } else {
-                    return (180 - Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
+                    return (180 - Math.atan(yDistanceToBlue / (blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
                 }
             }
         }
