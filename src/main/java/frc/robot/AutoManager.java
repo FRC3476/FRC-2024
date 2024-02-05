@@ -59,7 +59,7 @@ public class AutoManager {
                     state = trajectories.get(0).getFinalState();
                 } else {
                     superstructure.setGoalState(Superstructure.States.INTAKE_FINAL);
-                    state = trajectories.get(1).sample(autoTimer.get());
+                    state = trajectories.get(1).sample(autoTimer.get() - 1.5);
                 }
             }
         }
