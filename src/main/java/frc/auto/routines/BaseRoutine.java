@@ -1,12 +1,9 @@
 package frc.auto.routines;
 
 import com.choreo.lib.Choreo;
-import edu.wpi.first.math.geometry.Pose2d;
 import frc.auto.actions.BaseAction;
 import frc.robot.Robot;
 import frc.subsystem.drive.Drive;
-
-import java.util.ArrayList;
 
 public abstract class BaseRoutine {
     protected boolean isActive = false;
