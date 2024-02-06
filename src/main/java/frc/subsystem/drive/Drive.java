@@ -26,6 +26,7 @@ import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import frc.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -63,8 +64,6 @@ public class Drive extends AbstractSubsystem {
         super();
         this.gyroIO = gyroIO;
         moduleIO = new ModuleIO[]{flModule, blModule, frModule, brModule};
-
-
 
         for(ModuleIO module : moduleIO) {
             module.setBrakeMode(false);
@@ -330,6 +329,33 @@ public class Drive extends AbstractSubsystem {
             }
         }
         return 0;
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        poseEstimator.resetPosition(
+                gyroInputs.rotation2d,
+                new SwerveModulePosition[] {
+                        new SwerveModulePosition(getDrivePosition(0), Rotation2d.fromDegrees(getWheelRotation(0))),
+                        new SwerveModulePosition(getDrivePosition(1), Rotation2d.fromDegrees(getWheelRotation(1))),
+                        new SwerveModulePosition(getDrivePosition(2), Rotation2d.fromDegrees(getWheelRotation(2))),
+                        new SwerveModulePosition(getDrivePosition(3), Rotation2d.fromDegrees(getWheelRotation(3)))
+                },
+                pose
+        );
+        resetGyro(pose.getRotation().getDegrees());
+    }
+
+    public void resetGyro(double yawPositionRot) {
+        gyroIO.resetGyroYaw(yawPositionRot);
+    }
+
+    @AutoLogOutput(key = "Drive/Estimated Pose")
+    public Pose2d getPose() {
+        return poseEstimator.getEstimatedPosition();
+    }
+
+    public void setNextChassisSpeeds(ChassisSpeeds nextChassisSpeeds) {
+        this.nextChassisSpeeds = nextChassisSpeeds;
     }
 }
 

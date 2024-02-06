@@ -5,8 +5,10 @@
 
 package frc.robot;
 
+import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.auto.AutoManager;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.arm.Arm;
 import frc.subsystem.arm.ArmIO;
@@ -60,7 +62,7 @@ public class Robot extends LoggedRobot {
     private Controller xbox;
     private Controller logitechThing;
     private Controller buttonPanel;
-    private final LoggedDashboardChooser<String> chooser = new LoggedDashboardChooser<>("Auto Chooser");
+    public final LoggedDashboardChooser<Integer> autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
 
     private static PowerDistribution powerDistribution;
@@ -88,7 +90,6 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-
         String logPath = null;
 
         // record metadata
@@ -179,8 +180,8 @@ public class Robot extends LoggedRobot {
             superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
-        chooser.addDefaultOption("Default Auto", defaultAuto);
-        chooser.addOption("My Auto", customAuto);
+        autoChooser.addDefaultOption("Do Nothing", 0);
+        autoChooser.addOption("Test", 1);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 
@@ -198,6 +199,8 @@ public class Robot extends LoggedRobot {
         climber.start();
         superstructure.start();
         superstructure.setCurrentState(Superstructure.States.STOW);
+
+        AutoManager.getInstance();
     }
 
     /** This function is called periodically during all modes. */
@@ -211,24 +214,18 @@ public class Robot extends LoggedRobot {
         }
     }
 
+    ChoreoTrajectory traj;
+
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        autoSelected = chooser.get();
+        AutoManager.getInstance().loadAuto(autoChooser.get());
+        AutoManager.getInstance().startAuto();
     }
 
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-        switch (autoSelected) {
-            case customAuto:
-                // Put custom auto code here
-                break;
-            case defaultAuto:
-            default:
-                // Put default auto code here
-                break;
-        }
     }
 
     /** This function is called once when teleop is enabled. */
@@ -250,7 +247,7 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.AMP);
         }
         if(buttonPanel.getRisingEdge(5)) {
-            superstructure.setGoalState(Superstructure.States.SPEAKER_FRONT);
+            superstructure.setGoalState(Superstructure.States.SPEAKER);
         }
         if(buttonPanel.getRisingEdge(11)) {
             superstructure.setWantedShooterPosition(-0.25);
@@ -272,7 +269,7 @@ public class Robot extends LoggedRobot {
             shooter.setMotorVoltage(0);
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        if(superstructure.getCurrentState() == Superstructure.States.SPEAKER_FRONT) {
+        if(superstructure.getCurrentState() == Superstructure.States.SPEAKER) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngleRad());
         } else {
             drive.swerveDriveFieldRelative(controllerDriveInputs);
