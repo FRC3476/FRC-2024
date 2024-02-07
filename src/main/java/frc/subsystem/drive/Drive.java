@@ -289,6 +289,7 @@ public class Drive extends AbstractSubsystem {
         public static double turnErrorRadians;
     }
 
+    @AutoLogOutput(key = "Drive/Distance from Speaker")
     public double findDistanceToSpeaker() {
 
         double distance = 0;
@@ -303,9 +304,11 @@ public class Drive extends AbstractSubsystem {
         return distance;
     }
 
+
     /**
      * @return angle of robot needed to face speaker
      */
+    @AutoLogOutput(key = "Drive/Angle to Speaker")
     public double findAngleToSpeaker() {
 
         double yDistanceToBlue = blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
