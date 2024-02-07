@@ -316,19 +316,11 @@ public class Drive extends AbstractSubsystem {
 
         if (ally.isPresent()) {
             if (ally.get() == DriverStation.Alliance.Red) {
-                if (yDistanceToRed < 0) {
-                    return -Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
-                } else {
-                    return Math.atan(yDistanceToRed / (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
-                }
+                return Math.atan2(yDistanceToRed, (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
             }
 
             if (ally.get() == DriverStation.Alliance.Blue) {
-                if (yDistanceToBlue < 0) {
-                    return (180 + Math.atan(yDistanceToBlue / (blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
-                } else {
-                    return (180 - Math.atan(yDistanceToBlue / (blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX())));
-                }
+                return Math.atan2(yDistanceToBlue, (blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
             }
         }
         return 0;

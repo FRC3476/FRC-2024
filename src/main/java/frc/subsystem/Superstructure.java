@@ -23,7 +23,7 @@ public class Superstructure extends AbstractSubsystem {
     private static Elevator elevator;
     private static Drive drive;
     private static Superstructure superstructure = new Superstructure();
-    private static Climber climber;
+    // private static Climber climber;
     //private static Vision vision;
     private States currentState = States.STOW;
     private States goalState = States.STOW;
@@ -35,7 +35,7 @@ public class Superstructure extends AbstractSubsystem {
         drive = Robot.getDrive();
         elevator = Robot.getElevator();
         shooter = Robot.getShooter();
-        climber = Robot.getClimber();
+        // climber = Robot.getClimber();
     }
 
     public enum States {
@@ -62,7 +62,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        GENERAL_INTERMEDIATE(0, 0.1, 0, 0) {
+        GENERAL_INTERMEDIATE(3.5, 0.1, 0, 0) {
             //moves arm up so that the elevator can extend. keeps wrist at safe angle so that it does not go crash :(
             @Override
             public void update() {
@@ -116,7 +116,7 @@ public class Superstructure extends AbstractSubsystem {
             }
         },
 
-        SPEAKER(0, 0.125, 0, 0) {
+        SPEAKER(3.5, 0.125, 0, 0) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
@@ -149,14 +149,14 @@ public class Superstructure extends AbstractSubsystem {
             //should extend climb arm to be on the chain
             public void update() {
                 //needs to check whether climb arm is extended + maybe check if it's actually around the chain
-                climber.disengageRatchet();
+                // climber.disengageRatchet();
             }
         },
         CLIMB(0, 0, 0, Constants.CLIMBER_HANG_POSITION) {
             @Override
             //should pull robot up?? maybe??
             public void update() {
-                climber.engageRatchet();
+                // climber.engageRatchet();
             }
         },
         HOMING(0,0.1, 0, 0) {
@@ -207,7 +207,7 @@ public class Superstructure extends AbstractSubsystem {
             elevator.setPosition(currentState.elevatorPos);
         }
         wrist.setWristPosition(currentState.wristPos + wantedShooterPosition);
-        climber.setPosition(currentState.climberPos);
+        // climber.setPosition(currentState.climberPos);
     }
 
     public void setWantedShooterPosition(double wantedPos) {

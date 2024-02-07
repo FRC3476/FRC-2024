@@ -80,7 +80,7 @@ public class Robot extends LoggedRobot {
     static Shooter shooter;
     static Arm arm;
     static Intake intake;
-    static Climber climber;
+    // static Climber climber;
 
     static Superstructure superstructure;
 
@@ -158,7 +158,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
-            climber = new Climber(new ClimberIOTalonFX());
+           // climber = new Climber(new ClimberIOTalonFX());
             superstructure = Superstructure.getSuperstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
@@ -176,7 +176,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
             intake = new Intake(new IntakeIO() {});
-            climber = new Climber(new ClimberIO() {});
+            // climber = new Climber(new ClimberIO() {});
             superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
@@ -196,7 +196,7 @@ public class Robot extends LoggedRobot {
         shooter.start();
         arm.start();
         intake.start();
-        climber.start();
+        // climber.start();
         superstructure.start();
         superstructure.setCurrentState(Superstructure.States.STOW);
 
@@ -373,7 +373,7 @@ public class Robot extends LoggedRobot {
     public static Wrist getWrist() {
         return wrist;
     }
-    public static Climber getClimber() { return climber; }
+    // public static Climber getClimber() { return climber; }
 
     public static Superstructure getSuperstructure() {
         return superstructure;
