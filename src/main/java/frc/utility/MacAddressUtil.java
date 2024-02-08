@@ -57,6 +57,7 @@ public class MacAddressUtil {
                 return COMPETITION_BOT;
             } else {
                 System.out.println("Unknown MAC Address: " + macToString(mac));
+                System.out.println("Assuming Prototype Bot");
                 return PROTOTYPE_BOT; // assume prototype bot for now, change this to comp later
             }
         }
