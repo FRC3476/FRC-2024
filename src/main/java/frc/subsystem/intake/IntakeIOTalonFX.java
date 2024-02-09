@@ -9,10 +9,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.fasterxml.jackson.databind.ser.Serializers;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
 public class IntakeIOTalonFX implements IntakeIO {
     private final TalonFX motor;
+    private final DigitalInput beamBreak;
 
     private final StatusSignal<Double> intakeVelocity;
     private final StatusSignal<Double> intakeVoltage;
@@ -21,6 +23,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     public IntakeIOTalonFX() {
         motor = new TalonFX(Constants.Ports.INTAKE_MOTOR_ID);
+        beamBreak = new DigitalInput(Constants.Ports.INTAKE_BEAM_BREAK);
         motor.getConfigurator().apply(new TalonFXConfiguration());
 
         intakeVelocity = motor.getVelocity();
@@ -42,6 +45,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         inputs.motorVoltage = intakeVoltage.getValue();
         inputs.motorAmps = intakeAmps.getValue();
         inputs.motorTemp = intakeTemp.getValue();
+        inputs.hasNote = !beamBreak.get();
     }
 
     VoltageOut withVoltage = new VoltageOut(0, true, true, false, false);

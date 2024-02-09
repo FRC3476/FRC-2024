@@ -75,6 +75,8 @@ public final class Constants {
         public static final int INTAKE_MOTOR_ID = 31;
         public static final int CLIMBER = 36;
         public static final int CLIMBER_RELAY = 37;
+
+        public static final int INTAKE_BEAM_BREAK = 1;
     }
 
     public static final int CLIMBER_PWM_RELAY_CHANNEL = 1; //TODO: get real channel #

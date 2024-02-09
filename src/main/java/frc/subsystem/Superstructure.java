@@ -10,6 +10,7 @@ import frc.subsystem.elevator.Elevator;
 import frc.subsystem.shooter.Shooter;
 import frc.subsystem.intake.Intake;
 import frc.subsystem.wrist.Wrist;
+import frc.utility.MathUtil;
 import org.littletonrobotics.junction.Logger;
 import frc.subsystem.climber.Climber;
 
@@ -67,7 +68,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
-                if(Math.abs(elevator.getPositionInInches() - elevatorPos) <= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) <= 0.05 && Math.abs(wristPos - wrist.getWristAbsolutePosition()) <= 0.05) {
+                if(isAtWantedState()) {
                     if(superstructure.goalState == States.INTAKE_FINAL){
                         superstructure.setCurrentState(INTAKE_INT_2);
                     } else {
@@ -81,7 +82,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
-                if(Math.abs(elevator.getPositionInInches() - elevatorPos) <= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) <= 0.05) {
+                if(isAtWantedState()) {
                     if(superstructure.goalState == States.INTAKE_FINAL){
                         superstructure.setCurrentState(INTAKE_FINAL);
                     }
@@ -96,6 +97,10 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code and such
+                if(isAtWantedState()) {
+                    intake.runIntake();
+                }
+
                 if(superstructure.goalState == States.STOW) {
                     superstructure.setCurrentState(INTAKE_INT_2);
                 } else if(superstructure.goalState != States.INTAKE_FINAL) {
@@ -170,6 +175,12 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         };
+        public boolean isAtWantedState() {
+            return (MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
+                    && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.05)
+                    && MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.05));
+                    //&& MathUtil.epsilonEquals(climberPos, climber.getPositionInInches(), 0.05));
+        }
         final double elevatorPos;
         final double armPos;
         final double wristPos;
