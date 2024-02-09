@@ -14,9 +14,6 @@ import frc.subsystem.arm.Arm;
 import frc.subsystem.arm.ArmIO;
 import frc.subsystem.arm.ArmIOTalonFX;
 import frc.subsystem.Superstructure;
-import frc.subsystem.climber.Climber;
-import frc.subsystem.climber.ClimberIO;
-import frc.subsystem.climber.ClimberIOTalonFX;
 import frc.subsystem.drive.*;
 import frc.subsystem.intake.IntakeIO;
 import frc.subsystem.wrist.Wrist;
@@ -241,7 +238,7 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
         if(buttonPanel.getRisingEdge(2)) {
-            superstructure.setGoalState(Superstructure.States.INTAKE_FINAL);
+            superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
         }
         if(buttonPanel.getRisingEdge(3)) {
             superstructure.setGoalState(Superstructure.States.AMP);

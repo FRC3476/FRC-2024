@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.subsystem.arm.Arm;
-import frc.subsystem.climber.Climber;
 import frc.subsystem.drive.Drive;
 import frc.subsystem.elevator.Elevator;
 import frc.subsystem.shooter.Shooter;
@@ -12,7 +11,6 @@ import frc.subsystem.intake.Intake;
 import frc.subsystem.wrist.Wrist;
 import frc.utility.MathUtil;
 import org.littletonrobotics.junction.Logger;
-import frc.subsystem.climber.Climber;
 
 
 public class Superstructure extends AbstractSubsystem {
@@ -69,22 +67,22 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
                 if(isAtWantedState()) {
-                    if(superstructure.goalState == States.INTAKE_FINAL){
-                        superstructure.setCurrentState(INTAKE_INT_2);
+                    if(superstructure.goalState == States.GROUND_INTAKE){
+                        superstructure.setCurrentState(MID_INTAKE);
                     } else {
                         superstructure.setCurrentState(superstructure.goalState);
                     }
                 }
             }
         },
-        INTAKE_INT_2(14.1, 0.1, -0.1, 0) {
+        MID_INTAKE(14.1, 0.1, -0.1, 0) {
             //arm is up high enough, now move elevator out and wrist down.
             @Override
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
                 if(isAtWantedState()) {
-                    if(superstructure.goalState == States.INTAKE_FINAL){
-                        superstructure.setCurrentState(INTAKE_FINAL);
+                    if(superstructure.goalState == States.GROUND_INTAKE){
+                        superstructure.setCurrentState(GROUND_INTAKE);
                     }
                     if(superstructure.goalState == States.STOW) {
                         superstructure.setCurrentState(GENERAL_INTERMEDIATE);
@@ -92,7 +90,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        INTAKE_FINAL(14.1, 0, -0.1, 0) {
+        GROUND_INTAKE(14.1, 0, -0.1, 0) {
             //elevator and wrist are to position, move arm back down
             @Override
             public void update() {
@@ -102,17 +100,26 @@ public class Superstructure extends AbstractSubsystem {
                 }
 
                 if(superstructure.goalState == States.STOW) {
-                    superstructure.setCurrentState(INTAKE_INT_2);
-                } else if(superstructure.goalState != States.INTAKE_FINAL) {
+                    superstructure.setCurrentState(MID_INTAKE);
+                } else if(superstructure.goalState != States.GROUND_INTAKE) {
                     superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
+        SOURCE_INTAKE(0, 0, 0, 0) { //TODO
+            @Override
+            public void update() {
+                //code and such
+                if(isAtWantedState()) {
+                    intake.runIntake();
                 }
             }
         },
         AMP(21.6, 0.16, -0.24, 0) {
             @Override
             public void update() {
-                if(superstructure.goalState == States.INTAKE_FINAL) {
-                    superstructure.setCurrentState(INTAKE_INT_2);
+                if(superstructure.goalState == States.GROUND_INTAKE) {
+                    superstructure.setCurrentState(MID_INTAKE);
                 } else if(superstructure.goalState == States.STOW) {
                     superstructure.setCurrentState(GENERAL_INTERMEDIATE);
                 } else if(superstructure.goalState != States.AMP) {
