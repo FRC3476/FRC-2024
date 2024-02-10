@@ -14,9 +14,6 @@ import frc.subsystem.arm.Arm;
 import frc.subsystem.arm.ArmIO;
 import frc.subsystem.arm.ArmIOTalonFX;
 import frc.subsystem.Superstructure;
-import frc.subsystem.climber.Climber;
-import frc.subsystem.climber.ClimberIO;
-import frc.subsystem.climber.ClimberIOTalonFX;
 import frc.subsystem.drive.*;
 import frc.subsystem.intake.IntakeIO;
 import frc.subsystem.wrist.Wrist;
@@ -226,7 +223,9 @@ public class Robot extends LoggedRobot {
         AbstractSubsystem.tick();
         if(buttonPanel.getRisingEdge(10)) {
             elevator.zeroEncoder();
+            arm.resetPosition();
         }
+
     }
 
     ChoreoTrajectory traj;
@@ -256,7 +255,7 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
         if(buttonPanel.getRisingEdge(2)) {
-            superstructure.setGoalState(Superstructure.States.INTAKE_FINAL);
+            superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
         }
         if(buttonPanel.getRisingEdge(3)) {
             superstructure.setGoalState(Superstructure.States.AMP);
@@ -271,13 +270,6 @@ public class Robot extends LoggedRobot {
             superstructure.setWantedShooterPosition(-0.3);
         }
 
-        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
-            intake.runIntake();
-        } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
-            intake.runOuttake();
-        } else {
-            intake.stop();
-        }
         if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
             shooter.setMotorVoltage(6);
         } else {
@@ -285,7 +277,7 @@ public class Robot extends LoggedRobot {
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(superstructure.getCurrentState() == Superstructure.States.SPEAKER) {
-            drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngleRad());
+            drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngle());
         } else {
             drive.swerveDriveFieldRelative(controllerDriveInputs);
         }

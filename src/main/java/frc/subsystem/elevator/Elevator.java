@@ -26,7 +26,8 @@ public class Elevator extends AbstractSubsystem {
         elevatorIO.setPosition(positionInInches);
     }
 
-    public void update() {
+    @Override
+    public synchronized void update() {
         elevatorIO.updateInputs(elevatorInputs);
         Logger.processInputs("Elevator", elevatorInputs);
 

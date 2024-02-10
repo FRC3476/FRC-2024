@@ -18,6 +18,6 @@ public class SetSuperstructureState implements BaseAction {
 
     @Override
     public boolean isFinished() {
-        return superstructure.isAtGoalState();
+        return superstructure.isAtGoalState() && wantedState.isAtWantedState();
     }
 }

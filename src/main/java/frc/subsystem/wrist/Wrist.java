@@ -11,11 +11,10 @@ public class Wrist extends AbstractSubsystem {
     public Wrist(WristIO wristIO) {
         super();
         this.wristIO = wristIO;
-        wristIO.setBrakeMode(true);
     }
 
 
-    public synchronized void setWristPosition(double positionInDegrees) {
+    public void setWristPosition(double positionInDegrees) {
         //does NOT set position relative to the ground, just relative to the arm
         wristIO.setPosition(positionInDegrees);
         Logger.recordOutput("Wrist/Target Position", positionInDegrees);

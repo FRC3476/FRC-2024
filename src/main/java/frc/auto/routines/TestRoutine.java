@@ -32,13 +32,13 @@ public class TestRoutine extends BaseRoutine {
                 new Shoot(),
                 new ParallelAction(List.of(
                         new DrivePath(driveToFirstNote),
-                        new SetSuperstructureState(Superstructure.States.INTAKE_FINAL)
+                        new SetSuperstructureState(Superstructure.States.GROUND_INTAKE)
                 )),
                 new SetSuperstructureState(Superstructure.States.SPEAKER),
                 new Shoot(),
                 new ParallelAction(List.of(
                         new DrivePath(driveToCenter),
-                        new SetSuperstructureState(Superstructure.States.INTAKE_FINAL)
+                        new SetSuperstructureState(Superstructure.States.GROUND_INTAKE)
                 ))
         )));
     }
