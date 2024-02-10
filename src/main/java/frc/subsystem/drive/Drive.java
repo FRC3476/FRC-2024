@@ -310,18 +310,27 @@ public class Drive extends AbstractSubsystem {
      */
     @AutoLogOutput(key = "Drive/Angle to Speaker")
     public double findAngleToSpeaker() {
-
-        double yDistanceToBlue = blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
-        double yDistanceToRed = redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
+        Pose2d robotPose = poseEstimator.getEstimatedPosition();
+        double heading = robotPose.getRotation().getRadians();
+        double deltaX;
+        double deltaY;
 
         if (ally.isPresent()) {
             if (ally.get() == DriverStation.Alliance.Red) {
-                return Math.atan2(yDistanceToRed, (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
+                deltaY = redAllianceSpeaker.getY() - robotPose.getY();
+                deltaX = redAllianceSpeaker.getX() - robotPose.getX();
+            } else {
+                deltaY = blueAllianceSpeaker.getY() - robotPose.getY();
+                deltaX = blueAllianceSpeaker.getX() - robotPose.getX();
             }
 
-            if (ally.get() == DriverStation.Alliance.Blue) {
-                return Math.atan2(yDistanceToBlue, (blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
+            double targetRotation = Math.atan(deltaY / deltaX);
+            if(heading > (Math.PI / 2)) {
+                targetRotation += Math.PI;
+            } else if(heading < (-Math.PI / 2)) {
+                targetRotation -= Math.PI;
             }
+            return targetRotation;
         }
         return 0;
     }
