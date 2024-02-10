@@ -223,7 +223,9 @@ public class Robot extends LoggedRobot {
         AbstractSubsystem.tick();
         if(buttonPanel.getRisingEdge(10)) {
             elevator.zeroEncoder();
+            arm.resetPosition();
         }
+
     }
 
     ChoreoTrajectory traj;
@@ -268,13 +270,6 @@ public class Robot extends LoggedRobot {
             superstructure.setWantedShooterPosition(-0.3);
         }
 
-        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
-            intake.runIntake();
-        } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
-            intake.runOuttake();
-        } else {
-            intake.stop();
-        }
         if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
             shooter.setMotorVoltage(6);
         } else {
@@ -282,7 +277,7 @@ public class Robot extends LoggedRobot {
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(superstructure.getCurrentState() == Superstructure.States.SPEAKER) {
-            drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngleRad());
+            drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngle());
         } else {
             drive.swerveDriveFieldRelative(controllerDriveInputs);
         }

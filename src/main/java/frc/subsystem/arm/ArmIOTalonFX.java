@@ -73,7 +73,7 @@ public class ArmIOTalonFX implements ArmIO {
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                        .withMagnetOffset(-0.12255859375)
+                        .withMagnetOffset(-0.1162109375)
                         .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
                 )
         );
@@ -142,7 +142,7 @@ public class ArmIOTalonFX implements ArmIO {
 
     @Override
     public void resetLeadPosition() {
-        leadTalonFX.setPosition(0);
+        absoluteEncoder.setPosition(0);
     }
 
     @Override

@@ -45,7 +45,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         inputs.motorVoltage = intakeVoltage.getValue();
         inputs.motorAmps = intakeAmps.getValue();
         inputs.motorTemp = intakeTemp.getValue();
-        inputs.hasNote = !beamBreak.get();
+        inputs.hasNote = beamBreak.get();
     }
 
     VoltageOut withVoltage = new VoltageOut(0, true, true, false, false);

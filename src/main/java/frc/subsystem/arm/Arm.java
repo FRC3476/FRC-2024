@@ -17,7 +17,7 @@ public class Arm extends AbstractSubsystem {
     /**
     * @param position The position to set the Arm (degrees)
     */
-    public synchronized void setPosition(double position) {
+    public void setPosition(double position) {
         armIO.setLeadPosition(position, 0);
         Logger.recordOutput("Pivot/Goal position", position);
     }
@@ -33,6 +33,10 @@ public class Arm extends AbstractSubsystem {
 
     public double getPivotDegrees() {
         return inputs.leadRelativePosition;
+    }
+
+    public void resetPosition() {
+        armIO.resetLeadPosition();
     }
 
     public void configurePid(double p, double i, double d, double g) {

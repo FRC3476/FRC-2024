@@ -27,7 +27,7 @@ public class Intake extends AbstractSubsystem {
             intakeIO.invertMotor(false);
             intakeIO.setMotorVoltage(8);
         } else {
-            intakeIO.setMotorVoltage(0);
+            stop();
         }
     }
 
@@ -36,7 +36,7 @@ public class Intake extends AbstractSubsystem {
             intakeIO.invertMotor(true);
             intakeIO.setMotorVoltage(6);
         } else {
-            intakeIO.setMotorVoltage(0);
+            stop();
         }
     }
 

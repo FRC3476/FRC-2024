@@ -71,9 +71,11 @@ public class WristIOTalonFX implements WristIO {
 
         wristMotor.optimizeBusUtilization();
         absoluteEncoder.optimizeBusUtilization();
+
+        wristMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true);
     public void setPosition(double position){
         wristMotor.setControl(motionMagicControl.withPosition(position));
     }

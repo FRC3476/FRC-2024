@@ -43,7 +43,7 @@ public class Superstructure extends AbstractSubsystem {
             //should make sure all motors are off and not trying to move anywhere
             @Override
             public void update() {
-                //code!!
+
             }
         },
         STOW(0, 0, 0, 0) {
@@ -51,10 +51,6 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code!
-                //might need to check if position reached, if so, switch to rest state
-                if(DriverStation.isDisabled()) {
-                    superstructure.setCurrentState(REST);
-                }
                 if(superstructure.goalState == States.SPEAKER) {
                     superstructure.setCurrentState(SPEAKER);
                 } else if(superstructure.goalState != States.STOW){
@@ -226,6 +222,7 @@ public class Superstructure extends AbstractSubsystem {
             elevator.setPosition(currentState.elevatorPos);
         }
         wrist.setWristPosition(currentState.wristPos + wantedShooterPosition);
+        Logger.recordOutput("Superstructure/Current State", currentState);
         // climber.setPosition(currentState.climberPos);
     }
 
