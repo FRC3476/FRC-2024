@@ -28,6 +28,7 @@ import frc.subsystem.intake.IntakeIOTalonFX;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
+import frc.utility.MacAddressUtil;
 import frc.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -39,6 +40,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -80,6 +82,17 @@ public class Robot extends LoggedRobot {
     // static Climber climber;
 
     static Superstructure superstructure;
+    static byte[] mac;
+
+    static {
+        try {
+            mac = MacAddressUtil.getMacAddress();
+        } catch (SocketException e) {
+            System.out.println("Failed to get MAC address");
+        }
+
+        robotIdentity = MacAddressUtil.RobotIdentity.getRobotIdentity(mac);
+    }
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -100,6 +113,8 @@ public class Robot extends LoggedRobot {
             case 1 -> Logger.recordMetadata("GitDirty", "Uncommitted changes");
             default -> Logger.recordMetadata("GitDirty", "Unknown");
         }
+        Logger.recordMetadata("Robot Identity", robotIdentity.toString());
+        Logger.recordMetadata("MAC Address", MacAddressUtil.macToString(mac));
 
         if (!isReal() && Objects.equals(VIRTUAL_MODE, "REPLAY")) {
             try {

@@ -1,5 +1,6 @@
 package frc.subsystem;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.Robot;
@@ -136,7 +137,7 @@ public class Superstructure extends AbstractSubsystem {
                     superstructure.setWantedShooterPosition(0);
                     superstructure.setCurrentState(States.GENERAL_INTERMEDIATE);
                 }
-                superstructure.targetAngleRad = 0; // get the target angle needed to aim at speaker
+                superstructure.targetAngle = drive.findAngleToSpeaker(); // get the target angle needed to aim at speaker
                 // set target angle and wrist position based on other logic to determine front or back
             }
         },
@@ -217,7 +218,7 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     private double wantedShooterPosition;
-    private double targetAngleRad;
+    private Rotation2d targetAngle;
     public void update() {
         currentState.update();
         arm.setPosition(currentState.armPos);
@@ -249,7 +250,7 @@ public class Superstructure extends AbstractSubsystem {
         return superstructure;
     }
 
-    public double getTargetAngleRad() {
-        return targetAngleRad;
+    public Rotation2d getTargetAngle() {
+        return targetAngle;
     }
 }

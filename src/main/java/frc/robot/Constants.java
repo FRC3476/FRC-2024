@@ -4,6 +4,8 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import frc.utility.MacAddressUtil;
+import frc.utility.MacAddressUtil.RobotIdentity;
 import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +16,10 @@ import java.nio.file.Files;
 
 public final class Constants {
     //TODO: reorganize this mess
+    public static RobotIdentity robotIdentity;
+    public static boolean isPrototype() {
+        return robotIdentity == RobotIdentity.PROTOTYPE_BOT;
+    }
     public static final String LOG_DIRECTORY = "/home/lvuser/logs";
     public static final boolean IS_PRACTICE = Files.exists(new File("/home/lvuser/practice").toPath());
     public static final String VIRTUAL_MODE = "SIM";
@@ -109,7 +115,7 @@ public final class Constants {
     public static final double ELEVATOR_STALLING_CURRENT = 35;
     public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
 
-    public static final double SWERVE_DRIVE_P = 100;
+    public static final double SWERVE_DRIVE_P = isPrototype() ? 100 : 1;
     public static final double SWERVE_DRIVE_D = 0.05;
     public static final double SWERVE_DRIVE_I = 0.00;
 
@@ -140,10 +146,11 @@ public final class Constants {
     public static final double DRIVE_MOTOR_REDUCTION = 1 / 5.9;
 
     // TODO: check accuracy of these numbers for new drive base. Ask CAD ppl?
-    public static final @NotNull Translation2d SWERVE_LEFT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(11.375), Units.inchesToMeters(11.375));
-    public static final @NotNull Translation2d SWERVE_LEFT_BACK_LOCATION = new Translation2d(Units.inchesToMeters(-11.375), Units.inchesToMeters(11.375));
-    public static final @NotNull Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(11.375), Units.inchesToMeters(-11.375));
-    public static final @NotNull Translation2d SWERVE_RIGHT_BACK_LOCATION = new Translation2d(Units.inchesToMeters(-11.375), Units.inchesToMeters(-11.375));
+    public static final double wheelBaseInches = isPrototype() ? 22.75 : 27; // not real number, just example
+    public static final @NotNull Translation2d SWERVE_LEFT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(wheelBaseInches/2), Units.inchesToMeters(wheelBaseInches/2));
+    public static final @NotNull Translation2d SWERVE_LEFT_BACK_LOCATION = new Translation2d(Units.inchesToMeters(-wheelBaseInches/2), Units.inchesToMeters(wheelBaseInches/2));
+    public static final @NotNull Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(wheelBaseInches/2), Units.inchesToMeters(-wheelBaseInches/2));
+    public static final @NotNull Translation2d SWERVE_RIGHT_BACK_LOCATION = new Translation2d(Units.inchesToMeters(-wheelBaseInches/2), Units.inchesToMeters(-wheelBaseInches/2));
     public static final @NotNull Translation2d @NotNull [] SWERVE_MODULE_LOCATIONS = {
             SWERVE_LEFT_FRONT_LOCATION,
             SWERVE_LEFT_BACK_LOCATION,

@@ -14,6 +14,8 @@ import frc.utility.LimelightHelpers.LimelightTarget_Fiducial;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.utility.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import static frc.robot.Constants.*;
 
 import java.util.Arrays;
@@ -28,10 +30,15 @@ public class Limelight {
     private double previousHeartbeat = -1.0;
     private boolean limelightConnected = true;
 
+    public final LoggedDashboardChooser<Boolean> visionOnOffChooser = new LoggedDashboardChooser<>("Vision On/Off Chooser");
+
+
     private static final double MIN_FIDUCIAL_AREA = 0.115;
 
     public Limelight(String name) {
         this.limelightName = name;
+        visionOnOffChooser.addDefaultOption("on", true);
+        visionOnOffChooser.addOption("off", false);
     }
     public void update() {
         // Code adapted from 1323 Madtown LimelightProcessor class https://github.com/MrThru/2023ChargedUp/
@@ -42,9 +49,8 @@ public class Limelight {
             lastUpdateStopwatch.reset();
             limelightConnected = true;
             SmartDashboard.putBoolean("Limelight Connected", limelightConnected);
-
-            boolean visionIsDisabled = false; // TODO: add enable/disable switch on driver station
-            if (!visionIsDisabled) {
+            boolean visionIsEnabled = visionOnOffChooser.get();
+            if (visionIsEnabled) {
                 LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(limelightName);
                 handleFiducialTargets(results, timestamp);
                 //handleRetroTargets(results, timestamp);
