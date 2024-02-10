@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 /**
- * Utility class for getting the MAC address of the RoboRIO and determining the robot's identity.
+ * Utility class for getting the MAC address of the robot radio and determining the robot's identity.
  *
  * @author 2910 & 1678
  */
