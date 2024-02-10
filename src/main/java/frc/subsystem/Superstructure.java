@@ -37,6 +37,8 @@ public class Superstructure extends AbstractSubsystem {
                 map.put(distanceDirectionHeight, shooterConfiguration);
 
             }
+
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
