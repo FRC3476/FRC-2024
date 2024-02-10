@@ -264,8 +264,8 @@ public class Drive extends AbstractSubsystem {
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
 
-    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad) {
-        double turn = turnPID.calculate(gyroInputs.rotation2d.getRadians(), targetAngleRad);
+    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, Rotation2d targetAngleRad) {
+        double turn = turnPID.calculate(gyroInputs.rotation2d.getRadians(), targetAngleRad.getRadians());
         nextChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
                 DRIVE_HIGH_SPEED_M * inputs.getY(),
                 turn * MAX_TELEOP_TURN_SPEED,
@@ -309,30 +309,30 @@ public class Drive extends AbstractSubsystem {
      * @return angle of robot needed to face speaker
      */
     @AutoLogOutput(key = "Drive/Angle to Speaker")
-    public double findAngleToSpeaker() {
-        Pose2d robotPose = poseEstimator.getEstimatedPosition();
-        double heading = robotPose.getRotation().getRadians();
+    public Rotation2d findAngleToSpeaker() {
+        Rotation2d heading = gyroInputs.rotation2d;
         double deltaX;
         double deltaY;
+        Rotation2d delta;
 
         if (ally.isPresent()) {
             if (ally.get() == DriverStation.Alliance.Red) {
-                deltaY = redAllianceSpeaker.getY() - robotPose.getY();
-                deltaX = redAllianceSpeaker.getX() - robotPose.getX();
+                deltaY = redAllianceSpeaker.getY() - getPose().getY();
+                deltaX = redAllianceSpeaker.getX() - getPose().getX();
             } else {
-                deltaY = blueAllianceSpeaker.getY() - robotPose.getY();
-                deltaX = blueAllianceSpeaker.getX() - robotPose.getX();
+                deltaY = blueAllianceSpeaker.getY() - getPose().getY();
+                deltaX = blueAllianceSpeaker.getX() - getPose().getX();
             }
 
-            double targetRotation = Math.atan(deltaY / deltaX);
-            if(heading > (Math.PI / 2)) {
-                targetRotation += Math.PI;
-            } else if(heading < (-Math.PI / 2)) {
-                targetRotation -= Math.PI;
+            Rotation2d target = new Rotation2d(deltaX, deltaY);
+            delta = target.minus(heading);
+
+            if(Math.abs(delta.getRadians()) > (Math.PI / 2)) {
+                target.rotateBy(Rotation2d.fromRadians(Math.PI));
             }
-            return targetRotation;
+            return target;
         }
-        return 0;
+        return null;
     }
 
     public void resetOdometry(Pose2d pose) {
