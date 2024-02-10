@@ -23,6 +23,8 @@ public class DrivePath implements BaseAction {
     public void start() {
         pathTimer.reset();
         pathTimer.start();
+        drive.field.getObject("traj").setPoses(trajectory.getInitialPose(), trajectory.getFinalPose());
+        drive.field.getObject("trajPoses").setPoses(trajectory.getPoses());
     }
 
     private final PIDController xController = new PIDController(1, 0, 0);

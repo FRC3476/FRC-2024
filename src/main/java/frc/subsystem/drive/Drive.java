@@ -17,6 +17,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.subsystem.AbstractSubsystem;
@@ -53,6 +55,8 @@ public class Drive extends AbstractSubsystem {
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
+    public final Field2d field = new Field2d();
+
 
     Optional<DriverStation.Alliance> ally = DriverStation.getAlliance();
 
@@ -64,6 +68,8 @@ public class Drive extends AbstractSubsystem {
         super();
         this.gyroIO = gyroIO;
         moduleIO = new ModuleIO[]{flModule, blModule, frModule, brModule};
+
+        SmartDashboard.putData("Field", field);
 
         for(ModuleIO module : moduleIO) {
             module.setBrakeMode(false);
@@ -115,7 +121,7 @@ public class Drive extends AbstractSubsystem {
         );
         lastTimeStep = Logger.getRealTimestamp() * 1e-6;
 
-
+        field.setRobotPose(getPose());
     }
 
     public synchronized void setBrakeMode(boolean brakeMode) {
