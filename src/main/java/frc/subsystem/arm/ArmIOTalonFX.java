@@ -63,7 +63,7 @@ public class ArmIOTalonFX implements ArmIO {
         slot0.kD = 5;
         slot0.kV = 0;
         slot0.kS = 0.5; // Approximately 0.25V to get the mechanism moving
-        slot0.kG = 0.85;
+        slot0.kG = 1;
         slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         leadTalonFX.getConfigurator().apply(talonFXConfigs);
@@ -73,7 +73,7 @@ public class ArmIOTalonFX implements ArmIO {
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                        .withMagnetOffset(-0.12255859375)
+                        .withMagnetOffset(-0.1162109375)
                         .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
                 )
         );
@@ -142,7 +142,7 @@ public class ArmIOTalonFX implements ArmIO {
 
     @Override
     public void resetLeadPosition() {
-        leadTalonFX.setPosition(0);
+        absoluteEncoder.setPosition(0);
     }
 
     @Override

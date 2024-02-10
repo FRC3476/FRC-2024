@@ -1,11 +1,12 @@
 package frc.subsystem.intake;
 
+import edu.wpi.first.math.MathUtil;
 import frc.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends AbstractSubsystem {
 
-    private IntakeIO intakeIO;
+    private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged intakeInputs = new IntakeInputsAutoLogged();
 
 
@@ -16,24 +17,31 @@ public class Intake extends AbstractSubsystem {
 
     @Override
     public synchronized void update() {
-
         intakeIO.updateInputs(intakeInputs);
         Logger.processInputs("Intake", intakeInputs);
     }
 
 
     public void runIntake() {
-        intakeIO.invertMotor(false);
-        intakeIO.setMotorVoltage(4);
+        if (!intakeInputs.hasNote) {
+            intakeIO.invertMotor(false);
+            intakeIO.setMotorVoltage(8);
+        } else {
+            stop();
+        }
     }
 
     public void runOuttake() {
-        intakeIO.invertMotor(true);
-        intakeIO.setMotorVoltage(4);
+        if (intakeInputs.hasNote) {
+            intakeIO.invertMotor(true);
+            intakeIO.setMotorVoltage(6);
+        } else {
+            stop();
+        }
     }
 
     public void setMotorVoltage(double voltage) {
-        intakeIO.setMotorVoltage(voltage);
+        intakeIO.setMotorVoltage(MathUtil.clamp(voltage, -6, 6));
 
     }
 

@@ -5,12 +5,15 @@
 
 package frc.robot;
 
+import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.auto.AutoManager;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.arm.Arm;
 import frc.subsystem.arm.ArmIO;
 import frc.subsystem.arm.ArmIOTalonFX;
+import frc.subsystem.Superstructure;
 import frc.subsystem.drive.*;
 import frc.subsystem.intake.IntakeIO;
 import frc.subsystem.wrist.Wrist;
@@ -25,6 +28,7 @@ import frc.subsystem.intake.IntakeIOTalonFX;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
+import frc.utility.MacAddressUtil;
 import frc.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -36,6 +40,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -56,7 +61,7 @@ public class Robot extends LoggedRobot {
     private Controller xbox;
     private Controller logitechThing;
     private Controller buttonPanel;
-    private final LoggedDashboardChooser<String> chooser = new LoggedDashboardChooser<>("Auto Chooser");
+    public final LoggedDashboardChooser<Integer> autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
 
     private static PowerDistribution powerDistribution;
@@ -74,7 +79,20 @@ public class Robot extends LoggedRobot {
     static Shooter shooter;
     static Arm arm;
     static Intake intake;
+    // static Climber climber;
 
+    static Superstructure superstructure;
+    static byte[] mac;
+
+    static {
+        try {
+            mac = MacAddressUtil.getMacAddress();
+        } catch (SocketException e) {
+            System.out.println("Failed to get MAC address");
+        }
+
+        robotIdentity = MacAddressUtil.RobotIdentity.getRobotIdentity(mac);
+    }
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -82,7 +100,6 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-
         String logPath = null;
 
         // record metadata
@@ -96,6 +113,8 @@ public class Robot extends LoggedRobot {
             case 1 -> Logger.recordMetadata("GitDirty", "Uncommitted changes");
             default -> Logger.recordMetadata("GitDirty", "Unknown");
         }
+        Logger.recordMetadata("Robot Identity", robotIdentity.toString());
+        Logger.recordMetadata("MAC Address", MacAddressUtil.macToString(mac));
 
         if (!isReal() && Objects.equals(VIRTUAL_MODE, "REPLAY")) {
             try {
@@ -151,6 +170,8 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
+           // climber = new Climber(new ClimberIOTalonFX());
+            superstructure = Superstructure.getSuperstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -167,10 +188,12 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
             intake = new Intake(new IntakeIO() {});
+            // climber = new Climber(new ClimberIO() {});
+            superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
-        chooser.addDefaultOption("Default Auto", defaultAuto);
-        chooser.addOption("My Auto", customAuto);
+        autoChooser.addDefaultOption("Do Nothing", 0);
+        autoChooser.addOption("Test", 1);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 
@@ -185,6 +208,11 @@ public class Robot extends LoggedRobot {
         shooter.start();
         arm.start();
         intake.start();
+        // climber.start();
+        superstructure.start();
+        superstructure.setCurrentState(Superstructure.States.STOW);
+
+        AutoManager.getInstance();
     }
 
     /** This function is called periodically during all modes. */
@@ -195,43 +223,64 @@ public class Robot extends LoggedRobot {
         AbstractSubsystem.tick();
         if(buttonPanel.getRisingEdge(10)) {
             elevator.zeroEncoder();
+            arm.resetPosition();
         }
+
     }
+
+    ChoreoTrajectory traj;
 
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        autoSelected = chooser.get();
+        AutoManager.getInstance().loadAuto(autoChooser.get());
+        AutoManager.getInstance().startAuto();
     }
 
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-        switch (autoSelected) {
-            case customAuto:
-                // Put custom auto code here
-                break;
-            case defaultAuto:
-            default:
-                // Put default auto code here
-                break;
-        }
     }
 
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        // drive.setBrakeMode(true);
+        drive.setBrakeMode(true);
     }
 
     /** This function is called periodically during operator control. */
-    public static double wantedArmPos = 0.0;
-    public static double wantedElevatorPos = 0.0;
-    public static double wantedWristPos = 0.0;
     @Override
     public void teleopPeriodic() {
+        if(buttonPanel.getRisingEdge(1)) {
+            superstructure.setGoalState(Superstructure.States.STOW);
+        }
+        if(buttonPanel.getRisingEdge(2)) {
+            superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
+        }
+        if(buttonPanel.getRisingEdge(3)) {
+            superstructure.setGoalState(Superstructure.States.AMP);
+        }
+        if(buttonPanel.getRisingEdge(5)) {
+            superstructure.setGoalState(Superstructure.States.SPEAKER);
+        }
+        if(buttonPanel.getRisingEdge(11)) {
+            superstructure.setWantedShooterPosition(-0.25);
+        }
+        if(buttonPanel.getRisingEdge(12)) {
+            superstructure.setWantedShooterPosition(-0.3);
+        }
+
+        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
+            shooter.setMotorVoltage(6);
+        } else {
+            shooter.setMotorVoltage(0);
+        }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        drive.swerveDriveFieldRelative(controllerDriveInputs);
+        if(superstructure.getCurrentState() == Superstructure.States.SPEAKER) {
+            drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngle());
+        } else {
+            drive.swerveDriveFieldRelative(controllerDriveInputs);
+        }
     }
 
     /** This function is called once when the robot is disabled. */
@@ -267,9 +316,9 @@ public class Robot extends LoggedRobot {
         if (isRed) {
             // Flip the x-axis for red
             inputs = new ControllerDriveInputs(-xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), -xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
-                    -xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
+                    xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
         } else {
-            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), -xbox.getRawAxis(4));
+            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
         }
 
         if (xbox.getRawButton(Controller.XboxButtons.X)) {
@@ -311,5 +360,29 @@ public class Robot extends LoggedRobot {
         while (!toRunOnMainThread.isEmpty()) {
             toRunOnMainThread.poll().run();
         }
+    }
+
+    public static Arm getArm() {
+        return arm;
+    }
+    public static Drive getDrive() {
+        return drive;
+    }
+    public static Elevator getElevator() {
+        return elevator;
+    }
+    public static Intake getIntake() {
+        return intake;
+    }
+    public static Shooter getShooter() {
+        return shooter;
+    }
+    public static Wrist getWrist() {
+        return wrist;
+    }
+    // public static Climber getClimber() { return climber; }
+
+    public static Superstructure getSuperstructure() {
+        return superstructure;
     }
 }

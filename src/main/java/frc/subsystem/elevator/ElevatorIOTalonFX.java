@@ -34,20 +34,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD);
         followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW);
 
-        leadMotorPosition = leadMotor.getPosition();
-        leadMotorVelocity = leadMotor.getVelocity();
-        leadMotorVoltage = leadMotor.getMotorVoltage();
-        leadMotorAmps = leadMotor.getSupplyCurrent();
-        leadMotorTemp = leadMotor.getDeviceTemp();
-
-        followMotorPosition = followMotor.getPosition();
-        followMotorVelocity = followMotor.getVelocity();
-        followMotorVoltage = followMotor.getMotorVoltage();
-        followMotorAmps = followMotor.getSupplyCurrent();
-        followMotorTemp = followMotor.getDeviceTemp();
-
-        BaseStatusSignal.setUpdateFrequencyForAll(50, leadMotorPosition, leadMotorVelocity, leadMotorVoltage, leadMotorAmps, leadMotorTemp, followMotorPosition, followMotorVelocity, followMotorVoltage, followMotorAmps, followMotorTemp);
-
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()
                         .withMotionMagicCruiseVelocity(20)
@@ -70,6 +56,21 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         followMotor.getConfigurator().apply(motorConfig);
 
         followMotor.setControl(new Follower(leadMotor.getDeviceID(), false));
+
+        leadMotorPosition = leadMotor.getPosition();
+        leadMotorVelocity = leadMotor.getVelocity();
+        leadMotorVoltage = leadMotor.getMotorVoltage();
+        leadMotorAmps = leadMotor.getSupplyCurrent();
+        leadMotorTemp = leadMotor.getDeviceTemp();
+
+        followMotorPosition = followMotor.getPosition();
+        followMotorVelocity = followMotor.getVelocity();
+        followMotorVoltage = followMotor.getMotorVoltage();
+        followMotorAmps = followMotor.getSupplyCurrent();
+        followMotorTemp = followMotor.getDeviceTemp();
+
+        BaseStatusSignal.setUpdateFrequencyForAll(50, leadMotorPosition, leadMotorVelocity, leadMotorVoltage);
+        BaseStatusSignal.setUpdateFrequencyForAll(2.0, leadMotorAmps, leadMotorTemp, followMotorPosition, followMotorVelocity, followMotorVoltage, followMotorAmps, followMotorTemp);
 
         leadMotor.optimizeBusUtilization();
         followMotor.optimizeBusUtilization();

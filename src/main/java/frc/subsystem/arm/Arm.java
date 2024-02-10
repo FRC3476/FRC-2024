@@ -5,28 +5,27 @@ import org.littletonrobotics.junction.Logger;
 
 public class Arm extends AbstractSubsystem {
 
-    private final ArmIO io;
+    private final ArmIO armIO;
     private final ArmInputsAutoLogged inputs = new ArmInputsAutoLogged();
 
     /** A robot arm subsystem that moves with a motion profile. */
 
-    public Arm(ArmIO armio) {
+    public Arm(ArmIO armIO) {
         super();
-        this.io = armio;
-        io.resetLeadPosition();
+        this.armIO = armIO;
     }
     /**
     * @param position The position to set the Arm (degrees)
     */
-    public synchronized void setPosition(double position) {
-        io.setLeadPosition(position, 0);
+    public void setPosition(double position) {
+        armIO.setLeadPosition(position, 0);
         Logger.recordOutput("Pivot/Goal position", position);
     }
 
 
     @Override
     public synchronized void update() {
-        io.updateInputs(inputs);
+        armIO.updateInputs(inputs);
         Logger.processInputs("Arm", inputs);
     }
 
@@ -36,7 +35,11 @@ public class Arm extends AbstractSubsystem {
         return inputs.leadRelativePosition;
     }
 
+    public void resetPosition() {
+        armIO.resetLeadPosition();
+    }
+
     public void configurePid(double p, double i, double d, double g) {
-        io.configurePid(p, i, d, g);
+        armIO.configurePid(p, i, d, g);
     }
 }

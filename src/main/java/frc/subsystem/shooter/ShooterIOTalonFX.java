@@ -57,9 +57,11 @@ public class ShooterIOTalonFX implements ShooterIO {
         followerAmps = follower.getSupplyCurrent();
         followerTemp = follower.getDeviceTemp();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(100.0, leaderVelocity, followerVelocity);
+        BaseStatusSignal.setUpdateFrequencyForAll(100.0, leaderVelocity);
         BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0, leaderVoltage, leaderAmps, leaderTemp, followerVoltage, followerAmps, followerTemp);
+                50.0, leaderVoltage);
+        BaseStatusSignal.setUpdateFrequencyForAll(2.0, followerVelocity, leaderAmps, leaderTemp, followerVoltage, followerAmps, followerTemp);
+        leader.optimizeBusUtilization();
         follower.optimizeBusUtilization();
 
         follower.setControl(new Follower(leader.getDeviceID(), true)); //this is prob true
