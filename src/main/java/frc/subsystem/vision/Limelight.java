@@ -30,6 +30,11 @@ public class Limelight {
     private double previousHeartbeat = -1.0;
     private boolean limelightConnected = true;
 
+    private final Pose2d emptyPose2d = new Pose2d();
+    private final Pose3d emptyPose3d = new Pose3d();
+    Transform2d offsetToFieldOrigin = new Transform2d(FIELD_LENGTH_METERS/2,
+            FIELD_WIDTH_METERS/2, new Rotation2d());
+
     public final LoggedDashboardChooser<Boolean> visionOnOffChooser = new LoggedDashboardChooser<>("Vision On/Off Chooser");
 
 
@@ -92,11 +97,9 @@ public class Limelight {
         }
 
         // TODO: Find out how often this happens that we get empty coordinates back from the Limelight
-        if (robotPoseInLimelightCoordinates.equals(new Pose2d()) || cameraPose.equals(new Pose3d())) {
+        if (robotPoseInLimelightCoordinates.equals(emptyPose2d) || cameraPose.equals(emptyPose3d)) {
             return;
         }
-        Transform2d offsetToFieldOrigin = new Transform2d(FIELD_LENGTH_METERS/2,
-                FIELD_WIDTH_METERS/2, new Rotation2d());
 
         Pose2d estimatedRobotPoseMeters = robotPoseInLimelightCoordinates.plus(offsetToFieldOrigin);
 
