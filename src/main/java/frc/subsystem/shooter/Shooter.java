@@ -1,6 +1,8 @@
 package frc.subsystem.shooter;
 
+import frc.robot.Robot;
 import frc.subsystem.AbstractSubsystem;
+import frc.utility.MathUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends AbstractSubsystem {
@@ -22,11 +24,18 @@ public class Shooter extends AbstractSubsystem {
         Logger.processInputs("Shooter", ShooterInputs);
     }
 
-    public void runVelocity(double velocityRPM) {
-        shooterIO.setVelocity(velocityRPM, 0);
+    public void shoot() {
+        runVelocity(100);
+        if(MathUtil.epsilonEquals(100, ShooterInputs.leaderVelocity, 5)) {
+            Robot.getIntake().runIntakeForShooter();
+        }
+    }
+
+    public void runVelocity(double velocityRPS) {
+        shooterIO.setVelocity(velocityRPS, 0);
 
         // Log flywheel setpoint
-        Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
+        Logger.recordOutput("Flywheel/SetpointRPM", velocityRPS);
     }
 
     public void stop() {

@@ -12,11 +12,23 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 
 import java.io.File;
+import java.net.SocketException;
 import java.nio.file.Files;
 
 public final class Constants {
     //TODO: reorganize this mess
-    public static RobotIdentity robotIdentity;
+    static byte[] mac;
+
+    static {
+        try {
+            mac = MacAddressUtil.getMacAddress();
+        } catch (SocketException e) {
+            System.out.println("Failed to get MAC address");
+        }
+    }
+
+    public static RobotIdentity robotIdentity = RobotIdentity.getRobotIdentity(mac);
+
     public static boolean isPrototype() {
         return robotIdentity == RobotIdentity.PROTOTYPE_BOT;
     }
@@ -119,12 +131,9 @@ public final class Constants {
     public static final double SWERVE_DRIVE_D = 0.05;
     public static final double SWERVE_DRIVE_I = 0.00;
 
-    public static final double TURN_P = 4.5;
+    public static final double TURN_P = 2;
     public static final double TURN_I = 0.0;
-    public static final double TURN_D = 0.3;
-
-    public static final double MAX_TURN_SPEED = 2 * Math.PI;
-    public static final double MAX_TURN_ACCEL = 8 * Math.PI;
+    public static final double TURN_D = 0;
 
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 20;

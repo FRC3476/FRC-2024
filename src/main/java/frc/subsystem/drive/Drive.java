@@ -1,6 +1,5 @@
 package frc.subsystem.drive;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -10,22 +9,19 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.subsystem.AbstractSubsystem;
 import frc.utility.ControllerDriveInputs;
 import frc.utility.swerve.SecondOrderModuleState;
 import frc.utility.swerve.SwerveSetpointGenerator;
 import frc.utility.swerve.SecondOrderKinematics;
+import frc.utility.wpimodified.PIDController;
 import frc.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -39,29 +35,26 @@ public class Drive extends AbstractSubsystem {
     final GyroIO gyroIO;
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
     private final ModuleIO[] moduleIO;
-    private final ModuleInputsAutoLogged[] moduleInputs = new ModuleInputsAutoLogged[] {new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged()};
+    private final ModuleInputsAutoLogged[] moduleInputs = new ModuleInputsAutoLogged[]{new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged()};
     private @NotNull ChassisSpeeds nextChassisSpeeds = new ChassisSpeeds();
     private SwerveSetpointGenerator.KinematicLimit kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     private final SwerveDrivePoseEstimator poseEstimator;
     private @NotNull DriveState driveState = DriveState.TELEOP;
-    private final @NotNull ProfiledPIDController turnPID;
+    private final @NotNull PIDController turnPID;
+
     {
-        turnPID = new ProfiledPIDController(
+        turnPID = new PIDController(
                 TURN_P,
                 TURN_I,
-                TURN_D,
-                new TrapezoidProfile.Constraints(MAX_TURN_SPEED, MAX_TURN_ACCEL)
+                TURN_D
         );
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
-    public final Field2d field = new Field2d();
+    public final Field2d realField = new Field2d();
 
-
-    Optional<DriverStation.Alliance> ally = DriverStation.getAlliance();
-
-    private final Translation2d redAllianceSpeaker = new Translation2d(FIELD_LENGTH_METERS,(FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
-    private final Translation2d blueAllianceSpeaker = new Translation2d(0,(FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
+    private final Translation2d redAllianceSpeaker = new Translation2d(FIELD_LENGTH_METERS, (FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
+    private final Translation2d blueAllianceSpeaker = new Translation2d(0, (FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
     // we want 0,0 at the bottom left relative to Choreo's field drawing
 
     public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
@@ -69,9 +62,9 @@ public class Drive extends AbstractSubsystem {
         this.gyroIO = gyroIO;
         moduleIO = new ModuleIO[]{flModule, blModule, frModule, brModule};
 
-        SmartDashboard.putData("Field", field);
+        SmartDashboard.putData("Field", realField);
 
-        for(ModuleIO module : moduleIO) {
+        for (ModuleIO module : moduleIO) {
             module.setBrakeMode(false);
         }
 
@@ -89,9 +82,10 @@ public class Drive extends AbstractSubsystem {
     }
 
     double lastTimeStep;
+
     @Override
     public synchronized void update() {
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             moduleIO[i].updateInputs(moduleInputs[i]);
             Logger.processInputs("Drive/Module " + i, moduleInputs[i]);
         }
@@ -109,6 +103,7 @@ public class Drive extends AbstractSubsystem {
 
         Rotation3d startupRotationToField = poseEstimator.getEstimatedPosition3d().getRotation().minus(gyroInputs.rotation3d);
 
+
         if (!DriverStation.isTest() && DriverStation.isEnabled()) {
             var dt = Logger.getRealTimestamp() * 1e-6 - lastTimeStep;
             swerveDrive(nextChassisSpeeds, kinematicLimit, dt);
@@ -121,16 +116,16 @@ public class Drive extends AbstractSubsystem {
         );
         lastTimeStep = Logger.getRealTimestamp() * 1e-6;
 
-        field.setRobotPose(getPose());
+        realField.setRobotPose(getPose());
     }
 
     public synchronized void setBrakeMode(boolean brakeMode) {
-        for(ModuleIO module : moduleIO) {
+        for (ModuleIO module : moduleIO) {
             module.setBrakeMode(brakeMode);
         }
     }
 
-    public SwerveModulePosition [] getModulePositions() {
+    public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
             swerveModulePositions[i] = new SwerveModulePosition(
@@ -153,6 +148,7 @@ public class Drive extends AbstractSubsystem {
             return moduleInputs[moduleNumber].steerMotorAbsolutePosition;
         }
     }
+
     public double getDrivePosition(int moduleNumber) {
         return moduleInputs[moduleNumber].driveMotorPosition;
     }
@@ -200,6 +196,7 @@ public class Drive extends AbstractSubsystem {
 
     SwerveModuleState[] wantedStates = new SwerveModuleState[4];
     SwerveModuleState[] realStates = new SwerveModuleState[4];
+
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates) {
 
         for (int i = 0; i < 4; i++) {
@@ -244,6 +241,7 @@ public class Drive extends AbstractSubsystem {
                                           SwerveSetpointGenerator.KinematicLimit kinematicLimit,
                                           double dt) {
         Logger.recordOutput("Drive/Desired ChassisSpeeds", desiredRobotRelSpeeds);
+        desiredRobotRelSpeeds = ChassisSpeeds.discretize(desiredRobotRelSpeeds, dt);
         var moduleStates = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(desiredRobotRelSpeeds);
 
         SecondOrderKinematics.desaturateWheelSpeeds(
@@ -270,11 +268,12 @@ public class Drive extends AbstractSubsystem {
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
 
-    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, Rotation2d targetAngleRad) {
-        double turn = turnPID.calculate(gyroInputs.rotation2d.getRadians(), targetAngleRad.getRadians());
+    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad) {
+        double turn = turnPID.calculate(gyroInputs.yawPositionRad, targetAngleRad);
+        Logger.recordOutput("Drive/Wanted Omega", turn);
         nextChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
                 DRIVE_HIGH_SPEED_M * inputs.getY(),
-                turn * MAX_TELEOP_TURN_SPEED,
+                -turn,
                 gyroInputs.rotation2d);
         kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
@@ -299,46 +298,40 @@ public class Drive extends AbstractSubsystem {
     public double findDistanceToSpeaker() {
 
         double distance = 0;
-        if (ally.isPresent()) {
-            if (ally.get() == DriverStation.Alliance.Red) {
-                distance = redAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
-            }
-            if (ally.get() == DriverStation.Alliance.Blue) {
-                distance = blueAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
-            }
+        if (Robot.isRed()) {
+            distance = redAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
+        } else {
+            distance = blueAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
         }
         return distance;
     }
+
 
 
     /**
      * @return angle of robot needed to face speaker
      */
     @AutoLogOutput(key = "Drive/Angle to Speaker")
-    public Rotation2d findAngleToSpeaker() {
+    public double findAngleToSpeaker() {
         Rotation2d heading = gyroInputs.rotation2d;
         double deltaX;
         double deltaY;
         Rotation2d delta;
 
-        if (ally.isPresent()) {
-            if (ally.get() == DriverStation.Alliance.Red) {
-                deltaY = redAllianceSpeaker.getY() - getPose().getY();
-                deltaX = redAllianceSpeaker.getX() - getPose().getX();
-            } else {
-                deltaY = blueAllianceSpeaker.getY() - getPose().getY();
-                deltaX = blueAllianceSpeaker.getX() - getPose().getX();
-            }
-
-            Rotation2d target = new Rotation2d(deltaX, deltaY);
-            delta = target.minus(heading);
-
-            if(Math.abs(delta.getRadians()) > (Math.PI / 2)) {
-                target.rotateBy(Rotation2d.fromRadians(Math.PI));
-            }
-            return target;
+        if (Robot.isRed()) {
+            deltaY = redAllianceSpeaker.getY() - getPose().getY();
+            deltaX = redAllianceSpeaker.getX() - getPose().getX();
+        } else {
+            deltaY = blueAllianceSpeaker.getY() - getPose().getY();
+            deltaX = blueAllianceSpeaker.getX() - getPose().getX();
         }
-        return null;
+        Rotation2d target = new Rotation2d(deltaX, deltaY);
+        delta = target.minus(heading);
+
+        if(Math.abs(delta.getRadians()) > (Math.PI / 2)) {
+            target.rotateBy(Rotation2d.fromRadians(Math.PI));
+        }
+        return -Math.PI / 8;
     }
 
     public void resetOdometry(Pose2d pose) {

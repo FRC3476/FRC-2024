@@ -1,6 +1,7 @@
 package frc.subsystem;
 
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.subsystem.shooter.Shooter;
 
 import java.io.BufferedReader;
@@ -19,6 +20,7 @@ import frc.subsystem.shooter.Shooter;
 import frc.subsystem.intake.Intake;
 import frc.subsystem.wrist.Wrist;
 import frc.utility.MathUtil;
+import frc.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends AbstractSubsystem {
@@ -34,6 +36,7 @@ public class Superstructure extends AbstractSubsystem {
     //private static Vision vision;
     private States currentState = States.STOW;
     private States goalState = States.STOW;
+    private final LiveEditableValue<Double> wristAngle = new LiveEditableValue<Double>(0.0, SmartDashboard.getEntry("Wrist Angle"));
     private Superstructure() {
         super();
         arm = Robot.getArm();
@@ -94,7 +97,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        GROUND_INTAKE(14.1, 0, -0.1, 0) {
+        GROUND_INTAKE(14.1, 0.01, -0.1, 0) {
             //elevator and wrist are to position, move arm back down
             @Override
             public void update() {
@@ -132,7 +135,7 @@ public class Superstructure extends AbstractSubsystem {
             }
         },
 
-        SPEAKER(3.5, 0.125, 0, 0) {
+        SPEAKER(10, 0.125, 0, 0) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
@@ -140,8 +143,6 @@ public class Superstructure extends AbstractSubsystem {
                     superstructure.setWantedShooterPosition(0);
                     superstructure.setCurrentState(States.GENERAL_INTERMEDIATE);
                 }
-                superstructure.targetAngle = drive.findAngleToSpeaker(); // get the target angle needed to aim at speaker
-                // set target angle and wrist position based on other logic to determine front or back
             }
         },
         TRAP(0, 0, 0, 0) {
@@ -221,9 +222,9 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     private double wantedShooterPosition;
-    private Rotation2d targetAngle;
     public void update() {
         currentState.update();
+        setWantedShooterPosition(wristAngle.get());
         arm.setPosition(currentState.armPos);
         if(superstructure.currentState != States.HOMING) {
             elevator.setPosition(currentState.elevatorPos);
@@ -235,6 +236,7 @@ public class Superstructure extends AbstractSubsystem {
 
     public void setWantedShooterPosition(double wantedPos) {
         wantedShooterPosition = superstructure.currentState == States.SPEAKER ? wantedPos : 0;
+        Logger.recordOutput("Shooter/Wanted Angle", wantedShooterPosition);
     }
 
     public double getWristDegreesRelativeToGround(double degreesRelativeToArm, double armPivotDegrees) {
@@ -254,39 +256,33 @@ public class Superstructure extends AbstractSubsystem {
         return superstructure;
     }
 
-    public Rotation2d getTargetAngle() {
-        return targetAngle;
-    }
-
-    private String path = Filesystem.getDeployDirectory().getPath(); // need to append exact location of CSV file
-    HashMap<String, ShooterConfiguration> map = new HashMap<String, ShooterConfiguration>();
-
-    public void toHashMap() {
-
-
-        String line = "";
-        String splitBy = ",";
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
-            br.readLine();
-            while ((line = br.readLine()) != null) {
-                String[] fields = line.split(splitBy);
-
-                String distanceDirectionHeight = fields[0];
-                String location = fields[1];
-                double shooterAngle = Double.parseDouble(fields[2]);
-                double shooterVelocity = Double.parseDouble(fields[3]);
-
-                ShooterConfiguration shooterConfiguration = new ShooterConfiguration(location, shooterAngle, shooterVelocity);
-                map.put(distanceDirectionHeight, shooterConfiguration);
-
-            }
-
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    private String path = Filesystem.getDeployDirectory().getPath(); // need to append exact location of CSV file
+//    HashMap<String, ShooterConfiguration> map = new HashMap<String, ShooterConfiguration>();
+//
+//    public void toHashMap() {
+//
+//
+//        String line = "";
+//        String splitBy = ",";
+//        try {
+//            BufferedReader br = new BufferedReader(new FileReader(path));
+//            br.readLine();
+//            while ((line = br.readLine()) != null) {
+//                String[] fields = line.split(splitBy);
+//
+//                String distanceDirectionHeight = fields[0];
+//                String location = fields[1];
+//                double shooterAngle = Double.parseDouble(fields[2]);
+//                double shooterVelocity = Double.parseDouble(fields[3]);
+//
+//                ShooterConfiguration shooterConfiguration = new ShooterConfiguration(location, shooterAngle, shooterVelocity);
+//                map.put(distanceDirectionHeight, shooterConfiguration);
+//
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
 
@@ -295,15 +291,15 @@ public class Superstructure extends AbstractSubsystem {
 
     }
 
-    public String getLocationOfRobot(double distance, String direction, String height){
-        return map.get(convertToKey(distance, direction, height)).getLocation();
-    }
-    public double getShooterAngle(double distance, String direction, String height){
-        return map.get(convertToKey(distance, direction, height)).getShooterVelocity();
-    }
-    public double getShooterVelocity(double distance, String direction, String height){
-        return map.get(convertToKey(distance, direction, height)).getShooterAngle();
-    }
+//    public String getLocationOfRobot(double distance, String direction, String height){
+//        return map.get(convertToKey(distance, direction, height)).getLocation();
+//    }
+//    public double getShooterAngle(double distance, String direction, String height){
+//        return map.get(convertToKey(distance, direction, height)).getShooterVelocity();
+//    }
+//    public double getShooterVelocity(double distance, String direction, String height){
+//        return map.get(convertToKey(distance, direction, height)).getShooterAngle();
+//    }
 
     static class ShooterConfiguration {
         private String location;

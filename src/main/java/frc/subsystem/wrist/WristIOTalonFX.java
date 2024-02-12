@@ -54,7 +54,7 @@ public class WristIOTalonFX implements WristIO {
         slot0.kP = 10;
         slot0.kI = 0;
         slot0.kD = 0;
-        slot0.kV = 0;
+        slot0.kV = 0.5;
         slot0.kS = 0; // Approximately 0.25V to get the mechanism moving
 
         wristMotor.getConfigurator().apply(configs);

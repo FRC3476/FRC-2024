@@ -16,6 +16,7 @@ import frc.subsystem.arm.ArmIOTalonFX;
 import frc.subsystem.Superstructure;
 import frc.subsystem.drive.*;
 import frc.subsystem.intake.IntakeIO;
+import frc.subsystem.vision.Vision;
 import frc.subsystem.wrist.Wrist;
 import frc.subsystem.wrist.WristIO;
 import frc.subsystem.wrist.WristIOTalonFX;
@@ -30,6 +31,7 @@ import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
 import frc.utility.MacAddressUtil;
 import frc.utility.net.editing.LiveEditableValue;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -80,19 +82,9 @@ public class Robot extends LoggedRobot {
     static Arm arm;
     static Intake intake;
     // static Climber climber;
+    static Vision vision;
 
     static Superstructure superstructure;
-    static byte[] mac;
-
-    static {
-        try {
-            mac = MacAddressUtil.getMacAddress();
-        } catch (SocketException e) {
-            System.out.println("Failed to get MAC address");
-        }
-
-        robotIdentity = MacAddressUtil.RobotIdentity.getRobotIdentity(mac);
-    }
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -200,6 +192,7 @@ public class Robot extends LoggedRobot {
         xbox = new Controller(0);
         logitechThing = new Controller(1);
         buttonPanel = new Controller(2);
+        vision = new Vision();
 
         Logger.start();
         drive.start();
@@ -208,11 +201,13 @@ public class Robot extends LoggedRobot {
         shooter.start();
         arm.start();
         intake.start();
+        vision.start();
         // climber.start();
         superstructure.start();
         superstructure.setCurrentState(Superstructure.States.STOW);
 
         AutoManager.getInstance();
+        AutoLogOutputManager.addPackage("frc.subsystem");
     }
 
     /** This function is called periodically during all modes. */
@@ -271,16 +266,14 @@ public class Robot extends LoggedRobot {
         }
 
         if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
-            shooter.setMotorVoltage(6);
+            shooter.shoot();
         } else {
-            shooter.setMotorVoltage(0);
+            shooter.stop();
+            intake.stop();
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        if(superstructure.getCurrentState() == Superstructure.States.SPEAKER) {
-            drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngle());
-        } else {
-            drive.swerveDriveFieldRelative(controllerDriveInputs);
-        }
+        drive.swerveDriveFieldRelative(controllerDriveInputs);
+
     }
 
     /** This function is called once when the robot is disabled. */
@@ -315,10 +308,10 @@ public class Robot extends LoggedRobot {
 
         if (isRed) {
             // Flip the x-axis for red
-            inputs = new ControllerDriveInputs(-xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), -xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
+            inputs = new ControllerDriveInputs(xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
                     xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
         } else {
-            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
+            inputs = new ControllerDriveInputs(-xbox.getRawAxis(1), -xbox.getRawAxis(0), xbox.getRawAxis(4));
         }
 
         if (xbox.getRawButton(Controller.XboxButtons.X)) {

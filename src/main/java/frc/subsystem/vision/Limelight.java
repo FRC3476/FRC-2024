@@ -1,14 +1,12 @@
 package frc.subsystem.vision;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
-import frc.subsystem.drive.Drive;
 import frc.utility.LimelightHelpers.LimelightResults;
 import frc.utility.LimelightHelpers.LimelightTarget_Fiducial;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,6 +27,7 @@ public class Limelight {
     private final Timer lastUpdateStopwatch = new Timer();
     private double previousHeartbeat = -1.0;
     private boolean limelightConnected = true;
+    public final Field2d limelightField = new Field2d();
 
     private final Pose2d emptyPose2d = new Pose2d();
     private final Pose3d emptyPose3d = new Pose3d();
@@ -44,6 +43,7 @@ public class Limelight {
         this.limelightName = name;
         visionOnOffChooser.addDefaultOption("on", true);
         visionOnOffChooser.addOption("off", false);
+        SmartDashboard.putData("Limelight Field", limelightField);
     }
     public void update() {
         // Code adapted from 1323 Madtown LimelightProcessor class https://github.com/MrThru/2023ChargedUp/
@@ -102,6 +102,9 @@ public class Limelight {
         }
 
         Pose2d estimatedRobotPoseMeters = robotPoseInLimelightCoordinates.plus(offsetToFieldOrigin);
+
+        Logger.recordOutput("Vision/Estimated Pose", estimatedRobotPoseMeters);
+        limelightField.setRobotPose(estimatedRobotPoseMeters);
 
         if (estimatedRobotPoseMeters.getTranslation().getX() < FIELD_LENGTH_METERS &&
             (estimatedRobotPoseMeters.getTranslation().getY() < FIELD_WIDTH_METERS)) {

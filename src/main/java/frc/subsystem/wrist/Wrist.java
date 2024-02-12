@@ -14,10 +14,10 @@ public class Wrist extends AbstractSubsystem {
     }
 
 
-    public void setWristPosition(double positionInDegrees) {
+    public void setWristPosition(double position) {
         //does NOT set position relative to the ground, just relative to the arm
-        wristIO.setPosition(positionInDegrees);
-        Logger.recordOutput("Wrist/Target Position", positionInDegrees);
+        wristIO.setPosition(position);
+        Logger.recordOutput("Wrist/Target Position", position);
     }
 
 
