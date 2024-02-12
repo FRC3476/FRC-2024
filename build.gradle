@@ -13,7 +13,7 @@ java {
     targetCompatibility = javaVersion
 }
 
-def ROBOT_MAIN_CLASS = "org.codeorange.robot.Main"
+def ROBOT_MAIN_CLASS = "org.codeorange.frc2024.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -118,7 +118,7 @@ test{
 project.compileJava.dependsOn(createVersionFile)
 gversion {
     srcDir       = "src/main/java/"
-    classPackage = "org.codeorange.robot"
+    classPackage = "org.codeorange.frc2024.robot"
     className    = "BuildConstants"
     dateFormat   = "yyyy-MM-dd HH:mm:ss z"
     timeZone     = "America/Los_Angeles" // Use preferred time zone
