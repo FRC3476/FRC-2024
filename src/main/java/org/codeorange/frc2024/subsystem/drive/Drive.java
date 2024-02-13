@@ -298,16 +298,14 @@ public class Drive extends AbstractSubsystem {
     public double findDistanceToSpeaker() {
 
         double distance = 0;
-        if (ally.isPresent()) {
-            if (ally.get() == DriverStation.Alliance.Red) {
-                distance = redAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
-            }
-            if (ally.get() == DriverStation.Alliance.Blue) {
-                distance = blueAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
-            }
+        if (Robot.isRed()) {
+            distance = redAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
+        } else {
+            distance = blueAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
         }
         return distance;
     }
+
 
 
     /**
@@ -315,20 +313,25 @@ public class Drive extends AbstractSubsystem {
      */
     @AutoLogOutput(key = "Drive/Angle to Speaker")
     public double findAngleToSpeaker() {
+        Rotation2d heading = gyroInputs.rotation2d;
+        double deltaX;
+        double deltaY;
+        Rotation2d delta;
 
-        double yDistanceToBlue = blueAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
-        double yDistanceToRed = redAllianceSpeaker.getY() - poseEstimator.getEstimatedPosition().getY();
-
-        if (ally.isPresent()) {
-            if (ally.get() == DriverStation.Alliance.Red) {
-                return Math.atan2(yDistanceToRed, (redAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
-            }
-
-            if (ally.get() == DriverStation.Alliance.Blue) {
-                return Math.atan2(yDistanceToBlue, (blueAllianceSpeaker.getX() - poseEstimator.getEstimatedPosition().getX()));
-            }
+        if (Robot.isRed()) {
+            deltaY = redAllianceSpeaker.getY() - getPose().getY();
+            deltaX = redAllianceSpeaker.getX() - getPose().getX();
+        } else {
+            deltaY = blueAllianceSpeaker.getY() - getPose().getY();
+            deltaX = blueAllianceSpeaker.getX() - getPose().getX();
         }
-        return 0;
+        Rotation2d target = new Rotation2d(deltaX, deltaY);
+        delta = target.minus(heading);
+
+        if(Math.abs(delta.getRadians()) > (Math.PI / 2)) {
+            target.rotateBy(Rotation2d.fromRadians(Math.PI));
+        }
+        return -Math.PI / 8;
     }
 
     public void resetOdometry(Pose2d pose) {
@@ -358,4 +361,3 @@ public class Drive extends AbstractSubsystem {
         this.nextChassisSpeeds = nextChassisSpeeds;
     }
 }
-

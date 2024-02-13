@@ -23,9 +23,8 @@ import org.codeorange.frc2024.subsystem.wrist.Wrist;
 import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.Logger;
-import frc.subsystem.climber.Climber;
-
-import static frc.robot.Constants.*;
+import org.codeorange.frc2024.subsystem.climber.Climber;
+import static org.codeorange.frc2024.robot.Constants.*;
 
 
 public class Superstructure extends AbstractSubsystem {
@@ -79,15 +78,15 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
                 if(Math.abs(elevator.getPositionInInches() - elevatorPos) <= 0.5 && Math.abs(armPos - arm.getPivotDegrees()) <= 0.05 && Math.abs(wristPos - wrist.getWristAbsolutePosition()) <= 0.05) {
-                    if(superstructure.goalState == States.INTAKE_FINAL){
-                        superstructure.setCurrentState(INTAKE_INT_2);
+                    if(superstructure.goalState == States.GROUND_INTAKE){
+                        superstructure.setCurrentState(MID_INTAKE);
                     } else {
                         superstructure.setCurrentState(superstructure.goalState);
                     }
                 }
             }
         },
-        MID_INTAKE(14.1, 0.1, -0.1, 0) {
+        MID_INTAKE(ELEVATOR_MID_INTAKE, ARM_MID_INTAKE, WRIST_MID_INTAKE, CLIMBER_MID_INTAKE) {
             //arm is up high enough, now move elevator out and wrist down.
             @Override
             public void update() {
@@ -102,7 +101,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        GROUND_INTAKE(14.1, 0.01, -0.1, 0) {
+        GROUND_INTAKE(ELEVATOR_GROUND_INTAKE, ARM_GROUND_INTAKE, WRIST_GROUND_INTAKE, CLIMBER_GROUND_INTAKE) {
             //elevator and wrist are to position, move arm back down
             @Override
             public void update() {
@@ -118,7 +117,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        SOURCE_INTAKE(0, 0, 0, 0) { //TODO
+        SOURCE_INTAKE(ELEVATOR_SOURCE_INTAKE, ARM_SOURCE_INTAKE, WRIST_SOURCE_INTAKE, CLIMBER_SOURCE_INTAKE) { //TODO
             @Override
             public void update() {
                 //code and such
@@ -127,7 +126,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        AMP(21.6, 0.16, -0.24, 0) {
+        AMP(ELEVATOR_AMP, ARM_AMP, WRIST_AMP, CLIMBER_AMP) {
             @Override
             public void update() {
                 if(superstructure.goalState == States.GROUND_INTAKE) {
@@ -140,7 +139,7 @@ public class Superstructure extends AbstractSubsystem {
             }
         },
 
-        SPEAKER(10, 0.125, 0, 0) {
+        SPEAKER(ELEVATOR_SPEAKER, ARM_SPEAKER, WRIST_SPEAKER, CLIMBER_SPEAKER) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
@@ -148,8 +147,6 @@ public class Superstructure extends AbstractSubsystem {
                     superstructure.setWantedShooterPosition(0);
                     superstructure.setCurrentState(States.GENERAL_INTERMEDIATE);
                 }
-                superstructure.targetAngle = drive.findAngleToSpeaker(); // get the target angle needed to aim at speaker
-                // set target angle and wrist position based on other logic to determine front or back
             }
         },
         TRAP(ELEVATOR_TRAP, ARM_TRAP, WRIST_TRAP, CLIMBER_TRAP) {

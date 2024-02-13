@@ -11,7 +11,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
-import frc.robot.Constants;
+import org.codeorange.frc2024.robot.Constants;
 
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
 

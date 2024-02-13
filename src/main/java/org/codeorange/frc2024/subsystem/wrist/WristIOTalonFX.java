@@ -12,7 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import frc.robot.Constants;
+import org.codeorange.frc2024.robot.Constants;
 
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
 

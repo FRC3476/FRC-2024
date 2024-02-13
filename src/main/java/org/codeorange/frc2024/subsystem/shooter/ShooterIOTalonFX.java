@@ -11,7 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import frc.robot.Constants;
+import org.codeorange.frc2024.robot.Constants;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
