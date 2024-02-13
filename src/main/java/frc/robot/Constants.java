@@ -107,6 +107,62 @@ public final class Constants {
     public static final double ELEVATOR_STALLING_CURRENT = 35;
     public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
 
+
+    //positions for the superstructure
+    //TODO: find all these for the robots
+    public static final double ELEVATOR_REST = 0;
+    public static final double ARM_REST = 0;
+    public static final double WRIST_REST = 0;
+    public static final double CLIMBER_REST = 0;
+    public static final double ELEVATOR_STOW = 0;
+    public static final double ARM_STOW = 0;
+    public static final double WRIST_STOW = 0;
+    public static final double CLIMBER_STOW = 0;
+    public static final double ELEVATOR_GEN_INTERMEDIATE = 0;
+    public static final double ARM_GEN_INTERMEDIATE = 0;
+    public static final double WRIST_GEN_INTERMEDIATE = 0;
+    public static final double CLIMBER_GEN_INTERMEDIATE = 0;
+    public static final double ELEVATOR_INTAKE_INTERMEDIATE_2 = 0;
+    public static final double ARM_INTAKE_INTERMEDIATE_2 = 0;
+    public static final double WRIST_INTAKE_INTERMEDIATE_2 = 0;
+    public static final double CLIMBER_INTAKE_INTERMEDIATE_2 = 0;
+    public static final double ELEVATOR_INTAKE = 0;
+    public static final double ARM_INTAKE = 0;
+    public static final double WRIST_INTAKE = 0;
+    public static final double CLIMBER_INTAKE = 0;
+    public static final double ELEVATOR_AMP = 0;
+    public static final double ARM_AMP = 0;
+    public static final double WRIST_AMP = 0;
+    public static final double CLIMBER_AMP = 0;
+    public static final double ELEVATOR_SPEAKER = 0;
+    public static final double ARM_SPEAKER = 0;
+    public static final double WRIST_SPEAKER = 0;
+    public static final double CLIMBER_SPEAKER = 0;
+    public static final double ELEVATOR_TRAP = 0;
+    public static final double ARM_TRAP = 0;
+    public static final double WRIST_TRAP = 0;
+    public static final double CLIMBER_TRAP = 0;
+    public static final double ELEVATOR_DEPLOY_CLIMBER_1 = 0;
+    public static final double ARM_DEPLOY_CLIMBER_1 = 0;
+    public static final double WRIST_DEPLOY_CLIMBER_1 = 0;
+    public static final double CLIMBER_DEPLOY_CLIMBER_1 = 0;
+    public static final double ELEVATOR_DEPLOY_CLIMBER_2 = 0;
+    public static final double ARM_DEPLOY_CLIMBER_2 = 0;
+    public static final double WRIST_DEPLOY_CLIMBER_2 = 0;
+    public static final double CLIMBER_DEPLOY_CLIMBER_2 = 0;
+    public static final double ELEVATOR_CLIMB = 0;
+    public static final double ARM_CLIMB = 0;
+    public static final double WRIST_CLIMB = 0;
+    public static final double CLIMBER_CLIMB = 0;
+    public static final double ELEVATOR_HOMING = 0;
+    public static final double ARM_HOMING = 0;
+    public static final double WRIST_HOMING = 0;
+    public static final double CLIMBER_HOMING = 0;
+
+
+
+
+
     public static final double SWERVE_DRIVE_P = 100;
     public static final double SWERVE_DRIVE_D = 0.05;
     public static final double SWERVE_DRIVE_I = 0.00;
