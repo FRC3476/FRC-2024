@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import frc.robot.Constants;
 
 import static frc.robot.Constants.Ports.*;
 
@@ -58,9 +59,9 @@ public class ArmIOTalonFX implements ArmIO {
         armMotionMagicConfig.MotionMagicJerk = 2;
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
-        slot0.kP = 100;
-        slot0.kI = 0;
-        slot0.kD = 5;
+        slot0.kP = Constants.ARM_P;
+        slot0.kI = Constants.ARM_I;
+        slot0.kD = Constants.ARM_D;
         slot0.kV = 0;
         slot0.kS = 0.5; // Approximately 0.25V to get the mechanism moving
         slot0.kG = 1;

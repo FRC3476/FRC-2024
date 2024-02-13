@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import frc.robot.Constants;
 
 import static frc.robot.Constants.Ports.*;
 
@@ -51,9 +52,9 @@ public class WristIOTalonFX implements WristIO {
 
 
         Slot0Configs slot0 = configs.Slot0;
-        slot0.kP = 10;
-        slot0.kI = 0;
-        slot0.kD = 0;
+        slot0.kP = Constants.WRIST_P;
+        slot0.kI = Constants.WRIST_I;
+        slot0.kD = Constants.WRIST_D;
         slot0.kV = 0;
         slot0.kS = 0; // Approximately 0.25V to get the mechanism moving
 

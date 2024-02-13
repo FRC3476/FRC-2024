@@ -36,9 +36,9 @@ public class ClimberIOTalonFX implements ClimberIO {
                         .withMotionMagicAcceleration(0)
                         .withMotionMagicJerk(0)
                 ).withSlot0(new Slot0Configs()
-                        .withKP(0)
-                        .withKI(0)
-                        .withKD(0)
+                        .withKP(Constants.CLIMBER_P)
+                        .withKI(Constants.CLIMBER_I)
+                        .withKD(Constants.CLIMBER_D)
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                         .withSensorToMechanismRatio(1) //TODO: what is this ratio??

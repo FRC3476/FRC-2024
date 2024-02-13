@@ -40,7 +40,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                         .withMotionMagicAcceleration(40)
                         .withMotionMagicJerk(200)
                 ).withSlot0(new Slot0Configs()
-                        .withKP(1)
+                        .withKP(Constants.ELEVATOR_P)
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                         .withSensorToMechanismRatio(Constants.ELEVATOR_INCHES_PER_ROTATION)

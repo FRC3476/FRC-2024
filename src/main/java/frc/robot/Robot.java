@@ -270,7 +270,7 @@ public class Robot extends LoggedRobot {
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(superstructure.getCurrentState() == Superstructure.States.SPEAKER) {
-            drive.swerveDriveTargetAngle(controllerDriveInputs, superstructure.getTargetAngleRad());
+            drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
         } else {
             drive.swerveDriveFieldRelative(controllerDriveInputs);
         }

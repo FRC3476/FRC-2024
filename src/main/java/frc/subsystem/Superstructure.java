@@ -14,6 +14,8 @@ import frc.subsystem.wrist.Wrist;
 import org.littletonrobotics.junction.Logger;
 import frc.subsystem.climber.Climber;
 
+import static frc.robot.Constants.*;
+
 
 public class Superstructure extends AbstractSubsystem {
     //unfortunately all of these need to be static so that the enum can access them
@@ -40,14 +42,14 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     public enum States {
-        REST(0, 0, 0, 0) {
+        REST(ELEVATOR_REST, ARM_REST, WRIST_REST, CLIMBER_REST) {
             //should make sure all motors are off and not trying to move anywhere
             @Override
             public void update() {
                 //code!!
             }
         },
-        STOW(0, 0, 0, 0) {
+        STOW(ELEVATOR_STOW, ARM_STOW, WRIST_STOW, CLIMBER_STOW) {
             //should move to most compact/low position for easy driving
             @Override
             public void update() {
@@ -63,7 +65,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        GENERAL_INTERMEDIATE(3.5, 0.1, 0, 0) {
+        GENERAL_INTERMEDIATE(ELEVATOR_GEN_INTERMEDIATE, ARM_GEN_INTERMEDIATE, WRIST_GEN_INTERMEDIATE, CLIMBER_GEN_INTERMEDIATE) {
             //moves arm up so that the elevator can extend. keeps wrist at safe angle so that it does not go crash :(
             @Override
             public void update() {
@@ -77,7 +79,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        INTAKE_INT_2(14.1, 0.1, -0.1, 0) {
+        INTAKE_INT_2(ELEVATOR_INTAKE_INTERMEDIATE_2, ARM_INTAKE_INTERMEDIATE_2, WRIST_INTAKE_INTERMEDIATE_2, CLIMBER_INTAKE_INTERMEDIATE_2) {
             //arm is up high enough, now move elevator out and wrist down.
             @Override
             public void update() {
@@ -92,7 +94,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        INTAKE_FINAL(14.1, 0, -0.1, 0) {
+        INTAKE_FINAL(ELEVATOR_INTAKE, ARM_INTAKE, WRIST_INTAKE, CLIMBER_INTAKE) {
             //elevator and wrist are to position, move arm back down
             @Override
             public void update() {
@@ -104,7 +106,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        AMP(21.6, 0.16, -0.24, 0) {
+AMP(ELEVATOR_AMP, ARM_AMP, WRIST_AMP, CLIMBER_AMP) {
             @Override
             public void update() {
                 if(superstructure.goalState == States.INTAKE_FINAL) {
@@ -117,7 +119,7 @@ public class Superstructure extends AbstractSubsystem {
             }
         },
 
-        SPEAKER(3.5, 0.125, 0, 0) {
+        SPEAKER(ELEVATOR_SPEAKER, ARM_SPEAKER, WRIST_SPEAKER, CLIMBER_SPEAKER) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
@@ -129,13 +131,13 @@ public class Superstructure extends AbstractSubsystem {
                 // set target angle and wrist position based on other logic to determine front or back
             }
         },
-        TRAP(0, 0, 0, 0) {
+        TRAP(ELEVATOR_TRAP, ARM_TRAP, WRIST_TRAP, CLIMBER_TRAP) {
             @Override
             public void update() {
                 //code!
             }
         },
-        DEPLOY_CLIMBER_1(0, 0, 0, 0) {
+        DEPLOY_CLIMBER_1(ELEVATOR_DEPLOY_CLIMBER_1, ARM_DEPLOY_CLIMBER_1, WRIST_DEPLOY_CLIMBER_1, CLIMBER_DEPLOY_CLIMBER_1) {
             @Override
             //should move mechanisms out of the way
             public void update() {
@@ -145,7 +147,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        DEPLOY_CLIMBER_2(0, 0, 0, Constants.CLIMBER_UPPER_LIMIT_ROTATIONS) {
+        DEPLOY_CLIMBER_2(ELEVATOR_DEPLOY_CLIMBER_2, ARM_DEPLOY_CLIMBER_2, WRIST_DEPLOY_CLIMBER_2, CLIMBER_DEPLOY_CLIMBER_2) {
             @Override
             //should extend climb arm to be on the chain
             public void update() {
@@ -153,14 +155,14 @@ public class Superstructure extends AbstractSubsystem {
                 // climber.disengageRatchet();
             }
         },
-        CLIMB(0, 0, 0, Constants.CLIMBER_HANG_POSITION) {
+        CLIMB(ELEVATOR_CLIMB, ARM_CLIMB, WRIST_CLIMB, CLIMBER_CLIMB) {
             @Override
             //should pull robot up?? maybe??
             public void update() {
                 // climber.engageRatchet();
             }
         },
-        HOMING(0,0.1, 0, 0) {
+        HOMING(ELEVATOR_HOMING,ARM_HOMING, WRIST_HOMING, CLIMBER_HOMING) {
             @Override
             public void update() {
                 try {

@@ -10,6 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import frc.robot.Constants;
 
 import static frc.robot.Constants.*;
 
@@ -39,9 +40,9 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        config.Slot0.kP = 0;
-        config.Slot0.kI = 0;
-        config.Slot0.kD = 0;
+        config.Slot0.kP = SHOOTER_P;
+        config.Slot0.kI = SHOOTER_I;
+        config.Slot0.kD = SHOOTER_D;
         config.Slot0.kS = 0;
         config.Slot0.kV = 0;
         leader.getConfigurator().apply(config);

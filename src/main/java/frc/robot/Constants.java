@@ -14,6 +14,10 @@ import java.nio.file.Files;
 
 public final class Constants {
     //TODO: reorganize this mess
+    public static boolean isPrototype() {
+        //i know this isn't right lol...fix when mac address branch is merged?
+            return true;
+    }
     public static final String LOG_DIRECTORY = "/home/lvuser/logs";
     public static final boolean IS_PRACTICE = Files.exists(new File("/home/lvuser/practice").toPath());
     public static final String VIRTUAL_MODE = "SIM";
@@ -110,54 +114,54 @@ public final class Constants {
 
     //positions for the superstructure
     //TODO: find all these for the robots
-    public static final double ELEVATOR_REST = 0;
-    public static final double ARM_REST = 0;
-    public static final double WRIST_REST = 0;
-    public static final double CLIMBER_REST = 0;
-    public static final double ELEVATOR_STOW = 0;
-    public static final double ARM_STOW = 0;
-    public static final double WRIST_STOW = 0;
-    public static final double CLIMBER_STOW = 0;
-    public static final double ELEVATOR_GEN_INTERMEDIATE = 0;
-    public static final double ARM_GEN_INTERMEDIATE = 0;
-    public static final double WRIST_GEN_INTERMEDIATE = 0;
-    public static final double CLIMBER_GEN_INTERMEDIATE = 0;
-    public static final double ELEVATOR_INTAKE_INTERMEDIATE_2 = 0;
-    public static final double ARM_INTAKE_INTERMEDIATE_2 = 0;
-    public static final double WRIST_INTAKE_INTERMEDIATE_2 = 0;
-    public static final double CLIMBER_INTAKE_INTERMEDIATE_2 = 0;
-    public static final double ELEVATOR_INTAKE = 0;
-    public static final double ARM_INTAKE = 0;
-    public static final double WRIST_INTAKE = 0;
-    public static final double CLIMBER_INTAKE = 0;
-    public static final double ELEVATOR_AMP = 0;
-    public static final double ARM_AMP = 0;
-    public static final double WRIST_AMP = 0;
-    public static final double CLIMBER_AMP = 0;
-    public static final double ELEVATOR_SPEAKER = 0;
-    public static final double ARM_SPEAKER = 0;
-    public static final double WRIST_SPEAKER = 0;
-    public static final double CLIMBER_SPEAKER = 0;
-    public static final double ELEVATOR_TRAP = 0;
-    public static final double ARM_TRAP = 0;
-    public static final double WRIST_TRAP = 0;
-    public static final double CLIMBER_TRAP = 0;
-    public static final double ELEVATOR_DEPLOY_CLIMBER_1 = 0;
-    public static final double ARM_DEPLOY_CLIMBER_1 = 0;
-    public static final double WRIST_DEPLOY_CLIMBER_1 = 0;
-    public static final double CLIMBER_DEPLOY_CLIMBER_1 = 0;
-    public static final double ELEVATOR_DEPLOY_CLIMBER_2 = 0;
-    public static final double ARM_DEPLOY_CLIMBER_2 = 0;
-    public static final double WRIST_DEPLOY_CLIMBER_2 = 0;
-    public static final double CLIMBER_DEPLOY_CLIMBER_2 = 0;
-    public static final double ELEVATOR_CLIMB = 0;
-    public static final double ARM_CLIMB = 0;
-    public static final double WRIST_CLIMB = 0;
-    public static final double CLIMBER_CLIMB = 0;
-    public static final double ELEVATOR_HOMING = 0;
-    public static final double ARM_HOMING = 0;
-    public static final double WRIST_HOMING = 0;
-    public static final double CLIMBER_HOMING = 0;
+    public static final double ELEVATOR_REST = isPrototype() ? 0 : 0;
+    public static final double ARM_REST = isPrototype() ? 0 : 0;
+    public static final double WRIST_REST = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_REST = isPrototype() ? 0 : 0;
+    public static final double ELEVATOR_STOW = isPrototype() ? 0 : 0;
+    public static final double ARM_STOW = isPrototype() ? 0 : 0;
+    public static final double WRIST_STOW = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_STOW = isPrototype() ? 0 : 0;
+    public static final double ELEVATOR_GEN_INTERMEDIATE = isPrototype() ? 3.5 : 0;
+    public static final double ARM_GEN_INTERMEDIATE = isPrototype() ? 0.1 : 0;
+    public static final double WRIST_GEN_INTERMEDIATE = isPrototype() ? 100 : 0;
+    public static final double CLIMBER_GEN_INTERMEDIATE = isPrototype() ? 100 : 0;
+    public static final double ELEVATOR_INTAKE_INTERMEDIATE_2 = isPrototype() ? 14.1 : 0;
+    public static final double ARM_INTAKE_INTERMEDIATE_2 = isPrototype() ? 0.1 : 0;
+    public static final double WRIST_INTAKE_INTERMEDIATE_2 = isPrototype() ? -0.1 : 0;
+    public static final double CLIMBER_INTAKE_INTERMEDIATE_2 = isPrototype() ? 0 : 0;
+    public static final double ELEVATOR_INTAKE = isPrototype() ? 14.1 : 0;
+    public static final double ARM_INTAKE = isPrototype() ? 0 : 0;
+    public static final double WRIST_INTAKE = isPrototype() ? -0.1 : 0;
+    public static final double CLIMBER_INTAKE = isPrototype() ? 0 : 0;
+    public static final double ELEVATOR_AMP = isPrototype() ? 21.6 : 0;
+    public static final double ARM_AMP = isPrototype() ? 0.16 : 0;
+    public static final double WRIST_AMP = isPrototype() ? -0.24 : 0;
+    public static final double CLIMBER_AMP = isPrototype() ? 0 : 0;
+    public static final double ELEVATOR_SPEAKER = isPrototype() ? 3.5 : 0;
+    public static final double ARM_SPEAKER = isPrototype() ? 0.125 : 0;
+    public static final double WRIST_SPEAKER = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_SPEAKER = isPrototype() ? 0 : 0;
+    public static final double ELEVATOR_TRAP = isPrototype() ? 0 : 0;
+    public static final double ARM_TRAP = isPrototype() ? 0 : 0;
+    public static final double WRIST_TRAP = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_TRAP = isPrototype() ? 0 : 0;
+    public static final double ELEVATOR_DEPLOY_CLIMBER_1 = isPrototype() ? 0 : 0;
+    public static final double ARM_DEPLOY_CLIMBER_1 = isPrototype() ? 0 : 0;
+    public static final double WRIST_DEPLOY_CLIMBER_1 = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_DEPLOY_CLIMBER_1 = isPrototype() ? 0 : 0;
+    public static final double ELEVATOR_DEPLOY_CLIMBER_2 = isPrototype() ? 0 : 0;
+    public static final double ARM_DEPLOY_CLIMBER_2 = isPrototype() ? 0 : 0;
+    public static final double WRIST_DEPLOY_CLIMBER_2 = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_DEPLOY_CLIMBER_2 = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
+    public static final double ELEVATOR_CLIMB = isPrototype() ? 0 : 0;
+    public static final double ARM_CLIMB = isPrototype() ? 0 : 0;
+    public static final double WRIST_CLIMB = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_CLIMB = isPrototype() ? CLIMBER_HANG_POSITION : 0;
+    public static final double ELEVATOR_HOMING = isPrototype() ? 0 : 0;
+    public static final double ARM_HOMING = isPrototype() ? 0.1 : 0;
+    public static final double WRIST_HOMING = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_HOMING = isPrototype() ? 0 : 0;
 
 
 
@@ -170,6 +174,23 @@ public final class Constants {
     public static final double TURN_P = 4.5;
     public static final double TURN_I = 0.0;
     public static final double TURN_D = 0.3;
+
+    public static final double ARM_P = 100;
+    public static final double ARM_I = 0;
+    public static final double ARM_D = 5;
+
+    public static final double ELEVATOR_P = 1;
+
+    public static final double CLIMBER_P = 0;
+    public static final double CLIMBER_I = 0;
+    public static final double CLIMBER_D = 0;
+
+    public static final double SHOOTER_P = 0;
+    public static final double SHOOTER_I = 0;
+    public static final double SHOOTER_D = 0;
+    public static final double WRIST_P = 10;
+    public static final double WRIST_I = 0;
+    public static final double WRIST_D = 0;
 
     public static final double MAX_TURN_SPEED = 2 * Math.PI;
     public static final double MAX_TURN_ACCEL = 8 * Math.PI;
