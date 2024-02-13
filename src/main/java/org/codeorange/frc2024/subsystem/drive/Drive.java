@@ -150,7 +150,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     public double getDrivePosition(int moduleNumber) {
-        return moduleInputs[moduleNumber].driveMotorPosition;
+        return Units.inchesToMeters(moduleInputs[moduleNumber].driveMotorPosition);
     }
 
     private double getAngleDiff(double targetAngle, double currentAngle) {

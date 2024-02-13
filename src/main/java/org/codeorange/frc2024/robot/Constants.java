@@ -152,7 +152,7 @@ public final class Constants {
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
-    public static final double DRIVE_MOTOR_REDUCTION = 1 / 5.9;
+    public static final double DRIVE_MOTOR_REDUCTION = 1 / 5.36;
 
     // TODO: check accuracy of these numbers for new drive base. Ask CAD ppl?
     public static final double wheelBaseInches = isPrototype() ? 22.75 : 27; // not real number, just example
