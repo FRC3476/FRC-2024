@@ -52,4 +52,8 @@ public class Intake extends AbstractSubsystem {
     public void stop() {
         intakeIO.setMotorVoltage(0);
     }
+
+    public boolean hasNote() {
+        return intakeInputs.hasNote;
+    }
 }

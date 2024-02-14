@@ -34,7 +34,7 @@ public class DrivePath implements BaseAction {
     private ChoreoTrajectoryState state;
     @Override
     public void update() {
-        state = trajectory.sample(pathTimer.get());
+        state = trajectory.sample(pathTimer.get(), Robot.isRed());
 
         drive.setNextChassisSpeeds(choreoController.apply(drive.getPose(), state));
     }
