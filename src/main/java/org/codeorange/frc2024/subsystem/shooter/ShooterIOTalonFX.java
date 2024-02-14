@@ -40,9 +40,9 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        config.Slot0.kP = 2;
-        config.Slot0.kI = 0;
-        config.Slot0.kD = 0;
+        config.Slot0.kP = SHOOTER_P;
+        config.Slot0.kI = SHOOTER_I;
+        config.Slot0.kD = SHOOTER_D;
         config.Slot0.kS = 0;
         config.Slot0.kV = 0;
         leader.getConfigurator().apply(config);

@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.codeorange.frc2024.robot.Constants;
 
+import static org.codeorange.frc2024.robot.Constants.ELEVATOR_P;
 import static org.codeorange.frc2024.robot.Constants.ELEVATOR_STALLING_CURRENT;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
@@ -40,7 +41,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                         .withMotionMagicAcceleration(40)
                         .withMotionMagicJerk(200)
                 ).withSlot0(new Slot0Configs()
-                        .withKP(1)
+                        .withKP(ELEVATOR_P)
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                         .withSensorToMechanismRatio(Constants.ELEVATOR_INCHES_PER_ROTATION)

@@ -23,6 +23,8 @@ import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.Logger;
 
+import static org.codeorange.frc2024.robot.Constants.*;
+
 public class Superstructure extends AbstractSubsystem {
     //unfortunately all of these need to be static so that the enum can access them
     private static Arm arm;
@@ -49,14 +51,14 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     public enum States {
-        REST(0, 0, 0, 0) {
+        REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST, SS_REST_CLIMBER) {
             //should make sure all motors are off and not trying to move anywhere
             @Override
             public void update() {
 
             }
         },
-        STOW(0, 0, 0, 0) {
+        STOW(SS_STOW_ELEVATOR, SS_STOW_ARM, SS_STOW_WRIST, SS_STOW_CLIMBER) {
             //should move to most compact/low position for easy driving
             @Override
             public void update() {
@@ -68,7 +70,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        GENERAL_INTERMEDIATE(3.5, 0.1, 0, 0) {
+        GENERAL_INTERMEDIATE(SS_GENINTERMEDIATE_ELEVATOR, SS_GENINTERMEDIATE_ARM, SS_GENINTERMEDIATE_WRIST, SS_GENINTERMEDIATE_CLIMBER) {
             //moves arm up so that the elevator can extend. keeps wrist at safe angle so that it does not go crash :(
             @Override
             public void update() {
@@ -82,7 +84,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        MID_INTAKE(14.1, 0.1, -0.1, 0) {
+        MID_INTAKE(SS_MIDINTAKE_ELEVATOR, SS_MIDINTAKE_ARM, SS_MIDINTAKE_WRIST, SS_MIDINTAKE_CLIMBER) {
             //arm is up high enough, now move elevator out and wrist down.
             @Override
             public void update() {
@@ -97,7 +99,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        GROUND_INTAKE(14.1, 0.01, -0.1, 0) {
+        GROUND_INTAKE(SS_GROUNDINTAKE_ELEVATOR, SS_GROUNDINTAKE_ARM, SS_GROUNDINTAKE_WRIST, SS_GROUNDINTAKE_CLIMBER) {
             //elevator and wrist are to position, move arm back down
             @Override
             public void update() {
@@ -113,7 +115,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        SOURCE_INTAKE(0, 0, 0, 0) { //TODO
+        SOURCE_INTAKE(SS_SOURCEINTAKE_ELEVATOR, SS_SOURCEINTAKE_ARM, SS_SOURCEINTAKE_WRIST, SS_SOURCEINTAKE_CLIMBER) { //TODO
             @Override
             public void update() {
                 //code and such
@@ -122,7 +124,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        AMP(21.6, 0.16, -0.24, 0) {
+        AMP(SS_AMP_ELEVATOR, SS_AMP_ARM, SS_AMP_WRIST, SS_AMP_CLIMBER) {
             @Override
             public void update() {
                 if(superstructure.goalState == States.GROUND_INTAKE) {
@@ -135,7 +137,7 @@ public class Superstructure extends AbstractSubsystem {
             }
         },
 
-        SPEAKER(10, 0.125, 0, 0) {
+        SPEAKER(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST, SS_SPEAKER_CLIMBER) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
@@ -145,13 +147,13 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        TRAP(0, 0, 0, 0) {
+        TRAP(SS_TRAP_ELEVATOR, SS_TRAP_ARM, SS_TRAP_WRIST, SS_TRAP_CLIMBER) {
             @Override
             public void update() {
                 //code!
             }
         },
-        DEPLOY_CLIMBER_1(0, 0, 0, 0) {
+        DEPLOY_CLIMBER_1(SS_DEPLOYCLIMBER1_ELEVATOR, SS_DEPLOYCLIMBER1_ARM, SS_DEPLOYCLIMBER1_WRIST, SS_DEPLOYCLIMBER1_CLIMBER) {
             @Override
             //should move mechanisms out of the way
             public void update() {
@@ -161,7 +163,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        DEPLOY_CLIMBER_2(0, 0, 0, Constants.CLIMBER_UPPER_LIMIT_ROTATIONS) {
+        DEPLOY_CLIMBER_2(SS_DEPLOYCLIMBER2_ELEVATOR, SS_DEPLOYCLIMBER2_ARM, SS_DEPLOYCLIMBER2_WRIST, SS_DEPLOYCLIMBER2_CLIMBER) {
             @Override
             //should extend climb arm to be on the chain
             public void update() {
@@ -169,14 +171,14 @@ public class Superstructure extends AbstractSubsystem {
                 // climber.disengageRatchet();
             }
         },
-        CLIMB(0, 0, 0, Constants.CLIMBER_HANG_POSITION) {
+        CLIMB(SS_CLIMB_ELEVATOR, SS_CLIMB_ARM, SS_CLIMB_WRIST, SS_CLIMB_CLIMBER) {
             @Override
             //should pull robot up?? maybe??
             public void update() {
                 // climber.engageRatchet();
             }
         },
-        HOMING(0,0.1, 0, 0) {
+        HOMING(SS_HOMING_ELEVATOR,SS_HOMING_ARM, SS_HOMING_WRIST, SS_HOMING_CLIMBER) {
             @Override
             public void update() {
                 try {

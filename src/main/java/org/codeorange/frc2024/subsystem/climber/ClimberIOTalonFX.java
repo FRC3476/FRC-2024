@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Relay;
 import org.codeorange.frc2024.robot.Constants;
 
 import static edu.wpi.first.wpilibj.Relay.Value.*;
-import static org.codeorange.frc2024.robot.Constants.ELEVATOR_STALLING_CURRENT;
+import static org.codeorange.frc2024.robot.Constants.*;
 import static org.codeorange.frc2024.robot.Constants.Ports.WRIST_ENCODER;
 import static org.codeorange.frc2024.robot.Constants.Ports.WRIST_MOTOR;
 
@@ -36,9 +36,9 @@ public class ClimberIOTalonFX implements ClimberIO {
                         .withMotionMagicAcceleration(0)
                         .withMotionMagicJerk(0)
                 ).withSlot0(new Slot0Configs()
-                        .withKP(0)
-                        .withKI(0)
-                        .withKD(0)
+                        .withKP(CLIMBER_P)
+                        .withKI(CLIMBER_I)
+                        .withKD(CLIMBER_D)
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                         .withSensorToMechanismRatio(1) //TODO: what is this ratio??

@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
+import static org.codeorange.frc2024.robot.Constants.*;
 
 public class WristIOTalonFX implements WristIO {
 
@@ -51,9 +52,9 @@ public class WristIOTalonFX implements WristIO {
 
 
         Slot0Configs slot0 = configs.Slot0;
-        slot0.kP = 10;
-        slot0.kI = 0;
-        slot0.kD = 0;
+        slot0.kP = WRIST_P;
+        slot0.kI = WRIST_I;
+        slot0.kD = WRIST_D;
         slot0.kV = 0.5;
         slot0.kS = 0; // Approximately 0.25V to get the mechanism moving
 
