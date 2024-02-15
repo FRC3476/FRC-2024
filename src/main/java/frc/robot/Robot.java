@@ -5,13 +5,16 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.subsystem.AbstractSubsystem;
 import frc.subsystem.drive.*;
-import frc.subsystem.elevator.Elevator;
-import frc.subsystem.elevator.ElevatorIO;
-import frc.subsystem.elevator.ElevatorIOTalonFX;
+import frc.subsystem.prototype.Prototype;
+import frc.subsystem.prototype.PrototypeIO;
+import frc.subsystem.prototype.PrototypeIOFalcon;
 import frc.utility.Controller;
 import frc.utility.Controller.XboxButtons;
 import frc.utility.ControllerDriveInputs;
@@ -60,8 +63,6 @@ public class Robot extends LoggedRobot {
     private final LiveEditableValue<Double> elevatorG = new LiveEditableValue<>(ELEVATOR_G, SmartDashboard.getEntry("Elevator G"));
 
     static Drive drive;
-    static Elevator elevator;
-
     /**
      * This function is run when the robot is first started up and should be used
      * for any initialization code.
@@ -132,7 +133,6 @@ public class Robot extends LoggedRobot {
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
             drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
-            elevator = new Elevator(new ElevatorIOTalonFX());
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -142,9 +142,6 @@ public class Robot extends LoggedRobot {
             } else {
                 Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             }
-
-            drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
-            elevator = new Elevator(new ElevatorIO() {});
         }
         // Initialize auto chooser
         chooser.addDefaultOption("Default Auto", defaultAuto);
@@ -156,7 +153,7 @@ public class Robot extends LoggedRobot {
 
         Logger.start();
         drive.start();
-        elevator.start();
+        shooterFollow.setControl(new Follower(shooterLead.getDeviceID(), true));
     }
 
     /** This function is called periodically during all modes. */
@@ -192,16 +189,39 @@ public class Robot extends LoggedRobot {
     }
 
     /** This function is called periodically during operator control. */
+
+    private final TalonFX intake = new TalonFX(30);
+    private final TalonFX shooterLead = new TalonFX(40);
+    private final TalonFX shooterFollow = new TalonFX(41);
+    private boolean intakeInverted = false;
+    private boolean shooterInverted = false;
     @Override
     public void teleopPeriodic() {
         xbox.update();
 
-        ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        drive.swerveDriveFieldRelative(controllerDriveInputs);
-
-        if (xbox.getRisingEdge(XboxButtons.A)) {
-            elevator.updatePivotPID(pivotP.get(), pivotI.get(), pivotD.get(), pivotG.get());
-            elevator.updateElevatorPID(elevatorP.get(), elevatorI.get(), elevatorD.get(), elevatorG.get());
+        if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
+            intake.setControl(new VoltageOut(6));
+        }
+        if(xbox.getRisingEdge(XboxButtons.LEFT_BUMPER)) {
+            if(!intakeInverted) {
+                intake.setInverted(true);
+                intakeInverted = true;
+            } else {
+                intake.setInverted(false);
+                intakeInverted = false;
+            }
+        }
+        if(xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
+            shooterLead.setControl(new VoltageOut(6));
+        }
+        if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
+            if (!shooterInverted) {
+                shooterLead.setInverted(true);
+                shooterInverted = true;
+            } else {
+                shooterLead.setInverted(false);
+                shooterInverted = false;
+            }
         }
     }
 
