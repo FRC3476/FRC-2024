@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -153,6 +154,10 @@ public class Robot extends LoggedRobot {
 
         Logger.start();
         drive.start();
+        intake.getConfigurator().apply(new TalonFXConfiguration());
+        shooterLead.getConfigurator().apply(new TalonFXConfiguration());
+        shooterFollow.getConfigurator().apply(new TalonFXConfiguration());
+
         shooterFollow.setControl(new Follower(shooterLead.getDeviceID(), true));
     }
 
