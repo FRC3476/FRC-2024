@@ -9,10 +9,12 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
 import frc.subsystem.drive.Drive;
+import frc.subsystem.drive.ModuleIO;
 import frc.utility.LimelightHelpers.LimelightResults;
 import frc.utility.LimelightHelpers.LimelightTarget_Fiducial;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.utility.LimelightHelpers;
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 import static frc.robot.Constants.*;
 
@@ -24,15 +26,24 @@ import java.util.List;
 public class Limelight {
 
     private final String limelightName;
+
+    private final VisionInputsAutoLogged inputs;
     private final Timer lastUpdateStopwatch = new Timer();
     private double previousHeartbeat = -1.0;
     private boolean limelightConnected = true;
 
     private static final double MIN_FIDUCIAL_AREA = 0.115;
 
-    public Limelight(String name) {
+    public Limelight(String name, VisionInputsAutoLogged input) {
         this.limelightName = name;
+        this.inputs = input;
     }
+
+    void updateInputs(LimelightResults results) {
+        inputs.fps = 1000/results.targetingResults.latency_pipeline;
+    }
+
+
     public void update() {
         // Code adapted from 1323 Madtown LimelightProcessor class https://github.com/MrThru/2023ChargedUp/
         double timestamp = Logger.getRealTimestamp();
@@ -49,6 +60,7 @@ public class Limelight {
                 handleFiducialTargets(results, timestamp);
                 //handleRetroTargets(results, timestamp);
                 //handleDetectorTargets(results, timestamp);
+
             }
 
             previousHeartbeat = currentHeartbeat;
@@ -80,9 +92,11 @@ public class Limelight {
         } else {
             // Find the closest tag and get the localization calculated from it
             Comparator<LimelightTarget_Fiducial> areaComparator = (f1, f2) -> Double.compare(f1.ta, f2.ta);
-            LimelightTarget_Fiducial largestFiducial = Collections.max(fiducials, areaComparator);
+            LimelightHelpers.LimelightTarget_Fiducial largestFiducial = Collections.max(fiducials, areaComparator);
             robotPoseInLimelightCoordinates = largestFiducial.getRobotPose_FieldSpace2D();
             cameraPose = LimelightHelpers.getCameraPose3d_TargetSpace(limelightName);
+            double id = largestFiducial.fiducialID;
+            Logger.recordOutput("TrustedTagID",id);
         }
 
         // TODO: Find out how often this happens that we get empty coordinates back from the Limelight
@@ -99,7 +113,7 @@ public class Limelight {
             return;
         }
 
-        double cameraDistanceInches = cameraPose.getTranslation().getNorm();
+        double cameraDistanceMeters = cameraPose.getTranslation().getNorm();
         Robot.getDrive().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results));
     }
 }
