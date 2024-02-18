@@ -4,23 +4,18 @@ import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import org.codeorange.frc2024.auto.actions.*;
 import org.codeorange.frc2024.robot.Robot;
-import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.subsystem.drive.Drive;
 
-import java.util.List;
-
-public class Mid_ThreeFrontNotes extends BaseRoutine {
+public class A04_Source_PreloadTwoFront extends BaseRoutine {
     private final Drive drive;
 
     final ChoreoTrajectory driveToFirstNote;
     final ChoreoTrajectory driveToSecondNote;
-    final ChoreoTrajectory driveToThirdNote;
 
 
-    public Mid_ThreeFrontNotes() {
-        driveToFirstNote = Choreo.getTrajectory("Mid_ThreeFrontNotes.1");
-        driveToSecondNote = Choreo.getTrajectory("Mid_ThreeFrontNotes.2");
-        driveToThirdNote = Choreo.getTrajectory("Mid_ThreeFrontNotes.3");
+    public A04_Source_PreloadTwoFront() {
+        driveToFirstNote = Choreo.getTrajectory("Source_PreloadTwoFront.1");
+        driveToSecondNote = Choreo.getTrajectory("Source_PreloadTwoFront.2");
         drive = Robot.getDrive();
     }
     @Override
@@ -37,11 +32,8 @@ public class Mid_ThreeFrontNotes extends BaseRoutine {
                         new DrivePath(driveToSecondNote),
                         new GroundIntake()
                 ),
-                new Shoot(),
-                new ParallelAction(
-                        new DrivePath(driveToThirdNote),
-                        new GroundIntake()
-                ))
+                new Shoot()
+                )
         );
     }
 }
