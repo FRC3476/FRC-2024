@@ -56,6 +56,7 @@ public class Robot extends LoggedRobot {
     private Controller buttonPanel;
     public final LoggedDashboardChooser<Integer> autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
+    public static final LoggedDashboardChooser<String> startingPositionChooser = new LoggedDashboardChooser<>("Starting Position Chooser");
 
     private static PowerDistribution powerDistribution;
 
@@ -176,9 +177,28 @@ public class Robot extends LoggedRobot {
         }
         // Initialize auto chooser
         autoChooser.addDefaultOption("Do Nothing", 0);
-        autoChooser.addOption("Test", 1);
+        autoChooser.addOption("Cross Line", 1);
+        autoChooser.addOption("Preload", 2);
+        autoChooser.addOption("Preload + Cross Line", 3);
+        autoChooser.addOption("Preload + Two Front", 4);
+        autoChooser.addOption("Preload + Three Front", 5);
+        autoChooser.addOption("Preload + Three Front + One Center", 6);
+        autoChooser.addOption("Preload + Three Front + Two Center", 7);
+        autoChooser.addOption("Preload + Three Front + Three Center", 8);
+        autoChooser.addOption("Preload + One Center + Three Front", 9);
+        autoChooser.addOption("Preload + Two Center + Three Front", 10);
+        autoChooser.addOption("Preload + Three Center + Three Front", 11);
+        autoChooser.addOption("Preload + Two Center", 12);
+        autoChooser.addOption("Preload + Three Center", 13);
+        autoChooser.addOption("Preload + Four Center", 14);
+        autoChooser.addOption("Test", 100);
+
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
+
+        startingPositionChooser.addDefaultOption("Mid", "mid");
+        startingPositionChooser.addOption("Amp", "amp");
+        startingPositionChooser.addOption("Source", "source");
 
         xbox = new Controller(0);
         logitechThing = new Controller(1);
@@ -219,7 +239,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        AutoManager.getInstance().loadAuto(autoChooser.get());
+        AutoManager.getInstance().loadAuto(autoChooser.get(), startingPositionChooser.get());
         AutoManager.getInstance().startAuto();
     }
 

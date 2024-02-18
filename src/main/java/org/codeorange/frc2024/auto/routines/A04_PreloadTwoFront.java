@@ -6,16 +6,16 @@ import org.codeorange.frc2024.auto.actions.*;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.drive.Drive;
 
-public class A04_Source_PreloadTwoFront extends BaseRoutine {
+public class A04_PreloadTwoFront extends BaseRoutine {
     private final Drive drive;
 
     final ChoreoTrajectory driveToFirstNote;
     final ChoreoTrajectory driveToSecondNote;
 
 
-    public A04_Source_PreloadTwoFront() {
-        driveToFirstNote = Choreo.getTrajectory("Source_PreloadTwoFront.1");
-        driveToSecondNote = Choreo.getTrajectory("Source_PreloadTwoFront.2");
+    public A04_PreloadTwoFront(String startingPos) {
+        driveToFirstNote = Choreo.getTrajectory("A04_" + startingPos + "_PreloadTwoFront.1");
+        driveToSecondNote = Choreo.getTrajectory("A04_" + startingPos + "_PreloadTwoFront.2");
         drive = Robot.getDrive();
     }
     @Override
