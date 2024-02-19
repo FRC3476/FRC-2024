@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -45,6 +46,8 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.Slot0.kD = SHOOTER_D;
         config.Slot0.kS = 0;
         config.Slot0.kV = 0;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         leader.getConfigurator().apply(config);
         follower.getConfigurator().apply(config);
 

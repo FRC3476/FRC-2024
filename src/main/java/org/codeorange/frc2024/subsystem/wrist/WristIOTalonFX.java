@@ -42,8 +42,8 @@ public class WristIOTalonFX implements WristIO {
         wristFeedBackConfigs.FeedbackRemoteSensorID = absoluteEncoder.getDeviceID();
         wristFeedBackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         //ask amber about below
-        wristFeedBackConfigs.SensorToMechanismRatio = 1.0;
-        wristFeedBackConfigs.RotorToSensorRatio = 81.0;
+        wristFeedBackConfigs.SensorToMechanismRatio = WRIST_STM;
+        wristFeedBackConfigs.RotorToSensorRatio = WRIST_RTS;
 
         MotionMagicConfigs wristMotionMagicConfig = configs.MotionMagic;
         wristMotionMagicConfig.MotionMagicCruiseVelocity = 1;
