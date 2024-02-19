@@ -249,9 +249,9 @@ public class Robot extends LoggedRobot {
             arm.runVoltage(0);
         }
 
-        if(logitechThing.getRawAxis(0) > 0.5) {
+        if(logitechThing.getRawAxis(1) > 0.5) {
             elevator.runVoltage(4);
-        } else if(logitechThing.getRawAxis(0) < -0.5) {
+        } else if(logitechThing.getRawAxis(1) < -0.5) {
             elevator.runVoltage(-4);
         } else {
             elevator.runVoltage(0);
