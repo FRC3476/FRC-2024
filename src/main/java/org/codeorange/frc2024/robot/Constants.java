@@ -92,29 +92,11 @@ public final class Constants {
 
         public static final int INTAKE_MOTOR_ID = 31;
         public static final int CLIMBER = 36;
-        public static final int CLIMBER_RELAY = 37;
 
         public static final int INTAKE_BEAM_BREAK = 1;
     }
 
     public static final int CLIMBER_PWM_RELAY_CHANNEL = 1; //TODO: get real channel #
-    //TODO: figure out actual values for below
-    public enum ElevatorPosition {
-        BOTTOM("bottom", 0),
-        STOW("stow", 1),
-        INTAKE("intake", 14.1),
-        SPEAKER("speaker", 3),
-        AMP("amp", 4),
-        TRAP("trap", 5),
-        TOP("top", 6);
-
-        public final String positionName;
-        public final double positionLocationInches;
-        ElevatorPosition(String positionName, double positionLocationInches) {
-            this.positionName = positionName;
-            this.positionLocationInches = positionLocationInches;
-        }
-    }
 
     public static final double ELEVATOR_LOWER_LIMIT_INCHES = 0;
     public static final double ELEVATOR_UPPER_LIMIT_INCHES = 20;
@@ -182,10 +164,6 @@ public final class Constants {
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
-
-
-
-
     public static final double SWERVE_DRIVE_P = isPrototype() ? 100 : 0;
     public static final double SWERVE_DRIVE_D = isPrototype() ? 0.05 : 0;
     public static final double SWERVE_DRIVE_I = isPrototype() ? 0 : 0;
@@ -203,7 +181,6 @@ public final class Constants {
     public static final double ELEVATOR_P = isPrototype() ? 1 : 0;
     public static final double ELEVATOR_INCHES_PER_ROTATION = isPrototype() ? 0.25*22*12/60 : 30*2 * 8.0 / 72.0 / 25.4; //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
 
-
     public static final double CLIMBER_P = isPrototype() ? 0 : 0;
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
     public static final double CLIMBER_D = isPrototype() ? 0 : 0;
@@ -218,8 +195,6 @@ public final class Constants {
     public static final double WRIST_D = isPrototype() ? 0 : 0;
     public static final double WRIST_RTS = isPrototype() ? 81.0 : 25.0;
     public static final double WRIST_STM = isPrototype() ? 1.0 : 5.0;
-
-
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 20;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
