@@ -13,16 +13,11 @@ public interface ArmIO {
         double leadTemp = 0.0;
         double leadVoltage = 0.0;
 
-//        double followPosition = 0.0;
-//        double followAbsolutePosition = 0.0;
-//        double followVelocity = 0.0;
-//        double followCurrent = 0.0;
-//        double followTemp = 0.0;
-//        double followVoltage = 0.0;
-//        double followAppliedOutput = 0.0;
-//        double followBusVoltage = 0.0;
-//        boolean isLimitSwitchTriggered = false;
-
+        double followPosition = 0.0;
+        double followVelocity = 0.0;
+        double followCurrent = 0.0;
+        double followTemp = 0.0;
+        double followVoltage = 0.0;
     }
 
     default void updateInputs(ArmInputs inputs) {}
