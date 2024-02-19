@@ -1,18 +1,15 @@
-//LimelightHelpers v1.2.1 (March 1, 2023)
-
 package org.codeorange.frc2024.utility;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -20,6 +17,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+/**
+ * A utility class for interfacing with the Limelight NetworkTables API.
+ *
+ * @author Limelight
+ */
 public class LimelightHelpers {
 
     public static class LimelightTarget_Retro {
@@ -31,7 +40,7 @@ public class LimelightHelpers {
         private double[] robotPose_FieldSpace;
 
         @JsonProperty("t6r_ts")
-        private double[] robotPose_TargetSpace;
+        private  double[] robotPose_TargetSpace;
 
         @JsonProperty("t6t_cs")
         private double[] targetPose_CameraSpace;
@@ -39,43 +48,45 @@ public class LimelightHelpers {
         @JsonProperty("t6t_rs")
         private double[] targetPose_RobotSpace;
 
-        public Pose3d getCameraPose_TargetSpace() {
+        public Pose3d getCameraPose_TargetSpace()
+        {
             return toPose3D(cameraPose_TargetSpace);
         }
-
-        public Pose3d getRobotPose_FieldSpace() {
+        public Pose3d getRobotPose_FieldSpace()
+        {
             return toPose3D(robotPose_FieldSpace);
         }
-
-        public Pose3d getRobotPose_TargetSpace() {
+        public Pose3d getRobotPose_TargetSpace()
+        {
             return toPose3D(robotPose_TargetSpace);
         }
-
-        public Pose3d getTargetPose_CameraSpace() {
+        public Pose3d getTargetPose_CameraSpace()
+        {
             return toPose3D(targetPose_CameraSpace);
         }
-
-        public Pose3d getTargetPose_RobotSpace() {
+        public Pose3d getTargetPose_RobotSpace()
+        {
             return toPose3D(targetPose_RobotSpace);
         }
 
-        public Pose2d getCameraPose_TargetSpace2D() {
+        public Pose2d getCameraPose_TargetSpace2D()
+        {
             return toPose2D(cameraPose_TargetSpace);
         }
-
-        public Pose2d getRobotPose_FieldSpace2D() {
+        public Pose2d getRobotPose_FieldSpace2D()
+        {
             return toPose2D(robotPose_FieldSpace);
         }
-
-        public Pose2d getRobotPose_TargetSpace2D() {
+        public Pose2d getRobotPose_TargetSpace2D()
+        {
             return toPose2D(robotPose_TargetSpace);
         }
-
-        public Pose2d getTargetPose_CameraSpace2D() {
+        public Pose2d getTargetPose_CameraSpace2D()
+        {
             return toPose2D(targetPose_CameraSpace);
         }
-
-        public Pose2d getTargetPose_RobotSpace2D() {
+        public Pose2d getTargetPose_RobotSpace2D()
+        {
             return toPose2D(targetPose_RobotSpace);
         }
 
@@ -104,6 +115,7 @@ public class LimelightHelpers {
             targetPose_CameraSpace = new double[6];
             targetPose_RobotSpace = new double[6];
         }
+
     }
 
     public static class LimelightTarget_Fiducial {
@@ -129,43 +141,45 @@ public class LimelightHelpers {
         @JsonProperty("t6t_rs")
         private double[] targetPose_RobotSpace;
 
-        public Pose3d getCameraPose_TargetSpace() {
+        public Pose3d getCameraPose_TargetSpace()
+        {
             return toPose3D(cameraPose_TargetSpace);
         }
-
-        public Pose3d getRobotPose_FieldSpace() {
+        public Pose3d getRobotPose_FieldSpace()
+        {
             return toPose3D(robotPose_FieldSpace);
         }
-
-        public Pose3d getRobotPose_TargetSpace() {
+        public Pose3d getRobotPose_TargetSpace()
+        {
             return toPose3D(robotPose_TargetSpace);
         }
-
-        public Pose3d getTargetPose_CameraSpace() {
+        public Pose3d getTargetPose_CameraSpace()
+        {
             return toPose3D(targetPose_CameraSpace);
         }
-
-        public Pose3d getTargetPose_RobotSpace() {
+        public Pose3d getTargetPose_RobotSpace()
+        {
             return toPose3D(targetPose_RobotSpace);
         }
 
-        public Pose2d getCameraPose_TargetSpace2D() {
+        public Pose2d getCameraPose_TargetSpace2D()
+        {
             return toPose2D(cameraPose_TargetSpace);
         }
-
-        public Pose2d getRobotPose_FieldSpace2D() {
+        public Pose2d getRobotPose_FieldSpace2D()
+        {
             return toPose2D(robotPose_FieldSpace);
         }
-
-        public Pose2d getRobotPose_TargetSpace2D() {
+        public Pose2d getRobotPose_TargetSpace2D()
+        {
             return toPose2D(robotPose_TargetSpace);
         }
-
-        public Pose2d getTargetPose_CameraSpace2D() {
+        public Pose2d getTargetPose_CameraSpace2D()
+        {
             return toPose2D(targetPose_CameraSpace);
         }
-
-        public Pose2d getTargetPose_RobotSpace2D() {
+        public Pose2d getTargetPose_RobotSpace2D()
+        {
             return toPose2D(targetPose_RobotSpace);
         }
 
@@ -226,7 +240,7 @@ public class LimelightHelpers {
         @JsonProperty("typ")
         public double ty_pixels;
 
-        public LimelightTarget_Classifier() {
+        public  LimelightTarget_Classifier() {
         }
     }
 
@@ -344,6 +358,7 @@ public class LimelightHelpers {
             targets_Classifier = new LimelightTarget_Classifier[0];
             targets_Detector = new LimelightTarget_Detector[0];
             targets_Barcode = new LimelightTarget_Barcode[0];
+
         }
     }
 
@@ -370,8 +385,9 @@ public class LimelightHelpers {
         return name;
     }
 
-    public static Pose3d toPose3D(double[] inData) {
-        if (inData.length < 6) {
+    private static Pose3d toPose3D(double[] inData){
+        if(inData.length < 6)
+        {
             System.err.println("Bad LL 3D Pose Data!");
             return new Pose3d();
         }
@@ -381,8 +397,9 @@ public class LimelightHelpers {
                         Units.degreesToRadians(inData[5])));
     }
 
-    private static Pose2d toPose2D(double[] inData) {
-        if (inData.length < 6) {
+    private static Pose2d toPose2D(double[] inData){
+        if(inData.length < 6)
+        {
             System.err.println("Bad LL 2D Pose Data!");
             return new Pose2d();
         }
@@ -464,6 +481,7 @@ public class LimelightHelpers {
     /**
      * Switch to getBotPose
      *
+     * @param limelightName
      * @return
      */
     @Deprecated
@@ -474,6 +492,7 @@ public class LimelightHelpers {
     /**
      * Switch to getBotPose_wpiRed
      *
+     * @param limelightName
      * @return
      */
     @Deprecated
@@ -484,6 +503,7 @@ public class LimelightHelpers {
     /**
      * Switch to getBotPose_wpiBlue
      *
+     * @param limelightName
      * @return
      */
     @Deprecated
@@ -575,8 +595,10 @@ public class LimelightHelpers {
     }
 
     /**
-     * Gets the Pose2d for easy use with Odometry vision pose estimator (addVisionMeasurement)
+     * Gets the Pose2d for easy use with Odometry vision pose estimator
+     * (addVisionMeasurement)
      *
+     * @param limelightName
      * @return
      */
     public static Pose2d getBotPose2d_wpiBlue(String limelightName) {
@@ -586,25 +608,31 @@ public class LimelightHelpers {
     }
 
     /**
-     * Gets the Pose2d for easy use with Odometry vision pose estimator (addVisionMeasurement)
+     * Gets the Pose2d for easy use with Odometry vision pose estimator
+     * (addVisionMeasurement)
      *
+     * @param limelightName
      * @return
      */
     public static Pose2d getBotPose2d_wpiRed(String limelightName) {
 
         double[] result = getBotPose_wpiRed(limelightName);
         return toPose2D(result);
+
     }
 
     /**
-     * Gets the Pose2d for easy use with Odometry vision pose estimator (addVisionMeasurement)
+     * Gets the Pose2d for easy use with Odometry vision pose estimator
+     * (addVisionMeasurement)
      *
+     * @param limelightName
      * @return
      */
     public static Pose2d getBotPose2d(String limelightName) {
 
         double[] result = getBotPose(limelightName);
         return toPose2D(result);
+
     }
 
     public static boolean getTV(String limelightName) {
@@ -619,7 +647,8 @@ public class LimelightHelpers {
     }
 
     /**
-     * The LEDs will be controlled by Limelight pipeline settings, and not by robot code.
+     * The LEDs will be controlled by Limelight pipeline settings, and not by robot
+     * code.
      */
     public static void setLEDMode_PipelineControl(String limelightName) {
         setLimelightNTDouble(limelightName, "ledMode", 0);
@@ -652,14 +681,14 @@ public class LimelightHelpers {
     public static void setCameraMode_Processor(String limelightName) {
         setLimelightNTDouble(limelightName, "camMode", 0);
     }
-
     public static void setCameraMode_Driver(String limelightName) {
         setLimelightNTDouble(limelightName, "camMode", 1);
     }
 
 
     /**
-     * Sets the crop window. The crop window in the UI must be completely open for dynamic cropping to work.
+     * Sets the crop window. The crop window in the UI must be completely open for
+     * dynamic cropping to work.
      */
     public static void setCropWindow(String limelightName, double cropXMin, double cropXMax, double cropYMin, double cropYMax) {
         double[] entries = new double[4];
@@ -670,8 +699,7 @@ public class LimelightHelpers {
         setLimelightNTDoubleArray(limelightName, "crop", entries);
     }
 
-    public static void setCameraPose_RobotSpace(String limelightName, double forward, double side, double up, double roll,
-                                                double pitch, double yaw) {
+    public static void setCameraPose_RobotSpace(String limelightName, double forward, double side, double up, double roll, double pitch, double yaw) {
         double[] entries = new double[6];
         entries[0] = forward;
         entries[1] = side;

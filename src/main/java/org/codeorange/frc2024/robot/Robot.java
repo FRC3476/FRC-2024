@@ -6,6 +6,7 @@
 package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.auto.AutoManager;
@@ -177,6 +178,7 @@ public class Robot extends LoggedRobot {
         // Initialize auto chooser
         autoChooser.addDefaultOption("Do Nothing", 0);
         autoChooser.addOption("Test", 1);
+        autoChooser.addOption("FigEight", 100);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 
@@ -204,9 +206,9 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
+        AbstractSubsystem.tick();
         xbox.update();
         buttonPanel.update();
-        AbstractSubsystem.tick();
         if(buttonPanel.getRisingEdge(10)) {
             elevator.zeroEncoder();
             arm.resetPosition();
@@ -232,6 +234,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         drive.setBrakeMode(true);
+        AutoManager.getInstance().endAuto();
     }
 
     /** This function is called periodically during operator control. */
@@ -255,12 +258,15 @@ public class Robot extends LoggedRobot {
         if(buttonPanel.getRisingEdge(12)) {
             superstructure.setWantedShooterPosition(-0.3);
         }
+        if(buttonPanel.getRisingEdge(9)) {
+            drive.resetOdometry(vision.frontCamera.estimatedBotPose);
+        }
 
         if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
-            shooter.shoot();
-        } else {
-            shooter.stop();
             intake.stop();
+        }
+        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
+            intake.runIntake();
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
@@ -270,6 +276,8 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
+        drive.setBrakeMode(true);
+        drive.setNextChassisSpeeds(new ChassisSpeeds());
     }
 
     /** This function is called periodically when disabled. */
@@ -299,10 +307,10 @@ public class Robot extends LoggedRobot {
 
         if (isRed) {
             // Flip the x-axis for red
-            inputs = new ControllerDriveInputs(xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
+            inputs = new ControllerDriveInputs(-xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), -xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
                     xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
         } else {
-            inputs = new ControllerDriveInputs(-xbox.getRawAxis(1), -xbox.getRawAxis(0), xbox.getRawAxis(4));
+            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
         }
 
         if (xbox.getRawButton(Controller.XboxButtons.X)) {

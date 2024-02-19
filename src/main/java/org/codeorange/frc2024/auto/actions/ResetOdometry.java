@@ -11,10 +11,15 @@ public class ResetOdometry implements BaseAction {
 
     public ResetOdometry(ChoreoTrajectoryState state) {
         drive = Robot.getDrive();
-        this.state = state;
+        this.state = Robot.isRed() ? state.flipped() : state;
     }
     @Override
     public void start() {
         drive.resetOdometry(state.getPose());
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
     }
 }

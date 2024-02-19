@@ -1,13 +1,14 @@
 package org.codeorange.frc2024.auto.actions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ParallelAction implements BaseAction {
-    private final List<BaseAction> actions;
+    private final ArrayList<BaseAction> actions;
 
     public ParallelAction(List<BaseAction> actions) {
-        this.actions = actions;
+        this.actions = new ArrayList<>(actions);
     }
 
     public ParallelAction(BaseAction... actions) {

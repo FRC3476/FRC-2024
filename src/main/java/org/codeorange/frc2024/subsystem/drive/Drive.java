@@ -80,6 +80,9 @@ public class Drive extends AbstractSubsystem {
     public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp) {
         poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp);
     }
+    public void updateVisionStDev(double translationStds, double rotationStds) {
+        poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(translationStds, translationStds, rotationStds));
+    }
 
     double lastTimeStep;
 
@@ -111,7 +114,7 @@ public class Drive extends AbstractSubsystem {
 
         poseEstimator.updateWithTime(
                 Logger.getRealTimestamp() * 1e-6,
-                gyroInputs.rotation3d,
+                gyroInputs.rotation2d,
                 getModulePositions()
         );
         lastTimeStep = Logger.getRealTimestamp() * 1e-6;
@@ -139,6 +142,7 @@ public class Drive extends AbstractSubsystem {
         return moduleInputs[motorNum].driveMotorVelocity;
     }
 
+    @AutoLogOutput(key = "Drive/Wheel Rotations")
     public double getWheelRotation(int moduleNumber) {
         if (USE_RELATIVE_ENCODER_POSITION) {
             double relPos = moduleInputs[moduleNumber].steerMotorRelativePosition % 360;
@@ -229,7 +233,7 @@ public class Drive extends AbstractSubsystem {
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Relative Angle",
                     moduleInputs[i].steerMotorRelativePosition + angleDiff);
 
-            realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
+            realStates[i] = new SwerveModuleState(Units.inchesToMeters(moduleInputs[i].driveMotorVelocity), Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
         }
         Logger.recordOutput("Drive/Wanted States", wantedStates);
         Logger.recordOutput("Drive/Real States", realStates);
@@ -337,15 +341,11 @@ public class Drive extends AbstractSubsystem {
     public void resetOdometry(Pose2d pose) {
         poseEstimator.resetPosition(
                 gyroInputs.rotation2d,
-                new SwerveModulePosition[] {
-                        new SwerveModulePosition(getDrivePosition(0), Rotation2d.fromDegrees(getWheelRotation(0))),
-                        new SwerveModulePosition(getDrivePosition(1), Rotation2d.fromDegrees(getWheelRotation(1))),
-                        new SwerveModulePosition(getDrivePosition(2), Rotation2d.fromDegrees(getWheelRotation(2))),
-                        new SwerveModulePosition(getDrivePosition(3), Rotation2d.fromDegrees(getWheelRotation(3)))
-                },
+                getModulePositions(),
                 pose
         );
         resetGyro(pose.getRotation().getDegrees());
+        System.out.println("resetting odometry");
     }
 
     public void resetGyro(double yawPositionRot) {
@@ -358,7 +358,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     public void setNextChassisSpeeds(ChassisSpeeds nextChassisSpeeds) {
-        this.nextChassisSpeeds = nextChassisSpeeds;
+        this.nextChassisSpeeds = new ChassisSpeeds(nextChassisSpeeds.vxMetersPerSecond, nextChassisSpeeds.vyMetersPerSecond, -nextChassisSpeeds.omegaRadiansPerSecond);
     }
 }
 

@@ -8,6 +8,7 @@ public class AutoManager {
     private BaseRoutine selectedRoutine;
 
     private static AutoManager instance = new AutoManager();
+    private Thread thread;
 
     public static AutoManager getInstance() {
         return instance;
@@ -20,9 +21,15 @@ public class AutoManager {
             case 0 -> selectedRoutine = new DoNothing();
             case 1 -> selectedRoutine = new TestRoutine();
         }
+        System.out.println("Selected routine " + selectedRoutine.getClass().getName());
+        thread = new Thread(() -> selectedRoutine.run());
     }
 
     public void startAuto() {
-        selectedRoutine.run();
+        thread.start();
+    }
+
+    public void endAuto() {
+        thread.stop();
     }
 }

@@ -1,15 +1,18 @@
 package org.codeorange.frc2024.auto.actions;
 
+import org.littletonrobotics.junction.Logger;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 // useful as a member of ParallelAction
 public class SeriesAction implements BaseAction {
     private BaseAction currentAction;
-    private final List<BaseAction> actions;
+    private final ArrayList<BaseAction> actions;
 
     public SeriesAction(List<BaseAction> actions) {
-        this.actions = actions;
+        this.actions = new ArrayList<>(actions);
         currentAction = null;
     }
 

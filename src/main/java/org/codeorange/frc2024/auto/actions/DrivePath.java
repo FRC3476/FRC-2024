@@ -16,7 +16,7 @@ public class DrivePath implements BaseAction {
     private final Timer pathTimer = new Timer();
 
     public DrivePath(ChoreoTrajectory trajectory) {
-        this.trajectory = trajectory;
+        this.trajectory = Robot.isRed() ? trajectory.flipped() : trajectory;
     }
 
     @Override
@@ -29,19 +29,20 @@ public class DrivePath implements BaseAction {
 
     private final PIDController xController = new PIDController(1, 0, 0);
     private final PIDController yController = new PIDController(1, 0, 0);
-    private final PIDController thetaController = new PIDController(1, 0, 0);
+    private final PIDController thetaController = new PIDController(0.1, 0, 0);
     private final ChoreoControlFunction choreoController = Choreo.choreoSwerveController(xController, yController, thetaController);
     private ChoreoTrajectoryState state;
     @Override
     public void update() {
-        state = trajectory.sample(pathTimer.get(), Robot.isRed());
+        state = trajectory.sample(pathTimer.get());
+        System.out.println(pathTimer.get() + "/" + trajectory.getTotalTime());
 
         drive.setNextChassisSpeeds(choreoController.apply(drive.getPose(), state));
     }
 
     @Override
     public boolean isFinished() {
-        return pathTimer.hasElapsed(trajectory.getTotalTime());
+        return pathTimer.hasElapsed(trajectory.getTotalTime() + 1);
     }
 
     @Override

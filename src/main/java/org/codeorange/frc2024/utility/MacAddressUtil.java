@@ -14,7 +14,7 @@ import java.util.Enumeration;
  */
 public class MacAddressUtil {
     public static final byte[] PROTOTYPE_BOT = new byte[]{
-            (byte) 0x00, (byte) 0x80, (byte) 0x2f, (byte) 0x19, (byte) 0x21, (byte) 0xd9
+            (byte) 0x00, (byte) 0x80, (byte) 0x2f, (byte) 0x34, (byte) 0x8f, (byte) 0xa7
     };
     public static final byte[] PRACTICE_BOT = new byte[]{
             (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00

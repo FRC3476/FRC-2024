@@ -22,18 +22,11 @@ public class TestRoutine extends BaseRoutine {
     }
     @Override
     protected void routine() {
-        runAction(new ResetOdometry(driveToFirstNote.sample(0, Robot.isRed())));
+        runAction(new ResetOdometry(driveToFirstNote.getInitialState()));
         runAction(new SeriesAction(
-                new Shoot(),
-                new ParallelAction(
-                        new DrivePath(driveToFirstNote),
-                        new GroundIntake()
-                ),
-                new Shoot(),
-                new ParallelAction(
-                        new DrivePath(driveToCenter),
-                        new GroundIntake()
-                ))
-        );
+                new DrivePath(driveToFirstNote),
+                new Wait(1),
+                new DrivePath(driveToCenter)
+        ));
     }
 }
