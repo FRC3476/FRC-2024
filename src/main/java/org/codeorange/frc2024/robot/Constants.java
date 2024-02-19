@@ -116,7 +116,6 @@ public final class Constants {
         }
     }
 
-    public static final double ELEVATOR_INCHES_PER_ROTATION = 0.25*22*12/60; //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
     public static final double ELEVATOR_LOWER_LIMIT_INCHES = 0;
     public static final double ELEVATOR_UPPER_LIMIT_INCHES = 20;
     public static final double CLIMBER_LOWER_LIMIT_ROTATIONS = 0;
@@ -198,8 +197,12 @@ public final class Constants {
     public static final double ARM_P = isPrototype() ? 100 : 0;
     public static final double ARM_I = isPrototype() ? 0 : 0;
     public static final double ARM_D = isPrototype() ? 5 : 0;
+    public static final double ARM_RTS = isPrototype() ? 144.0 : 60.0 * 3;
+    public static final double ARM_STM = isPrototype() ? 1.0 : 3.0;
 
     public static final double ELEVATOR_P = isPrototype() ? 1 : 0;
+    public static final double ELEVATOR_INCHES_PER_ROTATION = isPrototype() ? 0.25*22*12/60 : 30*2 * 8.0 / 72.0 / 25.4; //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
+
 
     public static final double CLIMBER_P = isPrototype() ? 0 : 0;
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
@@ -208,9 +211,14 @@ public final class Constants {
     public static final double SHOOTER_P = isPrototype() ? 2 : 0;
     public static final double SHOOTER_I = isPrototype() ? 0 : 0;
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
+    public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
+
     public static final double WRIST_P = isPrototype() ? 10 : 0;
     public static final double WRIST_I = isPrototype() ? 0 : 0;
     public static final double WRIST_D = isPrototype() ? 0 : 0;
+    public static final double WRIST_RTS = isPrototype() ? 81.0 : 25.0;
+    public static final double WRIST_STM = isPrototype() ? 1.0 : 5.0;
+
 
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 20;

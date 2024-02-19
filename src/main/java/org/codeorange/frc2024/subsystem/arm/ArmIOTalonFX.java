@@ -50,8 +50,8 @@ public class ArmIOTalonFX implements ArmIO {
         var armFeedBackConfigs = talonFXConfigs.Feedback;
         armFeedBackConfigs.FeedbackRemoteSensorID = absoluteEncoder.getDeviceID();
         armFeedBackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        armFeedBackConfigs.SensorToMechanismRatio = 1.0;
-        armFeedBackConfigs.RotorToSensorRatio = 144.0;
+        armFeedBackConfigs.SensorToMechanismRatio = ARM_STM;
+        armFeedBackConfigs.RotorToSensorRatio = ARM_RTS;
 
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
         armMotionMagicConfig.MotionMagicCruiseVelocity = 0.2;
