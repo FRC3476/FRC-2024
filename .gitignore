@@ -328,6 +328,6 @@ bin/
 
 # End entries from WPI Lib team
 
-src/main/java/frc/robot/BuildConstants.java
+src/main/java/org/codeorange/frc2024/robot/BuildConstants.java
 
 ctre_sim/
