@@ -93,7 +93,7 @@ public class ArmIOTalonFX implements ArmIO {
             assert followTalonFX != null;
 
             followTalonFX.getConfigurator().apply(talonFXConfigs);
-            followTalonFX.setControl(new Follower(leadTalonFX.getDeviceID(), true));
+            followTalonFX.setControl(new Follower(leadTalonFX.getDeviceID(), false));
             followTalonFX.setNeutralMode(NeutralModeValue.Brake);
 
             followPosition = followTalonFX.getPosition();
