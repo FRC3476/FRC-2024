@@ -162,3 +162,8 @@ idea {
         excludeDirs+=file(".vscode" )
     }
 }
+
+test {
+    useJUnitPlatform()
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+}
