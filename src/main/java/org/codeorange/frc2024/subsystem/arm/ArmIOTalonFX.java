@@ -19,7 +19,7 @@ import static org.codeorange.frc2024.robot.Constants.Ports.*;
 public class ArmIOTalonFX implements ArmIO {
 
     private final TalonFX leadTalonFX;
-//    private final TalonFX followTalonFX;
+    private final TalonFX followTalonFX;
     private final CANcoder absoluteEncoder;
 
 
@@ -29,20 +29,23 @@ public class ArmIOTalonFX implements ArmIO {
     private final StatusSignal<Double> leadCurrent;
     private final StatusSignal<Double> leadTemp;
     private final StatusSignal<Double> leadVoltage;
-//    private final StatusSignal<Double> followVelocity;
-//    private final StatusSignal<Double> followPosition;
-//    private final StatusSignal<Double> followTemp;
-//    private final StatusSignal<Double> followVoltage;
-//    private final StatusSignal<Double> followBusVoltage;
-//    private final StatusSignal<Double> followCurrent;
+    private final StatusSignal<Double> followVelocity;
+    private final StatusSignal<Double> followPosition;
+    private final StatusSignal<Double> followTemp;
+    private final StatusSignal<Double> followVoltage;
+    private final StatusSignal<Double> followCurrent;
     private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
 
 
 
     public ArmIOTalonFX() {
 
-        leadTalonFX = new TalonFX(ARM_LEAD);//second parameter=Canbus
-        //followTalonFX = new TalonFX(FOLLOW_CAN_ID);
+        leadTalonFX = new TalonFX(ARM_LEAD);
+        if(!isPrototype()) {
+            followTalonFX = new TalonFX(ARM_FOLLOW);
+        } else {
+            followTalonFX = null;
+        }
         absoluteEncoder = new CANcoder(ARM_CANCODER);
 
         var talonFXConfigs = new TalonFXConfiguration();
@@ -68,8 +71,7 @@ public class ArmIOTalonFX implements ArmIO {
         slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         leadTalonFX.getConfigurator().apply(talonFXConfigs);
-//        followTalonFX.getConfigurator().apply(cfg);
-//        followTalonFX.setControl(new Follower(leadTalonFX.getDeviceID(), false));
+
 
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
@@ -80,15 +82,6 @@ public class ArmIOTalonFX implements ArmIO {
         );
 
 
-        var followCurrentLimitsConfigs = talonFXConfigs.CurrentLimits;
-//        followTalonFX.clearStickyFault_SupplyCurrLimit(Constants.ARM_SMART_CURRENT_LIMIT);
-        var closed = talonFXConfigs.ClosedLoopRamps;
-        closed.VoltageClosedLoopRampPeriod = 0.75;
-
-//        followTalonFX.getConfigurator().apply(closed);
-//        followTalonFX.setNeutralMode(NeutralModeValue.Brake);
-
-
         leadRelativePosition = leadTalonFX.getPosition();
         leadAbsolutePosition = absoluteEncoder.getAbsolutePosition();
         leadVelocity = leadTalonFX.getVelocity();
@@ -96,18 +89,36 @@ public class ArmIOTalonFX implements ArmIO {
         leadTemp = leadTalonFX.getDeviceTemp();
         leadVoltage = leadTalonFX.getMotorVoltage();
 
-//        followPosition = followTalonFX.getPosition();
-//        followVelocity = followTalonFX.getVelocity();
-//        followCurrent = followTalonFX.getSupplyCurrent();
-//        followTemp = followTalonFX.getDeviceTemp();
-//        followVoltage = followTalonFX.getMotorVoltage();
-//        followBusVoltage = followTalonFX.getSupplyVoltage();
+        if(!isPrototype()) {
+            assert followTalonFX != null;
+
+            followTalonFX.getConfigurator().apply(talonFXConfigs);
+            followTalonFX.setControl(new Follower(leadTalonFX.getDeviceID(), true));
+            followTalonFX.setNeutralMode(NeutralModeValue.Brake);
+
+            followPosition = followTalonFX.getPosition();
+            followVelocity = followTalonFX.getVelocity();
+            followCurrent = followTalonFX.getSupplyCurrent();
+            followTemp = followTalonFX.getDeviceTemp();
+            followVoltage = followTalonFX.getMotorVoltage();
+
+            BaseStatusSignal.setUpdateFrequencyForAll(100, followPosition);
+            BaseStatusSignal.setUpdateFrequencyForAll(50, followVelocity, followCurrent, followTemp, followVoltage);
+
+            followTalonFX.optimizeBusUtilization();
+        } else {
+            followPosition = null;
+            followVelocity = null;
+            followCurrent = null;
+            followTemp = null;
+            followVoltage = null;
+        }
+
 
         BaseStatusSignal.setUpdateFrequencyForAll(100, leadAbsolutePosition, leadRelativePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(50, leadVelocity, leadVoltage, leadCurrent, leadTemp);
 
         leadTalonFX.optimizeBusUtilization();
-//        followTalonFX.optimizeBusUtilization();
         absoluteEncoder.optimizeBusUtilization();
     }
 
@@ -127,13 +138,16 @@ public class ArmIOTalonFX implements ArmIO {
         inputs.leadTemp = leadTemp.getValue();
         inputs.leadVoltage = leadVoltage.getValue();
 
-//            inputs.followPosition = followPosition.getValue();
-//            inputs.followVelocity = followVelocity.getValue();
-//            inputs.followCurrent = followCurrent.getValue();
-//            inputs.followTemp = followTemp.getValue();
-//            inputs.followVoltage = followVoltage.getValue();
-//            inputs.followBusVoltage = followBusVoltage.getValue();;
+        if(!isPrototype()) {
+            assert followPosition != null;
 
+            BaseStatusSignal.refreshAll(followPosition, followVelocity, followCurrent, followTemp, followVoltage);
+            inputs.followPosition = followPosition.getValue();
+            inputs.followVelocity = followVelocity.getValue();
+            inputs.followCurrent = followCurrent.getValue();
+            inputs.followTemp = followTemp.getValue();
+            inputs.followVoltage = followVoltage.getValue();
+        }
     }
 
 
@@ -153,7 +167,7 @@ public class ArmIOTalonFX implements ArmIO {
 
     @Override
     public void setLeadVoltage(double voltage) {
-        leadTalonFX.setControl(new VoltageOut(0).withOutput(voltage));
+        leadTalonFX.setControl(new VoltageOut(voltage).withOverrideBrakeDurNeutral(true));
     }
 
     Slot0Configs slot0 = new Slot0Configs();

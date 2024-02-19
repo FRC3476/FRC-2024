@@ -39,6 +39,10 @@ public class Arm extends AbstractSubsystem {
         armIO.resetLeadPosition();
     }
 
+    public void runVoltage(int volts) {
+        armIO.setLeadVoltage(volts);
+    }
+
     public void configurePid(double p, double i, double d, double g) {
         armIO.configurePid(p, i, d, g);
     }

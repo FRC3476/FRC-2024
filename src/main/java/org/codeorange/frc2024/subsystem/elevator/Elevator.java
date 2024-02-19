@@ -57,4 +57,8 @@ public class Elevator extends AbstractSubsystem {
     public void zeroEncoder() {
         elevatorIO.setEncoderToZero();
     }
+
+    public void runVoltage(int volts) {
+        elevatorIO.setElevatorVoltage(volts);
+    }
 }

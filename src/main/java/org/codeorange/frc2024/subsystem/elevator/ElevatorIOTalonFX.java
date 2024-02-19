@@ -13,8 +13,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.codeorange.frc2024.robot.Constants;
 
-import static org.codeorange.frc2024.robot.Constants.ELEVATOR_P;
-import static org.codeorange.frc2024.robot.Constants.ELEVATOR_STALLING_CURRENT;
+import static org.codeorange.frc2024.robot.Constants.*;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
     private final StatusSignal<Double> leadMotorPosition;
@@ -56,7 +55,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         leadMotor.getConfigurator().apply(motorConfig);
         followMotor.getConfigurator().apply(motorConfig);
 
-        followMotor.setControl(new Follower(leadMotor.getDeviceID(), false));
+        followMotor.setControl(new Follower(leadMotor.getDeviceID(), !isPrototype()));
 
         leadMotorPosition = leadMotor.getPosition();
         leadMotorVelocity = leadMotor.getVelocity();

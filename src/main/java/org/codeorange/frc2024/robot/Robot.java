@@ -196,8 +196,6 @@ public class Robot extends LoggedRobot {
         intake.start();
         vision.start();
         // climber.start();
-        superstructure.start();
-        superstructure.setCurrentState(Superstructure.States.STOW);
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
@@ -240,37 +238,32 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        if(buttonPanel.getRisingEdge(1)) {
-            superstructure.setGoalState(Superstructure.States.STOW);
-        }
-        if(buttonPanel.getRisingEdge(2)) {
-            superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
-        }
-        if(buttonPanel.getRisingEdge(3)) {
-            superstructure.setGoalState(Superstructure.States.AMP);
-        }
-        if(buttonPanel.getRisingEdge(5)) {
-            superstructure.setGoalState(Superstructure.States.SPEAKER);
-        }
-        if(buttonPanel.getRisingEdge(11)) {
-            superstructure.setWantedShooterPosition(-0.25);
-        }
-        if(buttonPanel.getRisingEdge(12)) {
-            superstructure.setWantedShooterPosition(-0.3);
-        }
-        if(buttonPanel.getRisingEdge(9)) {
-            drive.resetOdometry(vision.frontCamera.estimatedBotPose);
-        }
-
-        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
-            intake.stop();
-        }
-        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
-            intake.runIntake();
-        }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
 
+        if (xbox.getPOV() == 0) {
+            arm.runVoltage(4);
+        } else if (xbox.getPOV() == 180) {
+            arm.runVoltage(-4);
+        } else {
+            arm.runVoltage(0);
+        }
+
+        if(logitechThing.getRawAxis(0) > 0.5) {
+            elevator.runVoltage(4);
+        } else if(logitechThing.getRawAxis(0) < -0.5) {
+            elevator.runVoltage(-4);
+        } else {
+            elevator.runVoltage(0);
+        }
+
+        if(buttonPanel.getRawAxis(1) > 0.5) {
+            wrist.runVoltage(4);
+        } else if(buttonPanel.getRawAxis(1) < -0.5) {
+            wrist.runVoltage(-4);
+        } else {
+            wrist.runVoltage(0);
+        }
     }
 
     /** This function is called once when the robot is disabled. */
