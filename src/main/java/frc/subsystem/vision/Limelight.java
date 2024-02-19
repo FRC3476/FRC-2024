@@ -41,6 +41,10 @@ public class Limelight {
 
     void updateInputs(LimelightResults results) {
         inputs.fps = 1000/results.targetingResults.latency_pipeline;
+        inputs.TargetValid = LimelightHelpers.getTV("limelight-front");
+        inputs.TargetSkew = LimelightHelpers.getLimelightNTDouble("limelight-front", "ts");
+        inputs.TargetPositionX = LimelightHelpers.getTX("limelight front");
+        inputs.TargetPositionY = LimelightHelpers.getTY("limelight front");
     }
 
 
@@ -114,6 +118,7 @@ public class Limelight {
         }
 
         double cameraDistanceMeters = cameraPose.getTranslation().getNorm();
+        Logger.recordOutput("TrustedTagID",);
         Robot.getDrive().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results));
     }
 }
