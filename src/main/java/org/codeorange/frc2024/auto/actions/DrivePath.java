@@ -29,7 +29,7 @@ public class DrivePath implements BaseAction {
 
     private final PIDController xController = new PIDController(1, 0, 0);
     private final PIDController yController = new PIDController(1, 0, 0);
-    private final PIDController thetaController = new PIDController(0.1, 0, 0);
+    private final PIDController thetaController = new PIDController(3.476, 0, 0);
     private final ChoreoControlFunction choreoController = Choreo.choreoSwerveController(xController, yController, thetaController);
     private ChoreoTrajectoryState state;
     @Override
