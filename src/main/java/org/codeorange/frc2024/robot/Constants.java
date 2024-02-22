@@ -105,7 +105,7 @@ public final class Constants {
     public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 5;//TODO: find this
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
-    public static final double ELEVATOR_STALLING_CURRENT = 35;
+    public static final double ELEVATOR_STALLING_CURRENT = 30;
     public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
 
     //positions for the superstructure

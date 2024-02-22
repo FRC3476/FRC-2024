@@ -35,8 +35,8 @@ public class Elevator extends AbstractSubsystem {
             if (DriverStation.isEnabled()) {
                 homeTime -= NOMINAL_DT;
                 elevatorIO.setElevatorVoltage(ELEVATOR_HOME_VOLTAGE);
-                double avgMotorVoltage = (elevatorInputs.leadMotorVoltage + elevatorInputs.followMotorVoltage) / 2.0;
-                if (homeTime <= 0 && avgMotorVoltage > ELEVATOR_STALLING_CURRENT) {
+                double avgMotorCurrent = (elevatorInputs.leadMotorAmps + elevatorInputs.followMotorAmps) / 2.0;
+                if (homeTime <= 0 && avgMotorCurrent > ELEVATOR_STALLING_CURRENT) {
                     homing = false;
                     elevatorIO.setEncoderToZero();
                 }
