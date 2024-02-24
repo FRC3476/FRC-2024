@@ -24,9 +24,9 @@ public class Shooter extends AbstractSubsystem {
         Logger.processInputs("Shooter", ShooterInputs);
     }
 
-    public void shoot() {
-        runVelocity(100);
-        if(MathUtil.epsilonEquals(100, ShooterInputs.leaderVelocity, 5)) {
+    public void shoot(double velocity) {
+        runVelocity(velocity);
+        if(MathUtil.epsilonEquals(velocity, ShooterInputs.leaderVelocity, 0.05 * velocity)) {
             Robot.getIntake().runIntakeForShooter();
         }
     }

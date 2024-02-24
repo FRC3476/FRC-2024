@@ -47,25 +47,25 @@ public class ModuleIOTalonFX implements ModuleIO {
                 driveMotor = new TalonFX(Ports.FL_DRIVE);
                 steerMotor = new TalonFX(Ports.FL_STEER);
                 swerveCancoder = new CANcoder(Ports.FL_CANCODER);
-                absoluteEncoderOffset = -0.234130859375+0.5;
+                absoluteEncoderOffset = FL_ABSOLUTE_ENCODER_OFFSET;
             }
             case 1 -> {
                 driveMotor = new TalonFX(Ports.BL_DRIVE);
                 steerMotor = new TalonFX(Ports.BL_STEER);
                 swerveCancoder = new CANcoder(Ports.BL_CANCODER);
-                absoluteEncoderOffset = -0.10107421875+0.5;
+                absoluteEncoderOffset = BL_ABSOLUTE_ENCODER_OFFSET;
             }
             case 2 -> {
                 driveMotor = new TalonFX(Ports.FR_DRIVE);
                 steerMotor = new TalonFX(Ports.FR_STEER);
                 swerveCancoder = new CANcoder(Ports.FR_CANCODER);
-                absoluteEncoderOffset = -0.33251953125;
+                absoluteEncoderOffset = FR_ABSOLUTE_ENCODER_OFFSET;
             }
             case 3 -> {
                 driveMotor = new TalonFX(Ports.BR_DRIVE);
                 steerMotor = new TalonFX(Ports.BR_STEER);
                 swerveCancoder = new CANcoder(Ports.BR_CANCODER);
-                absoluteEncoderOffset = 0.4794921875;
+                absoluteEncoderOffset = BR_ABSOLUTE_ENCODER_OFFSET;
             }
             default -> throw new IllegalArgumentException("Invalid module ID");
         }
@@ -123,6 +123,7 @@ public class ModuleIOTalonFX implements ModuleIO {
                         )
                         .withMotorOutput(new MotorOutputConfigs()
                                 .withInverted(InvertedValue.Clockwise_Positive)
+                                .withNeutralMode(NeutralModeValue.Coast)
                         )
         );
 
@@ -176,7 +177,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     @Override
     public void setBrakeMode(boolean enabled) {
         if (isBraking != enabled) {
-            steerMotor.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
             driveMotor.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
         }
         isBraking = enabled;

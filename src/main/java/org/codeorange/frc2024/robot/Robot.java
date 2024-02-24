@@ -6,6 +6,7 @@
 package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -60,11 +61,6 @@ public class Robot extends LoggedRobot {
 
     private static PowerDistribution powerDistribution;
 
-    public static final LiveEditableValue<Double> kP = new LiveEditableValue<>(100.0, SmartDashboard.getEntry("Arm/P"));
-    public static final LiveEditableValue<Double> kI = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Arm/I"));
-    public static final LiveEditableValue<Double> kD = new LiveEditableValue<>(5.0, SmartDashboard.getEntry("Arm/D"));
-    public static final LiveEditableValue<Double> kG = new LiveEditableValue<>(0.85, SmartDashboard.getEntry("Arm/G"));
-    public static final LiveEditableValue<Double> wantedPos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Arm/Goal position"));
 
 
     static Drive drive;
@@ -196,8 +192,6 @@ public class Robot extends LoggedRobot {
         intake.start();
         vision.start();
         // climber.start();
-        superstructure.start();
-        superstructure.setCurrentState(Superstructure.States.STOW);
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
@@ -208,10 +202,10 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         AbstractSubsystem.tick();
         xbox.update();
+        logitechThing.update();
         buttonPanel.update();
         if(buttonPanel.getRisingEdge(10)) {
             elevator.zeroEncoder();
-            arm.resetPosition();
         }
 
     }
@@ -237,40 +231,42 @@ public class Robot extends LoggedRobot {
         AutoManager.getInstance().endAuto();
     }
 
+
+    public static final LiveEditableValue<Double> voltage = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Voltage"));
+    public static final LiveEditableValue<Double> elevpos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("elevpos"));
+    public static final LiveEditableValue<Double> wristPos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("wristpos"));
+
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        if(buttonPanel.getRisingEdge(1)) {
-            superstructure.setGoalState(Superstructure.States.STOW);
-        }
-        if(buttonPanel.getRisingEdge(2)) {
-            superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
-        }
-        if(buttonPanel.getRisingEdge(3)) {
-            superstructure.setGoalState(Superstructure.States.AMP);
-        }
-        if(buttonPanel.getRisingEdge(5)) {
-            superstructure.setGoalState(Superstructure.States.SPEAKER);
-        }
-        if(buttonPanel.getRisingEdge(11)) {
-            superstructure.setWantedShooterPosition(-0.25);
-        }
-        if(buttonPanel.getRisingEdge(12)) {
-            superstructure.setWantedShooterPosition(-0.3);
-        }
-        if(buttonPanel.getRisingEdge(9)) {
-            drive.resetOdometry(vision.frontCamera.estimatedBotPose);
-        }
-
-        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
-            intake.stop();
-        }
-        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
-            intake.runIntake();
-        }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
 
+        if(xbox.getRawButton(XboxButtons.A)) {
+            arm.setPosition(voltage.get());
+        } else {
+            arm.stop();
+        }
+        if(xbox.getRawButton(XboxButtons.B)) {
+            elevator.setPosition(elevpos.get());
+        } else {
+            elevator.stop();
+        }
+        if(xbox.getRawButton(XboxButtons.X)) {
+            wrist.setWristPosition(wristPos.get());
+        }
+
+        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
+            shooter.shoot(100);
+        } else if (xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
+            intake.runIntake();
+            shooter.stop();
+        }else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
+            intake.runOuttake();
+        } else {
+            intake.stop();
+            shooter.stop();
+        }
     }
 
     /** This function is called once when the robot is disabled. */

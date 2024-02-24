@@ -30,6 +30,8 @@ public class AutoManager {
     }
 
     public void endAuto() {
-        thread.stop();
+        if(thread != null) {
+            thread.stop();
+        }
     }
 }

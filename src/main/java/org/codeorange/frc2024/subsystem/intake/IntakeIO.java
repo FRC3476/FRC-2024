@@ -13,6 +13,6 @@ public interface IntakeIO {
     }
 
     default void updateInputs(IntakeInputs inputs) {}
-    default void setMotorVoltage(double voltage) {}
+    default void setMotorDutyCycle(double voltage) {}
     default void invertMotor(boolean invertState) {}
 }

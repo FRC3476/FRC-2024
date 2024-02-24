@@ -2,16 +2,12 @@ package org.codeorange.frc2024.subsystem.wrist;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.*;
 
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
 import static org.codeorange.frc2024.robot.Constants.*;
@@ -41,7 +37,6 @@ public class WristIOTalonFX implements WristIO {
         FeedbackConfigs wristFeedBackConfigs = configs.Feedback;
         wristFeedBackConfigs.FeedbackRemoteSensorID = absoluteEncoder.getDeviceID();
         wristFeedBackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        //ask amber about below
         wristFeedBackConfigs.SensorToMechanismRatio = WRIST_STM;
         wristFeedBackConfigs.RotorToSensorRatio = WRIST_RTS;
 
@@ -50,15 +45,22 @@ public class WristIOTalonFX implements WristIO {
         wristMotionMagicConfig.MotionMagicAcceleration = 2;     //TODO change motion magic values
         wristMotionMagicConfig.MotionMagicJerk = 10;
 
+        MotorOutputConfigs motorOutput = configs.MotorOutput;
+        motorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         Slot0Configs slot0 = configs.Slot0;
         slot0.kP = WRIST_P;
         slot0.kI = WRIST_I;
         slot0.kD = WRIST_D;
         slot0.kV = 0.5;
-        slot0.kS = 0; // Approximately 0.25V to get the mechanism moving
+        slot0.kS = 0.5; // Approximately 0.25V to get the mechanism moving
 
         wristMotor.getConfigurator().apply(configs);
+
+        absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
+                .withMagnetSensor(new MagnetSensorConfigs()
+                        .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+                        .withMagnetOffset(-0.198974609375)));
 
         wristAbsolutePosition = absoluteEncoder.getAbsolutePosition();
         wristRelativePosition = wristMotor.getPosition();
@@ -100,5 +102,9 @@ public class WristIOTalonFX implements WristIO {
 
     public void setBrakeMode(boolean braked) {
         wristMotor.setNeutralMode(braked ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+    }
+
+    public void setVoltage(int volts) {
+        wristMotor.setControl(new VoltageOut(volts).withOverrideBrakeDurNeutral(true));
     }
 }

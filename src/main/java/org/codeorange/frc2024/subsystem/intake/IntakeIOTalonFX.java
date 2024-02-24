@@ -2,13 +2,9 @@ package org.codeorange.frc2024.subsystem.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import edu.wpi.first.wpilibj.DigitalInput;
 import org.codeorange.frc2024.robot.Constants;
 
@@ -48,11 +44,10 @@ public class IntakeIOTalonFX implements IntakeIO {
         inputs.hasNote = beamBreak.get();
     }
 
-    VoltageOut withVoltage = new VoltageOut(0, true, true, false, false);
+    DutyCycleOut dutyCycle = new DutyCycleOut(0, true, true, false, false);
     @Override
-    public void setMotorVoltage(double voltage) {
-        motor.setControl(withVoltage.withOutput(voltage));
-
+    public void setMotorDutyCycle(double dutyCycle) {
+        motor.setControl(this.dutyCycle.withOutput(dutyCycle));
     }
     @Override
     public void invertMotor(boolean invertState) {

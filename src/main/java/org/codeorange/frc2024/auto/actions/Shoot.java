@@ -18,7 +18,7 @@ public class Shoot implements BaseAction {
     @Override
     public void update() {
         if(superstructure.getCurrentState().isAtWantedState() && superstructure.isAtGoalState()) {
-            shooter.shoot();
+            shooter.shoot(100);
         }
     }
 
