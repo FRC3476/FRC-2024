@@ -6,6 +6,7 @@
 package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -60,11 +61,6 @@ public class Robot extends LoggedRobot {
 
     private static PowerDistribution powerDistribution;
 
-    public static final LiveEditableValue<Double> kP = new LiveEditableValue<>(100.0, SmartDashboard.getEntry("Arm/P"));
-    public static final LiveEditableValue<Double> kI = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Arm/I"));
-    public static final LiveEditableValue<Double> kD = new LiveEditableValue<>(5.0, SmartDashboard.getEntry("Arm/D"));
-    public static final LiveEditableValue<Double> kG = new LiveEditableValue<>(0.85, SmartDashboard.getEntry("Arm/G"));
-    public static final LiveEditableValue<Double> wantedPos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Arm/Goal position"));
 
 
     static Drive drive;
@@ -206,10 +202,10 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         AbstractSubsystem.tick();
         xbox.update();
+        logitechThing.update();
         buttonPanel.update();
         if(buttonPanel.getRisingEdge(10)) {
             elevator.zeroEncoder();
-            arm.resetPosition();
         }
 
     }
@@ -235,34 +231,41 @@ public class Robot extends LoggedRobot {
         AutoManager.getInstance().endAuto();
     }
 
+
+    public static final LiveEditableValue<Double> voltage = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Voltage"));
+    public static final LiveEditableValue<Double> elevpos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("elevpos"));
+    public static final LiveEditableValue<Double> wristPos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("wristpos"));
+
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         drive.swerveDriveFieldRelative(controllerDriveInputs);
 
-        if (xbox.getPOV() == 0) {
-            arm.runVoltage(4);
-        } else if (xbox.getPOV() == 180) {
-            arm.runVoltage(-4);
+        if(xbox.getRawButton(XboxButtons.A)) {
+            arm.setPosition(voltage.get());
         } else {
-            arm.runVoltage(0);
+            arm.stop();
+        }
+        if(xbox.getRawButton(XboxButtons.B)) {
+            elevator.setPosition(elevpos.get());
+        } else {
+            elevator.stop();
+        }
+        if(xbox.getRawButton(XboxButtons.X)) {
+            wrist.setWristPosition(wristPos.get());
         }
 
-        if(logitechThing.getRawAxis(1) > 0.5) {
-            elevator.runVoltage(4);
-        } else if(logitechThing.getRawAxis(1) < -0.5) {
-            elevator.runVoltage(-4);
+        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
+            shooter.shoot(100);
+        } else if (xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
+            intake.runIntake();
+            shooter.stop();
+        }else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
+            intake.runOuttake();
         } else {
-            elevator.runVoltage(0);
-        }
-
-        if(buttonPanel.getRawAxis(1) > 0.5) {
-            wrist.runVoltage(4);
-        } else if(buttonPanel.getRawAxis(1) < -0.5) {
-            wrist.runVoltage(-4);
-        } else {
-            wrist.runVoltage(0);
+            intake.stop();
+            shooter.stop();
         }
     }
 

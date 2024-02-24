@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem.elevator;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import static org.codeorange.frc2024.robot.Constants.*;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
@@ -17,13 +18,9 @@ public class Elevator extends AbstractSubsystem {
         this.elevatorIO = elevatorIO;
     }
 
-    public void setPosition(double positionInInches) {
-        if (positionInInches < ELEVATOR_LOWER_LIMIT_INCHES) {
-            positionInInches = ELEVATOR_LOWER_LIMIT_INCHES;
-        } else if (positionInInches > ELEVATOR_UPPER_LIMIT_INCHES) {
-            positionInInches = ELEVATOR_UPPER_LIMIT_INCHES;
-        }
-        elevatorIO.setPosition(positionInInches);
+    public void setPosition(double position) {
+        position = MathUtil.clamp(position, ELEVATOR_LOWER_LIMIT, ELEVATOR_UPPER_LIMIT);
+        elevatorIO.setPosition(position);
     }
 
     @Override
@@ -60,5 +57,9 @@ public class Elevator extends AbstractSubsystem {
 
     public void runVoltage(int volts) {
         elevatorIO.setElevatorVoltage(volts);
+    }
+
+    public void stop() {
+        elevatorIO.stop();
     }
 }

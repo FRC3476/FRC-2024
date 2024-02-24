@@ -44,8 +44,8 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.Slot0.kP = SHOOTER_P;
         config.Slot0.kI = SHOOTER_I;
         config.Slot0.kD = SHOOTER_D;
-        config.Slot0.kS = 0;
-        config.Slot0.kV = 0;
+        config.Slot0.kS = 0.1;
+        config.Slot0.kV = 0.12;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         leader.getConfigurator().apply(config);

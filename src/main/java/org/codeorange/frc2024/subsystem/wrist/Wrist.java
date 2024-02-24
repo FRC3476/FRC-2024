@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem.wrist;
 
+import edu.wpi.first.math.MathUtil;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -14,10 +15,11 @@ public class Wrist extends AbstractSubsystem {
     }
 
 
-    public void setWristPosition(double position) {
+    public void setWristPosition(double positron) {
         //does NOT set position relative to the ground, just relative to the arm
-        wristIO.setPosition(position);
-        Logger.recordOutput("Wrist/Target Position", position);
+        positron = MathUtil.clamp(positron, -0.5, 0.5);
+        wristIO.setPosition(positron);
+        Logger.recordOutput("Wrist/Target Position", positron);
     }
 
 

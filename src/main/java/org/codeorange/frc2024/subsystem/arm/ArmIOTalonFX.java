@@ -26,6 +26,7 @@ public class ArmIOTalonFX implements ArmIO {
     private final StatusSignal<Double> leadAbsolutePosition;
     private final StatusSignal<Double> leadRelativePosition;
     private final StatusSignal<Double> leadVelocity;
+    private final StatusSignal<Double> leadAccel;
     private final StatusSignal<Double> leadCurrent;
     private final StatusSignal<Double> leadTemp;
     private final StatusSignal<Double> leadVoltage;
@@ -57,17 +58,18 @@ public class ArmIOTalonFX implements ArmIO {
         armFeedBackConfigs.RotorToSensorRatio = ARM_RTS;
 
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
-        armMotionMagicConfig.MotionMagicCruiseVelocity = 0.2;
-        armMotionMagicConfig.MotionMagicAcceleration = 0.4;     //TODO change motion magic values
-        armMotionMagicConfig.MotionMagicJerk = 2;
+        armMotionMagicConfig.MotionMagicCruiseVelocity = 0.4;
+        armMotionMagicConfig.MotionMagicAcceleration = 0.8;     //TODO change motion magic values
+        armMotionMagicConfig.MotionMagicJerk = 4;
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
         slot0.kP = ARM_P;
         slot0.kI = ARM_I;
         slot0.kD = ARM_D;
-        slot0.kV = 0;
-        slot0.kS = 0.5; // Approximately 0.25V to get the mechanism moving
-        slot0.kG = 1;
+        slot0.kS = 0.25; // Approximately 0.25V to get the mechanism moving
+        slot0.kV = 0.02;
+        slot0.kA = 0;
+        slot0.kG = isPrototype() ? 1 : 0.05;
         slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         leadTalonFX.getConfigurator().apply(talonFXConfigs);
@@ -75,8 +77,8 @@ public class ArmIOTalonFX implements ArmIO {
 
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
-                        .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                        .withMagnetOffset(-0.1162109375)
+                        .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+                        .withMagnetOffset(-0.36279296875)
                         .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
                 )
         );
@@ -85,6 +87,7 @@ public class ArmIOTalonFX implements ArmIO {
         leadRelativePosition = leadTalonFX.getPosition();
         leadAbsolutePosition = absoluteEncoder.getAbsolutePosition();
         leadVelocity = leadTalonFX.getVelocity();
+        leadAccel = leadTalonFX.getAcceleration();
         leadCurrent = leadTalonFX.getSupplyCurrent();
         leadTemp = leadTalonFX.getDeviceTemp();
         leadVoltage = leadTalonFX.getMotorVoltage();
@@ -116,7 +119,7 @@ public class ArmIOTalonFX implements ArmIO {
 
 
         BaseStatusSignal.setUpdateFrequencyForAll(100, leadAbsolutePosition, leadRelativePosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50, leadVelocity, leadVoltage, leadCurrent, leadTemp);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, leadVelocity, leadAccel, leadVoltage, leadCurrent, leadTemp);
 
         leadTalonFX.optimizeBusUtilization();
         absoluteEncoder.optimizeBusUtilization();
@@ -127,13 +130,13 @@ public class ArmIOTalonFX implements ArmIO {
     }
 
     public void updateInputs(ArmInputs inputs) {
-        BaseStatusSignal.refreshAll(leadAbsolutePosition, leadRelativePosition, leadVelocity, leadCurrent,
+        BaseStatusSignal.refreshAll(leadAbsolutePosition, leadRelativePosition, leadVelocity, leadAccel, leadCurrent,
                 leadTemp, leadVoltage);
 
         inputs.leadAbsolutePosition = leadAbsolutePosition.getValue();
         inputs.leadRelativePosition = leadRelativePosition.getValue();
         inputs.leadVelocity = leadVelocity.getValue();
-
+        inputs.leadAccel = leadAccel.getValue();
         inputs.leadCurrent = leadCurrent.getValue();
         inputs.leadTemp = leadTemp.getValue();
         inputs.leadVoltage = leadVoltage.getValue();
@@ -178,6 +181,11 @@ public class ArmIOTalonFX implements ArmIO {
         slot0.kD = d;
         slot0.kG = g;
         leadTalonFX.getConfigurator().apply(slot0);
+    }
+
+    @Override
+    public void stop() {
+        leadTalonFX.stopMotor();
     }
 }
 

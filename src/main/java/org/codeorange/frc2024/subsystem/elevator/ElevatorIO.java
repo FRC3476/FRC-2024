@@ -24,4 +24,6 @@ public interface ElevatorIO {
 
     default void setEncoderToZero() {}
     default void setElevatorVoltage(double voltage) {}
+
+    default void stop() {}
 }

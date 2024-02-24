@@ -25,32 +25,36 @@ public class Intake extends AbstractSubsystem {
     public void runIntake() {
         if (!intakeInputs.hasNote) {
             intakeIO.invertMotor(false);
-            intakeIO.setMotorVoltage(4);
+            intakeIO.setMotorDutyCycle(0.8);
         } else {
             stop();
         }
     }
     public void runIntakeForShooter() {
+        if (intakeInputs.hasNote) {
             intakeIO.invertMotor(false);
-            intakeIO.setMotorVoltage(8);
+            intakeIO.setMotorDutyCycle(0.8);
+        } else {
+            stop();
+        }
     }
 
     public void runOuttake() {
         if (intakeInputs.hasNote) {
             intakeIO.invertMotor(true);
-            intakeIO.setMotorVoltage(4);
+            intakeIO.setMotorDutyCycle(0.8);
         } else {
             stop();
         }
     }
 
     public void setMotorVoltage(double voltage) {
-        intakeIO.setMotorVoltage(MathUtil.clamp(voltage, -6, 6));
+        intakeIO.setMotorDutyCycle(MathUtil.clamp(voltage, -6, 6));
 
     }
 
     public void stop() {
-        intakeIO.setMotorVoltage(0);
+        intakeIO.setMotorDutyCycle(0);
     }
 
     public boolean hasNote() {

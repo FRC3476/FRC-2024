@@ -9,6 +9,7 @@ public interface ArmIO {
         double leadAbsolutePosition = 0.0;
         double leadVelocity = 0.0;
         double leadRelativePosition = 0.0;
+        double leadAccel = 0.0;
         double leadCurrent = 0.0;
         double leadTemp = 0.0;
         double leadVoltage = 0.0;
@@ -30,6 +31,8 @@ public interface ArmIO {
     default void resetLeadPosition() {}
 
     default void configurePid(double p, double i, double d, double g) {}
+
+    default void stop() {}
 
     //default void setFollowVoltage(double current) {}
 

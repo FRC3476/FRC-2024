@@ -41,15 +41,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                         .withMotionMagicJerk(200)
                 ).withSlot0(new Slot0Configs()
                         .withKP(ELEVATOR_P)
+                        .withKS(0.2)
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                        .withSensorToMechanismRatio(Constants.ELEVATOR_INCHES_PER_ROTATION)
+                        .withSensorToMechanismRatio(1 / ELEVATOR_INCHES_PER_ROTATION)
                 ).withCurrentLimits(new CurrentLimitsConfigs()
                                 .withSupplyCurrentLimit(ELEVATOR_STALLING_CURRENT)
                                 .withSupplyCurrentLimitEnable(true)
                                 .withStatorCurrentLimitEnable(false)
                 ).withMotorOutput(new MotorOutputConfigs()
-                        .withInverted(InvertedValue.Clockwise_Positive)
+                        .withInverted(InvertedValue.CounterClockwise_Positive)
                         .withNeutralMode(NeutralModeValue.Brake));
 
         leadMotor.getConfigurator().apply(motorConfig);
@@ -75,7 +76,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         leadMotor.optimizeBusUtilization();
         followMotor.optimizeBusUtilization();
     }
-    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(true);
     public void setPosition(double targetPosition) {
         leadMotor.setControl(motionMagicRequest.withPosition(targetPosition));
     }
@@ -106,5 +107,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     public void setElevatorVoltage(double voltage) {
         leadMotor.setControl(withVoltage.withOutput(voltage));
+    }
+
+    @Override
+    public void stop() {
+        leadMotor.stopMotor();
     }
 }
