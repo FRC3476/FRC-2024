@@ -307,9 +307,9 @@ public class Superstructure extends AbstractSubsystem {
 
     public double getLowShooterAngle(){
         if (drive.findAngleToSpeaker() > Math.PI / 2) {
-            return (Constants.AngleLookupInterpolation.SHOOTER_ANGLE_LOW_BACK.get(drive.findDistanceToSpeaker()));
+            return (Constants.AngleLookupInterpolation.SHOOTER_ANGLE_LOW_FRONT.get(drive.findDistanceToSpeaker()));
         } else {
-            return Constants.AngleLookupInterpolation.SHOOTER_ANGLE_LOW_FRONT.get(drive.findDistanceToSpeaker());
+            return Constants.AngleLookupInterpolation.SHOOTER_ANGLE_LOW_BACK.get(drive.findDistanceToSpeaker());
         }
 
     }
