@@ -19,7 +19,6 @@ public interface ArmIO {
         double followCurrent = 0.0;
         double followTemp = 0.0;
         double followVoltage = 0.0;
-
     }
 
     default void updateInputs(ArmInputs inputs) {}

@@ -42,11 +42,7 @@ public class ArmIOTalonFX implements ArmIO {
     public ArmIOTalonFX() {
 
         leadTalonFX = new TalonFX(ARM_LEAD);
-        if(!isPrototype()) {
-            followTalonFX = new TalonFX(ARM_FOLLOW);
-        } else {
-            followTalonFX = null;
-        }
+
         absoluteEncoder = new CANcoder(ARM_CANCODER);
 
         var talonFXConfigs = new TalonFXConfiguration();
@@ -93,7 +89,7 @@ public class ArmIOTalonFX implements ArmIO {
         leadVoltage = leadTalonFX.getMotorVoltage();
 
         if(!isPrototype()) {
-            assert followTalonFX != null;
+            followTalonFX = new TalonFX(ARM_FOLLOW);
 
             followTalonFX.getConfigurator().apply(talonFXConfigs);
             followTalonFX.setControl(new Follower(leadTalonFX.getDeviceID(), false));
@@ -110,13 +106,13 @@ public class ArmIOTalonFX implements ArmIO {
 
             followTalonFX.optimizeBusUtilization();
         } else {
+            followTalonFX = null;
             followPosition = null;
             followVelocity = null;
             followCurrent = null;
             followTemp = null;
             followVoltage = null;
         }
-
 
         BaseStatusSignal.setUpdateFrequencyForAll(100, leadAbsolutePosition, leadRelativePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(50, leadVelocity, leadAccel, leadVoltage, leadCurrent, leadTemp);
@@ -142,7 +138,7 @@ public class ArmIOTalonFX implements ArmIO {
         inputs.leadVoltage = leadVoltage.getValue();
 
         if(!isPrototype()) {
-            assert followPosition != null;
+            assert followTalonFX != null;
 
             BaseStatusSignal.refreshAll(followPosition, followVelocity, followCurrent, followTemp, followVoltage);
             inputs.followPosition = followPosition.getValue();

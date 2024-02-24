@@ -285,6 +285,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void testInit() {
         // drive.setBrakeMode(false);
+        elevator.home();
     }
 
     /** This function is called periodically during test mode. */
