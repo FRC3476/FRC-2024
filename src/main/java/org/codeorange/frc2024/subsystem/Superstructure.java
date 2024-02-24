@@ -305,6 +305,16 @@ public class Superstructure extends AbstractSubsystem {
 //        return map.get(convertToKey(distance, direction, height)).getShooterAngle();
 //    }
 
+    public double getLowShooterAngle(){
+        if (drive.findAngleToSpeaker() > Math.PI / 2) {
+            return (Constants.AngleLookupInterpolation.SHOOTER_ANGLE_LOW_BACK.get(drive.findDistanceToSpeaker()));
+        } else {
+            return Constants.AngleLookupInterpolation.SHOOTER_ANGLE_LOW_FRONT.get(drive.findDistanceToSpeaker());
+        }
+
+    }
+
+
     static class ShooterConfiguration {
         private String location;
         private double shooterAngle;
