@@ -37,7 +37,7 @@ public class Wrist extends AbstractSubsystem {
         wristIO.zeroWristEncoder();
     }
 
-    public void runVoltage(int volts) {
+    public void runVoltage(double volts) {
         wristIO.setVoltage(volts);
     }
 }

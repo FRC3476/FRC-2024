@@ -35,14 +35,14 @@ public abstract class BaseRoutine {
 
     public void runAction(BaseAction action) {
         action.start();
-        System.out.println("Running " + action.getClass().getName());
-        Logger.recordOutput("Auto/Current Action", action.getClass().getName());
+
         while (!action.isFinished() && isActive) {
             action.update();
             try {
                 Thread.sleep(20);
             } catch (InterruptedException ignored) {}
         }
+
         action.done();
     }
 }

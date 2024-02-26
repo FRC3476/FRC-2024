@@ -41,9 +41,9 @@ public class WristIOTalonFX implements WristIO {
         wristFeedBackConfigs.RotorToSensorRatio = WRIST_RTS;
 
         MotionMagicConfigs wristMotionMagicConfig = configs.MotionMagic;
-        wristMotionMagicConfig.MotionMagicCruiseVelocity = 1;
-        wristMotionMagicConfig.MotionMagicAcceleration = 2;     //TODO change motion magic values
-        wristMotionMagicConfig.MotionMagicJerk = 10;
+        wristMotionMagicConfig.MotionMagicCruiseVelocity = 2;
+        wristMotionMagicConfig.MotionMagicAcceleration = 8;     //TODO change motion magic values
+        wristMotionMagicConfig.MotionMagicJerk = 40;
 
         MotorOutputConfigs motorOutput = configs.MotorOutput;
         motorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -60,7 +60,7 @@ public class WristIOTalonFX implements WristIO {
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                        .withMagnetOffset(-0.198974609375)));
+                        .withMagnetOffset(-0.389404296875)));
 
         wristAbsolutePosition = absoluteEncoder.getAbsolutePosition();
         wristRelativePosition = wristMotor.getPosition();
@@ -84,7 +84,7 @@ public class WristIOTalonFX implements WristIO {
     }
 
     public void updateInputs(WristInputs inputs) {
-        BaseStatusSignal.refreshAll(wristAbsolutePosition, wristRelativePosition, wristVelocity, wristCurrent,
+         BaseStatusSignal.refreshAll(wristAbsolutePosition, wristRelativePosition, wristVelocity, wristCurrent,
                 wristTemp, wristVoltage);
 
         inputs.wristAbsolutePosition = wristAbsolutePosition.getValue();
@@ -104,7 +104,7 @@ public class WristIOTalonFX implements WristIO {
         wristMotor.setNeutralMode(braked ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
 
-    public void setVoltage(int volts) {
+    public void setVoltage(double volts) {
         wristMotor.setControl(new VoltageOut(volts).withOverrideBrakeDurNeutral(true));
     }
 }

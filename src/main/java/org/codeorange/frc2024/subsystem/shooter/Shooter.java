@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem.shooter;
 
+import edu.wpi.first.wpilibj.Timer;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.utility.MathUtil;
@@ -24,18 +25,16 @@ public class Shooter extends AbstractSubsystem {
         Logger.processInputs("Shooter", ShooterInputs);
     }
 
-    public void shoot(double velocity) {
-        runVelocity(velocity);
-        if(MathUtil.epsilonEquals(velocity, ShooterInputs.leaderVelocity, 0.05 * velocity)) {
-            Robot.getIntake().runIntakeForShooter();
+    double shotNoteTime;
+    public boolean runVelocity(double velocityRPS) {
+        Logger.recordOutput("Shooter/SetpointRPS", velocityRPS);
+        if (Robot.getIntake().hasNote()) {
+            shooterIO.setVelocity(velocityRPS, 0);
+            return true;
+        } else {
+            stop();
+            return false;
         }
-    }
-
-    public void runVelocity(double velocityRPS) {
-        shooterIO.setVelocity(velocityRPS, 0);
-
-        // Log flywheel setpoint
-        Logger.recordOutput("Flywheel/SetpointRPM", velocityRPS);
     }
 
     public void stop() {

@@ -1,24 +1,12 @@
 package org.codeorange.frc2024.subsystem;
 
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.subsystem.shooter.Shooter;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.arm.Arm;
 import org.codeorange.frc2024.subsystem.drive.Drive;
 import org.codeorange.frc2024.subsystem.elevator.Elevator;
-import org.codeorange.frc2024.subsystem.shooter.Shooter;
 import org.codeorange.frc2024.subsystem.intake.Intake;
 import org.codeorange.frc2024.subsystem.wrist.Wrist;
 import org.codeorange.frc2024.utility.MathUtil;
@@ -40,6 +28,7 @@ public class Superstructure extends AbstractSubsystem {
     //private static Vision vision;
     private States currentState = States.STOW;
     private States goalState = States.STOW;
+    public boolean isFlipped = false;
     private final LiveEditableValue<Double> wristAngle = new LiveEditableValue<Double>(0.0, SmartDashboard.getEntry("Wrist Angle"));
     private Superstructure() {
         super();
@@ -65,10 +54,12 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code!
-                if(superstructure.goalState == States.SPEAKER) {
-                    superstructure.setCurrentState(SPEAKER);
+                if(superstructure.goalState == States.SPEAKER || superstructure.goalState == States.AMP || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE) {
+                    superstructure.setCurrentState(INTERMEDIATE);
+                } else if(superstructure.goalState == States.GROUND_INTAKE) {
+                    superstructure.setCurrentState(MID_INTAKE);
                 } else if(superstructure.goalState != States.STOW){
-                    superstructure.setCurrentState(GENERAL_INTERMEDIATE);
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
@@ -77,13 +68,6 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
-                if(isAtWantedState()) {
-                    if(superstructure.goalState == States.GROUND_INTAKE){
-                        superstructure.setCurrentState(MID_INTAKE);
-                    } else {
-                        superstructure.setCurrentState(superstructure.goalState);
-                    }
-                }
             }
         },
         MID_INTAKE(SS_MIDINTAKE_ELEVATOR, SS_MIDINTAKE_ARM, SS_MIDINTAKE_WRIST, SS_MIDINTAKE_CLIMBER) {
@@ -92,11 +76,17 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
                 if(isAtWantedState()) {
-                    if(superstructure.goalState == States.GROUND_INTAKE){
+                    if (superstructure.goalState == States.GROUND_INTAKE) {
                         superstructure.setCurrentState(GROUND_INTAKE);
                     }
-                    if(superstructure.goalState == States.STOW) {
-                        superstructure.setCurrentState(GENERAL_INTERMEDIATE);
+                    if (superstructure.goalState == States.STOW) {
+                        superstructure.setCurrentState(States.STOW);
+                    }
+                    if (superstructure.goalState == States.SPEAKER) {
+                        superstructure.setCurrentState(INTERMEDIATE);
+                    }
+                    if (superstructure.goalState != States.MID_INTAKE) {
+                        superstructure.setCurrentState(superstructure.goalState);
                     }
                 }
             }
@@ -106,12 +96,13 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code and such
-                if(isAtWantedState()) {
-                    intake.runIntake();
+                if(intake.hasNote()) {
+                    superstructure.setGoalState(States.STOW);
                 }
-
                 if(superstructure.goalState == States.STOW) {
                     superstructure.setCurrentState(MID_INTAKE);
+                } else if (superstructure.goalState == States.SPEAKER) {
+                    superstructure.setCurrentState(INTERMEDIATE);
                 } else if(superstructure.goalState != States.GROUND_INTAKE) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
@@ -121,31 +112,47 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code and such
-                if(isAtWantedState()) {
-                    intake.runIntake();
+                if(intake.hasNote()) {
+                    superstructure.setGoalState(States.STOW);
+                }
+                if(superstructure.goalState != States.SOURCE_INTAKE) {
+                        superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
         AMP(SS_AMP_ELEVATOR, SS_AMP_ARM, SS_AMP_WRIST, SS_AMP_CLIMBER) {
             @Override
             public void update() {
-                if(superstructure.goalState == States.GROUND_INTAKE) {
-                    superstructure.setCurrentState(MID_INTAKE);
-                } else if(superstructure.goalState == States.STOW) {
-                    superstructure.setCurrentState(GENERAL_INTERMEDIATE);
-                } else if(superstructure.goalState != States.AMP) {
+                if(superstructure.goalState != States.AMP) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
-
         SPEAKER(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST, SS_SPEAKER_CLIMBER) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
+                if(arm.getPivotDegrees() >= 0.05) {
+                    superstructure.setWantedShooterPosition((double) 54 / 360);
+                } else {
+                    superstructure.setWantedShooterPosition(0);
+                }
+                var shooting = shooter.runVelocity(9000.0 / 60);
+                if(!shooting) {
+                    superstructure.setGoalState(STOW);
+                }
                 if(superstructure.goalState != States.SPEAKER) {
                     superstructure.setWantedShooterPosition(0);
-                    superstructure.setCurrentState(States.GENERAL_INTERMEDIATE);
+                    shooter.stop();
+                    superstructure.setCurrentState(States.INTERMEDIATE);
+                }
+            }
+        },
+        INTERMEDIATE(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST, SS_SPEAKER_CLIMBER) {
+            @Override
+            public void update() {
+                if(isAtWantedState()) {
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
@@ -190,11 +197,40 @@ public class Superstructure extends AbstractSubsystem {
                     superstructure.setGoalState(States.STOW);
                 }
             }
+        },
+        SHOOT_OVER_STAGE(15, 0.1666, -0.35, 0) {
+            @Override
+            public void update() {
+                shooter.runVelocity(9000.0 / 60);
+                if (superstructure.goalState != States.SHOOT_OVER_STAGE) {
+                    shooter.stop();
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
+        SHOOT_UNDER_STAGE(20, 0.1666, -0.16, 0) {
+            @Override
+            public void update() {
+                shooter.runVelocity(9000.0 / 60);
+                if (superstructure.goalState != States.SHOOT_UNDER_STAGE) {
+                    shooter.stop();
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
+        TEST_TRAP(20, 0.125, 0.0485, 0) {
+            @Override
+            public void update() {
+                if (superstructure.goalState != States.TEST_TRAP) {
+                    shooter.stop();
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
         };
         public boolean isAtWantedState() {
             return (MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
                     && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.05)
-                    && MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.05));
+                    && MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.01));
                     //&& MathUtil.epsilonEquals(climberPos, climber.getPositionInInches(), 0.05));
         }
         final double elevatorPos;
@@ -226,19 +262,29 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     private double wantedShooterPosition;
+    public double a;
+    public double shootAtGround = -0.16;
+    public double shootOverStage = -0.229;
     public void update() {
         currentState.update();
-        setWantedShooterPosition(wristAngle.get());
         arm.setPosition(currentState.armPos);
         if(superstructure.currentState != States.HOMING) {
             elevator.setPosition(currentState.elevatorPos);
         }
-        wrist.setWristPosition(currentState.wristPos + wantedShooterPosition);
+        if(superstructure.currentState != States.SPEAKER) {
+            wrist.setWristPosition(currentState.wristPos);
+        } else {
+            wrist.setWristPosition(-wantedShooterPosition - SS_SPEAKER_ARM);
+        }
         Logger.recordOutput("Superstructure/Current State", currentState);
         // climber.setPosition(currentState.climberPos);
     }
 
     public void setWantedShooterPosition(double wantedPos) {
+        if(isFlipped) {
+            wantedPos += 2 * (0.25 - wantedPos);
+        }
+        wantedPos = MathUtil.normalize(wantedPos, -0.5, 0.5);
         wantedShooterPosition = superstructure.currentState == States.SPEAKER ? wantedPos : 0;
         Logger.recordOutput("Shooter/Wanted Angle", wantedShooterPosition);
     }

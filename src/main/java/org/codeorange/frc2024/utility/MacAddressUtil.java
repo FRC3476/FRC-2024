@@ -10,7 +10,7 @@ import java.util.Enumeration;
 /**
  * Utility class for getting the MAC address of the robot radio and determining the robot's identity.
  *
- * @author 2910 & 1678
+ * @author 2910 and 1678
  */
 public class MacAddressUtil {
     public static final byte[] PROTOTYPE_BOT = new byte[]{

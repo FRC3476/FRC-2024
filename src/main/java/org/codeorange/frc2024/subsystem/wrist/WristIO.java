@@ -22,6 +22,6 @@ public interface WristIO {
 
     default void setBrakeMode(boolean braked) {}
 
-    default void setVoltage(int volts) {}
+    default void setVoltage(double volts) {}
 
 }

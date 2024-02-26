@@ -146,28 +146,28 @@ public final class Constants {
     public static final double SS_REST_WRIST = 0;
     public static final double SS_REST_CLIMBER = 0;
     public static final double SS_STOW_ELEVATOR = 0;
-    public static final double SS_STOW_ARM = 0;
+    public static final double SS_STOW_ARM = -0.01;
     public static final double SS_STOW_WRIST = 0;
     public static final double SS_STOW_CLIMBER = 0;
     public static final double SS_GENINTERMEDIATE_ELEVATOR = isPrototype() ? 3.5 : 0;
     public static final double SS_GENINTERMEDIATE_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_GENINTERMEDIATE_WRIST = isPrototype() ? 100 : 0;
     public static final double SS_GENINTERMEDIATE_CLIMBER = isPrototype() ? 100 : 0;
-    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 14.1;
+    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 16;
     public static final double SS_MIDINTAKE_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_MIDINTAKE_WRIST = isPrototype() ? -0.1 : 0;
 
     public static final double SS_MIDINTAKE_CLIMBER = 0;
-    public static final double SS_GROUNDINTAKE_ELEVATOR = 14;
+    public static final double SS_GROUNDINTAKE_ELEVATOR = 16;
     public static final double SS_GROUNDINTAKE_ARM = isPrototype() ? 0.01 : 0;
-    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.14;
+    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.19;
     public static final double SS_GROUNDINTAKE_CLIMBER = 0;
 
-    public static final double SS_SOURCEINTAKE_ELEVATOR = isPrototype() ? 0 : 0;
-    public static final double SS_SOURCEINTAKE_ARM = isPrototype() ? 0 : 0;
-    public static final double SS_SOURCEINTAKE_WRIST = isPrototype() ? 0 : 0;
+    public static final double SS_SOURCEINTAKE_ELEVATOR = 6;
+    public static final double SS_SOURCEINTAKE_ARM = 0.13;
+    public static final double SS_SOURCEINTAKE_WRIST = 0.008888888888888888888;
     public static final double SS_SOURCEINTAKE_CLIMBER = isPrototype() ? 0 : 0;
-    public static final double SS_AMP_ELEVATOR = isPrototype() ? 21.6 : 18;
+    public static final double SS_AMP_ELEVATOR = isPrototype() ? 21.6 : 20;
     public static final double SS_AMP_ARM = isPrototype() ? 0.16 : 0.175;
     public static final double SS_AMP_WRIST = isPrototype() ? -0.24 : -0.275;
     public static final double SS_AMP_CLIMBER = isPrototype() ? 0 : 0;
@@ -207,7 +207,7 @@ public final class Constants {
     public static final double ARM_P = 200;
     public static final double ARM_I = 0;
     public static final double ARM_D = isPrototype() ? 5 : 0;
-    public static final double ARM_RTS = isPrototype() ? 144.0 : 48.0 * 3;
+    public static final double ARM_RTS = isPrototype() ? 144.0 : 36.0 * 3;
     public static final double ARM_STM = isPrototype() ? 1.0 : 3.0;
 
     public static final double ELEVATOR_P = 1;
@@ -217,21 +217,21 @@ public final class Constants {
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
     public static final double CLIMBER_D = isPrototype() ? 0 : 0;
 
-    public static final double SHOOTER_P = isPrototype() ? 2 : 0;
+    public static final double SHOOTER_P = isPrototype() ? 2 : 0.2;
     public static final double SHOOTER_I = isPrototype() ? 0 : 0;
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
 
-    public static final double WRIST_P = 70;
+    public static final double WRIST_P = 100;
     public static final double WRIST_I = isPrototype() ? 0 : 0;
     public static final double WRIST_D = isPrototype() ? 0 : 0;
 
     public static final double WRIST_RTS = isPrototype() ? 81.0 : 125.0;
     public static final double WRIST_STM = 1.0;
 
-    public static final int STEER_MOTOR_CURRENT_LIMIT = 20;
-    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
-    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.281485, 2.3016, 0.45);
+    public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
+    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
+    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.281485, 2.08, 0.21);
     public static final int SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO = 12;
     public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
     public static final int MAX_TELEOP_TURN_SPEED = 10;
@@ -240,15 +240,16 @@ public final class Constants {
     public static final boolean USE_CANCODERS = true;
 
     //TODO: figure out how tf these numbers were obtained
-    public static final double SWERVE_INCHES_PER_ROTATION = 12.5 * 0.976 * 0.96488764044943820224719101123596;
     public static final double SWERVE_WHEEL_RADIUS = 2; // inches
+    public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS * 0.976 * 0.96488764044943820224719101123596;
+
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
     public static final double DRIVE_MOTOR_REDUCTION = 1 / 5.36;
 
     // TODO: check accuracy of these numbers for new drive base. Ask CAD ppl?
-    public static final double wheelBaseInches = isPrototype() ? 22.75 : 27; // not real number, just example
+    public static final double wheelBaseInches = isPrototype() ? 22.75 : 24.25; // not real number, just example
     public static final @NotNull Translation2d SWERVE_LEFT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(wheelBaseInches/2), Units.inchesToMeters(wheelBaseInches/2));
     public static final @NotNull Translation2d SWERVE_LEFT_BACK_LOCATION = new Translation2d(Units.inchesToMeters(-wheelBaseInches/2), Units.inchesToMeters(wheelBaseInches/2));
     public static final @NotNull Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(wheelBaseInches/2), Units.inchesToMeters(-wheelBaseInches/2));

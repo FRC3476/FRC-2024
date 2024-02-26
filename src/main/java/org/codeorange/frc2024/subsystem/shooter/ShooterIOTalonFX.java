@@ -40,7 +40,7 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.CurrentLimits.StatorCurrentLimit = 30.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.Slot0.kP = SHOOTER_P;
         config.Slot0.kI = SHOOTER_I;
         config.Slot0.kD = SHOOTER_D;
@@ -94,10 +94,10 @@ public class ShooterIOTalonFX implements ShooterIO {
         leader.setControl(voltageOut.withOutput(voltage));
     }
 
-    VelocityVoltage velocityVoltage = new VelocityVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+    VelocityVoltage velocityVoltage = new VelocityVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(false);
     @Override
     public void setVelocity(double velocity, double ffVolts) {
-        leader.setControl(velocityVoltage.withVelocity(velocity).withFeedForward(ffVolts));
+        leader.setControl(velocityVoltage.withVelocity(velocity).withFeedForward(0));
     }
 
     @Override

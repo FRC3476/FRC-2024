@@ -33,42 +33,35 @@ public class Limelight {
     private double translationStDev;
     private double rotationStDev;
 
-    public final LoggedDashboardChooser<Boolean> visionOnOffChooser = new LoggedDashboardChooser<>("Vision On Off Chooser");
-    public final LoggedDashboardChooser<Boolean> filterBadPoses = new LoggedDashboardChooser<>("Filter Bad Poses");
+    public final LoggedDashboardChooser<Boolean> visionOnOffChooser;
 
     public Limelight(String name) {
-        this.limelightName = name;
+        limelightName = name;
+        visionOnOffChooser = new LoggedDashboardChooser<>("Vision On Off Chooser:" + limelightName);
         visionOnOffChooser.addDefaultOption("on", true);
         visionOnOffChooser.addOption("off", false);
-        filterBadPoses.addDefaultOption("on", true);
-        filterBadPoses.addOption("off", false);
-        SmartDashboard.putData("Limelight Field", limelightField);
+
+        SmartDashboard.putData("Limelight Field: " + limelightName, limelightField);
     }
     public void update() {
-        // Code adapted from 1323 Madtown LimelightProcessor class https://github.com/MrThru/2023ChargedUp/
         double timestamp = Logger.getRealTimestamp();
-        // TODO: The "hb" entry is actually not in the NetworkTables documentation; make sure it's okay to use
         double currentHeartbeat = LimelightHelpers.getLimelightNTDouble(limelightName, "hb");
         if (currentHeartbeat != previousHeartbeat) {
             lastUpdateStopwatch.reset();
             limelightConnected = true;
-            SmartDashboard.putBoolean("Limelight Connected", limelightConnected);
             boolean visionIsEnabled = visionOnOffChooser.get();
             if (visionIsEnabled) {
                 LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(limelightName);
                 handleFiducialTargets(results, timestamp);
-                //handleRetroTargets(results, timestamp);
-                //handleDetectorTargets(results, timestamp);
             }
-
             previousHeartbeat = currentHeartbeat;
         } else {
             lastUpdateStopwatch.start();
             if (lastUpdateStopwatch.get() > 0.5) {
                 limelightConnected = false;
-                SmartDashboard.putBoolean("Limelight Connected", limelightConnected);
             }
         }
+        SmartDashboard.putBoolean(limelightName + " Connected", limelightConnected);
     }
     private double getTotalLatencySeconds(LimelightResults results) {
         return (results.targetingResults.latency_capture + results.targetingResults.latency_pipeline +
@@ -79,21 +72,21 @@ public class Limelight {
         if (results.targetingResults.targets_Fiducials.length == 0) {
             return;
         }
+        Pose2d estimatedRobotPoseMeters = results.targetingResults.getBotPose2d_wpiBlue();
         if (results.targetingResults.targets_Fiducials.length > 1) {
             translationStDev = 0.5;
             rotationStDev = 6;
-            Robot.getDrive().updateVisionStDev(translationStDev, rotationStDev);
-            Robot.getDrive().addVisionMeasurement(results.targetingResults.getBotPose2d_wpiBlue(), timestamp - getTotalLatencySeconds(results));
-        } else if (LimelightHelpers.getTA(limelightName) > 0.5) {
+        } else if (LimelightHelpers.getTA(limelightName) > 0.5
+        && Robot.getDrive().getPose().getTranslation().getDistance(estimatedRobotPoseMeters.getTranslation()) > 2) {
             translationStDev = 1.0;
             rotationStDev = 12;
-        } else if (LimelightHelpers.getTA(limelightName) > 0.115) {
+        } else if (LimelightHelpers.getTA(limelightName) > 0.115
+        && Robot.getDrive().getPose().getTranslation().getDistance(estimatedRobotPoseMeters.getTranslation()) > 1) {
             translationStDev = 2.0;
             rotationStDev = 24;
         } else {
             return;
         }
-        Pose2d estimatedRobotPoseMeters = results.targetingResults.getBotPose2d_wpiBlue();
 
         estimatedBotPose = estimatedRobotPoseMeters;
 
@@ -101,10 +94,7 @@ public class Limelight {
             (estimatedRobotPoseMeters.getTranslation().getY() > FIELD_WIDTH_METERS)) {
             return;
         }
-        if(Robot.getDrive().getPose().getTranslation().getDistance(estimatedRobotPoseMeters.getTranslation()) > 1
-        && filterBadPoses.get()) {
-            return;
-        }
+
         Logger.recordOutput("Vision/Estimated Pose", estimatedRobotPoseMeters);
         limelightField.setRobotPose(estimatedRobotPoseMeters);
         Robot.getDrive().updateVisionStDev(translationStDev, rotationStDev);

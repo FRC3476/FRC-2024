@@ -23,6 +23,7 @@ import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.codeorange.frc2024.utility.wpimodified.PIDController;
 import org.codeorange.frc2024.utility.wpimodified.SwerveDrivePoseEstimator;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -53,9 +54,13 @@ public class Drive extends AbstractSubsystem {
 
     public final Field2d realField = new Field2d();
 
-    private final Translation2d redAllianceSpeaker = new Translation2d(FIELD_LENGTH_METERS, (FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
-    private final Translation2d blueAllianceSpeaker = new Translation2d(0, (FIELD_WIDTH_METERS / 2) + Units.inchesToMeters(57));
-    // we want 0,0 at the bottom left relative to Choreo's field drawing
+    private final Translation2d redAllianceSpeaker = new Translation2d(
+            FIELD_LENGTH_METERS, 5.525
+    );
+    private final Translation2d blueAllianceSpeaker = new Translation2d(
+            0, 5.525
+    );
+
 
     public Drive(ModuleIO flModule, ModuleIO blModule, ModuleIO frModule, ModuleIO brModule, GyroIO gyroIO) {
         super();
@@ -85,6 +90,8 @@ public class Drive extends AbstractSubsystem {
     }
 
     double lastTimeStep;
+    @AutoLogOutput(key = "Drive/Is Open Loop")
+    public boolean isOpenLoop = false;
 
     @Override
     public synchronized void update() {
@@ -109,7 +116,7 @@ public class Drive extends AbstractSubsystem {
 
         if (!DriverStation.isTest() && DriverStation.isEnabled()) {
             var dt = Logger.getRealTimestamp() * 1e-6 - lastTimeStep;
-            swerveDrive(nextChassisSpeeds, kinematicLimit, dt);
+            swerveDrive(nextChassisSpeeds, kinematicLimit, dt, isOpenLoop);
         }
 
         poseEstimator.updateWithTime(
@@ -172,13 +179,19 @@ public class Drive extends AbstractSubsystem {
     double[] lastModuleVelocities = new double[4];
     double[] lastModuleTimes = new double[4];
 
-    private void setMotorSpeed(int module, double velocity, double acceleration) {
+    private void setMotorSpeed(int module, double velocity, double acceleration, boolean isOpenLoop) {
         if (module < 0 || module > 3) {
             throw new IllegalArgumentException("Module must be between 0 and 3");
         }
 
-        double ffv = DRIVE_FEEDFORWARD.calculate(velocity, acceleration);
-        moduleIO[module].setDriveMotorVoltage(ffv);
+        double ffv = 0;
+        if (isOpenLoop) {
+            ffv = DRIVE_FEEDFORWARD.calculate(velocity, acceleration);
+            moduleIO[module].setDriveMotorVoltage(ffv);
+        } else {
+            moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
+        }
+
 
         Logger.recordOutput("Drive/Out Volts " + module, ffv);
         Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
@@ -201,13 +214,11 @@ public class Drive extends AbstractSubsystem {
     SwerveModuleState[] wantedStates = new SwerveModuleState[4];
     SwerveModuleState[] realStates = new SwerveModuleState[4];
 
-    private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates) {
-
+    private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean isOpenLoop) {
         for (int i = 0; i < 4; i++) {
-
             var moduleState = swerveModuleStates[i];
-            wantedStates[i] = swerveModuleStates[i].toFirstOrder();
             moduleState = SecondOrderModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
+            wantedStates[i] = swerveModuleStates[i].toFirstOrder();
             double currentAngle = getWheelRotation(i);
 
             double angleDiff = getAngleDiff(moduleState.angle.getDegrees(), currentAngle);
@@ -222,7 +233,7 @@ public class Drive extends AbstractSubsystem {
                 moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
             }
 
-            setMotorSpeed(i, moduleState.speedMetersPerSecond, 0);
+            setMotorSpeed(i, moduleState.speedMetersPerSecond, 0, isOpenLoop);
             //setMotorSpeed(i, 0, 0);
 
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
@@ -243,17 +254,17 @@ public class Drive extends AbstractSubsystem {
 
     private synchronized void swerveDrive(ChassisSpeeds desiredRobotRelSpeeds,
                                           SwerveSetpointGenerator.KinematicLimit kinematicLimit,
-                                          double dt) {
+                                          double dt, boolean isOpenLoop) {
         Logger.recordOutput("Drive/Desired ChassisSpeeds", desiredRobotRelSpeeds);
-        desiredRobotRelSpeeds = ChassisSpeeds.discretize(desiredRobotRelSpeeds, dt);
-        var moduleStates = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(desiredRobotRelSpeeds);
+        var discretizedChassisSpeeds = ChassisSpeeds.discretize(desiredRobotRelSpeeds, dt);
+        var moduleStates = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(discretizedChassisSpeeds);
 
         SecondOrderKinematics.desaturateWheelSpeeds(
                 moduleStates,
                 DRIVE_FEEDFORWARD.maxAchievableVelocity(SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO, 0)
         );
 
-        setSwerveModuleStates(moduleStates);
+        setSwerveModuleStates(moduleStates, isOpenLoop);
     }
 
     public synchronized void swerveDrive(@NotNull ControllerDriveInputs inputs) {
@@ -335,7 +346,7 @@ public class Drive extends AbstractSubsystem {
         if(Math.abs(delta.getRadians()) > (Math.PI / 2)) {
             target.rotateBy(Rotation2d.fromRadians(Math.PI));
         }
-        return -Math.PI / 8;
+        return target.getRadians();
     }
 
     public void resetOdometry(Pose2d pose) {

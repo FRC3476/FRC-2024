@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -27,6 +28,11 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final StatusSignal<Double> steerMotorVoltage;
     private final StatusSignal<Double> steerMotorAmps;
     private final StatusSignal<Double> steerMotorTemp;
+    private final StatusSignal<Boolean> fault;
+    private final StatusSignal<Boolean> voltageFault;
+    private final StatusSignal<Boolean> badMagnetFault;
+
+
 
 
     private final CANcoder swerveCancoder;
@@ -73,9 +79,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveMotor.getConfigurator().apply(
                 new TalonFXConfiguration()
                         .withSlot0(new Slot0Configs()
-                                .withKP(0)
+                                .withKP(1)
                                 .withKI(0)
-                                .withKD(0)
+                                .withKD(0.1)
                                 .withKS(DRIVE_FEEDFORWARD.ks)
                                 .withKV(DRIVE_FEEDFORWARD.kv)
                         )
@@ -143,9 +149,16 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerMotorAmps = steerMotor.getSupplyCurrent();
         steerMotorTemp = steerMotor.getDeviceTemp();
 
+        steerMotor.getStickyFault_BridgeBrownout();
+
+        fault = swerveCancoder.getStickyFault_Hardware();
+        badMagnetFault = swerveCancoder.getStickyFault_BadMagnet();
+        voltageFault = swerveCancoder.getStickyFault_Undervoltage();
+
+
         BaseStatusSignal.setUpdateFrequencyForAll(100.0, driveMotorPosition, steerMotorRelativePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(50, driveMotorVelocity, steerMotorAbsolutePosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(2.0, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
+        BaseStatusSignal.setUpdateFrequencyForAll(2.0, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorVoltage, steerMotorAmps, steerMotorTemp, fault, badMagnetFault, voltageFault);
 
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();
@@ -156,7 +169,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
     @Override
     public void updateInputs(ModuleInputs inputs) {
-        BaseStatusSignal.refreshAll(driveMotorPosition, driveMotorVelocity, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorAbsolutePosition, steerMotorRelativePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
+        BaseStatusSignal.refreshAll(driveMotorPosition, driveMotorVelocity, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorAbsolutePosition, steerMotorRelativePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp, fault, badMagnetFault, voltageFault);
 
         inputs.driveMotorPosition = driveMotorPosition.getValue();
         inputs.driveMotorVelocity = driveMotorVelocity.getValue();
@@ -170,6 +183,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.steerMotorVoltage = steerMotorVoltage.getValue();
         inputs.steerMotorAmps = steerMotorAmps.getValue();
         inputs.steerMotorTemp = steerMotorTemp.getValue();
+        inputs.hardwareFault = fault.getValue();
+        inputs.voltageFault = voltageFault.getValue();
+        inputs.badMagnetFault = badMagnetFault.getValue();
     }
 
     private boolean isBraking = false;
@@ -207,7 +223,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     public void setDriveMotorVoltage(double voltage) {
         voltageOut.Output = voltage;
         voltageOut.EnableFOC = true;
-        voltageOut.OverrideBrakeDurNeutral = false;
+        voltageOut.OverrideBrakeDurNeutral = true;
         driveMotor.setControl(voltageOut);
     }
 
@@ -236,4 +252,8 @@ public class ModuleIOTalonFX implements ModuleIO {
         System.out.println("Setting Zero " + oldVal + " -> " + swerveCancoder.getAbsolutePosition().getValue());
     }
 
+    @Override
+    public void setDriveMotorVelocity(double velocity, double accel) {
+        driveMotor.setControl(new VelocityVoltage(velocity).withAcceleration(accel).withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+    }
 }

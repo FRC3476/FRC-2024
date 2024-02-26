@@ -6,7 +6,6 @@
 package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
-import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -192,6 +191,8 @@ public class Robot extends LoggedRobot {
         intake.start();
         vision.start();
         // climber.start();
+        superstructure.start();
+        superstructure.setCurrentState(Superstructure.States.STOW);
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
@@ -215,6 +216,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
+        drive.isOpenLoop = false;
         AutoManager.getInstance().loadAuto(autoChooser.get());
         AutoManager.getInstance().startAuto();
     }
@@ -227,6 +229,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        drive.isOpenLoop = true;
         drive.setBrakeMode(true);
         AutoManager.getInstance().endAuto();
     }
@@ -239,33 +242,80 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        drive.swerveDriveFieldRelative(controllerDriveInputs);
+        if(buttonPanel.getRisingEdge(1)) {
+            superstructure.setGoalState(Superstructure.States.STOW);
+        }
+        if(buttonPanel.getRisingEdge(2)) {
+            superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
+        }
+        if(buttonPanel.getRisingEdge(3)) {
+            superstructure.setGoalState(Superstructure.States.AMP);
+        }
+        if(buttonPanel.getRisingEdge(4)) {
+            superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
+        }
+        if(buttonPanel.getRisingEdge(5)) {
+            superstructure.setGoalState(Superstructure.States.SPEAKER);
+            superstructure.isFlipped = false;
+        }
+        if(buttonPanel.getRisingEdge(11)) {
+            superstructure.setGoalState(Superstructure.States.SPEAKER);
+            superstructure.isFlipped = true;
+        }
+        if(buttonPanel.getRisingEdge(6)) {
+            superstructure.setGoalState(Superstructure.States.SHOOT_OVER_STAGE);
+        }
+        if(buttonPanel.getRisingEdge(7)) {
+            superstructure.setGoalState(Superstructure.States.SHOOT_UNDER_STAGE);
+        }
+        if(buttonPanel.getRisingEdge(8)) {
+            superstructure.setGoalState(Superstructure.States.TEST_TRAP);
+        }
 
-        if(xbox.getRawButton(XboxButtons.A)) {
-            arm.setPosition(voltage.get());
-        } else {
-            arm.stop();
+        if(xbox.getRisingEdge(XboxButtons.X)) {
+            drive.resetOdometry(vision.frontCamera.estimatedBotPose);
         }
-        if(xbox.getRawButton(XboxButtons.B)) {
-            elevator.setPosition(elevpos.get());
-        } else {
-            elevator.stop();
-        }
-        if(xbox.getRawButton(XboxButtons.X)) {
-            wrist.setWristPosition(wristPos.get());
+        if(xbox.getRisingEdge(XboxButtons.A)) {
+            drive.resetGyro(0);
         }
 
-        if(xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
-            shooter.shoot(100);
-        } else if (xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
+        if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
+            superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
+        } else if (xbox.getFallingEdge(XboxButtons.RIGHT_BUMPER)) {
+            superstructure.setGoalState(Superstructure.States.STOW);
+        }
+        if(xbox.getRisingEdge(XboxButtons.B)) {
+            superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
+        } else if (xbox.getFallingEdge(XboxButtons.B)) {
+            superstructure.setGoalState(Superstructure.States.STOW);
+        }
+
+
+        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER) || xbox.getRawButton(XboxButtons.B)) {
             intake.runIntake();
-            shooter.stop();
-        }else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
+        } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
             intake.runOuttake();
+        } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
+            intake.runIntakeForShooter();
+        } else if(logitechThing.getRawButton(11)) {
+            intake.setDutyCycle(0.05);
+        } else if(logitechThing.getRawButton(9)) {
+            intake.setDutyCycle(-0.05);
+            shooter.setMotorVoltage(-2);
         } else {
             intake.stop();
+        }
+        if(logitechThing.getFallingEdge(9)) {
             shooter.stop();
+        }
+
+        superstructure.a = 4 * logitechThing.getRawAxis(2);
+
+        ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
+        if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
+            drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
+        } else {
+            drive.swerveDriveFieldRelative(controllerDriveInputs);
         }
     }
 
