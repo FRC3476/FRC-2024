@@ -73,14 +73,14 @@ public class Limelight {
             return;
         }
         Pose2d estimatedRobotPoseMeters = results.targetingResults.getBotPose2d_wpiBlue();
-        if (results.targetingResults.targets_Fiducials.length > 1) {
+        if (results.targetingResults.targets_Fiducials.length > 1 && LimelightHelpers.getTA(limelightName) > 0.1) {
             translationStDev = 0.5;
             rotationStDev = 6;
         } else if (LimelightHelpers.getTA(limelightName) > 0.5
         && Robot.getDrive().getPose().getTranslation().getDistance(estimatedRobotPoseMeters.getTranslation()) > 2) {
             translationStDev = 1.0;
             rotationStDev = 12;
-        } else if (LimelightHelpers.getTA(limelightName) > 0.115
+        } else if (LimelightHelpers.getTA(limelightName) > 0.2
         && Robot.getDrive().getPose().getTranslation().getDistance(estimatedRobotPoseMeters.getTranslation()) > 1) {
             translationStDev = 2.0;
             rotationStDev = 24;

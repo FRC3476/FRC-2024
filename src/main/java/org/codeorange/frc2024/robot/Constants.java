@@ -197,7 +197,7 @@ public final class Constants {
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
     public static final double SWERVE_DRIVE_P = 100;
-    public static final double SWERVE_DRIVE_D = 0.05;
+    public static final double SWERVE_DRIVE_D = 0.0;
     public static final double SWERVE_DRIVE_I = 0;
 
     public static final double TURN_P = isPrototype() ? 2 : 5;
@@ -210,7 +210,7 @@ public final class Constants {
     public static final double ARM_RTS = isPrototype() ? 144.0 : 36.0 * 3;
     public static final double ARM_STM = isPrototype() ? 1.0 : 3.0;
 
-    public static final double ELEVATOR_P = 1;
+    public static final double ELEVATOR_P = 2;
     public static final double ELEVATOR_INCHES_PER_ROTATION = isPrototype() ? 0.25*22*12/60 : (30 * 5 * 8.0 / 72.0 / 25.4); //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
 
     public static final double CLIMBER_P = isPrototype() ? 0 : 0;
@@ -236,17 +236,17 @@ public final class Constants {
     public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
     public static final int MAX_TELEOP_TURN_SPEED = 10;
     public static final boolean USE_RELATIVE_ENCODER_POSITION = true;
-    public static final double ALLOWED_SWERVE_ANGLE_ERROR = 2;
+    public static final double ALLOWED_SWERVE_ANGLE_ERROR = 0;
     public static final boolean USE_CANCODERS = true;
 
     //TODO: figure out how tf these numbers were obtained
     public static final double SWERVE_WHEEL_RADIUS = 2; // inches
-    public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS * 0.976 * 0.96488764044943820224719101123596;
+    public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS * 0.976 * 0.96488764044943820224719101123596 * 0.96;
 
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
-    public static final double DRIVE_MOTOR_REDUCTION = 1 / 5.36;
+    public static final double DRIVE_MOTOR_REDUCTION = 9 / 53.125;
 
     // TODO: check accuracy of these numbers for new drive base. Ask CAD ppl?
     public static final double wheelBaseInches = isPrototype() ? 22.75 : 24.25; // not real number, just example

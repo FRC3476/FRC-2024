@@ -27,9 +27,9 @@ public class DrivePath implements BaseAction {
         drive.realField.getObject("trajPoses").setPoses(trajectory.getPoses());
     }
 
-    private final PIDController xController = new PIDController(1, 0, 0);
-    private final PIDController yController = new PIDController(1, 0, 0);
-    private final PIDController thetaController = new PIDController(3.476, 0, 0);
+    private final PIDController xController = new PIDController(1.5, 0, 0.25);
+    private final PIDController yController = new PIDController(1.5, 0, 0.25);
+    private final PIDController thetaController = new PIDController(2, 0, 0.2);
     private final ChoreoControlFunction choreoController = Choreo.choreoSwerveController(xController, yController, thetaController);
     private ChoreoTrajectoryState state;
     @Override

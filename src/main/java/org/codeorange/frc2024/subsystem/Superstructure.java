@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.subsystem.shooter.Shooter;
 
@@ -11,6 +12,7 @@ import org.codeorange.frc2024.subsystem.intake.Intake;
 import org.codeorange.frc2024.subsystem.wrist.Wrist;
 import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
@@ -40,6 +42,8 @@ public class Superstructure extends AbstractSubsystem {
         shooter = Robot.getShooter();
         // climber = Robot.getClimber();
     }
+
+    public double wantedAngle = 54;
 
     public enum States {
         REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST, SS_REST_CLIMBER) {
@@ -96,7 +100,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code and such
-                if(intake.hasNote()) {
+                if(intake.hasNote() && DriverStation.isTeleop()) {
                     superstructure.setGoalState(States.STOW);
                 }
                 if(superstructure.goalState == States.STOW) {
@@ -133,7 +137,7 @@ public class Superstructure extends AbstractSubsystem {
             //spin drivebase + aim mechanisms
             public void update() {
                 if(arm.getPivotDegrees() >= 0.05) {
-                    superstructure.setWantedShooterPosition((double) 54 / 360);
+                    superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
                 } else {
                     superstructure.setWantedShooterPosition(0);
                 }
@@ -227,10 +231,12 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         };
+        @AutoLogOutput(key = "Superstructure/Is At Wanted State")
         public boolean isAtWantedState() {
             return (MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
                     && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.05)
-                    && MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.01));
+                    && (MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.01)
+                    || MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - SS_SPEAKER_ARM, wrist.getWristAbsolutePosition(), 0.01)));
                     //&& MathUtil.epsilonEquals(climberPos, climber.getPositionInInches(), 0.05));
         }
         final double elevatorPos;
@@ -298,6 +304,7 @@ public class Superstructure extends AbstractSubsystem {
         this.goalState = goalState;
     }
 
+    @AutoLogOutput(key = "Superstructure/Is At Goal State")
     public boolean isAtGoalState() {
         return currentState == goalState;
     }

@@ -350,12 +350,12 @@ public class Drive extends AbstractSubsystem {
     }
 
     public void resetOdometry(Pose2d pose) {
+        resetGyro(pose.getRotation().getDegrees());
         poseEstimator.resetPosition(
                 gyroInputs.rotation2d,
                 getModulePositions(),
                 pose
         );
-        resetGyro(pose.getRotation().getDegrees());
         System.out.println("resetting odometry");
     }
 

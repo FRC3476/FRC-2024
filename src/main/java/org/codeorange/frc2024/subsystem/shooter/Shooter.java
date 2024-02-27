@@ -1,9 +1,7 @@
 package org.codeorange.frc2024.subsystem.shooter;
 
-import edu.wpi.first.wpilibj.Timer;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
-import org.codeorange.frc2024.utility.MathUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends AbstractSubsystem {
@@ -41,7 +39,9 @@ public class Shooter extends AbstractSubsystem {
         shooterIO.stop();
     }
 
-
+    public double getVelocity() {
+        return ShooterInputs.leaderVelocity;
+    }
     public synchronized void setMotorVoltage(double voltage) {
         shooterIO.setMotorVoltage(voltage);
     }

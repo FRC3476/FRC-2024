@@ -16,7 +16,17 @@ public class GroundIntake implements BaseAction {
     }
 
     @Override
+    public void update() {
+        intake.runIntake();
+    }
+
+    @Override
     public boolean isFinished() {
-        return intake.hasNote() || (Logger.getTimestamp() * 1e-6 - startTime) > 1.5;
+        return intake.hasNote() || (Logger.getTimestamp() * 1e-6 - startTime) > 2.5;
+    }
+
+    @Override
+    public void done() {
+        intake.stop();
     }
 }

@@ -173,7 +173,7 @@ public class Robot extends LoggedRobot {
         // Initialize auto chooser
         autoChooser.addDefaultOption("Do Nothing", 0);
         autoChooser.addOption("Test", 1);
-        autoChooser.addOption("FigEight", 100);
+        autoChooser.addOption("Four Piece", 2);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 
@@ -216,7 +216,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        drive.isOpenLoop = false;
+        drive.isOpenLoop = true;
         AutoManager.getInstance().loadAuto(autoChooser.get());
         AutoManager.getInstance().startAuto();
     }
@@ -272,9 +272,6 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.TEST_TRAP);
         }
 
-        if(xbox.getRisingEdge(XboxButtons.X)) {
-            drive.resetOdometry(vision.frontCamera.estimatedBotPose);
-        }
         if(xbox.getRisingEdge(XboxButtons.A)) {
             drive.resetGyro(0);
         }
@@ -314,6 +311,8 @@ public class Robot extends LoggedRobot {
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
+        } else if(xbox.getRawButton(XboxButtons.X)) {
+            drive.swerveDrive(new ControllerDriveInputs(0.5, 0, 0));
         } else {
             drive.swerveDriveFieldRelative(controllerDriveInputs);
         }
@@ -322,6 +321,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
+        AutoManager.getInstance().endAuto();
         drive.setBrakeMode(true);
         drive.setNextChassisSpeeds(new ChassisSpeeds());
     }

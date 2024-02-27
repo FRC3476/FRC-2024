@@ -3,9 +3,7 @@ package org.codeorange.frc2024.subsystem.drive;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
@@ -79,9 +77,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveMotor.getConfigurator().apply(
                 new TalonFXConfiguration()
                         .withSlot0(new Slot0Configs()
-                                .withKP(1)
+                                .withKP(0.02)
                                 .withKI(0)
-                                .withKD(0.1)
+                                .withKD(0.00002)
                                 .withKS(DRIVE_FEEDFORWARD.ks)
                                 .withKV(DRIVE_FEEDFORWARD.kv)
                         )
@@ -99,6 +97,8 @@ public class ModuleIOTalonFX implements ModuleIO {
                                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                                 .withSensorToMechanismRatio(1 / (DRIVE_MOTOR_REDUCTION * SWERVE_INCHES_PER_ROTATION))
                                 .withRotorToSensorRatio(1)
+                        ).withMotionMagic(new MotionMagicConfigs()
+                                .withMotionMagicAcceleration(100)
                         )
         );
 
@@ -130,6 +130,9 @@ public class ModuleIOTalonFX implements ModuleIO {
                         .withMotorOutput(new MotorOutputConfigs()
                                 .withInverted(InvertedValue.Clockwise_Positive)
                                 .withNeutralMode(NeutralModeValue.Coast)
+                        ).withMotionMagic(new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(98)
+                                .withMotionMagicAcceleration(1000)
                         )
         );
 
@@ -208,7 +211,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     @Override
     public void setSteerMotorPosition(double position, double omega) {
         positionVoltage.Position = position/360;
-        positionVoltage.Velocity = omega/(Math.PI*2);
+        positionVoltage.FeedForward = omega * 0;
         steerMotor.setControl(positionVoltage);
     }
 
@@ -254,6 +257,6 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void setDriveMotorVelocity(double velocity, double accel) {
-        driveMotor.setControl(new VelocityVoltage(velocity).withAcceleration(accel).withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+        driveMotor.setControl(new VelocityVoltage(Units.metersToInches(velocity)).withAcceleration(accel).withOverrideBrakeDurNeutral(true));
     }
 }
