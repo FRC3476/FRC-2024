@@ -41,9 +41,9 @@ public class WristIOTalonFX implements WristIO {
         wristFeedBackConfigs.RotorToSensorRatio = WRIST_RTS;
 
         MotionMagicConfigs wristMotionMagicConfig = configs.MotionMagic;
-        wristMotionMagicConfig.MotionMagicCruiseVelocity = 2;
-        wristMotionMagicConfig.MotionMagicAcceleration = 8;     //TODO change motion magic values
-        wristMotionMagicConfig.MotionMagicJerk = 40;
+        wristMotionMagicConfig.MotionMagicCruiseVelocity = 4;
+        wristMotionMagicConfig.MotionMagicAcceleration = 16;     //TODO change motion magic values
+        wristMotionMagicConfig.MotionMagicJerk = 80;
 
         MotorOutputConfigs motorOutput = configs.MotorOutput;
         motorOutput.Inverted = InvertedValue.Clockwise_Positive;

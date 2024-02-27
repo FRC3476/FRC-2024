@@ -54,9 +54,9 @@ public class ArmIOTalonFX implements ArmIO {
         armFeedBackConfigs.RotorToSensorRatio = ARM_RTS;
 
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
-        armMotionMagicConfig.MotionMagicCruiseVelocity = 0.4;
-        armMotionMagicConfig.MotionMagicAcceleration = 0.8;     //TODO change motion magic values
-        armMotionMagicConfig.MotionMagicJerk = 4;
+        armMotionMagicConfig.MotionMagicCruiseVelocity = 0.8;
+        armMotionMagicConfig.MotionMagicAcceleration = 3.2;     //TODO change motion magic values
+        armMotionMagicConfig.MotionMagicJerk = 16;
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
         slot0.kP = ARM_P;
