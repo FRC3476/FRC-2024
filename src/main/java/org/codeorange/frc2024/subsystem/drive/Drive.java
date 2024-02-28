@@ -221,18 +221,7 @@ public class Drive extends AbstractSubsystem {
             wantedStates[i] = swerveModuleStates[i].toFirstOrder();
             double currentAngle = getWheelRotation(i);
 
-            double angleDiff = getAngleDiff(moduleState.angle.getDegrees(), currentAngle);
-
-            if (Math.abs(angleDiff) > ALLOWED_SWERVE_ANGLE_ERROR) {
-                if (USE_CANCODERS) {
-                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff, USE_SECOND_ORDER_KINEMATICS ? moduleState.omega : 0);
-                } else {
-                    moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees(), USE_SECOND_ORDER_KINEMATICS ? moduleState.omega : 0);
-                }
-            } else {
-                moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
-            }
-
+            moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees(), 0);
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0, isOpenLoop);
             //setMotorSpeed(i, 0, 0);
 
@@ -240,9 +229,6 @@ public class Drive extends AbstractSubsystem {
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", Units.radiansToRotations(moduleState.omega));
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Angle Error", angleDiff);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Relative Angle",
-                    moduleInputs[i].steerMotorRelativePosition + angleDiff);
 
             realStates[i] = new SwerveModuleState(Units.inchesToMeters(moduleInputs[i].driveMotorVelocity), Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
         }
@@ -371,5 +357,7 @@ public class Drive extends AbstractSubsystem {
     public void setNextChassisSpeeds(ChassisSpeeds nextChassisSpeeds) {
         this.nextChassisSpeeds = new ChassisSpeeds(nextChassisSpeeds.vxMetersPerSecond, nextChassisSpeeds.vyMetersPerSecond, -nextChassisSpeeds.omegaRadiansPerSecond);
     }
+
+
 }
 

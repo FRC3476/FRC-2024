@@ -31,7 +31,10 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final StatusSignal<Boolean> badMagnetFault;
 
 
-
+    private final ClosedLoopGeneralConfigs wrap = new ClosedLoopGeneralConfigs();
+    {
+        wrap.ContinuousWrap = true;
+    }
 
     private final CANcoder swerveCancoder;
 
@@ -130,10 +133,7 @@ public class ModuleIOTalonFX implements ModuleIO {
                         .withMotorOutput(new MotorOutputConfigs()
                                 .withInverted(InvertedValue.Clockwise_Positive)
                                 .withNeutralMode(NeutralModeValue.Coast)
-                        ).withMotionMagic(new MotionMagicConfigs()
-                                .withMotionMagicCruiseVelocity(98)
-                                .withMotionMagicAcceleration(1000)
-                        )
+                        ).withClosedLoopGeneral(wrap)
         );
 
         swerveCancoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)));
