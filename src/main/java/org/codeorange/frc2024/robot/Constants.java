@@ -93,8 +93,10 @@ public final class Constants {
 
         public static final int INTAKE_MOTOR_ID = 31;
         public static final int CLIMBER = 36;
-
+        //below 3 are pwm channels not can bus ids
         public static final int INTAKE_BEAM_BREAK = 0;
+        public static final int SERVO_1 = 8; //TODO: update these
+        public static final int SERVO_2 = 9;
     }
 
     public static final double FL_ABSOLUTE_ENCODER_OFFSET;

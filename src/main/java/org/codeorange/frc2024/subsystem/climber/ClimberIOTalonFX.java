@@ -9,6 +9,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.Servo;
 import org.codeorange.frc2024.robot.Constants;
 
 import static edu.wpi.first.wpilibj.Relay.Value.*;
@@ -24,11 +25,15 @@ public class ClimberIOTalonFX implements ClimberIO {
     private final StatusSignal<Double> climberVoltage;
 
     private final TalonFX motor;
-    private final Relay spikeRelay;
+    private final Servo servo1;
+    private final Servo servo2;
+    //private final Relay spikeRelay;
 
     public ClimberIOTalonFX() {
         motor = new TalonFX(Constants.Ports.CLIMBER);
-        spikeRelay = new Relay(Constants.CLIMBER_PWM_RELAY_CHANNEL);
+        servo1 = new Servo(Constants.Ports.SERVO_1);
+        servo2 = new Servo(Constants.Ports.SERVO_2);
+        //spikeRelay = new Relay(Constants.CLIMBER_PWM_RELAY_CHANNEL);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()
@@ -77,7 +82,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.climberVoltage = climberVoltage.getValue();
         inputs.climberCurrent = climberCurrent.getValue();
         inputs.climberTemp = climberTemp.getValue();
-        inputs.relayValue = spikeRelay.get().getPrettyValue();
+        //inputs.relayValue = spikeRelay.get().getPrettyValue();
     }
 
     public void setEncoderToZero() {
@@ -87,10 +92,20 @@ public class ClimberIOTalonFX implements ClimberIO {
     public void setBrakeMode(boolean braked) {
         motor.setNeutralMode(braked ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
-    public void disengageRatchet() {
-        spikeRelay.set(kOn);
+    //public void disengageRatchet() {
+    //    spikeRelay.set(kOn);
+    //}
+    //public void engageRatchet() {
+    //    spikeRelay.set(kOff);
+    //}
+
+    public void open() {
+        servo1.setPosition(1.0);
+        servo2.setPosition(1.0);
     }
-    public void engageRatchet() {
-        spikeRelay.set(kOff);
+
+    public void close() {
+        servo1.setPosition(0.0);
+        servo2.setPosition(0.0);
     }
 }

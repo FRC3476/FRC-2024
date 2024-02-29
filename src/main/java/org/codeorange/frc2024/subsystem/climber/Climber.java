@@ -38,11 +38,19 @@ public class Climber extends AbstractSubsystem {
         climberIO.setEncoderToZero();
     }
 
-    public void disengageRatchet() {
-        climberIO.disengageRatchet();
+    //public void disengageRatchet() {
+    //    climberIO.disengageRatchet();
+    //}
+
+    //public void engageRatchet() {
+    //    climberIO.engageRatchet();
+    //}
+
+    public void open() {
+        climberIO.open();
     }
 
-    public void engageRatchet() {
-        climberIO.engageRatchet();
+    public void close() {
+        climberIO.close();
     }
 }
