@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
+import org.codeorange.frc2024.subsystem.BlinkinLEDController;
 import org.codeorange.frc2024.subsystem.arm.*;
 import org.codeorange.frc2024.subsystem.drive.*;
 import org.codeorange.frc2024.subsystem.intake.*;
@@ -71,6 +72,7 @@ public class Robot extends LoggedRobot {
     static Intake intake;
     // static Climber climber;
     static Vision vision;
+    static BlinkinLEDController blinkin;
 
     static Superstructure superstructure;
 
@@ -170,6 +172,7 @@ public class Robot extends LoggedRobot {
             intake = new Intake(new IntakeIO() {});
             // climber = new Climber(new ClimberIO() {});
             superstructure = Superstructure.getSuperstructure();
+            blinkin = new BlinkinLEDController();
         }
         // Initialize auto chooser
         autoChooser.addDefaultOption("Do Nothing", 0);
@@ -191,6 +194,7 @@ public class Robot extends LoggedRobot {
         arm.start();
         intake.start();
         vision.start();
+        blinkin.start();
         // climber.start();
 
         AutoManager.getInstance();
@@ -229,6 +233,7 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         drive.setBrakeMode(true);
         AutoManager.getInstance().endAuto();
+        blinkin.setPattern(BlinkinLEDController.BlinkinPattern.COLOR_WAVES_RAINBOW_PALETTE);
     }
 
 

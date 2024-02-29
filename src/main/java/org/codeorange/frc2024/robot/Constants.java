@@ -95,6 +95,8 @@ public final class Constants {
         public static final int CLIMBER = 36;
 
         public static final int INTAKE_BEAM_BREAK = 0;
+
+        public static final int BLINKIN_LED_CONTROLLER = 32;
     }
 
     public static final double FL_ABSOLUTE_ENCODER_OFFSET;
