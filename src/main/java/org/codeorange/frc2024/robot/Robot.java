@@ -7,8 +7,11 @@ package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.arm.*;
@@ -205,9 +208,6 @@ public class Robot extends LoggedRobot {
         xbox.update();
         logitechThing.update();
         buttonPanel.update();
-        if(buttonPanel.getRisingEdge(10)) {
-            elevator.zeroEncoder();
-        }
 
     }
 
@@ -238,10 +238,19 @@ public class Robot extends LoggedRobot {
     public static final LiveEditableValue<Double> voltage = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Voltage"));
     public static final LiveEditableValue<Double> elevpos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("elevpos"));
     public static final LiveEditableValue<Double> wristPos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("wristpos"));
+    boolean prevHasNote;
+    double rumbleStart = 0;
 
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+        if(prevHasNote && intake.hasNote()) {
+            xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0.5);
+            rumbleStart = Logger.getRealTimestamp() * 1e-6;
+        }
+        if(Logger.getRealTimestamp() * 1e-6 - rumbleStart > 0.5) {
+            xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0);
+        }
         if(buttonPanel.getRisingEdge(1)) {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
@@ -305,17 +314,20 @@ public class Robot extends LoggedRobot {
         if(logitechThing.getFallingEdge(9)) {
             shooter.stop();
         }
-
+        if(buttonPanel.getRisingEdge(10)) {
+            superstructure.setGoalState(Superstructure.States.HOMING);
+            elevator.home();
+        }
         superstructure.a = 4 * logitechThing.getRawAxis(2);
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
-        } else if(xbox.getRawButton(XboxButtons.X)) {
-            drive.swerveDrive(new ControllerDriveInputs(0.5, 0, 0));
         } else {
             drive.swerveDriveFieldRelative(controllerDriveInputs);
         }
+
+        prevHasNote = intake.hasNote();
     }
 
     /** This function is called once when the robot is disabled. */
@@ -335,7 +347,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void testInit() {
         // drive.setBrakeMode(false);
-        elevator.home();
     }
 
     /** This function is called periodically during test mode. */
