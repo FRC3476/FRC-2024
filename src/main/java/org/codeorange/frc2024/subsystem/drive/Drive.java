@@ -78,7 +78,7 @@ public class Drive extends AbstractSubsystem {
                 gyroInputs.rotation2d,
                 getModulePositions(),
                 new Pose2d(),
-                VecBuilder.fill(0.1, 0.1, 0.1),
+                VecBuilder.fill(0.1, 0.1, 0.0001),
                 VecBuilder.fill(0.3, 0.3, 0.3));
     }
 
@@ -115,8 +115,8 @@ public class Drive extends AbstractSubsystem {
 
 
         if (!DriverStation.isTest() && DriverStation.isEnabled()) {
-            var dt = Logger.getRealTimestamp() * 1e-6 - lastTimeStep;
-            swerveDrive(nextChassisSpeeds, kinematicLimit, dt, isOpenLoop);
+            var dt = Logger.getTimestamp() * 1e-6 - lastTimeStep;
+            swerveDrive(nextChassisSpeeds, dt, isOpenLoop);
         }
 
         poseEstimator.updateWithTime(

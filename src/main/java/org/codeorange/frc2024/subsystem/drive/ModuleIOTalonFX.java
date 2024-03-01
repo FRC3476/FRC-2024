@@ -158,14 +158,6 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         steerMotor.getStickyFault_BridgeBrownout();
 
-        fault = swerveCancoder.getStickyFault_Hardware();
-        badMagnetFault = swerveCancoder.getStickyFault_BadMagnet();
-        voltageFault = swerveCancoder.getStickyFault_Undervoltage();
-
-
-        BaseStatusSignal.setUpdateFrequencyForAll(100.0, driveMotorPosition, steerMotorRelativePosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50, driveMotorVelocity, steerMotorAbsolutePosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(2.0, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorVoltage, steerMotorAmps, steerMotorTemp, fault, badMagnetFault, voltageFault);
         BaseStatusSignal.setUpdateFrequencyForAll(200.0, driveMotorPosition, steerMotorRelativePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(20.0, driveMotorVelocity, steerMotorAbsolutePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(2.0, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
@@ -190,7 +182,6 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         inputs.steerMotorRelativePosition = Units.rotationsToDegrees(steerMotorRelativePosition.getValue());
         inputs.steerMotorAbsolutePosition = Units.rotationsToDegrees(steerMotorAbsolutePosition.getValue());
-        inputs.steerMotorRelativePosition = Units.rotationsToDegrees(steerMotorRelativePosition.getValue());
         inputs.steerMotorVelocity = Units.rotationsToRadians(steerMotorVelocity.getValue());
         inputs.steerMotorVoltage = steerMotorVoltage.getValue();
         inputs.steerMotorAmps = steerMotorAmps.getValue();
