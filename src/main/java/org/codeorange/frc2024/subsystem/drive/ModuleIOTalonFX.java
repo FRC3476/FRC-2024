@@ -26,11 +26,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final StatusSignal<Double> steerMotorVoltage;
     private final StatusSignal<Double> steerMotorAmps;
     private final StatusSignal<Double> steerMotorTemp;
-    private final StatusSignal<Boolean> fault;
-    private final StatusSignal<Boolean> voltageFault;
-    private final StatusSignal<Boolean> badMagnetFault;
-
-
 
 
     private final CANcoder swerveCancoder;
@@ -46,7 +41,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         // initialize drive hardware
 
         double absoluteEncoderOffset;
-        switch(id) {
+        switch (id) {
             case 0 -> {
                 driveMotor = new TalonFX(Ports.FL_DRIVE);
                 steerMotor = new TalonFX(Ports.FL_STEER);
