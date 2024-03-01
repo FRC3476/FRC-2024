@@ -27,14 +27,12 @@ public class DrivePath implements BaseAction {
         drive.realField.getObject("trajPoses").setPoses(trajectory.getPoses());
     }
 
-    private final PIDController xController = new PIDController(1.5, 0, 0.25);
-    private final PIDController yController = new PIDController(1.5, 0, 0.25);
-    private final PIDController thetaController = new PIDController(2, 0, 0.2);
-    private final ChoreoControlFunction choreoController = Choreo.choreoSwerveController(xController, yController, thetaController);
-    private ChoreoTrajectoryState state;
+    private final PIDController translationController = new PIDController(5, 0, 0.2);
+    private final PIDController rotationController = new PIDController(5, 0, 0.2);
+    private final ChoreoControlFunction choreoController = Choreo.choreoSwerveController(translationController, translationController, rotationController);
     @Override
     public void update() {
-        state = trajectory.sample(pathTimer.get());
+        var state = trajectory.sample(pathTimer.get());
         System.out.println(pathTimer.get() + "/" + trajectory.getTotalTime());
 
         drive.setNextChassisSpeeds(choreoController.apply(drive.getPose(), state));

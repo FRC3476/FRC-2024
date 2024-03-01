@@ -111,10 +111,10 @@ public final class Constants {
                 BR_ABSOLUTE_ENCODER_OFFSET = 0.4794921875;
             }
             case PRACTICE_BOT -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.132568359375;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.713134765625;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.9501953125;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.8720703125;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.130615234375;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.69091796875;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.94091796875;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.8701171875;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;
@@ -197,7 +197,7 @@ public final class Constants {
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
     public static final double SWERVE_DRIVE_P = 100;
-    public static final double SWERVE_DRIVE_D = 0.0;
+    public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
     public static final double TURN_P = isPrototype() ? 2 : 5;
@@ -222,7 +222,7 @@ public final class Constants {
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
 
-    public static final double WRIST_P = 100;
+    public static final double WRIST_P = 200;
     public static final double WRIST_I = isPrototype() ? 0 : 0;
     public static final double WRIST_D = isPrototype() ? 0 : 0;
 
@@ -231,7 +231,7 @@ public final class Constants {
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
-    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.281485, 2.08, 0.21);
+    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.27726, 2.334, 0.19456);
     public static final int SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO = 12;
     public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
     public static final int MAX_TELEOP_TURN_SPEED = 10;
@@ -241,8 +241,7 @@ public final class Constants {
 
     //TODO: figure out how tf these numbers were obtained
     public static final double SWERVE_WHEEL_RADIUS = 2; // inches
-    public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS * 0.976 * 0.96488764044943820224719101123596 * 0.96;
-
+    public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS;
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;

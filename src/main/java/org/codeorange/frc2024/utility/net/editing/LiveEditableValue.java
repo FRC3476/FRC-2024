@@ -39,6 +39,7 @@ public class LiveEditableValue<T> {
      * @param defaultValue The default value to use if the entry is not changed / the initial value set to the table
      * @param entry        The entry to listen to
      */
+    @SuppressWarnings("unchecked")
     public LiveEditableValue(T defaultValue, NetworkTableEntry entry) {
         this(defaultValue, entry, value -> (T) value, value -> value);
     }

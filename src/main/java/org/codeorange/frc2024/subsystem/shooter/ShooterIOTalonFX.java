@@ -73,8 +73,8 @@ public class ShooterIOTalonFX implements ShooterIO {
 
     @Override
     public void updateInputs(ShooterInputs inputs) {
-
         BaseStatusSignal.refreshAll(leaderVelocity, leaderVoltage, leaderAmps, followerTemp, followerVelocity, followerVoltage, followerAmps, followerTemp);
+
         inputs.leaderVelocity = leaderVelocity.getValueAsDouble();
         inputs.leaderVoltage = leaderVoltage.getValueAsDouble();
         inputs.leaderAmps = leaderAmps.getValueAsDouble();

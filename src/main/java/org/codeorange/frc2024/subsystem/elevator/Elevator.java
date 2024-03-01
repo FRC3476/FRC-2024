@@ -11,7 +11,7 @@ public class Elevator extends AbstractSubsystem {
     private final ElevatorIO elevatorIO;
     private final ElevatorInputsAutoLogged elevatorInputs = new ElevatorInputsAutoLogged();
 
-    private boolean homing = false;
+    public boolean homing = false;
     private double homeTime = 0;
     public Elevator(ElevatorIO elevatorIO){
         super();
@@ -33,7 +33,7 @@ public class Elevator extends AbstractSubsystem {
                 homeTime -= NOMINAL_DT;
                 elevatorIO.setElevatorVoltage(ELEVATOR_HOME_VOLTAGE);
                 double avgMotorCurrent = (elevatorInputs.leadMotorAmps + elevatorInputs.followMotorAmps) / 2.0;
-                if (homeTime <= 0 && avgMotorCurrent > ELEVATOR_STALLING_CURRENT) {
+                if (homeTime <= 0 && avgMotorCurrent > 10) {
                     homing = false;
                     elevatorIO.setEncoderToZero();
                 }

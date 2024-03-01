@@ -194,12 +194,10 @@ public class Superstructure extends AbstractSubsystem {
         HOMING(SS_HOMING_ELEVATOR,SS_HOMING_ARM, SS_HOMING_WRIST, SS_HOMING_CLIMBER) {
             @Override
             public void update() {
-                try {
-                    elevator.home();
-                } finally {
-                    superstructure.setCurrentState(States.STOW);
-                    superstructure.setGoalState(States.STOW);
-                }
+                    if(!elevator.homing) {
+                        superstructure.setCurrentState(States.STOW);
+                        superstructure.setGoalState(States.STOW);
+                    }
             }
         },
         SHOOT_OVER_STAGE(15, 0.1666, -0.35, 0) {
@@ -234,9 +232,9 @@ public class Superstructure extends AbstractSubsystem {
         @AutoLogOutput(key = "Superstructure/Is At Wanted State")
         public boolean isAtWantedState() {
             return (MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
-                    && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.05)
-                    && (MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.01)
-                    || MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - SS_SPEAKER_ARM, wrist.getWristAbsolutePosition(), 0.01)));
+                    && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.03)
+                    && (MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.015)
+                    || (MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - SS_SPEAKER_ARM, wrist.getWristAbsolutePosition(), 0.01) && superstructure.currentState == States.SPEAKER)));
                     //&& MathUtil.epsilonEquals(climberPos, climber.getPositionInInches(), 0.05));
         }
         final double elevatorPos;

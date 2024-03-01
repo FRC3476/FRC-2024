@@ -77,11 +77,12 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveMotor.getConfigurator().apply(
                 new TalonFXConfiguration()
                         .withSlot0(new Slot0Configs()
-                                .withKP(0.02)
+                                .withKP(0.00055128)
                                 .withKI(0)
-                                .withKD(0.00002)
+                                .withKD(0)
                                 .withKS(DRIVE_FEEDFORWARD.ks)
                                 .withKV(DRIVE_FEEDFORWARD.kv)
+                                .withKA(DRIVE_FEEDFORWARD.ka)
                         )
                         .withCurrentLimits(new CurrentLimitsConfigs()
                                 .withSupplyCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT)
@@ -95,10 +96,12 @@ public class ModuleIOTalonFX implements ModuleIO {
                         )
                         .withFeedback(new FeedbackConfigs()
                                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                                .withSensorToMechanismRatio(1 / (DRIVE_MOTOR_REDUCTION * SWERVE_INCHES_PER_ROTATION))
+                                .withSensorToMechanismRatio(1 / (DRIVE_MOTOR_REDUCTION * SWERVE_METER_PER_ROTATION))
                                 .withRotorToSensorRatio(1)
                         ).withMotionMagic(new MotionMagicConfigs()
                                 .withMotionMagicAcceleration(100)
+                        ).withOpenLoopRamps(new OpenLoopRampsConfigs()
+                                .withVoltageOpenLoopRampPeriod(0.25)
                         )
         );
 
@@ -110,6 +113,7 @@ public class ModuleIOTalonFX implements ModuleIO {
                                 .withKD(SWERVE_DRIVE_D)
                                 .withKS(0)
                                 .withKV(0)
+                                .withKA(0)
                         )
                         .withCurrentLimits(new CurrentLimitsConfigs()
                                 .withSupplyCurrentLimit(STEER_MOTOR_CURRENT_LIMIT)
@@ -162,33 +166,35 @@ public class ModuleIOTalonFX implements ModuleIO {
         BaseStatusSignal.setUpdateFrequencyForAll(100.0, driveMotorPosition, steerMotorRelativePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(50, driveMotorVelocity, steerMotorAbsolutePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(2.0, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorVoltage, steerMotorAmps, steerMotorTemp, fault, badMagnetFault, voltageFault);
+        BaseStatusSignal.setUpdateFrequencyForAll(200.0, driveMotorPosition, steerMotorRelativePosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(20.0, driveMotorVelocity, steerMotorAbsolutePosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(2.0, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
 
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();
         swerveCancoder.optimizeBusUtilization();
 
-        isBraking = false;
+        driveMotor.setPosition(0);
+
+        isBraking = true;
         setBrakeMode(false);
     }
     @Override
     public void updateInputs(ModuleInputs inputs) {
-        BaseStatusSignal.refreshAll(driveMotorPosition, driveMotorVelocity, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorAbsolutePosition, steerMotorRelativePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp, fault, badMagnetFault, voltageFault);
-
+        BaseStatusSignal.refreshAll(driveMotorPosition, steerMotorRelativePosition, driveMotorVelocity, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorAbsolutePosition, steerMotorRelativePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
         inputs.driveMotorPosition = driveMotorPosition.getValue();
         inputs.driveMotorVelocity = driveMotorVelocity.getValue();
         inputs.driveMotorVoltage = driveMotorVoltage.getValue();
         inputs.driveMotorAmps = driveMotorAmps.getValue();
         inputs.driveMotorTemp = driveMotorTemp.getValue();
 
+        inputs.steerMotorRelativePosition = Units.rotationsToDegrees(steerMotorRelativePosition.getValue());
         inputs.steerMotorAbsolutePosition = Units.rotationsToDegrees(steerMotorAbsolutePosition.getValue());
         inputs.steerMotorRelativePosition = Units.rotationsToDegrees(steerMotorRelativePosition.getValue());
         inputs.steerMotorVelocity = Units.rotationsToRadians(steerMotorVelocity.getValue());
         inputs.steerMotorVoltage = steerMotorVoltage.getValue();
         inputs.steerMotorAmps = steerMotorAmps.getValue();
         inputs.steerMotorTemp = steerMotorTemp.getValue();
-        inputs.hardwareFault = fault.getValue();
-        inputs.voltageFault = voltageFault.getValue();
-        inputs.badMagnetFault = badMagnetFault.getValue();
     }
 
     private boolean isBraking = false;

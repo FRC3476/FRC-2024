@@ -32,7 +32,7 @@ public class Shoot implements BaseAction {
 
     @Override
     public void update() {
-        if(superstructure.getCurrentState().isAtWantedState() && superstructure.isAtGoalState() && timer.hasElapsed(1.6)) {
+        if(superstructure.getCurrentState().isAtWantedState() && superstructure.isAtGoalState() && shooter.getVelocity() > 175) {
             intake.runIntakeForShooter();
         }
     }

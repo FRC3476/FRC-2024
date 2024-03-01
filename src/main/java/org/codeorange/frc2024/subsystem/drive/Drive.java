@@ -161,19 +161,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     public double getDrivePosition(int moduleNumber) {
-        return Units.inchesToMeters(moduleInputs[moduleNumber].driveMotorPosition);
-    }
-
-    private double getAngleDiff(double targetAngle, double currentAngle) {
-        double angleDiff = targetAngle - currentAngle;
-        if (angleDiff > 180) {
-            angleDiff -= 360;
-        }
-
-        if (angleDiff < -180) {
-            angleDiff += 360;
-        }
-        return angleDiff;
+        return moduleInputs[moduleNumber].driveMotorPosition;
     }
 
     double[] lastModuleVelocities = new double[4];
@@ -221,18 +209,7 @@ public class Drive extends AbstractSubsystem {
             wantedStates[i] = swerveModuleStates[i].toFirstOrder();
             double currentAngle = getWheelRotation(i);
 
-            double angleDiff = getAngleDiff(moduleState.angle.getDegrees(), currentAngle);
-
-            if (Math.abs(angleDiff) > ALLOWED_SWERVE_ANGLE_ERROR) {
-                if (USE_CANCODERS) {
-                    moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition + angleDiff, USE_SECOND_ORDER_KINEMATICS ? moduleState.omega : 0);
-                } else {
-                    moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees(), USE_SECOND_ORDER_KINEMATICS ? moduleState.omega : 0);
-                }
-            } else {
-                moduleIO[i].setSteerMotorPosition(moduleInputs[i].steerMotorRelativePosition);
-            }
-
+            moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0, isOpenLoop);
             //setMotorSpeed(i, 0, 0);
 
@@ -240,11 +217,8 @@ public class Drive extends AbstractSubsystem {
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", Units.radiansToRotations(moduleState.omega));
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Angle Error", angleDiff);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Relative Angle",
-                    moduleInputs[i].steerMotorRelativePosition + angleDiff);
 
-            realStates[i] = new SwerveModuleState(Units.inchesToMeters(moduleInputs[i].driveMotorVelocity), Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
+            realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
         }
         Logger.recordOutput("Drive/Wanted States", wantedStates);
         Logger.recordOutput("Drive/Real States", realStates);
@@ -253,7 +227,6 @@ public class Drive extends AbstractSubsystem {
 
 
     private synchronized void swerveDrive(ChassisSpeeds desiredRobotRelSpeeds,
-                                          SwerveSetpointGenerator.KinematicLimit kinematicLimit,
                                           double dt, boolean isOpenLoop) {
         Logger.recordOutput("Drive/Desired ChassisSpeeds", desiredRobotRelSpeeds);
         var discretizedChassisSpeeds = ChassisSpeeds.discretize(desiredRobotRelSpeeds, dt);
@@ -261,7 +234,7 @@ public class Drive extends AbstractSubsystem {
 
         SecondOrderKinematics.desaturateWheelSpeeds(
                 moduleStates,
-                DRIVE_FEEDFORWARD.maxAchievableVelocity(SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO, 0)
+                DRIVE_FEEDFORWARD.maxAchievableVelocity(11.5, 0)
         );
 
         setSwerveModuleStates(moduleStates, isOpenLoop);
@@ -271,16 +244,14 @@ public class Drive extends AbstractSubsystem {
         nextChassisSpeeds = new ChassisSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
                 DRIVE_HIGH_SPEED_M * inputs.getY(),
                 inputs.getRotation() * MAX_TELEOP_TURN_SPEED);
-        kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
 
     public synchronized void swerveDriveFieldRelative(@NotNull ControllerDriveInputs inputs) {
-        nextChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                DRIVE_HIGH_SPEED_M * inputs.getX(),
-                DRIVE_HIGH_SPEED_M * inputs.getY(),
-                inputs.getRotation() * MAX_TELEOP_TURN_SPEED,
-                gyroInputs.rotation2d);
-        kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
+            nextChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                    DRIVE_HIGH_SPEED_M * inputs.getX(),
+                    DRIVE_HIGH_SPEED_M * inputs.getY(),
+                    inputs.getRotation() * MAX_TELEOP_TURN_SPEED,
+                    gyroInputs.rotation2d);
     }
 
     public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad) {
@@ -290,7 +261,6 @@ public class Drive extends AbstractSubsystem {
                 DRIVE_HIGH_SPEED_M * inputs.getY(),
                 -turn,
                 gyroInputs.rotation2d);
-        kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     }
 
     public synchronized void resetAbsoluteZeros() {
@@ -300,7 +270,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     public enum DriveState {
-        TELEOP, TURN, DONE, RAMSETE, STOP, WAITING_FOR_PATH
+        TELEOP, TURN, DONE, STOP, WAITING_FOR_PATH
     }
 
     static final class TurnInputs {
@@ -311,14 +281,11 @@ public class Drive extends AbstractSubsystem {
 
     @AutoLogOutput(key = "Drive/Distance from Speaker")
     public double findDistanceToSpeaker() {
-
-        double distance = 0;
         if (Robot.isRed()) {
-            distance = redAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
+            return redAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
         } else {
-            distance = blueAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
+            return blueAllianceSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation());
         }
-        return distance;
     }
 
 
