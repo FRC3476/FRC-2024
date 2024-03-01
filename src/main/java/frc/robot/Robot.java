@@ -7,6 +7,8 @@ package frc.robot;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -198,15 +200,23 @@ public class Robot extends LoggedRobot {
     private final TalonFX intake = new TalonFX(30);
     private final TalonFX shooterLead = new TalonFX(40);
     private final TalonFX shooterFollow = new TalonFX(41);
+    private final TalonFX climber = new TalonFX(50);
     private boolean intakeInverted = false;
     private boolean shooterInverted = false;
     @Override
     public void teleopPeriodic() {
         xbox.update();
 
-        if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
-            intake.setControl(new VoltageOut(6));
+        climber.setControl(new StaticBrake());
+
+        double intakeamt = xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER);
+        if(intakeamt > 0.1) {
+            intake.setControl(new VoltageOut(intakeamt*12));
         }
+        else {
+            intake.setControl(new VoltageOut(0));
+        }
+
         if(xbox.getRisingEdge(XboxButtons.LEFT_BUMPER)) {
             if(!intakeInverted) {
                 intake.setInverted(true);
@@ -216,17 +226,26 @@ public class Robot extends LoggedRobot {
                 intakeInverted = false;
             }
         }
-        if(xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
-            shooterLead.setControl(new VoltageOut(6));
+
+        double shooteramt = xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER);
+        if(shooteramt > 0.1) {
+            shooterLead.setControl(new VoltageOut(shooteramt*12));
+        }
+        else {
+            shooterLead.setControl(new VoltageOut(0));
         }
         if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
-            if (!shooterInverted) {
-                shooterLead.setInverted(true);
-                shooterInverted = true;
-            } else {
-                shooterLead.setInverted(false);
-                shooterInverted = false;
-            }
+            shooterInverted = !shooterInverted;
+
+            shooterLead.setInverted(shooterInverted);
+        }
+
+        double climberamt = xbox.getRawAxis(Controller.XboxAxes.RIGHT_Y);
+        if(Math.abs(climberamt) > 0.1) {
+            climber.setControl(new VoltageOut(climberamt*12));
+        }
+        else {
+            climber.setControl(new StaticBrake());
         }
     }
 
