@@ -105,6 +105,8 @@ public final class Constants {
     public static final double BL_ABSOLUTE_ENCODER_OFFSET;
     public static final double FR_ABSOLUTE_ENCODER_OFFSET;
     public static final double BR_ABSOLUTE_ENCODER_OFFSET;
+    public static final double WRIST_ABSOLUTE_ENCODER_OFFSET;
+    public static final double ARM_ABSOLUTE_ENCODER_OFFSET;
 
     static {
         switch(robotIdentity) {
@@ -113,24 +115,33 @@ public final class Constants {
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.10107421875+0.5;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.33251953125;
                 BR_ABSOLUTE_ENCODER_OFFSET = 0.4794921875;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.389404296875;
+                ARM_ABSOLUTE_ENCODER_OFFSET = -0.36279296875;
             }
             case PRACTICE_BOT -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = -0.130615234375;
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.69091796875;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.94091796875;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.8701171875;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.389404296875;
+                ARM_ABSOLUTE_ENCODER_OFFSET = -0.36279296875;
+
             }
             case COMPETITION_BOT -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = -0.962158203125;
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.38037109375;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.038330078125;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.699462890625;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.113525390625;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0.45166015625;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;
                 BL_ABSOLUTE_ENCODER_OFFSET = 0;
                 FR_ABSOLUTE_ENCODER_OFFSET = 0;
                 BR_ABSOLUTE_ENCODER_OFFSET = 0;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = 0;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0;
             }
         }
     }

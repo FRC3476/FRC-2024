@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import org.codeorange.frc2024.robot.Constants;
 
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
 import static org.codeorange.frc2024.robot.Constants.*;
@@ -60,7 +61,7 @@ public class WristIOTalonFX implements WristIO {
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                        .withMagnetOffset(-0.389404296875)));
+                        .withMagnetOffset(WRIST_ABSOLUTE_ENCODER_OFFSET)));
 
         wristAbsolutePosition = absoluteEncoder.getAbsolutePosition();
         wristRelativePosition = wristMotor.getPosition();
