@@ -36,7 +36,7 @@ public class OdometryThread extends Thread {
 
     @Override
     public void start() {
-        if(timestampQueues.size() > 1) {
+        if(timestampQueues.size() > 0) {
             super.start();
         }
     }
