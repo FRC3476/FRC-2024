@@ -1,13 +1,19 @@
 package org.codeorange.frc2024.subsystem.drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import org.codeorange.frc2024.utility.OrangeUtility;
+import org.littletonrobotics.junction.Logger;
+
+import java.util.Queue;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -15,7 +21,10 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFX driveMotor;
     private final TalonFX steerMotor;
 
+    private final Queue<Double> timestampQueue;
+
     private final StatusSignal<Double> driveMotorPosition;
+    private final Queue<Double> driveMotorPositionQueue;
     private final StatusSignal<Double> driveMotorVelocity;
     private final StatusSignal<Double> driveMotorVoltage;
     private final StatusSignal<Double> driveMotorAcceleration;
@@ -23,6 +32,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final StatusSignal<Double> driveMotorTemp;
     private final StatusSignal<Double> steerMotorAbsolutePosition;
     private final StatusSignal<Double> steerMotorRelativePosition;
+    private final Queue<Double> steerMotorPositionQueue;
     private final StatusSignal<Double> steerMotorVelocity;
     private final StatusSignal<Double> steerMotorVoltage;
     private final StatusSignal<Double> steerMotorAmps;
@@ -142,8 +152,10 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         swerveCancoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)));
 
+        timestampQueue = OdometryThread.getInstance().makeTimestampQueue();
 
         driveMotorPosition = driveMotor.getPosition();
+        driveMotorPositionQueue = OdometryThread.getInstance().registerSignal(driveMotor, driveMotor.getPosition());
         driveMotorVelocity = driveMotor.getVelocity();
         driveMotorAcceleration = driveMotor.getAcceleration();
         driveMotorVoltage = driveMotor.getMotorVoltage();
@@ -152,6 +164,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         steerMotorAbsolutePosition = swerveCancoder.getAbsolutePosition();
         steerMotorRelativePosition = steerMotor.getPosition();
+        steerMotorPositionQueue = OdometryThread.getInstance().registerSignal(steerMotor, steerMotor.getPosition());
         steerMotorVelocity = steerMotor.getVelocity();
         steerMotorVoltage = steerMotor.getMotorVoltage();
         steerMotorAmps = steerMotor.getSupplyCurrent();
@@ -159,7 +172,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         steerMotor.getStickyFault_BridgeBrownout();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(200.0, driveMotorPosition, steerMotorRelativePosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(250.0, driveMotorPosition, steerMotorRelativePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(20.0, driveMotorVelocity, driveMotorAcceleration, steerMotorAbsolutePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(2.0, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
 
@@ -188,6 +201,15 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.steerMotorVoltage = steerMotorVoltage.getValue();
         inputs.steerMotorAmps = steerMotorAmps.getValue();
         inputs.steerMotorTemp = steerMotorTemp.getValue();
+
+        inputs.odometryDrivePositionsMeters =
+                driveMotorPositionQueue.stream().mapToDouble((value) -> value).toArray();
+        inputs.odometryTurnPositions =
+                steerMotorPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
+        inputs.odometryTimestamps = timestampQueue.stream().mapToDouble((value) -> value).toArray();
+        driveMotorPositionQueue.clear();
+        steerMotorPositionQueue.clear();
+        timestampQueue.clear();
     }
 
     private boolean isBraking = false;

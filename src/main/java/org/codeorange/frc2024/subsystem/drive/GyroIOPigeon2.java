@@ -10,6 +10,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import java.util.Optional;
+import java.util.Queue;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -18,6 +19,8 @@ public class GyroIOPigeon2 implements GyroIO {
 
     private final StatusSignal<Double> yawPositionDeg;
     private final StatusSignal<Double> yawVelocityDegPerSec;
+    private final Queue<Double> yawPositionQueue;
+    private final Queue<Double> yawTimestampQueue;
     private final StatusSignal<Double> uptime;
 
 
@@ -34,6 +37,9 @@ public class GyroIOPigeon2 implements GyroIO {
         uptime = pigeon.getUpTime();
 
         BaseStatusSignal.setUpdateFrequencyForAll(50, yawPositionDeg, yawVelocityDegPerSec, uptime);
+
+        yawTimestampQueue = OdometryThread.getInstance().makeTimestampQueue();
+        yawPositionQueue = OdometryThread.getInstance().registerSignal(pigeon, pigeon.getYaw());
 
         pigeon.optimizeBusUtilization();
     }
@@ -54,6 +60,11 @@ public class GyroIOPigeon2 implements GyroIO {
 
         inputs.rotation3d = pigeon.getRotation3d();
         inputs.rotation2d = pigeon.getRotation2d();
+
+        inputs.odometryYawTimestamps = yawTimestampQueue.stream().mapToDouble((val) -> val).toArray();
+        inputs.odometryYawPositions = yawPositionQueue.stream().map(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
+        yawTimestampQueue.clear();
+        yawPositionQueue.clear();
     }
 
     @Override
