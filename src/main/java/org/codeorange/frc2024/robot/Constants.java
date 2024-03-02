@@ -33,6 +33,10 @@ public final class Constants {
     public static boolean isPrototype() {
         return robotIdentity == RobotIdentity.PROTOTYPE_BOT;
     }
+
+    public static boolean isCompetition() {
+        return robotIdentity == RobotIdentity.COMPETITION_BOT;
+    }
     public static final String LOG_DIRECTORY = "/home/lvuser/logs";
     public static final boolean IS_PRACTICE = Files.exists(new File("/home/lvuser/practice").toPath());
     public static final String VIRTUAL_MODE = "SIM";
@@ -115,6 +119,12 @@ public final class Constants {
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.69091796875;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.94091796875;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.8701171875;
+            }
+            case COMPETITION_BOT -> {
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.962158203125;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.38037109375;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.038330078125;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.699462890625;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;
@@ -226,7 +236,7 @@ public final class Constants {
     public static final double WRIST_I = isPrototype() ? 0 : 0;
     public static final double WRIST_D = isPrototype() ? 0 : 0;
 
-    public static final double WRIST_RTS = isPrototype() ? 81.0 : 125.0;
+    public static final double WRIST_RTS = isPrototype() ? 81.0 : isCompetition() ? 45.0 : 125.0;
     public static final double WRIST_STM = 1.0;
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
