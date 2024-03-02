@@ -34,7 +34,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()
                         .withMotionMagicCruiseVelocity(200)
-                        .withMotionMagicAcceleration(8000)
+                        .withMotionMagicAcceleration(200)
                         .withMotionMagicJerk(10000)
                 ).withSlot0(new Slot0Configs()
                         .withKP(ELEVATOR_P)

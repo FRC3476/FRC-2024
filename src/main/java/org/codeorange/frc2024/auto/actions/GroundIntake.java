@@ -17,7 +17,7 @@ public class GroundIntake implements BaseAction {
 
     @Override
     public void update() {
-        intake.runIntake();
+        intake.runIntake(0.4);
     }
 
     @Override

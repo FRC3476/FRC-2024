@@ -19,12 +19,12 @@ public class SevenPcNearSide extends BaseRoutine {
 
     public SevenPcNearSide() {
         drive = Robot.getDrive();
-        driveToFirstNote = Choreo.getTrajectory("7pc.1");
-        driveToSecondNote = Choreo.getTrajectory("7pc.2");
-        driveToThirdNote = Choreo.getTrajectory("7pc.3");
-        driveToCenter = Choreo.getTrajectory("7pc.4");
-        driveToSecondCenter = Choreo.getTrajectory("7pc.5");
-        driveToThirdCenter = Choreo.getTrajectory("7pc.6");
+        driveToFirstNote = Choreo.getTrajectory("7pc_doesnt_work.1");
+        driveToSecondNote = Choreo.getTrajectory("7pc_doesnt_work.2");
+        driveToThirdNote = Choreo.getTrajectory("7pc_doesnt_work.3");
+        driveToCenter = Choreo.getTrajectory("7pc_doesnt_work.4");
+        driveToSecondCenter = Choreo.getTrajectory("7pc_doesnt_work.5");
+        driveToThirdCenter = Choreo.getTrajectory("7pc_doesnt_work.6");
     }
 
     @Override

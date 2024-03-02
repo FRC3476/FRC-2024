@@ -7,6 +7,7 @@ public interface ModuleIO {
     class ModuleInputs {
         public double driveMotorPosition;
         public double driveMotorVelocity;
+        public double driveMotorAcceleration;
         public double driveMotorVoltage;
         public double driveMotorAmps;
         public double driveMotorTemp;
@@ -36,6 +37,9 @@ public interface ModuleIO {
     default void setDriveMotorVelocity(double velocity, double accel) {}
     // resets zeroes on absolute encoders
     default void resetAbsoluteZeros() {}
+
+    default void setDriveMotorDutyCycle(double dutyCycle) {}
+
     // sets voltage compensation level
     default void setDriveVoltageCompLevel(double voltage) {}
 }

@@ -244,7 +244,7 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        if(prevHasNote && intake.hasNote()) {
+        if(!prevHasNote && intake.hasNote()) {
             xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0.5);
             rumbleStart = Logger.getRealTimestamp() * 1e-6;
         }
@@ -298,7 +298,7 @@ public class Robot extends LoggedRobot {
 
 
         if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER) || xbox.getRawButton(XboxButtons.B)) {
-            intake.runIntake();
+            intake.runIntake(0.8);
         } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
             intake.runOuttake();
         } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
@@ -323,8 +323,10 @@ public class Robot extends LoggedRobot {
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
+        } else if(xbox.getRawButton(XboxButtons.X)) {
+            drive.setNextChassisSpeeds(new ChassisSpeeds(1, 0, 0));
         } else {
-            drive.swerveDriveFieldRelative(controllerDriveInputs);
+            drive.drive(controllerDriveInputs, true, true);
         }
 
         prevHasNote = intake.hasNote();
@@ -335,7 +337,6 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {
         AutoManager.getInstance().endAuto();
         drive.setBrakeMode(true);
-        drive.setNextChassisSpeeds(new ChassisSpeeds());
     }
 
     /** This function is called periodically when disabled. */

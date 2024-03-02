@@ -97,6 +97,6 @@ public class ShooterIOTalonFX implements ShooterIO {
 
     @Override
     public void stop() {
-        leader.stopMotor();
+        leader.setControl(new NeutralOut());
     }
 }

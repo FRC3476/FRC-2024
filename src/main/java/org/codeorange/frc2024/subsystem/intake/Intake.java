@@ -22,9 +22,9 @@ public class Intake extends AbstractSubsystem {
     }
 
 
-    public void runIntake() {
+    public void runIntake(double dutyCycle) {
         if (!intakeInputs.hasNote) {
-            intakeIO.setMotorDutyCycle(0.8);
+            intakeIO.setMotorDutyCycle(dutyCycle);
         } else {
             stop();
         }

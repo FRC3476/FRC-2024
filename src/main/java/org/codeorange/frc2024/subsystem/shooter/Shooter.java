@@ -2,6 +2,7 @@ package org.codeorange.frc2024.subsystem.shooter;
 
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
+import org.codeorange.frc2024.utility.MathUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends AbstractSubsystem {
@@ -32,7 +33,6 @@ public class Shooter extends AbstractSubsystem {
             return true;
         } else {
             stop();
-            targetVelocity = 0;
             return false;
         }
     }
@@ -42,7 +42,7 @@ public class Shooter extends AbstractSubsystem {
     }
 
     public boolean isAtTargetVelocity() {
-        return ShooterInputs.leaderVelocity > targetVelocity * 0.99;
+        return ShooterInputs.leaderVelocity > targetVelocity * 0.995;
     }
     public synchronized void setMotorVoltage(double voltage) {
         shooterIO.setMotorVoltage(voltage);
