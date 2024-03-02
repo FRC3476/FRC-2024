@@ -236,7 +236,7 @@ public final class Constants {
     public static final double WRIST_I = isPrototype() ? 0 : 0;
     public static final double WRIST_D = isPrototype() ? 0 : 0;
 
-    public static final double WRIST_RTS = isPrototype() ? 81.0 : isCompetition() ? 45.0 : 125.0;
+    public static final double WRIST_RTS = isPrototype() ? 81.0 : (isCompetition() ? 45.0 : 125.0);
     public static final double WRIST_STM = 1.0;
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
