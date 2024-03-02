@@ -3,10 +3,7 @@ package org.codeorange.frc2024.subsystem.shooter;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.VelocityDutyCycle;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -29,12 +26,10 @@ public class ShooterIOTalonFX implements ShooterIO {
     private final StatusSignal<Double> followerVoltage;
     private final StatusSignal<Double> followerAmps;
     private final StatusSignal<Double> followerTemp;
-    private final SimpleMotorFeedforward ffModel;
 
     public ShooterIOTalonFX() {
         leader = new TalonFX(Ports.SHOOTER_LEAD);
         follower = new TalonFX(Ports.SHOOTER_FOLLOW);
-        ffModel = new SimpleMotorFeedforward(0, 0); // Need to figure out constants
 
         var config = new TalonFXConfiguration();
         config.CurrentLimits.StatorCurrentLimit = 30.0;
@@ -44,8 +39,8 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.Slot0.kP = SHOOTER_P;
         config.Slot0.kI = SHOOTER_I;
         config.Slot0.kD = SHOOTER_D;
-        config.Slot0.kS = 0.1;
-        config.Slot0.kV = 0.12;
+        config.Slot0.kS = 1.97;
+        config.Slot0.kA = 0.11758;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         leader.getConfigurator().apply(config);
@@ -94,10 +89,10 @@ public class ShooterIOTalonFX implements ShooterIO {
         leader.setControl(voltageOut.withOutput(voltage));
     }
 
-    VelocityVoltage velocityVoltage = new VelocityVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(false);
+    VelocityTorqueCurrentFOC velocityVoltage = new VelocityTorqueCurrentFOC(0);
     @Override
     public void setVelocity(double velocity, double ffVolts) {
-        leader.setControl(velocityVoltage.withVelocity(velocity).withFeedForward(0));
+        leader.setControl(velocityVoltage.withVelocity(velocity));
     }
 
     @Override

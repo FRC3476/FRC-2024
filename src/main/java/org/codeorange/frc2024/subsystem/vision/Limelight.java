@@ -33,13 +33,8 @@ public class Limelight {
     private double translationStDev;
     private double rotationStDev;
 
-    public final LoggedDashboardChooser<Boolean> visionOnOffChooser;
-
     public Limelight(String name) {
         limelightName = name;
-        visionOnOffChooser = new LoggedDashboardChooser<>("Vision On Off Chooser:" + limelightName);
-        visionOnOffChooser.addDefaultOption("on", true);
-        visionOnOffChooser.addOption("off", false);
 
         SmartDashboard.putData("Limelight Field: " + limelightName, limelightField);
     }
@@ -49,7 +44,7 @@ public class Limelight {
         if (currentHeartbeat != previousHeartbeat) {
             lastUpdateStopwatch.reset();
             limelightConnected = true;
-            boolean visionIsEnabled = visionOnOffChooser.get();
+            boolean visionIsEnabled = Vision.visionOnOffChooser.get();
             if (visionIsEnabled) {
                 LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(limelightName);
                 handleFiducialTargets(results, timestamp);

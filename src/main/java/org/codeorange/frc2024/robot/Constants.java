@@ -217,7 +217,7 @@ public final class Constants {
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
     public static final double CLIMBER_D = isPrototype() ? 0 : 0;
 
-    public static final double SHOOTER_P = isPrototype() ? 2 : 0.2;
+    public static final double SHOOTER_P = isPrototype() ? 2 : 10;
     public static final double SHOOTER_I = isPrototype() ? 0 : 0;
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
@@ -231,23 +231,22 @@ public final class Constants {
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
-    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.27726, 2.334, 0.19456);
+    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.24703, 2.4038, 0.40593);
     public static final int SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO = 12;
-    public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
+    public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(11.5, 0);
     public static final int MAX_TELEOP_TURN_SPEED = 10;
     public static final boolean USE_RELATIVE_ENCODER_POSITION = true;
     public static final double ALLOWED_SWERVE_ANGLE_ERROR = 0;
     public static final boolean USE_CANCODERS = true;
 
     //TODO: figure out how tf these numbers were obtained
-    public static final double SWERVE_WHEEL_RADIUS = 2; // inches
+    public static final double SWERVE_WHEEL_RADIUS = 1.8885; // inches
     public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS;
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
     public static final double DRIVE_MOTOR_REDUCTION = 9 / 53.125;
 
-    // TODO: check accuracy of these numbers for new drive base. Ask CAD ppl?
     public static final double wheelBaseInches = isPrototype() ? 22.75 : 24.25; // not real number, just example
     public static final @NotNull Translation2d SWERVE_LEFT_FRONT_LOCATION = new Translation2d(Units.inchesToMeters(wheelBaseInches/2), Units.inchesToMeters(wheelBaseInches/2));
     public static final @NotNull Translation2d SWERVE_LEFT_BACK_LOCATION = new Translation2d(Units.inchesToMeters(-wheelBaseInches/2), Units.inchesToMeters(wheelBaseInches/2));

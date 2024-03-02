@@ -7,7 +7,7 @@ import org.littletonrobotics.junction.Logger;
 public class Shooter extends AbstractSubsystem {
     private final ShooterIO shooterIO;
     private final ShooterInputsAutoLogged ShooterInputs = new ShooterInputsAutoLogged();
-
+    private double targetVelocity;
 
     public Shooter(ShooterIO shooterIO) {
         super();
@@ -28,9 +28,11 @@ public class Shooter extends AbstractSubsystem {
         Logger.recordOutput("Shooter/SetpointRPS", velocityRPS);
         if (Robot.getIntake().hasNote()) {
             shooterIO.setVelocity(velocityRPS, 0);
+            targetVelocity = velocityRPS;
             return true;
         } else {
             stop();
+            targetVelocity = 0;
             return false;
         }
     }
@@ -39,8 +41,8 @@ public class Shooter extends AbstractSubsystem {
         shooterIO.stop();
     }
 
-    public double getVelocity() {
-        return ShooterInputs.leaderVelocity;
+    public boolean isAtTargetVelocity() {
+        return ShooterInputs.leaderVelocity > targetVelocity * 0.99;
     }
     public synchronized void setMotorVoltage(double voltage) {
         shooterIO.setMotorVoltage(voltage);
