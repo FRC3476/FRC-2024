@@ -53,4 +53,12 @@ public class Climber extends AbstractSubsystem {
     public void close() {
         climberIO.close();
     }
+
+    public boolean limitSwitchPushed() {
+        return climberInputs.limitSwitchPushed;
+    }
+
+    public void stop() {
+        climberIO.stop();
+    }
 }

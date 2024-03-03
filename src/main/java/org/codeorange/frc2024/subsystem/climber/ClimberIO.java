@@ -10,8 +10,7 @@ public interface ClimberIO {
         double climberCurrent = 0.0;
         double climberTemp = 0.0;
         double climberVoltage = 0.0;
-        double servo1 = 0.0;
-        double servo2 = 0.0;
+        boolean limitSwitchPushed = false;
         //String relayValue = "hi";
 
     }
@@ -28,4 +27,5 @@ public interface ClimberIO {
 
     default void open() {}
     default void close() {}
+    default void stop() {}
 }

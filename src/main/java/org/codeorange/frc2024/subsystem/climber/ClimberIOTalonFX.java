@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Servo;
 import org.codeorange.frc2024.robot.Constants;
@@ -27,12 +28,15 @@ public class ClimberIOTalonFX implements ClimberIO {
     private final TalonFX motor;
     private final Servo servo1;
     private final Servo servo2;
+    private final DigitalInput limitSwitch;
+
     //private final Relay spikeRelay;
 
     public ClimberIOTalonFX() {
         motor = new TalonFX(Constants.Ports.CLIMBER);
         servo1 = new Servo(Constants.Ports.SERVO_1);
         servo2 = new Servo(Constants.Ports.SERVO_2);
+        limitSwitch = new DigitalInput(Constants.Ports.INTAKE_BEAM_BREAK);
         //spikeRelay = new Relay(Constants.CLIMBER_PWM_RELAY_CHANNEL);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
@@ -71,7 +75,11 @@ public class ClimberIOTalonFX implements ClimberIO {
     }
     private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
     public void setPosition(double targetPosition) {
-        motor.setControl(motionMagicRequest.withPosition(targetPosition));
+        if (limitSwitch.get()) {
+            stop();
+        } else {
+            motor.setControl(motionMagicRequest.withPosition(targetPosition));
+        }
     }
 
     public void updateInputs(ClimberIO.ClimberInputs inputs) {
@@ -82,6 +90,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.climberVoltage = climberVoltage.getValue();
         inputs.climberCurrent = climberCurrent.getValue();
         inputs.climberTemp = climberTemp.getValue();
+        inputs.limitSwitchPushed = limitSwitch.get();
         //inputs.relayValue = spikeRelay.get().getPrettyValue();
     }
 
@@ -107,5 +116,9 @@ public class ClimberIOTalonFX implements ClimberIO {
     public void close() {
         servo1.setPosition(0.0);
         servo2.setPosition(0.0);
+    }
+
+    public void stop() {
+        motor.stopMotor();
     }
 }
