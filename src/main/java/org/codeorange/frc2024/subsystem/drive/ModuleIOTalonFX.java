@@ -171,7 +171,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         steerMotor.getStickyFault_BridgeBrownout();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(250.0, driveMotorPosition, steerMotorRelativePosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(ODOMETRY_REFRESH_HZ, driveMotorPosition, steerMotorRelativePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(20.0, driveMotorVelocity, driveMotorAcceleration, steerMotorAbsolutePosition);
         BaseStatusSignal.setUpdateFrequencyForAll(2.0, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
 

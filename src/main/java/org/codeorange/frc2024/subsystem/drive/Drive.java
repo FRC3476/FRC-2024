@@ -114,7 +114,6 @@ public class Drive extends AbstractSubsystem {
     public boolean isOpenLoop = false;
 
     private Rotation2d rawGyroRotation = new Rotation2d();
-
     @Override
     public synchronized void update() {
         odometryLock.lock();
@@ -128,10 +127,11 @@ public class Drive extends AbstractSubsystem {
         }
         Logger.processInputs("Drive/Gyro", gyroInputs);
 
+        SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
+
         double[] sampleTimestamps = moduleInputs[0].odometryTimestamps;
         int sampleCount = sampleTimestamps.length;
         for (int i = 0; i < sampleCount; i++) {
-            SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
             for (int j = 0; j < 4; j++) {
                 swerveModulePositions[j] = new SwerveModulePosition(
                         moduleInputs[j].odometryDrivePositionsMeters[i],

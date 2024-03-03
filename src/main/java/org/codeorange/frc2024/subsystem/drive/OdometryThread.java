@@ -3,6 +3,7 @@ package org.codeorange.frc2024.subsystem.drive;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.ParentDevice;
+import org.codeorange.frc2024.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.ArrayList;
@@ -70,12 +71,13 @@ public class OdometryThread extends Thread {
         return queue;
     }
 
+    @SuppressWarnings("BusyWait")
     @Override
     public void run() {
         while(true) {
             signalsLock.lock();
             try {
-                Thread.sleep((long) 4);
+                Thread.sleep(Constants.ODOMETRY_REFRESH_PERIOD);
                 if(signals.length > 0) BaseStatusSignal.refreshAll(signals);
             } catch (InterruptedException ignored) {
             } finally {

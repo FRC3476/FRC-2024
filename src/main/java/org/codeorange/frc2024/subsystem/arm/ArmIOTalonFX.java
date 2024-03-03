@@ -9,12 +9,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.wpilibj.DriverStation;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import static org.codeorange.frc2024.robot.Constants.*;
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
 
 
 public class ArmIOTalonFX implements ArmIO {
-
     private final TalonFX leadTalonFX;
     private final TalonFX followTalonFX;
     private final CANcoder absoluteEncoder;
