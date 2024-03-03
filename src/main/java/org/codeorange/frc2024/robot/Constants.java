@@ -222,7 +222,7 @@ public final class Constants {
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
-    public static final double SWERVE_DRIVE_P = 100;
+    public static final double SWERVE_DRIVE_P = 50;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
