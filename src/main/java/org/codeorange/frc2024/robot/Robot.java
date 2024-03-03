@@ -280,7 +280,9 @@ public class Robot extends LoggedRobot {
         if(buttonPanel.getRisingEdge(8)) {
             superstructure.setGoalState(Superstructure.States.TEST_TRAP);
         }
-
+        if(buttonPanel.getRisingEdge(12)) {
+            superstructure.setGoalState(Superstructure.States.CLIMBER);
+        }
         if(xbox.getRisingEdge(XboxButtons.A)) {
             drive.resetGyro(0);
         }
@@ -296,6 +298,9 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
 
+        if(logitechThing.getRisingEdge(2)) {
+            drive.resetOdometry(vision.backCamera.estimatedBotPose);
+        }
 
         if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER) || xbox.getRawButton(XboxButtons.B)) {
             intake.runIntake(0.8);

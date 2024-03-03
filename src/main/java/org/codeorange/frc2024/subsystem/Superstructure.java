@@ -58,7 +58,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code!
-                if(superstructure.goalState == States.SPEAKER || superstructure.goalState == States.AMP || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE) {
+                if(superstructure.goalState == States.SPEAKER || superstructure.goalState == States.AMP || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE || superstructure.goalState == States.CLIMBER) {
                     superstructure.setCurrentState(INTERMEDIATE);
                 } else if(superstructure.goalState == States.GROUND_INTAKE) {
                     superstructure.setCurrentState(MID_INTAKE);
@@ -132,7 +132,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        AMP_UP(13, SS_STOW_ARM, 0.25, 0) {
+        AMP_UP(13, 0, 0.24, 0) {
             @Override
             public void update() {
                 if(superstructure.goalState != States.AMP_UP) {
@@ -172,6 +172,14 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code!
+            }
+        },
+        CLIMBER(16, 0.245, 0, 0) {
+            @Override
+            public void update() {
+                if(superstructure.goalState != States.CLIMBER) {
+                    superstructure.setCurrentState(States.INTERMEDIATE);
+                }
             }
         },
         DEPLOY_CLIMBER_1(SS_DEPLOYCLIMBER1_ELEVATOR, SS_DEPLOYCLIMBER1_ARM, SS_DEPLOYCLIMBER1_WRIST, SS_DEPLOYCLIMBER1_CLIMBER) {
