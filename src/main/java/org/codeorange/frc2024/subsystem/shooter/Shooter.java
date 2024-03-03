@@ -47,4 +47,5 @@ public class Shooter extends AbstractSubsystem {
     public synchronized void setMotorVoltage(double voltage) {
         shooterIO.setMotorVoltage(voltage);
     }
+    public void setMotorTorque(double torque) {shooterIO.setMotorTorque(torque);}
 }

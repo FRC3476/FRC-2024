@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem.vision;
 
+import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
@@ -17,6 +18,8 @@ import org.codeorange.frc2024.utility.geometry.GeometryUtils;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import javax.lang.model.util.AbstractAnnotationValueVisitor14;
+
 import static java.lang.Math.tan;
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -27,7 +30,7 @@ import java.util.List;
 
 public class Limelight {
 
-    public final Matrix<N3, N1> LIMELIGHT_DEFAULT_VISION_DEVIATIONS = VecBuilder.fill(0.3, 0.3, Math.toRadians(45));
+    public final Matrix<N3, N1> LIMELIGHT_DEFAULT_VISION_DEVIATIONS = VecBuilder.fill(0.1, 0.1, Math.toRadians(45));
     private final String limelightName;
     private final Timer lastUpdateStopwatch = new Timer();
     private double previousHeartbeat = -1.0;
@@ -74,8 +77,17 @@ public class Limelight {
         }
         Pose2d estimatedRobotPoseMeters = results.targetingResults.getBotPose2d_wpiBlue();
 
-        if (results.targetingResults.targets_Fiducials.length > 1 && LimelightHelpers.getTA(limelightName) > 0.1) {
+        if(Vision.unconditionallyTrustVision.get()) {
+            estimatedBotPose = estimatedRobotPoseMeters;
+            limelightField.setRobotPose(estimatedRobotPoseMeters);
+            Robot.getDrive().updateVisionStDev(VecBuilder.fill(0.01, 0.01, 0.01));
+            Robot.getDrive().addVisionMeasurement(estimatedRobotPoseMeters, timestamp - getTotalLatencySeconds(results));
+            return;
+        }
 
+        if (results.targetingResults.targets_Fiducials.length > 1 && LimelightHelpers.getTA(limelightName) > 0.1) {
+            Robot.getDrive().updateVisionStDev(VecBuilder.fill(0.05, 0.05, Math.toRadians(30)));
+            Robot.getDrive().addVisionMeasurement(estimatedRobotPoseMeters, timestamp - getTotalLatencySeconds(results));
         } else if (LimelightHelpers.getTA(limelightName) > 0.5
         && Robot.getDrive().getPose().getTranslation().getDistance(estimatedRobotPoseMeters.getTranslation()) > 2) {
 

@@ -25,6 +25,7 @@ import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.utility.Controller;
 import org.codeorange.frc2024.utility.Controller.XboxButtons;
 import org.codeorange.frc2024.utility.ControllerDriveInputs;
+import org.codeorange.frc2024.utility.LimelightHelpers;
 import org.codeorange.frc2024.utility.MacAddressUtil;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -193,6 +194,9 @@ public class Robot extends LoggedRobot {
         arm.start();
         intake.start();
         vision.start();
+
+        LimelightHelpers.setLEDMode_ForceOff("limelight-front");
+        LimelightHelpers.setLEDMode_ForceOff("limelight-back");
         // climber.start();
         superstructure.start();
         superstructure.setCurrentState(Superstructure.States.STOW);
@@ -208,8 +212,14 @@ public class Robot extends LoggedRobot {
         xbox.update();
         logitechThing.update();
         buttonPanel.update();
-
     }
+
+    private final LoggedDashboardChooser<Boolean> limelightLEDchooser = new LoggedDashboardChooser<>("Limelight LED Mode");
+    {
+        limelightLEDchooser.addDefaultOption("Off", false);
+        limelightLEDchooser.addOption("On", true);
+    }
+
 
     ChoreoTrajectory traj;
 
@@ -217,6 +227,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         drive.isOpenLoop = true;
+        LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
+        LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
         AutoManager.getInstance().loadAuto(autoChooser.get());
         AutoManager.getInstance().startAuto();
     }
@@ -229,6 +241,8 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
+        LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
         drive.isOpenLoop = true;
         drive.setBrakeMode(true);
         AutoManager.getInstance().endAuto();
@@ -244,6 +258,14 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+        if(limelightLEDchooser.get()) {
+            LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
+            LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
+        } else {
+            LimelightHelpers.setLEDMode_ForceOff("limelight-front");
+            LimelightHelpers.setLEDMode_ForceOff("limelight-back");
+        }
+
         if(!prevHasNote && intake.hasNote()) {
             xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0.5);
             rumbleStart = Logger.getRealTimestamp() * 1e-6;
@@ -284,7 +306,7 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.CLIMBER);
         }
         if(xbox.getRisingEdge(XboxButtons.A)) {
-            drive.resetGyro(0);
+            drive.resetGyro(Robot.isRed() ? 0 : 0.5);
         }
 
         if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
@@ -293,7 +315,11 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
         if(xbox.getRisingEdge(XboxButtons.B)) {
-            superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
+            if(intake.hasNote()) {
+                superstructure.setGoalState(Superstructure.States.AMP);
+            } else {
+                superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
+            }
         } else if (xbox.getFallingEdge(XboxButtons.B)) {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
@@ -302,8 +328,10 @@ public class Robot extends LoggedRobot {
             drive.resetOdometry(vision.backCamera.estimatedBotPose);
         }
 
-        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER) || xbox.getRawButton(XboxButtons.B)) {
+        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
             intake.runIntake(0.8);
+        } else if ((xbox.getRawButton(XboxButtons.B) && !intake.hasNote() && superstructure.getCurrentState() == Superstructure.States.SOURCE_INTAKE)) {
+            intake.runIntake(0.5);
         } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
             intake.runOuttake();
         } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
@@ -311,8 +339,9 @@ public class Robot extends LoggedRobot {
         } else if(logitechThing.getRawButton(11)) {
             intake.setDutyCycle(0.05);
         } else if(logitechThing.getRawButton(9)) {
-            intake.setDutyCycle(-0.05);
-            shooter.setMotorVoltage(-2);
+            // outtake
+            intake.setDutyCycle(-0.1);
+            shooter.setMotorTorque(-120);
         } else {
             intake.stop();
         }
@@ -341,6 +370,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         AutoManager.getInstance().endAuto();
+        LimelightHelpers.setLEDMode_ForceOff("limelight-front");
+        LimelightHelpers.setLEDMode_ForceOff("limelight-back");
         drive.setBrakeMode(true);
     }
 

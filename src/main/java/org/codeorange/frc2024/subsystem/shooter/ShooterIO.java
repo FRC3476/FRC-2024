@@ -22,6 +22,8 @@ public interface ShooterIO {
     default void setMotorVoltage(double voltage) {
     }
 
+    default void setMotorTorque(double torque) {}
+
     default void setVelocity(double velocityRadPerSec, double ffVolts) {
     }
 
