@@ -12,9 +12,9 @@ import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
 import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3d;
 
 import java.io.File;
+import java.io.ObjectInputStream;
 import java.net.SocketException;
 import java.nio.file.Files;
 
@@ -27,6 +27,7 @@ public final class Constants {
             mac = MacAddressUtil.getMacAddress();
         } catch (SocketException e) {
             System.out.println("Failed to get MAC address");
+            mac = new byte[6];
         }
     }
 
@@ -99,14 +100,20 @@ public final class Constants {
 
         public static final int INTAKE_MOTOR_ID = 31;
         public static final int CLIMBER = 36;
-
+        //next two are rio dio ports
         public static final int INTAKE_BEAM_BREAK = 0;
+        public static final int CLIMBER_LIMIT_SWITCH = 1;
+        //next two are rio pwm ports
+        public static final int SERVO_1 = 0;
+        public static final int SERVO_2 = 1;
     }
 
     public static final double FL_ABSOLUTE_ENCODER_OFFSET;
     public static final double BL_ABSOLUTE_ENCODER_OFFSET;
     public static final double FR_ABSOLUTE_ENCODER_OFFSET;
     public static final double BR_ABSOLUTE_ENCODER_OFFSET;
+    public static final double WRIST_ABSOLUTE_ENCODER_OFFSET;
+    public static final double ARM_ABSOLUTE_ENCODER_OFFSET;
 
     static {
         switch(robotIdentity) {
@@ -115,24 +122,33 @@ public final class Constants {
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.10107421875+0.5;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.33251953125;
                 BR_ABSOLUTE_ENCODER_OFFSET = 0.4794921875;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.389404296875;
+                ARM_ABSOLUTE_ENCODER_OFFSET = -0.36279296875;
             }
             case PRACTICE_BOT -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = -0.130615234375;
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.69091796875;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.94091796875;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.8701171875;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = 0.336669921875;
+                ARM_ABSOLUTE_ENCODER_OFFSET = -0.36279296875;
+
             }
             case COMPETITION_BOT -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = -0.962158203125;
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.38037109375;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.038330078125;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.699462890625;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.10498046875;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0.45068359375;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;
                 BL_ABSOLUTE_ENCODER_OFFSET = 0;
                 FR_ABSOLUTE_ENCODER_OFFSET = 0;
                 BR_ABSOLUTE_ENCODER_OFFSET = 0;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = 0;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0;
             }
         }
     }
@@ -146,10 +162,12 @@ public final class Constants {
     public static final double CLIMBER_LOWER_LIMIT_ROTATIONS = 0;
     public static final double CLIMBER_HANG_POSITION = 2;
     public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 5;//TODO: find this
+    public static final double CLIMBER_HOME_VOLTAGE = -1.0;
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
     public static final double ELEVATOR_STALLING_CURRENT = 30;
     public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
+
 
     //positions for the superstructure
     //TODO: find all these for the robots
@@ -158,7 +176,7 @@ public final class Constants {
     public static final double SS_REST_WRIST = 0;
     public static final double SS_REST_CLIMBER = 0;
     public static final double SS_STOW_ELEVATOR = 0;
-    public static final double SS_STOW_ARM = -0.01;
+    public static final double SS_STOW_ARM = 0; //used to be -0.01
     public static final double SS_STOW_WRIST = 0;
     public static final double SS_STOW_CLIMBER = 0;
     public static final double SS_GENINTERMEDIATE_ELEVATOR = isPrototype() ? 3.5 : 0;
@@ -208,7 +226,7 @@ public final class Constants {
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
-    public static final double SWERVE_DRIVE_P = 100;
+    public static final double SWERVE_DRIVE_P = 50;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
@@ -216,7 +234,7 @@ public final class Constants {
     public static final double TURN_I = isPrototype() ? 0 : 0;
     public static final double TURN_D = 0.3;
 
-    public static final double ARM_P = 200;
+    public static final double ARM_P = isCompetition() ? 100 : 200;
     public static final double ARM_I = 0;
     public static final double ARM_D = isPrototype() ? 5 : 0;
     public static final double ARM_RTS = isPrototype() ? 144.0 : 36.0 * 3;

@@ -408,7 +408,7 @@ public class Robot extends LoggedRobot {
             inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
         }
 
-        if (xbox.getRawButton(Controller.XboxButtons.X)) {
+        if (xbox.getRawButton(XboxButtons.X)) {
             // Apply a larger deadzone when the button is pressed
             inputs.applyDeadZone(0.2, 0.2, 0.2, 0.2);
         } else {

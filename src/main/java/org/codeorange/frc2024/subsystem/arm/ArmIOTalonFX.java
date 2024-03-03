@@ -1,14 +1,10 @@
 package org.codeorange.frc2024.subsystem.arm;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 
@@ -58,6 +54,12 @@ public class ArmIOTalonFX implements ArmIO {
         armMotionMagicConfig.MotionMagicAcceleration = 3.2;     //TODO change motion magic values
         armMotionMagicConfig.MotionMagicJerk = 16;
 
+
+        /*var armCurrentLimitConfigs = talonFXConfigs.CurrentLimits;
+        armCurrentLimitConfigs.SupplyCurrentLimit = ELEVATOR_STALLING_CURRENT;
+        armCurrentLimitConfigs.SupplyCurrentLimitEnable = true;
+        armCurrentLimitConfigs.StatorCurrentLimitEnable = false;*/
+
         Slot0Configs slot0 = talonFXConfigs.Slot0;
         slot0.kP = ARM_P;
         slot0.kI = ARM_I;
@@ -74,7 +76,7 @@ public class ArmIOTalonFX implements ArmIO {
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-                        .withMagnetOffset(-0.36279296875)
+                        .withMagnetOffset(ARM_ABSOLUTE_ENCODER_OFFSET)
                         .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
                 )
         );
