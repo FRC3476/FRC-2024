@@ -15,9 +15,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.arm.*;
-import org.codeorange.frc2024.subsystem.climber.Climber;
-import org.codeorange.frc2024.subsystem.climber.ClimberIO;
-import org.codeorange.frc2024.subsystem.climber.ClimberIOTalonFX;
 import org.codeorange.frc2024.subsystem.drive.*;
 import org.codeorange.frc2024.subsystem.intake.*;
 import org.codeorange.frc2024.subsystem.vision.*;
@@ -74,7 +71,7 @@ public class Robot extends LoggedRobot {
     static Shooter shooter;
     static Arm arm;
     static Intake intake;
-    static Climber climber;
+    // static Climber climber;
     static Vision vision;
 
     static Superstructure superstructure;
@@ -98,7 +95,6 @@ public class Robot extends LoggedRobot {
             case 1 -> Logger.recordMetadata("GitDirty", "Uncommitted changes");
             default -> Logger.recordMetadata("GitDirty", "Unknown");
         }
-        System.out.println("Robot identity: " + robotIdentity.toString());
         Logger.recordMetadata("Robot Identity", robotIdentity.toString());
         Logger.recordMetadata("MAC Address", MacAddressUtil.macToString(mac));
 
@@ -156,7 +152,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
-            climber = new Climber(new ClimberIOTalonFX());
+           // climber = new Climber(new ClimberIOTalonFX());
             superstructure = Superstructure.getSuperstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
@@ -174,7 +170,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
             intake = new Intake(new IntakeIO() {});
-            climber = new Climber(new ClimberIO() {});
+            // climber = new Climber(new ClimberIO() {});
             superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
@@ -190,17 +186,16 @@ public class Robot extends LoggedRobot {
         vision = new Vision();
 
         Logger.start();
-        //drive.start();
+        drive.start();
         wrist.start();
         elevator.start();
         shooter.start();
         arm.start();
         intake.start();
         vision.start();
-        climber.start();
-        //superstructure.start();
-        //superstructure.setCurrentState(Superstructure.States.STOW);
-        climber.closeServos();
+        // climber.start();
+        superstructure.start();
+        superstructure.setCurrentState(Superstructure.States.STOW);
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
@@ -249,30 +244,30 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        if(prevHasNote && intake.hasNote()) {
+        if(!prevHasNote && intake.hasNote()) {
             xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0.5);
             rumbleStart = Logger.getRealTimestamp() * 1e-6;
         }
         if(Logger.getRealTimestamp() * 1e-6 - rumbleStart > 0.5) {
             xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0);
         }
-        if(xbox.getRisingEdge(XboxButtons.A)) {
+        if(buttonPanel.getRisingEdge(1)) {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
-        /* UNCOMMENT OUTif(buttonPanel.getRisingEdge(2)) {
+        if(buttonPanel.getRisingEdge(2)) {
             superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
-        }*/
-        if(xbox.getRisingEdge(XboxButtons.X)) {
+        }
+        if(buttonPanel.getRisingEdge(3)) {
             superstructure.setGoalState(Superstructure.States.AMP);
         }
-        /* UNCOMMENT OUTif(buttonPanel.getRisingEdge(4)) {
+        if(buttonPanel.getRisingEdge(4)) {
             superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
-        }*/
-        if(xbox.getRisingEdge(XboxButtons.Y)) {
+        }
+        if(buttonPanel.getRisingEdge(5)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = false;
         }
-        /*UNCOMMENT WHEN NEEDED if(buttonPanel.getRisingEdge(11)) {
+        if(buttonPanel.getRisingEdge(11)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = true;
         }
@@ -284,11 +279,11 @@ public class Robot extends LoggedRobot {
         }
         if(buttonPanel.getRisingEdge(8)) {
             superstructure.setGoalState(Superstructure.States.TEST_TRAP);
-        }*/
+        }
 
-        /*UNCOMMENT WHEN NEEDED if(xbox.getRisingEdge(XboxButtons.A)) {
+        if(xbox.getRisingEdge(XboxButtons.A)) {
             drive.resetGyro(0);
-        }*/
+        }
 
         if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
             superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
@@ -303,52 +298,35 @@ public class Robot extends LoggedRobot {
 
 
         if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER) || xbox.getRawButton(XboxButtons.B)) {
-            intake.runIntake();
+            intake.runIntake(0.8);
         } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
             intake.runOuttake();
         } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
             intake.runIntakeForShooter();
-        } /*UNCOMMENT OUTelse if(logitechThing.getRawButton(11)) {
+        } else if(logitechThing.getRawButton(11)) {
             intake.setDutyCycle(0.05);
         } else if(logitechThing.getRawButton(9)) {
             intake.setDutyCycle(-0.05);
             shooter.setMotorVoltage(-2);
-        } */else {
+        } else {
             intake.stop();
         }
-        /* UNCOMMENTif(logitechThing.getFallingEdge(9)) {
+        if(logitechThing.getFallingEdge(9)) {
             shooter.stop();
         }
         if(buttonPanel.getRisingEdge(10)) {
             superstructure.setGoalState(Superstructure.States.HOMING);
             elevator.home();
-        }*/
-        //UNCOMMENT superstructure.a = 4 * logitechThing.getRawAxis(2);
+        }
+        superstructure.a = 4 * logitechThing.getRawAxis(2);
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        /*if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
-            drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
-        } else {
-            drive.swerveDriveFieldRelative(controllerDriveInputs);
-        }*/
-
         if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
-            climber.openServos();
+            drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
+        } else if(xbox.getRawButton(XboxButtons.X)) {
+            drive.setNextChassisSpeeds(new ChassisSpeeds(1, 0, 0));
         } else {
-            climber.closeServos();
-        }
-
-        if(xbox.getPOV() == 180) {
-            //move to bottom and zero climber arm
-            climber.home();
-        } else if(xbox.getPOV() == 90) {
-            //extend climber arm
-            climber.runVoltage(1.0);
-        } else if (xbox.getPOV() == 270) {
-            //retract climber arm
-            climber.runVoltage(-1.0);
-        } else if (!climber.homing) {
-            climber.stop();
+            drive.drive(controllerDriveInputs, true, true);
         }
 
         prevHasNote = intake.hasNote();
@@ -359,7 +337,6 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {
         AutoManager.getInstance().endAuto();
         drive.setBrakeMode(true);
-        drive.setNextChassisSpeeds(new ChassisSpeeds());
     }
 
     /** This function is called periodically when disabled. */
@@ -370,7 +347,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
-        drive.setBrakeMode(false);
+        // drive.setBrakeMode(false);
     }
 
     /** This function is called periodically during test mode. */
@@ -395,7 +372,7 @@ public class Robot extends LoggedRobot {
             inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
         }
 
-        if (xbox.getRawButton(Controller.XboxButtons.X)) {
+        if (xbox.getRawButton(XboxButtons.X)) {
             // Apply a larger deadzone when the button is pressed
             inputs.applyDeadZone(0.2, 0.2, 0.2, 0.2);
         } else {
