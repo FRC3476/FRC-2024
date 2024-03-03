@@ -300,7 +300,7 @@ public class Drive extends AbstractSubsystem {
                 getModulePositions(),
                 new Pose2d(getPose().getX(),
                         getPose().getY(),
-                        Rotation2d.fromRotations(yawPositionRot)
+                        Rotation2d.fromRotations(yawPositionRot).rotateBy(Rotation2d.fromRotations(0.5))
                 )
         );
     }

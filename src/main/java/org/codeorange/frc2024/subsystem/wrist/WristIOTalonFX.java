@@ -60,7 +60,7 @@ public class WristIOTalonFX implements WristIO {
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                        .withMagnetOffset(-0.3984375)));
+                        .withMagnetOffset(0.336669921875)));
 
         wristAbsolutePosition = absoluteEncoder.getAbsolutePosition();
         wristRelativePosition = wristMotor.getPosition();
