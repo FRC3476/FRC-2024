@@ -96,8 +96,12 @@ public final class Constants {
 
         public static final int INTAKE_MOTOR_ID = 31;
         public static final int CLIMBER = 36;
-
+        //next two are rio dio ports
         public static final int INTAKE_BEAM_BREAK = 0;
+        public static final int CLIMBER_LIMIT_SWITCH = 1;
+        //next two are rio pwm ports
+        public static final int SERVO_1 = 0;
+        public static final int SERVO_2 = 1;
     }
 
     public static final double FL_ABSOLUTE_ENCODER_OFFSET;
@@ -154,10 +158,12 @@ public final class Constants {
     public static final double CLIMBER_LOWER_LIMIT_ROTATIONS = 0;
     public static final double CLIMBER_HANG_POSITION = 2;
     public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 5;//TODO: find this
+    public static final double CLIMBER_HOME_VOLTAGE = -1.0;
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
     public static final double ELEVATOR_STALLING_CURRENT = 30;
     public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
+
 
     //positions for the superstructure
     //TODO: find all these for the robots
