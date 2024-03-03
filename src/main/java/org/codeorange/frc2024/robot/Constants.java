@@ -159,6 +159,8 @@ public final class Constants {
     public static final double CLIMBER_HANG_POSITION = 2;
     public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 5;//TODO: find this
     public static final double CLIMBER_HOME_VOLTAGE = -1.0;
+    public static final double CLIMBER_CLIMB_VOLTAGE = -12.0;
+    public static final double CLIMBER_STALLING_CURRENT = 30; //TODO: FIND THIS IG
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
     public static final double ELEVATOR_STALLING_CURRENT = 30;
@@ -213,10 +215,10 @@ public final class Constants {
     public static final double SS_DEPLOYCLIMBER2_ARM = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_CLIMBER = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
-    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 0;
-    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0;
+    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 16;
+    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.245;
     public static final double SS_CLIMB_WRIST = isPrototype() ? 0 : 0;
-    public static final double SS_CLIMB_CLIMBER = isPrototype() ? CLIMBER_HANG_POSITION : 0;
+    public static final double SS_CLIMB_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_ELEVATOR = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;

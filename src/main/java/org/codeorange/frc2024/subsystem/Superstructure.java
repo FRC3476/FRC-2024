@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
+import org.codeorange.frc2024.subsystem.climber.Climber;
 
 public class Superstructure extends AbstractSubsystem {
     //unfortunately all of these need to be static so that the enum can access them
@@ -26,7 +27,7 @@ public class Superstructure extends AbstractSubsystem {
     private static Elevator elevator;
     private static Drive drive;
     private static Superstructure superstructure = new Superstructure();
-    // private static Climber climber;
+    private static Climber climber;
     //private static Vision vision;
     private States currentState = States.STOW;
     private States goalState = States.STOW;
@@ -40,7 +41,7 @@ public class Superstructure extends AbstractSubsystem {
         drive = Robot.getDrive();
         elevator = Robot.getElevator();
         shooter = Robot.getShooter();
-        // climber = Robot.getClimber();
+        climber = Robot.getClimber();
     }
 
     public double wantedAngle = 54;
@@ -174,37 +175,16 @@ public class Superstructure extends AbstractSubsystem {
                 //code!
             }
         },
-        CLIMBER(16, 0.245, 0, 0) {
+        CLIMBER(SS_CLIMB_ELEVATOR, SS_CLIMB_ARM, SS_CLIMB_WRIST, SS_CLIMB_CLIMBER) {
             @Override
             public void update() {
                 if(superstructure.goalState != States.CLIMBER) {
                     superstructure.setCurrentState(States.INTERMEDIATE);
                 }
-            }
-        },
-        DEPLOY_CLIMBER_1(SS_DEPLOYCLIMBER1_ELEVATOR, SS_DEPLOYCLIMBER1_ARM, SS_DEPLOYCLIMBER1_WRIST, SS_DEPLOYCLIMBER1_CLIMBER) {
-            @Override
-            //should move mechanisms out of the way
-            public void update() {
-                //needs to check whether mechanisms are out of the way before proceeding
-                if(true) {
-                    superstructure.setCurrentState(DEPLOY_CLIMBER_2);
+                if(isAtWantedState()) {
+                    climber.openServos();
+                    climber.setMotorPosition(185);
                 }
-            }
-        },
-        DEPLOY_CLIMBER_2(SS_DEPLOYCLIMBER2_ELEVATOR, SS_DEPLOYCLIMBER2_ARM, SS_DEPLOYCLIMBER2_WRIST, SS_DEPLOYCLIMBER2_CLIMBER) {
-            @Override
-            //should extend climb arm to be on the chain
-            public void update() {
-                //needs to check whether climb arm is extended + maybe check if it's actually around the chain
-                // climber.disengageRatchet();
-            }
-        },
-        CLIMB(SS_CLIMB_ELEVATOR, SS_CLIMB_ARM, SS_CLIMB_WRIST, SS_CLIMB_CLIMBER) {
-            @Override
-            //should pull robot up?? maybe??
-            public void update() {
-                // climber.engageRatchet();
             }
         },
         HOMING(SS_HOMING_ELEVATOR,SS_HOMING_ARM, SS_HOMING_WRIST, SS_HOMING_CLIMBER) {
@@ -297,7 +277,7 @@ public class Superstructure extends AbstractSubsystem {
             wrist.setWristPosition(-wantedShooterPosition - SS_SPEAKER_ARM);
         }
         Logger.recordOutput("Superstructure/Current State", currentState);
-        // climber.setPosition(currentState.climberPos);
+        climber.setMotorPosition(currentState.climberPos);
     }
 
     public void setWantedShooterPosition(double wantedPos) {

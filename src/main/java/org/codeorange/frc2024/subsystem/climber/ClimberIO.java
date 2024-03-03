@@ -18,7 +18,7 @@ public interface ClimberIO {
     default void updateInputs(ClimberIO.ClimberInputs inputs) {}
 
     default void setEncoderToZero() {}
-    default void setPosition(double position) {}
+    default void setMotorPosition(double position) {}
 
     default void setBrakeMode(boolean braked) {}
 
@@ -29,4 +29,5 @@ public interface ClimberIO {
     default void close() {}
     default void stop() {}
     default void setVoltage(double voltage) {}
+    default void enableStaticBrake() {}
 }
