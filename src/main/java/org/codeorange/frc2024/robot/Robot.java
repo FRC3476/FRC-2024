@@ -15,6 +15,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.arm.*;
+import org.codeorange.frc2024.subsystem.climber.Climber;
+import org.codeorange.frc2024.subsystem.climber.ClimberIO;
+import org.codeorange.frc2024.subsystem.climber.ClimberIOTalonFX;
 import org.codeorange.frc2024.subsystem.drive.*;
 import org.codeorange.frc2024.subsystem.intake.*;
 import org.codeorange.frc2024.subsystem.vision.*;
@@ -71,7 +74,7 @@ public class Robot extends LoggedRobot {
     static Shooter shooter;
     static Arm arm;
     static Intake intake;
-    // static Climber climber;
+    static Climber climber;
     static Vision vision;
 
     static Superstructure superstructure;
@@ -153,7 +156,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
-            // climber = new Climber(new ClimberIOTalonFX());
+            climber = new Climber(new ClimberIOTalonFX());
             superstructure = Superstructure.getSuperstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
@@ -171,7 +174,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
             intake = new Intake(new IntakeIO() {});
-            // climber = new Climber(new ClimberIO() {});
+            climber = new Climber(new ClimberIO() {});
             superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
@@ -194,9 +197,10 @@ public class Robot extends LoggedRobot {
         arm.start();
         intake.start();
         vision.start();
-        // climber.start();
-        superstructure.start();
-        superstructure.setCurrentState(Superstructure.States.STOW);
+        climber.start();
+        //superstructure.start();
+        //superstructure.setCurrentState(Superstructure.States.STOW);
+        climber.closeServos();
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
@@ -322,10 +326,29 @@ public class Robot extends LoggedRobot {
         //UNCOMMENT superstructure.a = 4 * logitechThing.getRawAxis(2);
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
+        /*if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
         } else {
             drive.swerveDriveFieldRelative(controllerDriveInputs);
+        }*/
+
+        if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
+            climber.openServos();
+        } else {
+            climber.closeServos();
+        }
+
+        if(xbox.getPOV() == 180) {
+            //move to bottom and zero climber arm
+            climber.home();
+        } else if(xbox.getPOV() == 90) {
+            //extend climber arm
+            climber.runVoltage(1.0);
+        } else if (xbox.getPOV() == 270) {
+            //retract climber arm
+            climber.runVoltage(-1.0);
+        } else if (!climber.homing) {
+            climber.stop();
         }
 
         prevHasNote = intake.hasNote();
