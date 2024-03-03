@@ -12,10 +12,14 @@ public class Vision extends AbstractSubsystem {
     public final Limelight frontCamera;
     public final Limelight backCamera;
     public static final LoggedDashboardChooser<Boolean> visionOnOffChooser;
+    public static final LoggedDashboardChooser<Boolean> unconditionallyTrustVision;
     static {
         visionOnOffChooser = new LoggedDashboardChooser<>("Vision Enabled");
         visionOnOffChooser.addDefaultOption("on", true);
         visionOnOffChooser.addOption("off", false);
+        unconditionallyTrustVision = new LoggedDashboardChooser<>("Unconditionally Trust Vision");
+        unconditionallyTrustVision.addDefaultOption("off", false);
+        unconditionallyTrustVision.addOption("on", true);
     }
 
     public Vision() {

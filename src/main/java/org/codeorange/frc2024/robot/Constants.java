@@ -4,6 +4,8 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.MacAddressUtil;
 import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
@@ -206,7 +208,7 @@ public final class Constants {
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
-    public static final double SWERVE_DRIVE_P = 50;
+    public static final double SWERVE_DRIVE_P = 100;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
@@ -269,7 +271,7 @@ public final class Constants {
             SWERVE_RIGHT_BACK_LOCATION
     };
     // really, figure out if these locations are correct <_<
-    public static final SecondOrderKinematics SWERVE_DRIVE_KINEMATICS = new SecondOrderKinematics(
+    public static final SwerveDriveKinematics SWERVE_DRIVE_KINEMATICS = new SwerveDriveKinematics(
             SWERVE_MODULE_LOCATIONS
     );
 

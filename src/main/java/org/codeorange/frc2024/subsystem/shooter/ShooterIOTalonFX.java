@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -87,6 +86,12 @@ public class ShooterIOTalonFX implements ShooterIO {
     @Override
     public void setMotorVoltage(double voltage) {
         leader.setControl(voltageOut.withOutput(voltage));
+    }
+
+    TorqueCurrentFOC torqueOut = new TorqueCurrentFOC(0);
+    @Override
+    public void setMotorTorque(double torque) {
+        leader.setControl(torqueOut.withOutput(torque));
     }
 
     VelocityTorqueCurrentFOC velocityVoltage = new VelocityTorqueCurrentFOC(0);
