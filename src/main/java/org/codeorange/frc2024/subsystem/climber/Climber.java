@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem.climber;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -15,6 +16,8 @@ When the climber retracts to make the robot hang, the motor winds the string bac
 public class Climber extends AbstractSubsystem {
     private final ClimberIO climberIO;
     private final ClimberInputsAutoLogged climberInputs = new ClimberInputsAutoLogged();
+    private boolean servosOpen = false;
+    public boolean homing = false;
 
     public Climber(ClimberIO climberIO){
         super();
@@ -28,6 +31,21 @@ public class Climber extends AbstractSubsystem {
     public void update() {
         climberIO.updateInputs(climberInputs);
         Logger.processInputs("Climber", climberInputs);
+        if(servosOpen) {
+            climberIO.open();
+        } else {
+            climberIO.close();
+        }
+
+        if (homing) {
+            if (DriverStation.isEnabled()) {
+                climberIO.setVoltage(CLIMBER_HOME_VOLTAGE);
+                if (limitSwitchPushed()) {
+                    homing = false;
+                    climberIO.setEncoderToZero();
+                }
+            }
+        }
     }
 
     public double getPositionInRotations() {
@@ -38,11 +56,48 @@ public class Climber extends AbstractSubsystem {
         climberIO.setEncoderToZero();
     }
 
-    public void disengageRatchet() {
-        climberIO.disengageRatchet();
+    //public void disengageRatchet() {
+    //    climberIO.disengageRatchet();
+    //}
+
+    //public void engageRatchet() {
+    //    climberIO.engageRatchet();
+    //}
+
+    public void openServos() {
+        servosOpen = true;
     }
 
-    public void engageRatchet() {
-        climberIO.engageRatchet();
+    public void closeServos() {
+        servosOpen = false;
+    }
+
+    public void home() {
+        homing = true;
+    }
+
+    public boolean limitSwitchPushed() {
+        return climberInputs.limitSwitchPushed;
+    }
+
+    public void stop() {
+        climberIO.stop();
+    }
+
+    public boolean areServosOpen() {
+        return servosOpen;
+    }
+
+    public void runVoltage(double voltage) {
+        if(voltage > 0) {
+            //voltage is positive, should always be allowed to go up
+            climberIO.setVoltage(voltage);
+        } else if(limitSwitchPushed()) {
+            //voltage is negative and down too far, should stop
+            stop();
+        } else {
+            //voltage is negative and not to limit switch, should be allowed to go down
+            climberIO.setVoltage(voltage);
+        }
     }
 }
