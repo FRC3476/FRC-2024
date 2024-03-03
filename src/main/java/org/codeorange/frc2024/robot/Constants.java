@@ -10,7 +10,6 @@ import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
 import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3d;
 
 import java.io.File;
 import java.net.SocketException;
@@ -157,7 +156,7 @@ public final class Constants {
     public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 5;//TODO: find this
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
-    public static final double ELEVATOR_STALLING_CURRENT = 30;
+    public static final double MOTOR_STALLING_CURRENT = 10;//switch back to 30 after testing
     public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
 
     //positions for the superstructure

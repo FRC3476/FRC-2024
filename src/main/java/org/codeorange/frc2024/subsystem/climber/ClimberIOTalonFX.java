@@ -13,8 +13,6 @@ import org.codeorange.frc2024.robot.Constants;
 
 import static edu.wpi.first.wpilibj.Relay.Value.*;
 import static org.codeorange.frc2024.robot.Constants.*;
-import static org.codeorange.frc2024.robot.Constants.Ports.WRIST_ENCODER;
-import static org.codeorange.frc2024.robot.Constants.Ports.WRIST_MOTOR;
 
 public class ClimberIOTalonFX implements ClimberIO {
     private final StatusSignal<Double> climberPosition;
@@ -43,7 +41,7 @@ public class ClimberIOTalonFX implements ClimberIO {
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                         .withSensorToMechanismRatio(1) //TODO: what is this ratio??
                 ).withCurrentLimits(new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(ELEVATOR_STALLING_CURRENT)
+                        .withSupplyCurrentLimit(MOTOR_STALLING_CURRENT)
                         .withSupplyCurrentLimitEnable(true)
                         .withStatorCurrentLimitEnable(false)
                 ).withMotorOutput(new MotorOutputConfigs()

@@ -1,17 +1,12 @@
 package org.codeorange.frc2024.subsystem.arm;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
-import org.codeorange.frc2024.robot.Constants;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
@@ -58,6 +53,12 @@ public class ArmIOTalonFX implements ArmIO {
         armMotionMagicConfig.MotionMagicCruiseVelocity = 0.8;
         armMotionMagicConfig.MotionMagicAcceleration = 3.2;     //TODO change motion magic values
         armMotionMagicConfig.MotionMagicJerk = 16;
+
+
+        var armCurrentLimitConfigs = talonFXConfigs.CurrentLimits;
+        armCurrentLimitConfigs.SupplyCurrentLimit = MOTOR_STALLING_CURRENT;
+        armCurrentLimitConfigs.SupplyCurrentLimitEnable = true;
+        armCurrentLimitConfigs.StatorCurrentLimitEnable = false;
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
         slot0.kP = ARM_P;
