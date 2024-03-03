@@ -55,10 +55,10 @@ public class ArmIOTalonFX implements ArmIO {
         armMotionMagicConfig.MotionMagicJerk = 16;
 
 
-        var armCurrentLimitConfigs = talonFXConfigs.CurrentLimits;
-        armCurrentLimitConfigs.SupplyCurrentLimit = MOTOR_STALLING_CURRENT;
+        /*var armCurrentLimitConfigs = talonFXConfigs.CurrentLimits;
+        armCurrentLimitConfigs.SupplyCurrentLimit = ELEVATOR_STALLING_CURRENT;
         armCurrentLimitConfigs.SupplyCurrentLimitEnable = true;
-        armCurrentLimitConfigs.StatorCurrentLimitEnable = false;
+        armCurrentLimitConfigs.StatorCurrentLimitEnable = false;*/
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
         slot0.kP = ARM_P;
