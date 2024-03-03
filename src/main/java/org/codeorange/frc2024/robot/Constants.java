@@ -9,6 +9,7 @@ import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.MacAddressUtil;
 import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
+import org.codeorange.frc2024.utility.swerve.SecondOrderModuleState;
 import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
@@ -135,10 +136,10 @@ public final class Constants {
 
             }
             case COMPETITION_BOT -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.962158203125;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.38037109375;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.038330078125;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.699462890625;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.669677734375 + 0.5;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.02197265625 + 0.5;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.378662109375 + 0.5;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.949462890625 + 0.5;
                 WRIST_ABSOLUTE_ENCODER_OFFSET = -0.10498046875;
                 ARM_ABSOLUTE_ENCODER_OFFSET = 0.45068359375;
             }
@@ -226,7 +227,7 @@ public final class Constants {
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
-    public static final double SWERVE_DRIVE_P = 50;
+    public static final double SWERVE_DRIVE_P = 30;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
@@ -274,7 +275,7 @@ public final class Constants {
     public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS;
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
-    public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
+    public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 7.0 / 150.0;
     public static final double DRIVE_MOTOR_REDUCTION = 9 / 53.125;
 
     public static final double wheelBaseInches = isPrototype() ? 22.75 : 24.25; // not real number, just example
@@ -289,7 +290,7 @@ public final class Constants {
             SWERVE_RIGHT_BACK_LOCATION
     };
     // really, figure out if these locations are correct <_<
-    public static final SwerveDriveKinematics SWERVE_DRIVE_KINEMATICS = new SwerveDriveKinematics(
+    public static final SecondOrderKinematics SWERVE_DRIVE_KINEMATICS = new SecondOrderKinematics(
             SWERVE_MODULE_LOCATIONS
     );
 
