@@ -95,7 +95,6 @@ public class Robot extends LoggedRobot {
             case 1 -> Logger.recordMetadata("GitDirty", "Uncommitted changes");
             default -> Logger.recordMetadata("GitDirty", "Unknown");
         }
-        System.out.println("Robot identity: " + robotIdentity.toString());
         Logger.recordMetadata("Robot Identity", robotIdentity.toString());
         Logger.recordMetadata("MAC Address", MacAddressUtil.macToString(mac));
 
@@ -252,23 +251,23 @@ public class Robot extends LoggedRobot {
         if(Logger.getRealTimestamp() * 1e-6 - rumbleStart > 0.5) {
             xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0);
         }
-        if(xbox.getRisingEdge(XboxButtons.A)) {
+        if(buttonPanel.getRisingEdge(1)) {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
-        /* UNCOMMENT OUTif(buttonPanel.getRisingEdge(2)) {
+        if(buttonPanel.getRisingEdge(2)) {
             superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
-        }*/
-        if(xbox.getRisingEdge(XboxButtons.X)) {
+        }
+        if(buttonPanel.getRisingEdge(3)) {
             superstructure.setGoalState(Superstructure.States.AMP);
         }
-        /* UNCOMMENT OUTif(buttonPanel.getRisingEdge(4)) {
+        if(buttonPanel.getRisingEdge(4)) {
             superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
-        }*/
-        if(xbox.getRisingEdge(XboxButtons.Y)) {
+        }
+        if(buttonPanel.getRisingEdge(5)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = false;
         }
-        /*UNCOMMENT WHEN NEEDED if(buttonPanel.getRisingEdge(11)) {
+        if(buttonPanel.getRisingEdge(11)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = true;
         }
@@ -280,11 +279,11 @@ public class Robot extends LoggedRobot {
         }
         if(buttonPanel.getRisingEdge(8)) {
             superstructure.setGoalState(Superstructure.States.TEST_TRAP);
-        }*/
+        }
 
-        /*UNCOMMENT WHEN NEEDED if(xbox.getRisingEdge(XboxButtons.A)) {
+        if(xbox.getRisingEdge(XboxButtons.A)) {
             drive.resetGyro(0);
-        }*/
+        }
 
         if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
             superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
@@ -304,22 +303,22 @@ public class Robot extends LoggedRobot {
             intake.runOuttake();
         } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
             intake.runIntakeForShooter();
-        } /*UNCOMMENT OUTelse if(logitechThing.getRawButton(11)) {
+        } else if(logitechThing.getRawButton(11)) {
             intake.setDutyCycle(0.05);
         } else if(logitechThing.getRawButton(9)) {
             intake.setDutyCycle(-0.05);
             shooter.setMotorVoltage(-2);
-        } */else {
+        } else {
             intake.stop();
         }
-        /* UNCOMMENTif(logitechThing.getFallingEdge(9)) {
+        if(logitechThing.getFallingEdge(9)) {
             shooter.stop();
         }
         if(buttonPanel.getRisingEdge(10)) {
             superstructure.setGoalState(Superstructure.States.HOMING);
             elevator.home();
-        }*/
-        //UNCOMMENT superstructure.a = 4 * logitechThing.getRawAxis(2);
+        }
+        superstructure.a = 4 * logitechThing.getRawAxis(2);
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
