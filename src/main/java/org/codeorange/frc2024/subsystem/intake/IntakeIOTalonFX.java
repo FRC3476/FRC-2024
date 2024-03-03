@@ -5,6 +5,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import org.codeorange.frc2024.robot.Constants;
 
@@ -29,6 +30,8 @@ public class IntakeIOTalonFX implements IntakeIO {
 
         BaseStatusSignal.setUpdateFrequencyForAll(50.0, intakeVelocity, intakeVoltage);
         BaseStatusSignal.setUpdateFrequencyForAll(2.0, intakeAmps, intakeTemp);
+
+        motor.setNeutralMode(NeutralModeValue.Brake);
 
         motor.optimizeBusUtilization();
     }

@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem.drive;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -9,6 +10,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
@@ -18,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.utility.ControllerDriveInputs;
+import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.swerve.SecondOrderModuleState;
 import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
@@ -40,7 +44,6 @@ public class Drive extends AbstractSubsystem {
     private @NotNull ChassisSpeeds nextChassisSpeeds = new ChassisSpeeds();
     private SwerveSetpointGenerator.KinematicLimit kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
     private final SwerveDrivePoseEstimator poseEstimator;
-    private @NotNull DriveState driveState = DriveState.TELEOP;
     private final @NotNull PIDController turnPID;
 
     {
@@ -85,8 +88,8 @@ public class Drive extends AbstractSubsystem {
     public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp) {
         poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp);
     }
-    public void updateVisionStDev(double translationStds, double rotationStds) {
-        poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(translationStds, translationStds, rotationStds));
+    public void updateVisionStDev(Matrix<N3, N1> stdevs) {
+        poseEstimator.setVisionMeasurementStdDevs(stdevs);
     }
 
     double lastTimeStep;
@@ -101,23 +104,6 @@ public class Drive extends AbstractSubsystem {
         }
         gyroIO.updateInputs(gyroInputs);
         Logger.processInputs("Drive/Gyro", gyroInputs);
-
-//        switch(driveState) {
-//            case TURN, WAITING_FOR_PATH -> updateTurn();
-//            case STOP -> {
-//                nextChassisSpeeds = new ChassisSpeeds();
-//                kinematicLimit = KinematicLimits.NORMAL_DRIVING.kinematicLimit;
-//            }
-//            case RAMSETE -> updateRamsete();
-//        }
-
-        Rotation3d startupRotationToField = poseEstimator.getEstimatedPosition3d().getRotation().minus(gyroInputs.rotation3d);
-
-
-        if (!DriverStation.isTest() && DriverStation.isEnabled()) {
-            var dt = Logger.getTimestamp() * 1e-6 - lastTimeStep;
-            swerveDrive(nextChassisSpeeds, dt, isOpenLoop);
-        }
 
         poseEstimator.updateWithTime(
                 Logger.getRealTimestamp() * 1e-6,
@@ -152,9 +138,7 @@ public class Drive extends AbstractSubsystem {
     @AutoLogOutput(key = "Drive/Wheel Rotations")
     public double getWheelRotation(int moduleNumber) {
         if (USE_RELATIVE_ENCODER_POSITION) {
-            double relPos = moduleInputs[moduleNumber].steerMotorRelativePosition % 360;
-            if (relPos < 0) relPos += 360;
-            return relPos;
+            return MathUtil.normalize(moduleInputs[moduleNumber].steerMotorRelativePosition, 0, 360);
         } else {
             return moduleInputs[moduleNumber].steerMotorAbsolutePosition;
         }
@@ -179,6 +163,7 @@ public class Drive extends AbstractSubsystem {
         } else {
             moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
         }
+        Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
 
 
         Logger.recordOutput("Drive/Out Volts " + module, ffv);
@@ -207,11 +192,9 @@ public class Drive extends AbstractSubsystem {
             var moduleState = swerveModuleStates[i];
             moduleState = SecondOrderModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
             wantedStates[i] = swerveModuleStates[i].toFirstOrder();
-            double currentAngle = getWheelRotation(i);
 
             moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0, isOpenLoop);
-            //setMotorSpeed(i, 0, 0);
 
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
             Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
@@ -225,58 +208,42 @@ public class Drive extends AbstractSubsystem {
 
     }
 
+    public synchronized void drive(@NotNull ControllerDriveInputs inputs, boolean fieldRel, boolean openLoop) {
+        SecondOrderModuleState[] states =
+                SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(
+                        ChassisSpeeds.discretize(fieldRel ?
+                                        ChassisSpeeds.fromFieldRelativeSpeeds(
+                                                DRIVE_HIGH_SPEED_M * inputs.getX(),
+                                                DRIVE_HIGH_SPEED_M * inputs.getY(),
+                                                inputs.getRotation() * MAX_TELEOP_TURN_SPEED,
+                                                gyroInputs.rotation2d)
+                                        : new ChassisSpeeds(
+                                        DRIVE_HIGH_SPEED_M * inputs.getX(),
+                                        DRIVE_HIGH_SPEED_M * inputs.getY(),
+                                        inputs.getRotation() * MAX_TELEOP_TURN_SPEED), 0.02
+                                ));
+        SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
 
-    private synchronized void swerveDrive(ChassisSpeeds desiredRobotRelSpeeds,
-                                          double dt, boolean isOpenLoop) {
-        Logger.recordOutput("Drive/Desired ChassisSpeeds", desiredRobotRelSpeeds);
-        var discretizedChassisSpeeds = ChassisSpeeds.discretize(desiredRobotRelSpeeds, dt);
-        var moduleStates = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(discretizedChassisSpeeds);
-
-        SecondOrderKinematics.desaturateWheelSpeeds(
-                moduleStates,
-                DRIVE_FEEDFORWARD.maxAchievableVelocity(11.5, 0)
-        );
-
-        setSwerveModuleStates(moduleStates, isOpenLoop);
-    }
-
-    public synchronized void swerveDrive(@NotNull ControllerDriveInputs inputs) {
-        nextChassisSpeeds = new ChassisSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
-                DRIVE_HIGH_SPEED_M * inputs.getY(),
-                inputs.getRotation() * MAX_TELEOP_TURN_SPEED);
-    }
-
-    public synchronized void swerveDriveFieldRelative(@NotNull ControllerDriveInputs inputs) {
-            nextChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                    DRIVE_HIGH_SPEED_M * inputs.getX(),
-                    DRIVE_HIGH_SPEED_M * inputs.getY(),
-                    inputs.getRotation() * MAX_TELEOP_TURN_SPEED,
-                    gyroInputs.rotation2d);
+        setSwerveModuleStates(states, openLoop);
     }
 
     public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad) {
         double turn = turnPID.calculate(gyroInputs.yawPositionRad, targetAngleRad);
         Logger.recordOutput("Drive/Wanted Omega", turn);
-        nextChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
-                DRIVE_HIGH_SPEED_M * inputs.getY(),
-                -turn,
-                gyroInputs.rotation2d);
+        SecondOrderModuleState[] states = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(
+                ChassisSpeeds.discretize(
+                        ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
+                                DRIVE_HIGH_SPEED_M * inputs.getY(),
+                                -turn,
+                                gyroInputs.rotation2d), 0.02));
+        SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
+        setSwerveModuleStates(states, true);
     }
 
     public synchronized void resetAbsoluteZeros() {
         for (ModuleIO module : moduleIO) {
             module.resetAbsoluteZeros();
         }
-    }
-
-    public enum DriveState {
-        TELEOP, TURN, DONE, STOP, WAITING_FOR_PATH
-    }
-
-    static final class TurnInputs {
-        public static ControllerDriveInputs controllerDriveInputs;
-        public static State goal;
-        public static double turnErrorRadians;
     }
 
     @AutoLogOutput(key = "Drive/Distance from Speaker")
@@ -336,7 +303,9 @@ public class Drive extends AbstractSubsystem {
     }
 
     public void setNextChassisSpeeds(ChassisSpeeds nextChassisSpeeds) {
-        this.nextChassisSpeeds = new ChassisSpeeds(nextChassisSpeeds.vxMetersPerSecond, nextChassisSpeeds.vyMetersPerSecond, -nextChassisSpeeds.omegaRadiansPerSecond);
+        var states = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(ChassisSpeeds.discretize(nextChassisSpeeds, 0.02));
+        SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
+        setSwerveModuleStates(states, false);
     }
 }
 

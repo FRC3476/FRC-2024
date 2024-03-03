@@ -132,6 +132,14 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
+        AMP_UP(13, SS_STOW_ARM, 0.25, 0) {
+            @Override
+            public void update() {
+                if(superstructure.goalState != States.AMP_UP) {
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
         SPEAKER(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST, SS_SPEAKER_CLIMBER) {
             @Override
             //spin drivebase + aim mechanisms
@@ -141,7 +149,7 @@ public class Superstructure extends AbstractSubsystem {
                 } else {
                     superstructure.setWantedShooterPosition(0);
                 }
-                var shooting = shooter.runVelocity(9000.0 / 60);
+                var shooting = shooter.runVelocity(10000.0 / 60);
                 if(!shooting) {
                     superstructure.setGoalState(STOW);
                 }
@@ -203,7 +211,7 @@ public class Superstructure extends AbstractSubsystem {
         SHOOT_OVER_STAGE(15, 0.1666, -0.35, 0) {
             @Override
             public void update() {
-                shooter.runVelocity(9000.0 / 60);
+                shooter.runVelocity(10000.0 / 60);
                 if (superstructure.goalState != States.SHOOT_OVER_STAGE) {
                     shooter.stop();
                     superstructure.setCurrentState(superstructure.goalState);
@@ -213,7 +221,7 @@ public class Superstructure extends AbstractSubsystem {
         SHOOT_UNDER_STAGE(20, 0.1666, -0.16, 0) {
             @Override
             public void update() {
-                shooter.runVelocity(9000.0 / 60);
+                shooter.runVelocity(10000.0 / 60);
                 if (superstructure.goalState != States.SHOOT_UNDER_STAGE) {
                     shooter.stop();
                     superstructure.setCurrentState(superstructure.goalState);

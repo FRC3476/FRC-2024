@@ -45,11 +45,6 @@ public class WristIOTalonFX implements WristIO {
         wristMotionMagicConfig.MotionMagicAcceleration = 100;     //TODO change motion magic values
         wristMotionMagicConfig.MotionMagicJerk = 1e4;
 
-        /*CurrentLimitsConfigs wristMotionMagicConfigs = configs.CurrentLimits;
-        wristMotionMagicConfigs.SupplyCurrentLimit = ELEVATOR_STALLING_CURRENT;
-        wristMotionMagicConfigs.SupplyCurrentLimitEnable = true;
-        wristMotionMagicConfigs.StatorCurrentLimitEnable = false;*/
-
         MotorOutputConfigs motorOutput = configs.MotorOutput;
         motorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
