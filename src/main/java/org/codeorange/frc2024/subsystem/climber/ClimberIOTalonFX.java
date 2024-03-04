@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -43,17 +44,13 @@ public class ClimberIOTalonFX implements ClimberIO {
         //spikeRelay = new Relay(Constants.CLIMBER_PWM_RELAY_CHANNEL);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
-                .withMotionMagic(new MotionMagicConfigs()
-                        .withMotionMagicCruiseVelocity(0)
-                        .withMotionMagicAcceleration(0)
-                        .withMotionMagicJerk(0)
-                ).withSlot0(new Slot0Configs()
+                .withSlot0(new Slot0Configs()
                         .withKP(CLIMBER_P)
                         .withKI(CLIMBER_I)
                         .withKD(CLIMBER_D)
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                        .withSensorToMechanismRatio(1) //TODO: what is this ratio??
+                        .withSensorToMechanismRatio(1)
                 ).withCurrentLimits(new CurrentLimitsConfigs()
                         .withSupplyCurrentLimit(ELEVATOR_STALLING_CURRENT)
                         .withSupplyCurrentLimitEnable(true)
@@ -66,9 +63,9 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         climberPosition = motor.getPosition();
         climberVelocity = motor.getVelocity();
-        climberCurrent = motor.getMotorVoltage();
-        climberTemp = motor.getSupplyCurrent();
-        climberVoltage = motor.getDeviceTemp();
+        climberVoltage = motor.getMotorVoltage();
+        climberCurrent = motor.getSupplyCurrent();
+        climberTemp = motor.getDeviceTemp();
 
 
         BaseStatusSignal.setUpdateFrequencyForAll(50, climberPosition, climberVelocity, climberVoltage);
@@ -76,16 +73,16 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         motor.optimizeBusUtilization();
     }
-    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+    private final PositionVoltage motionMagicRequest = new PositionVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true).withUpdateFreqHz(0);
     public void setMotorPosition(double targetPosition) {
-        if (limitSwitch.get()) {
+        if (limitSwitch.get() && targetPosition < climberPosition.getValue()) {
             stop();
         } else {
             motor.setControl(motionMagicRequest.withPosition(targetPosition));
         }
     }
 
-    public void updateInputs(ClimberIO.ClimberInputs inputs) {
+    public void updateInputs(ClimberInputs inputs) {
         BaseStatusSignal.refreshAll(climberPosition, climberVelocity, climberVoltage, climberCurrent, climberTemp);
 
         inputs.climberPosition = climberPosition.getValue();
@@ -113,7 +110,7 @@ public class ClimberIOTalonFX implements ClimberIO {
 
     public void open() {
         servo1.setPosition(0.5); //to compensate for bad servo programming :) opens left when facing robot-relative
-        servo2.setPosition(0.2); //opens to the right when facing robot-relative
+        servo2.setPosition(0.3); //opens to the right when facing robot-relative
     }
 
     public void close() {

@@ -20,6 +20,7 @@ public class Climber extends AbstractSubsystem {
     public boolean homing = false;
     public boolean climbing = false;
     public boolean hasClimbed = false;
+    private boolean negated = false;
 
     public Climber(ClimberIO climberIO){
         super();
@@ -50,7 +51,11 @@ public class Climber extends AbstractSubsystem {
         }
 
         if(climbing) {
-            climberIO.setVoltage(CLIMBER_HOME_VOLTAGE);
+            if(negated) {
+                climberIO.setVoltage(-CLIMBER_CLIMB_VOLTAGE);
+            } else {
+                climberIO.setMotorPosition(0);
+            }
             if (limitSwitchPushed()) {
                 climbing = false;
                 hasClimbed = true;
@@ -63,7 +68,6 @@ public class Climber extends AbstractSubsystem {
     }
 
     public double getPositionInRotations() {
-        //TODO: does this return in rotations?? idk
         return climberInputs.climberPosition;
     }
     public void zeroEncoder() {
@@ -96,6 +100,7 @@ public class Climber extends AbstractSubsystem {
 
     public void stop() {
         climberIO.stop();
+        climbing = false;
     }
 
     public boolean areServosOpen() {
@@ -117,5 +122,11 @@ public class Climber extends AbstractSubsystem {
 
     public void climb() {
         climbing = true;
+        negated = false;
+    }
+
+    public void reverseClimb() {
+        climbing = true;
+        negated = true;
     }
 }

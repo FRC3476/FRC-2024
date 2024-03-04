@@ -312,7 +312,7 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.CLIMBER);
         }
         if(xbox.getRisingEdge(XboxButtons.A)) {
-            drive.resetGyro(Robot.isRed() ? 0 : 0.5);
+            drive.resetGyro(Robot.isRed() ? 0.5 : 0);
         }
 
         if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
@@ -356,7 +356,9 @@ public class Robot extends LoggedRobot {
         }
         if(buttonPanel.getRisingEdge(10)) {
             superstructure.setGoalState(Superstructure.States.HOMING);
-            elevator.home();
+            if(!(superstructure.getCurrentState() == Superstructure.States.CLIMBER)) {
+                elevator.home();
+            }
         }
         superstructure.a = 4 * logitechThing.getRawAxis(2);
 
@@ -366,7 +368,7 @@ public class Robot extends LoggedRobot {
         } else if(xbox.getRawButton(XboxButtons.X)) {
             drive.setNextChassisSpeeds(new ChassisSpeeds(1, 0, 0));
         } else {
-        //    drive.drive(controllerDriveInputs, true, true);
+            drive.drive(controllerDriveInputs, true, true);
         }
 
         prevHasNote = intake.hasNote();
@@ -387,18 +389,21 @@ public class Robot extends LoggedRobot {
             climber.stop();
         }*/
 
-        if(logitechThing.getRawButton(1) && buttonPanel.getRawButton(10)) {
+        if(logitechThing.getRawButton(1) && buttonPanel.getRawButton(9)) {
             //prepares for climb (sss in position, climber arm up, servos opened
             superstructure.setGoalState(Superstructure.States.CLIMBER);
         }
         if(logitechThing.getRawButton(5)) {
             //pulls robot up, closes servos so they don't hit anything
-            if(Superstructure.climberOut) {
+            if(superstructure.climberOut) {
                 climber.climb();
                 climber.closeServos();
             }
+        } else if (logitechThing.getRawButton(3)) {
+            //drops climber
+            climber.reverseClimb();
         }
-        if(logitechThing.getFallingEdge(5) && climber.climbing){
+        if((logitechThing.getFallingEdge(5) || logitechThing.getFallingEdge(3)) && climber.climbing){
             climber.stop();
         }
     }
@@ -429,6 +434,9 @@ public class Robot extends LoggedRobot {
         if (xbox.getRawButton(XboxButtons.X) && xbox.getRawButton(XboxButtons.B)
                 && xbox.getRisingEdge(XboxButtons.X) && xbox.getRisingEdge(XboxButtons.B)) {
             drive.resetAbsoluteZeros();
+        }
+        if(buttonPanel.getRisingEdge(9)) {
+            climber.home();
         }
     }
 

@@ -162,9 +162,9 @@ public final class Constants {
     public static final double ELEVATOR_UPPER_LIMIT = 20;
     public static final double CLIMBER_LOWER_LIMIT_ROTATIONS = 0;
     public static final double CLIMBER_HANG_POSITION = 2;
-    public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 5;//TODO: find this
+    public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 190;//TODO: find this
     public static final double CLIMBER_HOME_VOLTAGE = -1.0;
-    public static final double CLIMBER_CLIMB_VOLTAGE = -12.0;
+    public static final double CLIMBER_CLIMB_VOLTAGE = -8.0;
     public static final double CLIMBER_STALLING_CURRENT = 30; //TODO: FIND THIS IG
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
@@ -221,7 +221,7 @@ public final class Constants {
     public static final double SS_DEPLOYCLIMBER2_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_CLIMBER = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
     public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 16;
-    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.245;
+    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.225;
     public static final double SS_CLIMB_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_CLIMB_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_ELEVATOR = isPrototype() ? 0 : 0;
@@ -246,7 +246,7 @@ public final class Constants {
     public static final double ELEVATOR_P = 2;
     public static final double ELEVATOR_INCHES_PER_ROTATION = isPrototype() ? 0.25*22*12/60 : (30 * 5 * 8.0 / 72.0 / 25.4); //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
 
-    public static final double CLIMBER_P = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_P = 1.5;
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
     public static final double CLIMBER_D = isPrototype() ? 0 : 0;
 

@@ -55,6 +55,10 @@ public class WristIOTalonFX implements WristIO {
         slot0.kV = 0.5;
         slot0.kS = 0.5; // Approximately 0.25V to get the mechanism moving
 
+        CurrentLimitsConfigs currentLimits = configs.CurrentLimits;
+        currentLimits.SupplyCurrentLimit = 80;
+        currentLimits.SupplyCurrentLimitEnable = true;
+
         wristMotor.getConfigurator().apply(configs);
 
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
