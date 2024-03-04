@@ -45,7 +45,7 @@ public class Superstructure extends AbstractSubsystem {
         climber = Robot.getClimber();
     }
 
-    public double wantedAngle = 54;
+    public double wantedAngle = 52;
 
     public enum States {
         REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST) {
@@ -129,7 +129,7 @@ public class Superstructure extends AbstractSubsystem {
         AMP(SS_AMP_ELEVATOR, SS_AMP_ARM, SS_AMP_WRIST) {
             @Override
             public void update() {
-                if(superstructure.goalState != States.AMP) {
+                if(superstructure.goalState != States.AMP && isAtWantedState()) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
@@ -203,10 +203,10 @@ public class Superstructure extends AbstractSubsystem {
                     }
             }
         },
-        SHOOT_OVER_STAGE(15, 0.1666, -0.35) {
+        SHOOT_OVER_STAGE(15, 0.1666, -0.31) {
             @Override
             public void update() {
-                shooter.runVelocity(10000.0 / 60);
+                shooter.runVelocity(8500.0 / 60);
                 if (superstructure.goalState != States.SHOOT_OVER_STAGE) {
                     shooter.stop();
                     superstructure.setCurrentState(superstructure.goalState);
