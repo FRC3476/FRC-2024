@@ -52,12 +52,16 @@ public class ClimberIOTalonFX implements ClimberIO {
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                         .withSensorToMechanismRatio(1)
                 ).withCurrentLimits(new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(ELEVATOR_STALLING_CURRENT)
+                        .withSupplyCurrentLimit(80)
                         .withSupplyCurrentLimitEnable(true)
                         .withStatorCurrentLimitEnable(false)
                 ).withMotorOutput(new MotorOutputConfigs()
                         .withInverted(InvertedValue.Clockwise_Positive)
-                        .withNeutralMode(NeutralModeValue.Brake));
+                        .withNeutralMode(NeutralModeValue.Brake)
+                ).withVoltage(new VoltageConfigs()
+                        .withPeakForwardVoltage(16)
+                        .withPeakReverseVoltage(-8)
+                );
 
         motor.getConfigurator().apply(motorConfig);
 
@@ -73,9 +77,9 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         motor.optimizeBusUtilization();
     }
-    private final PositionVoltage motionMagicRequest = new PositionVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true).withUpdateFreqHz(0);
+    private final PositionVoltage motionMagicRequest = new PositionVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
     public void setMotorPosition(double targetPosition) {
-        if (limitSwitch.get() && targetPosition < climberPosition.getValue()) {
+        if (!limitSwitch.get() && targetPosition < climberPosition.getValue()) {
             stop();
         } else {
             motor.setControl(motionMagicRequest.withPosition(targetPosition));

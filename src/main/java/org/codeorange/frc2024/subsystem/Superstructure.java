@@ -186,7 +186,7 @@ public class Superstructure extends AbstractSubsystem {
                 if(isAtWantedState()) {
                     climber.openServos();
                     if(!superstructure.climberOut) {
-                        climber.setMotorPosition(185);
+                        climber.setMotorPosition(190);
                     }
 
                     if(climber.getPositionInRotations() > 184) {
@@ -283,6 +283,9 @@ public class Superstructure extends AbstractSubsystem {
                 wrist.setWristPosition(-wantedShooterPosition - SS_SPEAKER_ARM);
             }
             Logger.recordOutput("Superstructure/Current State", currentState);
+        } else {
+            arm.stop();
+            elevator.stop();
         }
     }
 

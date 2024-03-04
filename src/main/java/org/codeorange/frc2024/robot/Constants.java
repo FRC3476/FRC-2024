@@ -141,7 +141,7 @@ public final class Constants {
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.378662109375 + 0.5;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.949462890625 + 0.5;
                 WRIST_ABSOLUTE_ENCODER_OFFSET = -0.10498046875;
-                ARM_ABSOLUTE_ENCODER_OFFSET = 0.45068359375;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0.4453125;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;
@@ -221,7 +221,7 @@ public final class Constants {
     public static final double SS_DEPLOYCLIMBER2_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_CLIMBER = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
     public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 16;
-    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.225;
+    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.205555;
     public static final double SS_CLIMB_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_CLIMB_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_ELEVATOR = isPrototype() ? 0 : 0;

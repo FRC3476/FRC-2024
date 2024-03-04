@@ -46,24 +46,23 @@ public class Climber extends AbstractSubsystem {
                 if (limitSwitchPushed()) {
                     homing = false;
                     climberIO.setEncoderToZero();
+                    stop();
                 }
             }
         }
 
         if(climbing) {
-            if(negated) {
-                climberIO.setVoltage(-CLIMBER_CLIMB_VOLTAGE);
+            if(!negated) {
+                climberIO.setMotorPosition(1);
+                if (limitSwitchPushed()) {
+                    climbing = false;
+                    hasClimbed = true;
+                }
             } else {
-                climberIO.setMotorPosition(0);
+                climberIO.setVoltage(4);
             }
-            if (limitSwitchPushed()) {
-                climbing = false;
-                hasClimbed = true;
-                climberIO.enableStaticBrake();
-            }
-        }
-        if(hasClimbed) {
-            climberIO.enableStaticBrake();
+        } else if(hasClimbed) {
+            climberIO.setMotorPosition(1);
         }
     }
 
@@ -128,5 +127,6 @@ public class Climber extends AbstractSubsystem {
     public void reverseClimb() {
         climbing = true;
         negated = true;
+        hasClimbed = false;
     }
 }

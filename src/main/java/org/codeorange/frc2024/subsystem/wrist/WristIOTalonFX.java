@@ -56,7 +56,7 @@ public class WristIOTalonFX implements WristIO {
         slot0.kS = 0.5; // Approximately 0.25V to get the mechanism moving
 
         CurrentLimitsConfigs currentLimits = configs.CurrentLimits;
-        currentLimits.SupplyCurrentLimit = 80;
+        currentLimits.SupplyCurrentLimit = 50;
         currentLimits.SupplyCurrentLimitEnable = true;
 
         wristMotor.getConfigurator().apply(configs);
@@ -110,5 +110,10 @@ public class WristIOTalonFX implements WristIO {
 
     public void setVoltage(double volts) {
         wristMotor.setControl(new VoltageOut(volts).withOverrideBrakeDurNeutral(true));
+    }
+
+    @Override
+    public void stop() {
+        wristMotor.stopMotor();
     }
 }

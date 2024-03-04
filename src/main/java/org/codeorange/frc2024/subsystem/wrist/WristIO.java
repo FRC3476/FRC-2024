@@ -24,4 +24,5 @@ public interface WristIO {
 
     default void setVoltage(double volts) {}
 
+    default void stop() {}
 }

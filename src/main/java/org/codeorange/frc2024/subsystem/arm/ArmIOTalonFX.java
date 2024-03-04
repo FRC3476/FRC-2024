@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
@@ -55,8 +56,12 @@ public class ArmIOTalonFX implements ArmIO {
         armMotionMagicConfig.MotionMagicJerk = 16;
 
         var armCurrentLimitConfigs = talonFXConfigs.CurrentLimits;
-        armCurrentLimitConfigs.SupplyCurrentLimit = 0;
+        armCurrentLimitConfigs.SupplyCurrentLimit = 50;
         armCurrentLimitConfigs.SupplyCurrentLimitEnable = false;
+
+        var voltageOutputConfigs = talonFXConfigs.Voltage;
+        voltageOutputConfigs.PeakForwardVoltage = 16;
+        voltageOutputConfigs.PeakReverseVoltage = -16;
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
         slot0.kP = ARM_P;
@@ -118,6 +123,22 @@ public class ArmIOTalonFX implements ArmIO {
         BaseStatusSignal.setUpdateFrequencyForAll(50, leadVelocity, leadAccel, leadVoltage, leadCurrent, leadTemp);
 
         leadTalonFX.optimizeBusUtilization();
+
+        var absPos = absoluteEncoder.getAbsolutePosition().getValue();
+
+        if(absPos < -0.05) {
+            if(absPos > -0.30) {
+                for(var i = 0; i < 10; i++) {
+                    System.out.println("ILLEGAL CANCODER READING, CHECK");
+                }
+                absPos = 0.0;
+            } else {
+                absPos += 1;
+            }
+        }
+
+        absoluteEncoder.setPosition(absPos);
+
         absoluteEncoder.optimizeBusUtilization();
     }
 

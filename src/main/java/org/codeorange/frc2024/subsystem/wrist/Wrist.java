@@ -40,4 +40,8 @@ public class Wrist extends AbstractSubsystem {
     public void runVoltage(double volts) {
         wristIO.setVoltage(volts);
     }
+
+    public void stop() {
+        wristIO.stop();
+    }
 }
