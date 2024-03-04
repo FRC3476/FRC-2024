@@ -356,13 +356,19 @@ public class Robot extends LoggedRobot {
             climber.stop();
         }*/
 
-        if(xbox.getPOV() == 0) {
+        if(logitechThing.getRawButton(1) && buttonPanel.getRawButton(10)) {
             //prepares for climb (sss in position, climber arm up, servos opened
             superstructure.setGoalState(Superstructure.States.CLIMBER);
-        } else if(xbox.getPOV() == 180) {
+        }
+        if(logitechThing.getRawButton(5)) {
             //pulls robot up, closes servos so they don't hit anything
-            climber.climb();
-            climber.closeServos();
+            if(Superstructure.climberOut) {
+                climber.climb();
+                climber.closeServos();
+            }
+        }
+        if(logitechThing.getFallingEdge(5) && climber.climbing){
+            climber.stop();
         }
     }
 
