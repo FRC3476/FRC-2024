@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.arm.*;
+import org.codeorange.frc2024.subsystem.climber.*;
 import org.codeorange.frc2024.subsystem.drive.*;
 import org.codeorange.frc2024.subsystem.intake.*;
 import org.codeorange.frc2024.subsystem.vision.*;
@@ -72,7 +73,7 @@ public class Robot extends LoggedRobot {
     static Shooter shooter;
     static Arm arm;
     static Intake intake;
-    // static Climber climber;
+    static Climber climber;
     static Vision vision;
 
     static Superstructure superstructure;
@@ -153,7 +154,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
-           // climber = new Climber(new ClimberIOTalonFX());
+           climber = new Climber(new ClimberIOTalonFX());
             superstructure = Superstructure.getSuperstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
@@ -171,7 +172,7 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
             intake = new Intake(new IntakeIO() {});
-            // climber = new Climber(new ClimberIO() {});
+            climber = new Climber(new ClimberIO() {});
             superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
@@ -194,12 +195,17 @@ public class Robot extends LoggedRobot {
         arm.start();
         intake.start();
         vision.start();
+        climber.start();
+
 
         LimelightHelpers.setLEDMode_ForceOff("limelight-front");
         LimelightHelpers.setLEDMode_ForceOff("limelight-back");
-        // climber.start();
+
         superstructure.start();
-        superstructure.setCurrentState(Superstructure.States.STOW);
+
+        if(!isCompetition() || climber.limitSwitchPushed()) {
+            superstructure.setCurrentState(Superstructure.States.STOW);
+        }
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
@@ -360,10 +366,41 @@ public class Robot extends LoggedRobot {
         } else if(xbox.getRawButton(XboxButtons.X)) {
             drive.setNextChassisSpeeds(new ChassisSpeeds(1, 0, 0));
         } else {
-            drive.drive(controllerDriveInputs, true, true);
+        //    drive.drive(controllerDriveInputs, true, true);
         }
 
         prevHasNote = intake.hasNote();
+
+
+        //for climber testing :)
+        /*if(xbox.getPOV() == 0) {
+            climber.openServos();
+        } else {
+            climber.closeServos();
+        }
+
+        if(xbox.getPOV() == 90) {
+            climber.runVoltage(2.0);
+        } else if(xbox.getPOV() == 270) {
+            climber.runVoltage(-2.0);
+        } else {
+            climber.stop();
+        }*/
+
+        if(logitechThing.getRawButton(1) && buttonPanel.getRawButton(10)) {
+            //prepares for climb (sss in position, climber arm up, servos opened
+            superstructure.setGoalState(Superstructure.States.CLIMBER);
+        }
+        if(logitechThing.getRawButton(5)) {
+            //pulls robot up, closes servos so they don't hit anything
+            if(Superstructure.climberOut) {
+                climber.climb();
+                climber.closeServos();
+            }
+        }
+        if(logitechThing.getFallingEdge(5) && climber.climbing){
+            climber.stop();
+        }
     }
 
     /** This function is called once when the robot is disabled. */
@@ -467,7 +504,7 @@ public class Robot extends LoggedRobot {
     public static Wrist getWrist() {
         return wrist;
     }
-    // public static Climber getClimber() { return climber; }
+    public static Climber getClimber() { return climber; }
 
     public static Superstructure getSuperstructure() {
         return superstructure;

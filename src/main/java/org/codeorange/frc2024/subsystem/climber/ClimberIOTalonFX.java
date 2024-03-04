@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -30,6 +31,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     private final Servo servo1;
     private final Servo servo2;
     private final DigitalInput limitSwitch;
+    private final StaticBrake staticBrake = new StaticBrake();
 
     //private final Relay spikeRelay;
 
@@ -75,7 +77,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         motor.optimizeBusUtilization();
     }
     private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
-    public void setPosition(double targetPosition) {
+    public void setMotorPosition(double targetPosition) {
         if (limitSwitch.get()) {
             stop();
         } else {
@@ -127,5 +129,9 @@ public class ClimberIOTalonFX implements ClimberIO {
     private final VoltageOut withVoltage = new VoltageOut(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
     public void setVoltage(double voltage) {
         motor.setControl(withVoltage.withOutput(voltage));
+    }
+
+    public void enableStaticBrake() {
+        motor.setControl(staticBrake);
     }
 }

@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
+import org.codeorange.frc2024.subsystem.climber.Climber;
 
 public class Superstructure extends AbstractSubsystem {
     //unfortunately all of these need to be static so that the enum can access them
@@ -26,11 +27,12 @@ public class Superstructure extends AbstractSubsystem {
     private static Elevator elevator;
     private static Drive drive;
     private static Superstructure superstructure = new Superstructure();
-    // private static Climber climber;
+    private static Climber climber;
     //private static Vision vision;
     private States currentState = States.STOW;
     private States goalState = States.STOW;
     public boolean isFlipped = false;
+    public static boolean climberOut = false;
     private final LiveEditableValue<Double> wristAngle = new LiveEditableValue<Double>(0.0, SmartDashboard.getEntry("Wrist Angle"));
     private Superstructure() {
         super();
@@ -40,20 +42,20 @@ public class Superstructure extends AbstractSubsystem {
         drive = Robot.getDrive();
         elevator = Robot.getElevator();
         shooter = Robot.getShooter();
-        // climber = Robot.getClimber();
+        climber = Robot.getClimber();
     }
 
     public double wantedAngle = 52;
 
     public enum States {
-        REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST, SS_REST_CLIMBER) {
+        REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST) {
             //should make sure all motors are off and not trying to move anywhere
             @Override
             public void update() {
 
             }
         },
-        STOW(SS_STOW_ELEVATOR, SS_STOW_ARM, SS_STOW_WRIST, SS_STOW_CLIMBER) {
+        STOW(SS_STOW_ELEVATOR, SS_STOW_ARM, SS_STOW_WRIST) {
             //should move to most compact/low position for easy driving
             @Override
             public void update() {
@@ -67,14 +69,14 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        GENERAL_INTERMEDIATE(SS_GENINTERMEDIATE_ELEVATOR, SS_GENINTERMEDIATE_ARM, SS_GENINTERMEDIATE_WRIST, SS_GENINTERMEDIATE_CLIMBER) {
+        GENERAL_INTERMEDIATE(SS_GENINTERMEDIATE_ELEVATOR, SS_GENINTERMEDIATE_ARM, SS_GENINTERMEDIATE_WRIST) {
             //moves arm up so that the elevator can extend. keeps wrist at safe angle so that it does not go crash :(
             @Override
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
             }
         },
-        MID_INTAKE(SS_MIDINTAKE_ELEVATOR, SS_MIDINTAKE_ARM, SS_MIDINTAKE_WRIST, SS_MIDINTAKE_CLIMBER) {
+        MID_INTAKE(SS_MIDINTAKE_ELEVATOR, SS_MIDINTAKE_ARM, SS_MIDINTAKE_WRIST) {
             //arm is up high enough, now move elevator out and wrist down.
             @Override
             public void update() {
@@ -95,7 +97,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        GROUND_INTAKE(SS_GROUNDINTAKE_ELEVATOR, SS_GROUNDINTAKE_ARM, SS_GROUNDINTAKE_WRIST, SS_GROUNDINTAKE_CLIMBER) {
+        GROUND_INTAKE(SS_GROUNDINTAKE_ELEVATOR, SS_GROUNDINTAKE_ARM, SS_GROUNDINTAKE_WRIST) {
             //elevator and wrist are to position, move arm back down
             @Override
             public void update() {
@@ -112,7 +114,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        SOURCE_INTAKE(SS_SOURCEINTAKE_ELEVATOR, SS_SOURCEINTAKE_ARM, SS_SOURCEINTAKE_WRIST, SS_SOURCEINTAKE_CLIMBER) { //TODO
+        SOURCE_INTAKE(SS_SOURCEINTAKE_ELEVATOR, SS_SOURCEINTAKE_ARM, SS_SOURCEINTAKE_WRIST) { //TODO
             @Override
             public void update() {
                 //code and such
@@ -124,7 +126,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        AMP(SS_AMP_ELEVATOR, SS_AMP_ARM, SS_AMP_WRIST, SS_AMP_CLIMBER) {
+        AMP(SS_AMP_ELEVATOR, SS_AMP_ARM, SS_AMP_WRIST) {
             @Override
             public void update() {
                 if(superstructure.goalState != States.AMP && isAtWantedState()) {
@@ -132,7 +134,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        AMP_UP(13, 0, 0.24, 0) {
+        AMP_UP(13, 0, 0.24) {
             @Override
             public void update() {
                 if(superstructure.goalState != States.AMP_UP) {
@@ -140,7 +142,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        SPEAKER(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST, SS_SPEAKER_CLIMBER) {
+        SPEAKER(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
@@ -160,7 +162,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        INTERMEDIATE(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST, SS_SPEAKER_CLIMBER) {
+        INTERMEDIATE(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST) {
             @Override
             public void update() {
                 if(isAtWantedState()) {
@@ -168,46 +170,31 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        TRAP(SS_TRAP_ELEVATOR, SS_TRAP_ARM, SS_TRAP_WRIST, SS_TRAP_CLIMBER) {
+        TRAP(SS_TRAP_ELEVATOR, SS_TRAP_ARM, SS_TRAP_WRIST) {
             @Override
             public void update() {
                 //code!
             }
         },
-        CLIMBER(16, 0.245, 0, 0) {
+        CLIMBER(SS_CLIMB_ELEVATOR, SS_CLIMB_ARM, SS_CLIMB_WRIST) {
             @Override
             public void update() {
                 if(superstructure.goalState != States.CLIMBER) {
                     superstructure.setCurrentState(States.INTERMEDIATE);
                 }
-            }
-        },
-        DEPLOY_CLIMBER_1(SS_DEPLOYCLIMBER1_ELEVATOR, SS_DEPLOYCLIMBER1_ARM, SS_DEPLOYCLIMBER1_WRIST, SS_DEPLOYCLIMBER1_CLIMBER) {
-            @Override
-            //should move mechanisms out of the way
-            public void update() {
-                //needs to check whether mechanisms are out of the way before proceeding
-                if(true) {
-                    superstructure.setCurrentState(DEPLOY_CLIMBER_2);
+                if(isAtWantedState()) {
+                    climber.openServos();
+                    if(!climberOut) {
+                        climber.setMotorPosition(185);
+                    }
+
+                    if(climber.getPositionInRotations() > 184) {
+                        climberOut = true;
+                    }
                 }
             }
         },
-        DEPLOY_CLIMBER_2(SS_DEPLOYCLIMBER2_ELEVATOR, SS_DEPLOYCLIMBER2_ARM, SS_DEPLOYCLIMBER2_WRIST, SS_DEPLOYCLIMBER2_CLIMBER) {
-            @Override
-            //should extend climb arm to be on the chain
-            public void update() {
-                //needs to check whether climb arm is extended + maybe check if it's actually around the chain
-                // climber.disengageRatchet();
-            }
-        },
-        CLIMB(SS_CLIMB_ELEVATOR, SS_CLIMB_ARM, SS_CLIMB_WRIST, SS_CLIMB_CLIMBER) {
-            @Override
-            //should pull robot up?? maybe??
-            public void update() {
-                // climber.engageRatchet();
-            }
-        },
-        HOMING(SS_HOMING_ELEVATOR,SS_HOMING_ARM, SS_HOMING_WRIST, SS_HOMING_CLIMBER) {
+        HOMING(SS_HOMING_ELEVATOR,SS_HOMING_ARM, SS_HOMING_WRIST) {
             @Override
             public void update() {
                     if(!elevator.homing) {
@@ -216,7 +203,7 @@ public class Superstructure extends AbstractSubsystem {
                     }
             }
         },
-        SHOOT_OVER_STAGE(15, 0.1666, -0.31, 0) {
+        SHOOT_OVER_STAGE(15, 0.1666, -0.31) {
             @Override
             public void update() {
                 shooter.runVelocity(8500.0 / 60);
@@ -226,7 +213,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        SHOOT_UNDER_STAGE(20, 0.1666, -0.16, 0) {
+        SHOOT_UNDER_STAGE(20, 0.1666, -0.16) {
             @Override
             public void update() {
                 shooter.runVelocity(10000.0 / 60);
@@ -236,7 +223,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        TEST_TRAP(20, 0.125, 0.0485, 0) {
+        TEST_TRAP(20, 0.125, 0.0485) {
             @Override
             public void update() {
                 if (superstructure.goalState != States.TEST_TRAP) {
@@ -251,17 +238,14 @@ public class Superstructure extends AbstractSubsystem {
                     && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.03)
                     && (MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.015)
                     || (MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - SS_SPEAKER_ARM, wrist.getWristAbsolutePosition(), 0.01) && superstructure.currentState == States.SPEAKER)));
-                    //&& MathUtil.epsilonEquals(climberPos, climber.getPositionInInches(), 0.05));
         }
         final double elevatorPos;
         final double armPos;
         final double wristPos;
-        final double climberPos;
-        States(double elevatorPos, double armPos, double wristPos, double climberPos) {
+        States(double elevatorPos, double armPos, double wristPos) {
             this.elevatorPos = elevatorPos;
             this.armPos = armPos;
             this.wristPos = wristPos;
-            this.climberPos = climberPos;
         }
 
         double getWristPos() {
@@ -297,7 +281,6 @@ public class Superstructure extends AbstractSubsystem {
             wrist.setWristPosition(-wantedShooterPosition - SS_SPEAKER_ARM);
         }
         Logger.recordOutput("Superstructure/Current State", currentState);
-        // climber.setPosition(currentState.climberPos);
     }
 
     public void setWantedShooterPosition(double wantedPos) {

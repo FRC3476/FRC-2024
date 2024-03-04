@@ -18,14 +18,16 @@ public class Climber extends AbstractSubsystem {
     private final ClimberInputsAutoLogged climberInputs = new ClimberInputsAutoLogged();
     private boolean servosOpen = false;
     public boolean homing = false;
+    public boolean climbing = false;
+    public boolean hasClimbed = false;
 
     public Climber(ClimberIO climberIO){
         super();
         this.climberIO = climberIO;
     }
 
-    public void setPosition(double positionInRotations) {
-        climberIO.setPosition(MathUtil.clamp(positionInRotations, CLIMBER_LOWER_LIMIT_ROTATIONS, CLIMBER_UPPER_LIMIT_ROTATIONS));
+    public void setMotorPosition(double positionInRotations) {
+        climberIO.setMotorPosition(MathUtil.clamp(positionInRotations, CLIMBER_LOWER_LIMIT_ROTATIONS, CLIMBER_UPPER_LIMIT_ROTATIONS));
     }
 
     public void update() {
@@ -45,6 +47,18 @@ public class Climber extends AbstractSubsystem {
                     climberIO.setEncoderToZero();
                 }
             }
+        }
+
+        if(climbing) {
+            climberIO.setVoltage(CLIMBER_HOME_VOLTAGE);
+            if (limitSwitchPushed()) {
+                climbing = false;
+                hasClimbed = true;
+                climberIO.enableStaticBrake();
+            }
+        }
+        if(hasClimbed) {
+            climberIO.enableStaticBrake();
         }
     }
 
@@ -99,5 +113,9 @@ public class Climber extends AbstractSubsystem {
             //voltage is negative and not to limit switch, should be allowed to go down
             climberIO.setVoltage(voltage);
         }
+    }
+
+    public void climb() {
+        climbing = true;
     }
 }
