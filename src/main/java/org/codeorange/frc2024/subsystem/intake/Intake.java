@@ -38,11 +38,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public void runOuttake() {
-        if (intakeInputs.hasNote) {
-            intakeIO.setMotorDutyCycle(-0.8);
-        } else {
-            stop();
-        }
+        intakeIO.setMotorDutyCycle(-0.8);
     }
 
     public void setDutyCycle(double dutyCycle) {
