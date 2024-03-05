@@ -38,7 +38,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public void runOuttake() {
-        intakeIO.setMotorDutyCycle(-0.8);
+        intakeIO.setMotorVoltage(-10);
     }
 
     public void setDutyCycle(double dutyCycle) {

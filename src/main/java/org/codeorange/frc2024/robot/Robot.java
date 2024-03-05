@@ -154,7 +154,9 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
-           climber = new Climber(new ClimberIOTalonFX());
+            if(isCompetition()) {
+                climber = new Climber(new ClimberIOTalonFX());
+            }
             superstructure = Superstructure.getSuperstructure();
         } else {
             setUseTiming(false); // Run as fast as possible
@@ -172,7 +174,9 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIO(){});
             arm = new Arm(new ArmIO(){});
             intake = new Intake(new IntakeIO() {});
-            climber = new Climber(new ClimberIO() {});
+            if(isCompetition()) {
+                climber = new Climber(new ClimberIO() {});
+            }
             superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
@@ -195,7 +199,10 @@ public class Robot extends LoggedRobot {
         arm.start();
         intake.start();
         vision.start();
-        climber.start();
+        if(isCompetition()) {
+            assert climber != null;
+            climber.start();
+        }
 
 
         LimelightHelpers.setLEDMode_ForceOff("limelight-front");
@@ -294,10 +301,12 @@ public class Robot extends LoggedRobot {
         if(buttonPanel.getRisingEdge(5)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = false;
+            superstructure.wantedAngle = 52;
         }
         if(buttonPanel.getRisingEdge(11)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = true;
+            superstructure.wantedAngle = 52;
         }
         if(buttonPanel.getRisingEdge(6)) {
             superstructure.setGoalState(Superstructure.States.SHOOT_OVER_STAGE);
@@ -307,9 +316,6 @@ public class Robot extends LoggedRobot {
         }
         if(buttonPanel.getRisingEdge(8)) {
             superstructure.setGoalState(Superstructure.States.TEST_TRAP);
-        }
-        if(buttonPanel.getRisingEdge(12)) {
-            superstructure.setGoalState(Superstructure.States.CLIMBER);
         }
         if(xbox.getRisingEdge(XboxButtons.A)) {
             drive.resetGyro(Robot.isRed() ? 0.5 : 0);
@@ -328,6 +334,10 @@ public class Robot extends LoggedRobot {
             }
         } else if (xbox.getFallingEdge(XboxButtons.B)) {
             superstructure.setGoalState(Superstructure.States.STOW);
+        }
+
+        if(buttonPanel.getFallingEdge(1, -0.6)) {
+            superstructure.wantedAngle = superstructure.podium;
         }
 
         if(logitechThing.getRisingEdge(2)) {
@@ -360,7 +370,12 @@ public class Robot extends LoggedRobot {
                 elevator.home();
             }
         }
-        superstructure.a = 4 * logitechThing.getRawAxis(2);
+
+        if(!(Math.abs(logitechThing.getRawAxis(1)) < 0.05)) {
+            superstructure.a = -0.5 * logitechThing.getRawAxis(1);
+        } else {
+            superstructure.a = 0;
+        }
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
@@ -373,21 +388,6 @@ public class Robot extends LoggedRobot {
 
         prevHasNote = intake.hasNote();
 
-
-        //for climber testing :)
-        /*if(xbox.getPOV() == 0) {
-            climber.openServos();
-        } else {
-            climber.closeServos();
-        }
-
-        if(xbox.getPOV() == 90) {
-            climber.runVoltage(2.0);
-        } else if(xbox.getPOV() == 270) {
-            climber.runVoltage(-2.0);
-        } else {
-            climber.stop();
-        }*/
 
         if(logitechThing.getRawButton(1) && buttonPanel.getRawButton(9)) {
             //prepares for climb (sss in position, climber arm up, servos opened

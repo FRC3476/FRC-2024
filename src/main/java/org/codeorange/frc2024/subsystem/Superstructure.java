@@ -97,7 +97,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        GROUND_INTAKE(SS_GROUNDINTAKE_ELEVATOR, SS_GROUNDINTAKE_ARM, SS_GROUNDINTAKE_WRIST) {
+        GROUND_INTAKE(SS_GROUNDINTAKE_ELEVATOR, SS_STOW_ARM, SS_GROUNDINTAKE_WRIST) {
             //elevator and wrist are to position, move arm back down
             @Override
             public void update() {
@@ -268,8 +268,9 @@ public class Superstructure extends AbstractSubsystem {
 
     private double wantedShooterPosition;
     public double a;
-    public double shootAtGround = -0.16;
-    public double shootOverStage = -0.229;
+
+    public final double podium = 30;
+
     public void update() {
         if(!DriverStation.isTest()) {
             currentState.update();

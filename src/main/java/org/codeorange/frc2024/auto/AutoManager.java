@@ -8,10 +8,13 @@ import org.codeorange.frc2024.auto.routines.TestRoutine;
 public class AutoManager {
     private BaseRoutine selectedRoutine;
 
-    private static AutoManager instance = new AutoManager();
+    private static AutoManager instance;
     private Thread thread;
 
     public static AutoManager getInstance() {
+        if(instance == null) {
+            instance = new AutoManager();
+        }
         return instance;
     }
 
