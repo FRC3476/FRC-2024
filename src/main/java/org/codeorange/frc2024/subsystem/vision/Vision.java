@@ -1,8 +1,6 @@
 package org.codeorange.frc2024.subsystem.vision;
 
-import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
-import org.codeorange.frc2024.utility.LimelightHelpers;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class Vision extends AbstractSubsystem {
@@ -11,12 +9,12 @@ public class Vision extends AbstractSubsystem {
 
     public final Limelight frontCamera;
     public final Limelight backCamera;
-    public static final LoggedDashboardChooser<Boolean> visionOnOffChooser;
+    public static final LoggedDashboardChooser<Boolean> visionChooser;
     public static final LoggedDashboardChooser<Boolean> unconditionallyTrustVision;
     static {
-        visionOnOffChooser = new LoggedDashboardChooser<>("Vision Enabled");
-        visionOnOffChooser.addDefaultOption("on", true);
-        visionOnOffChooser.addOption("off", false);
+        visionChooser = new LoggedDashboardChooser<>("Vision Enabled");
+        visionChooser.addDefaultOption("on", true);
+        visionChooser.addOption("off", false);
         unconditionallyTrustVision = new LoggedDashboardChooser<>("Unconditionally Trust Vision");
         unconditionallyTrustVision.addDefaultOption("off", false);
         unconditionallyTrustVision.addOption("on", true);
