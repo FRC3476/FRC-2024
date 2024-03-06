@@ -296,10 +296,9 @@ public class Superstructure extends AbstractSubsystem {
 
     public void setWantedShooterPosition(double wantedPos) {
         if(isFlipped) {
-            // reflect the wanted angle around the y axis,
-            // because we need additional rotation to turn
-            // the shooter towards the front of the robot
-            wantedPos += 2 * (0.5 - wantedPos);
+            // reflect the wanted angle around the y axis, because we need additional
+            // rotation to turn the shooter towards the front of the robot
+            wantedPos += 2 * (0.25 - wantedPos);
         }
         wantedPos = MathUtil.normalize(wantedPos, -0.5, 0.5);
         wantedShooterPosition = superstructure.currentState == States.SPEAKER ? wantedPos : 0;
