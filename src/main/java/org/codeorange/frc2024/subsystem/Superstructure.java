@@ -45,7 +45,7 @@ public class Superstructure extends AbstractSubsystem {
         climber = Robot.getClimber();
     }
 
-    public double wantedAngle = 52;
+    public double wantedShooterAngle = 52;
 
     public enum States {
         REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST) {
@@ -151,7 +151,11 @@ public class Superstructure extends AbstractSubsystem {
             //spin drivebase + aim mechanisms
             public void update() {
                 if(arm.getPivotDegrees() >= 0.05) {
-                    superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                    if (superstructure.wantedShooterAngle == SHOOTER_ANGLE_DYNAMIC) {
+                        superstructure.setWantedShooterPosition(superstructure.getLowShooterAngle() / 360);
+                    } else {
+                        superstructure.setWantedShooterPosition(superstructure.wantedShooterAngle / 360);
+                    }
                 } else {
                     superstructure.setWantedShooterPosition(0);
                 }
@@ -292,7 +296,10 @@ public class Superstructure extends AbstractSubsystem {
 
     public void setWantedShooterPosition(double wantedPos) {
         if(isFlipped) {
-            wantedPos += 2 * (0.25 - wantedPos);
+            // reflect the wanted angle around the y axis,
+            // because we need additional rotation to turn
+            // the shooter towards the front of the robot
+            wantedPos += 2 * (0.5 - wantedPos);
         }
         wantedPos = MathUtil.normalize(wantedPos, -0.5, 0.5);
         wantedShooterPosition = superstructure.currentState == States.SPEAKER ? wantedPos : 0;
@@ -317,12 +324,17 @@ public class Superstructure extends AbstractSubsystem {
         return superstructure;
     }
 
+    public void setWantedShooterAngle(double shooterAngle) {
+        this.wantedShooterAngle = shooterAngle;
+    }
+
     public double getLowShooterAngle(){
         if (drive.findAngleToSpeaker() > Math.PI / 2) {
+            superstructure.isFlipped = true;
             return (AngleLookupInterpolation.SHOOTER_ANGLE_LOW_FRONT.get(drive.findDistanceToSpeaker()));
         } else {
+            superstructure.isFlipped = false;
             return AngleLookupInterpolation.SHOOTER_ANGLE_LOW_BACK.get(drive.findDistanceToSpeaker());
         }
-
     }
 }

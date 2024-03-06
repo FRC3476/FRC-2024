@@ -229,6 +229,10 @@ public final class Constants {
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
+    public static final double SHOOTER_ANGLE_SUBWOOFER = 52;
+    public static final double SHOOTER_ANGLE_PODIUM = 49; // TODO Measure this
+    public static final double SHOOTER_ANGLE_DYNAMIC = -1;
+
     public static final double SWERVE_DRIVE_P = 30;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
