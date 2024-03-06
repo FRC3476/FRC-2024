@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem.arm;
 
+import edu.wpi.first.math.MathUtil;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -18,6 +19,7 @@ public class Arm extends AbstractSubsystem {
     * @param position The position to set the Arm (degrees)
     */
     public void setPosition(double position) {
+        position = MathUtil.clamp(position, -0.02, 0.24);
         armIO.setLeadPosition(position, 0);
         Logger.recordOutput("Pivot/Goal position", position);
     }

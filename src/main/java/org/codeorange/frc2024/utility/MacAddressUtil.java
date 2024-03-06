@@ -82,8 +82,8 @@ public class MacAddressUtil {
                 return COMPETITION_BOT;
             } else {
                 System.out.println("Unknown MAC Address: " + macToString(mac));
-                System.out.println("Assuming Practice Bot");
-                return PRACTICE_BOT; // assume practice bot for now, change this to comp later
+                System.out.println("Assuming Comp Bot");
+                return COMPETITION_BOT;
             }
         }
     }

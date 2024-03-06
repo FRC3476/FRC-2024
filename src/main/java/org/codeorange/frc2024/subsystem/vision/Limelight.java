@@ -66,10 +66,20 @@ public class Limelight {
             return;
         }
 
+        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 1) {
+            return;
+        }
+
         limelightField.setRobotPose(measurement.pose);
+
+        if(measurement.pose.getX() > FIELD_LENGTH_METERS || measurement.pose.getY() > FIELD_WIDTH_METERS) {
+            return;
+        }
 
         if(Vision.unconditionallyTrustVision.get()) {
             drive.updateVisionStDev(VecBuilder.fill(0.01, 0.01, 1));
+        } else if ((drive.getPose().getX() > FIELD_LENGTH_METERS || drive.getPose().getY() > FIELD_WIDTH_METERS)) {
+            drive.updateVisionStDev(VecBuilder.fill(0.01, 0.01, 99999));
         } else if (measurement.tagCount >= 2 && measurement.avgTagArea > 0.1) {
             drive.updateVisionStDev(VecBuilder.fill(0.3, 0.3, 99999));
         } else if (measurement.avgTagArea > 0.5 && (drive.getPose().getTranslation().getDistance(measurement.pose.getTranslation()) < 2)) {

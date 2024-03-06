@@ -21,6 +21,7 @@ public class Climber extends AbstractSubsystem {
     public boolean climbing = false;
     public boolean hasClimbed = false;
     private boolean negated = false;
+    private double holdPosition;
 
     public Climber(ClimberIO climberIO){
         super();
@@ -51,18 +52,23 @@ public class Climber extends AbstractSubsystem {
             }
         }
 
-        if(climbing) {
+        if(climbing && !hasClimbed) {
             if(!negated) {
-                climberIO.setMotorPosition(1);
+                climberIO.setVoltage(-8);
                 if (limitSwitchPushed()) {
                     climbing = false;
                     hasClimbed = true;
+                    holdPosition = climberInputs.climberPosition + CLIMBER_SWITCH_OFFSET;
                 }
             } else {
                 climberIO.setVoltage(4);
             }
         } else if(hasClimbed) {
-            climberIO.setMotorPosition(1);
+            climberIO.setMotorPosition(holdPosition);
+        }
+
+        if(limitSwitchPushed()) {
+            climberIO.stop();
         }
     }
 

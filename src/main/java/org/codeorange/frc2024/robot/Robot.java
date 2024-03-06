@@ -7,14 +7,13 @@ package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.arm.*;
@@ -213,9 +212,8 @@ public class Robot extends LoggedRobot {
 
         superstructure.start();
 
-        if(!isCompetition() || climber.limitSwitchPushed()) {
-            superstructure.setCurrentState(Superstructure.States.STOW);
-        }
+        superstructure.setCurrentState(Superstructure.States.STOW);
+
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
@@ -274,12 +272,12 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        if(limelightLEDchooser.get()) {
-            LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
-            LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
-        } else {
+        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 1 || !limelightLEDchooser.get()) {
             LimelightHelpers.setLEDMode_ForceOff("limelight-front");
             LimelightHelpers.setLEDMode_ForceOff("limelight-back");
+        } else {
+            LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
+            LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
         }
 
         if(!prevHasNote && intake.hasNote()) {
@@ -385,12 +383,21 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        superstructure.a = MathUtil.applyDeadband(-logitechThing.getRawAxis(1), 0.1);
+        superstructure.shotWristdelta = MathUtil.applyDeadband(-logitechThing.getRawAxis(1), 0.1);
 
+        if(superstructure.getCurrentState() == Superstructure.States.PUPPETEERING) {
+            superstructure.wantedPuppeteerWrist += (MathUtil.applyDeadband(-logitechThing.getRawAxis(1), 0.1))/360;
+            superstructure.wantedPuppeteerArm += (MathUtil.applyDeadband(-logitechThing.getRawAxis(0), 0.1))/360;
+            superstructure.wantedPuppeteerElevator += (MathUtil.applyDeadband(logitechThing.getRawAxis(2), 0.1))/50;
+        }
+
+        if(logitechThing.getRawButton(4) && logitechThing.getRawButton(6)) {
+            superstructure.setGoalState(Superstructure.States.PUPPETEERING);
+        }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
-        } else if(xbox.getRawButton(XboxButtons.X)) {
+        } else if(xbox.getRawButton(XboxButtons.Y)) {
             double targetAngle;
 
             if(intake.hasNote()) {
@@ -404,6 +411,51 @@ public class Robot extends LoggedRobot {
             }
 
             drive.swerveDriveTargetAngle(controllerDriveInputs, targetAngle);
+        } else if(xbox.getRawButton(XboxButtons.X)) {
+            var drivePose = drive.getPose();
+            double rotationFromStage;
+            Translation2d stageCenter;
+            StageSpots selectedSpot;
+
+            if(isRed()) {
+                stageCenter = RED_STAGE_CENTER;
+                rotationFromStage = Math.atan2(drivePose.getY() - stageCenter.getY(), drivePose.getX() - stageCenter.getX());
+                if(rotationFromStage >= 2 * Math.PI / 3 || rotationFromStage <= -2 * Math.PI / 3) {
+                    selectedSpot = StageSpots.TOWARDS_CENTER;
+                } else if(rotationFromStage >= 0) {
+                    selectedSpot = StageSpots.TOWARDS_AMP;
+                } else {
+                    selectedSpot = StageSpots.TOWARDS_SOURCE;
+                }
+            } else {
+                stageCenter = BLUE_STAGE_CENTER;
+                rotationFromStage = Math.atan2(drivePose.getY() - stageCenter.getY(), drivePose.getX() - stageCenter.getX());
+                if(rotationFromStage <= Math.PI / 3 && rotationFromStage >= -Math.PI / 3) {
+                    selectedSpot = StageSpots.TOWARDS_CENTER;
+                } else if(rotationFromStage >= Math.PI / 3) {
+                    selectedSpot = StageSpots.TOWARDS_AMP;
+                } else {
+                    selectedSpot = StageSpots.TOWARDS_SOURCE;
+                }
+            }
+            
+            Pose2d wantedPose;
+            
+            if(superstructure.getCurrentState() == Superstructure.States.CLIMBER) {
+                if(isRed()) {
+                    wantedPose = selectedSpot.redClimbPose;
+                } else {
+                    wantedPose = selectedSpot.blueClimbPose;
+                }
+            } else {
+                if(isRed()) {
+                    wantedPose = selectedSpot.redTrapPose;
+                } else {
+                    wantedPose = selectedSpot.blueTrapPose;
+                }
+            }
+            
+            drive.driveTargetPose(wantedPose);
         } else {
             drive.drive(controllerDriveInputs, true, true);
         }
@@ -437,6 +489,75 @@ public class Robot extends LoggedRobot {
         LimelightHelpers.setLEDMode_ForceOff("limelight-front");
         LimelightHelpers.setLEDMode_ForceOff("limelight-back");
         drive.setBrakeMode(true);
+    }
+
+    public enum StageSpots {
+        TOWARDS_CENTER(
+                new Pose2d(
+                        new Translation2d(10.406, 4.150),
+                        Rotation2d.fromDegrees(0)
+                ),
+                new Pose2d(
+                        new Translation2d(6.187, 4.0),
+                        Rotation2d.fromDegrees(180)
+                ),
+                new Pose2d(
+                        new Translation2d(10.406, 4.150),
+                        Rotation2d.fromDegrees(0)
+                ),
+                new Pose2d(
+                        new Translation2d(6.187, 4.0),
+                        Rotation2d.fromDegrees(180)
+                )
+        ),
+        TOWARDS_AMP(
+                new Pose2d(
+                        new Translation2d(12.488, 5.222),
+                        Rotation2d.fromDegrees(-120)
+                ),
+                new Pose2d(
+                        new Translation2d(4.387, 5.410),
+                        Rotation2d.fromDegrees(-60)
+                ),
+                new Pose2d(
+                        new Translation2d(12.488, 5.222),
+                        Rotation2d.fromDegrees(-120)
+                ),
+                new Pose2d(
+                        new Translation2d(4.387, 5.410),
+                        Rotation2d.fromDegrees(-60)
+                )
+        ),
+        TOWARDS_SOURCE(
+                new Pose2d(
+                        new Translation2d(12.227, 2.880),
+                        Rotation2d.fromDegrees(120)
+                ),
+                new Pose2d(
+                        new Translation2d(4.073, 3.015),
+                        Rotation2d.fromDegrees(60)
+                ),
+                new Pose2d(
+                        new Translation2d(12.121, 3.320),
+                        Rotation2d.fromDegrees(120)
+                ),
+                new Pose2d(
+                        new Translation2d(4.073, 3.015),
+                        Rotation2d.fromDegrees(60)
+                )
+        );
+
+        private final Pose2d redTrapPose;
+        private final Pose2d blueTrapPose;
+        private final Pose2d redClimbPose;
+        private final Pose2d blueClimbPose;
+
+        StageSpots(Pose2d redTrapPose, Pose2d blueTrapPose, Pose2d redClimbPose, Pose2d blueClimbPose) {
+            this.redTrapPose = redTrapPose;
+            this.redClimbPose = redClimbPose;
+            this.blueTrapPose = blueTrapPose;
+            this.blueClimbPose = blueClimbPose;
+        }
     }
 
     /** This function is called periodically when disabled. */

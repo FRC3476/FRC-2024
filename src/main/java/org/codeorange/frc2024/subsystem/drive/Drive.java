@@ -55,6 +55,16 @@ public class Drive extends AbstractSubsystem {
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
+    private final @NotNull PIDController drivePID;
+
+    {
+        drivePID = new PIDController(
+                3,
+                0,
+                0
+        );
+    }
+
     public final Field2d realField = new Field2d();
 
     private final Translation2d redAllianceSpeaker = new Translation2d(
@@ -186,7 +196,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     SwerveModuleState[] wantedStates = new SwerveModuleState[4];
-    SwerveModuleState[] realStates = new SwerveModuleState[4];
+    SwerveModuleState[] realStates = new SwerveModuleState[]{new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
 
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean isOpenLoop) {
         for (int i = 0; i < 4; i++) {
@@ -206,7 +216,11 @@ public class Drive extends AbstractSubsystem {
         }
         Logger.recordOutput("Drive/Wanted States", wantedStates);
         Logger.recordOutput("Drive/Real States", realStates);
+    }
 
+    @AutoLogOutput(key = "Drive/Real Chassis Speeds")
+    public ChassisSpeeds getChassisSpeeds() {
+        return SWERVE_DRIVE_KINEMATICS.toChassisSpeeds(realStates);
     }
 
     public synchronized void drive(@NotNull ControllerDriveInputs inputs, boolean fieldRel, boolean openLoop) {
@@ -224,6 +238,8 @@ public class Drive extends AbstractSubsystem {
                                         inputs.getRotation() * MAX_TELEOP_TURN_SPEED), 0.02
                                 ));
         SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
+
+        realField.getObject("wantedPose").close();
 
         setSwerveModuleStates(states, openLoop);
     }
@@ -315,6 +331,17 @@ public class Drive extends AbstractSubsystem {
         var states = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(ChassisSpeeds.discretize(nextChassisSpeeds, 0.02));
         SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
         setSwerveModuleStates(states, false);
+    }
+
+    public void driveTargetPose(Pose2d target) {
+        var xSpeed = drivePID.calculate(getPose().getX(), target.getX());
+        var ySpeed = drivePID.calculate(getPose().getY(), target.getY());
+        var omega = turnPID.calculate(gyroInputs.yawPositionRad, target.getRotation().getRadians());
+
+        setNextChassisSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed, -ySpeed, -omega, gyroInputs.rotation2d));
+
+        realField.getObject("wantedPose").setPose(target);
+        Logger.recordOutput("Drive/Target Pose", target);
     }
 }
 

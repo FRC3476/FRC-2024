@@ -30,6 +30,7 @@ public class Superstructure extends AbstractSubsystem {
     private static Climber climber;
     //private static Vision vision;
     private States currentState = States.STOW;
+    @AutoLogOutput(key = "Superstructure/Goal State")
     private States goalState = States.STOW;
     public boolean isFlipped = false;
     public boolean climberOut = false;
@@ -209,6 +210,10 @@ public class Superstructure extends AbstractSubsystem {
                     if(climber.getPositionInRotations() > 184) {
                         superstructure.climberOut = true;
                     }
+
+                    if(superstructure.goalState == States.PUPPETEERING) {
+                        superstructure.setCurrentState(States.PUPPETEERING);
+                    }
                 }
             }
         },
@@ -249,6 +254,14 @@ public class Superstructure extends AbstractSubsystem {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
+        },
+        PUPPETEERING(0, 0, 0) {
+            @Override
+            public void update() {
+                if(superstructure.goalState != States.PUPPETEERING) {
+                    superstructure.setCurrentState(States.INTERMEDIATE);
+                }
+            }
         };
         @AutoLogOutput(key = "Superstructure/Is At Wanted State")
         public boolean isAtWantedState() {
@@ -286,13 +299,29 @@ public class Superstructure extends AbstractSubsystem {
     private double wantedShooterPosition;
 
     @AutoLogOutput(key = "Axis Add")
-    public double a;
+    public double shotWristdelta;
+
+    public double wantedPuppeteerArm = 0;
+    public double wantedPuppeteerWrist = 0;
+    public double wantedPuppeteerElevator = 0;
 
     public final double podium_front = 34;
     public final double podium_back = 0;
 
+    private States prevState;
+
     public void update() {
-        if(!DriverStation.isTest()) {
+        if(prevState != currentState && currentState == States.PUPPETEERING) {
+            wantedPuppeteerArm = prevState.armPos;
+            wantedPuppeteerWrist = prevState.wristPos;
+            wantedPuppeteerElevator = prevState.elevatorPos;
+        }
+
+        if(currentState == States.PUPPETEERING) {
+            arm.setPosition(wantedPuppeteerArm);
+            wrist.setWristPosition(wantedPuppeteerWrist);
+            elevator.setPosition(wantedPuppeteerElevator);
+        } else if(!DriverStation.isTest()) {
             currentState.update();
             arm.setPosition(currentState.armPos);
             if (superstructure.currentState != States.HOMING) {
@@ -303,7 +332,7 @@ public class Superstructure extends AbstractSubsystem {
             } else {
                 var wristPos = edu.wpi.first.math.MathUtil.inputModulus(-wantedShooterPosition - arm.getPivotDegrees(), -0.5, 0.5);
                 wrist.setWristPosition(wristPos);
-                wantedAngle += a;
+                wantedAngle += shotWristdelta;
 
                 Logger.recordOutput("Wrist/Wanted Position Ground Relative", -wantedShooterPosition - arm.getPivotDegrees());
             }
@@ -312,6 +341,7 @@ public class Superstructure extends AbstractSubsystem {
             arm.stop();
             elevator.stop();
         }
+        prevState = currentState;
     }
 
     public void setWantedShooterPosition(double wantedPos) {

@@ -1,7 +1,9 @@
 package org.codeorange.frc2024.robot;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -220,7 +222,7 @@ public final class Constants {
     public static final double SS_DEPLOYCLIMBER2_ARM = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_CLIMBER = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
-    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 16;
+    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 18;
     public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.205555;
     public static final double SS_CLIMB_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_CLIMB_CLIMBER = isPrototype() ? 0 : 0;
@@ -354,4 +356,18 @@ public final class Constants {
         }
     }
 
+
+    public static final Translation2d BLUE_STAGE_CENTER =
+            new Translation2d(
+                    4.904,
+                    4.107
+            );
+
+    public static final Translation2d RED_STAGE_CENTER =
+            new Translation2d(
+                    11.678,
+                    4.108
+            );
+
+    public static final double CLIMBER_SWITCH_OFFSET = 2.89 - 0.95 / CLIMBER_P;
 }
