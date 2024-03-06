@@ -6,7 +6,10 @@
 package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -336,8 +339,19 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
 
+        if(buttonPanel.getRisingEdge(1, 0.6)) {
+            if(superstructure.getCurrentState() == Superstructure.States.SPEAKER) {
+                superstructure.setGoalState(Superstructure.States.SPEAKER_OVER_DEFENSE);
+                superstructure.wantedAngle = 20;
+            }
+        }
         if(buttonPanel.getFallingEdge(1, -0.6)) {
-            superstructure.wantedAngle = superstructure.podium;
+            if(superstructure.getCurrentState() == Superstructure.States.SPEAKER_OVER_DEFENSE) {
+                superstructure.setGoalState(Superstructure.States.SPEAKER);
+            }
+        }
+        if(buttonPanel.getRisingEdge(0, 0.6)) {
+            superstructure.wantedAngle = superstructure.isFlipped ? superstructure.podium_back : superstructure.podium_front;
         }
 
         if(logitechThing.getRisingEdge(2)) {
@@ -345,18 +359,18 @@ public class Robot extends LoggedRobot {
         }
 
         if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
-            intake.runIntake(0.8);
-        } else if ((xbox.getRawButton(XboxButtons.B) && !intake.hasNote() && superstructure.getCurrentState() == Superstructure.States.SOURCE_INTAKE)) {
             intake.runIntake(0.5);
+        } else if ((xbox.getRawButton(XboxButtons.B) && !intake.hasNote() && superstructure.getCurrentState() == Superstructure.States.SOURCE_INTAKE)) {
+            intake.runIntake(0.3);
         } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
             intake.runOuttake();
         } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
             intake.runIntakeForShooter();
         } else if(logitechThing.getRawButton(11)) {
-            intake.setDutyCycle(0.05);
+            intake.setDutyCycle(0.075);
         } else if(logitechThing.getRawButton(9)) {
             // outtake
-            intake.setDutyCycle(-0.1);
+            intake.setDutyCycle(-0.075);
             shooter.setMotorTorque(-120);
         } else {
             intake.stop();
@@ -371,17 +385,25 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        if(!(Math.abs(logitechThing.getRawAxis(1)) < 0.05)) {
-            superstructure.a = -0.5 * logitechThing.getRawAxis(1);
-        } else {
-            superstructure.a = 0;
-        }
+        superstructure.a = MathUtil.applyDeadband(-logitechThing.getRawAxis(1), 0.1);
 
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
         } else if(xbox.getRawButton(XboxButtons.X)) {
-            drive.setNextChassisSpeeds(new ChassisSpeeds(1, 0, 0));
+            double targetAngle;
+
+            if(intake.hasNote()) {
+                targetAngle = Units.Degrees.of(90).in(Units.Radians);
+            } else {
+                if(!isRed()) {
+                    targetAngle = Units.Degrees.of(-60).in(Units.Radians);
+                } else {
+                    targetAngle = Units.Degrees.of(240).in(Units.Radians);
+                }
+            }
+
+            drive.swerveDriveTargetAngle(controllerDriveInputs, targetAngle);
         } else {
             drive.drive(controllerDriveInputs, true, true);
         }
@@ -453,12 +475,7 @@ public class Robot extends LoggedRobot {
             inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
         }
 
-        if (xbox.getRawButton(XboxButtons.X)) {
-            // Apply a larger deadzone when the button is pressed
-            inputs.applyDeadZone(0.2, 0.2, 0.2, 0.2);
-        } else {
-            inputs.applyDeadZone(0.05, 0.05, 0.2, 0.2);
-        }
+        inputs.applyDeadZone(0.05, 0.05, 0.2, 0.2);
 
         inputs.squareInputs();
         Logger.recordOutput("Robot/Xbox Controller X", inputs.getX());

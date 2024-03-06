@@ -70,12 +70,10 @@ public class Limelight {
 
         if(Vision.unconditionallyTrustVision.get()) {
             drive.updateVisionStDev(VecBuilder.fill(0.01, 0.01, 1));
-        } else if (measurement.tagCount >= 2) {
+        } else if (measurement.tagCount >= 2 && measurement.avgTagArea > 0.1) {
             drive.updateVisionStDev(VecBuilder.fill(0.3, 0.3, 99999));
-        } else if (measurement.avgTagArea > 0.5) {
+        } else if (measurement.avgTagArea > 0.5 && (drive.getPose().getTranslation().getDistance(measurement.pose.getTranslation()) < 2)) {
             drive.updateVisionStDev(VecBuilder.fill(1, 1, 99999));
-        } else if (measurement.avgTagArea > 0.15) {
-            drive.updateVisionStDev(VecBuilder.fill(3, 3, 99999));
         } else {
             return;
         }

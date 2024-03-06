@@ -159,7 +159,7 @@ public final class Constants {
     public static final int CLIMBER_PWM_RELAY_CHANNEL = 1; //TODO: get real channel #
 
     public static final double ELEVATOR_LOWER_LIMIT = 0;
-    public static final double ELEVATOR_UPPER_LIMIT = 20;
+    public static final double ELEVATOR_UPPER_LIMIT = 22;
     public static final double CLIMBER_LOWER_LIMIT_ROTATIONS = 0;
     public static final double CLIMBER_HANG_POSITION = 2;
     public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 190;//TODO: find this
@@ -250,7 +250,7 @@ public final class Constants {
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
     public static final double CLIMBER_D = isPrototype() ? 0 : 0;
 
-    public static final double SHOOTER_P = isPrototype() ? 2 : 10;
+    public static final double SHOOTER_P = isCompetition() ? 5 : 3;
     public static final double SHOOTER_I = isPrototype() ? 0 : 0;
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
@@ -273,7 +273,7 @@ public final class Constants {
     public static final boolean USE_CANCODERS = true;
 
     //TODO: figure out how tf these numbers were obtained
-    public static final double SWERVE_WHEEL_RADIUS = 1.9261; // inches, gained from characterization
+    public static final double SWERVE_WHEEL_RADIUS = 1.88955; // inches, gained from characterization
     public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS;
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;

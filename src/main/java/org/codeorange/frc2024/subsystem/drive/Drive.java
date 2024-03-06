@@ -125,7 +125,7 @@ public class Drive extends AbstractSubsystem {
         SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
             swerveModulePositions[i] = new SwerveModulePosition(
-                    getDrivePosition(i),
+                    -getDrivePosition(i),
                     Rotation2d.fromDegrees(getWheelRotation(i)));
         }
         return swerveModulePositions;
@@ -301,8 +301,8 @@ public class Drive extends AbstractSubsystem {
                 getModulePositions(),
                 new Pose2d(getPose().getX(),
                         getPose().getY(),
-                        Rotation2d.fromRotations(yawPositionRot).rotateBy(Rotation2d.fromRotations(0.5))
-                )
+                        Rotation2d.fromRotations(yawPositionRot))
+
         );
     }
 

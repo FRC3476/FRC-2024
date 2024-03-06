@@ -30,11 +30,14 @@ public class Shooter extends AbstractSubsystem {
         if (Robot.getIntake().hasNote()) {
             shooterIO.setVelocity(velocityRPS, 0);
             targetVelocity = velocityRPS;
-            return true;
         } else {
             stop();
+        }
+
+        if(ShooterInputs.leaderVelocity < 100 && !Robot.getIntake().hasNote()) {
             return false;
         }
+        return true;
     }
 
     public void stop() {

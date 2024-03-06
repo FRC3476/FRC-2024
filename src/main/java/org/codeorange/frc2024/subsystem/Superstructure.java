@@ -60,7 +60,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code!
-                if(superstructure.goalState == States.SPEAKER || superstructure.goalState == States.AMP || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE || superstructure.goalState == States.CLIMBER) {
+                if(superstructure.goalState == States.SPEAKER || superstructure.goalState == States.AMP || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE || superstructure.goalState == States.CLIMBER || superstructure.goalState == States.SPEAKER_OVER_DEFENSE) {
                     superstructure.setCurrentState(INTERMEDIATE);
                 } else if(superstructure.goalState == States.GROUND_INTAKE) {
                     superstructure.setCurrentState(MID_INTAKE);
@@ -160,6 +160,23 @@ public class Superstructure extends AbstractSubsystem {
                     superstructure.setGoalState(STOW);
                 }
                 if(superstructure.goalState != States.SPEAKER) {
+                    superstructure.setWantedShooterPosition(0);
+                    shooter.stop();
+                    superstructure.setCurrentState(States.INTERMEDIATE);
+                }
+            }
+        },
+        SPEAKER_OVER_DEFENSE(21, 0.2, 0) {
+            @Override
+            public void update() {
+                superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                var shooting = shooter.runVelocity(10000.0 / 60);
+                if(!shooting) {
+                    superstructure.setGoalState(STOW);
+                }
+                if(superstructure.goalState == SPEAKER) {
+                    superstructure.setCurrentState(SPEAKER);
+                } else if(superstructure.goalState != States.SPEAKER_OVER_DEFENSE) {
                     superstructure.setWantedShooterPosition(0);
                     shooter.stop();
                     superstructure.setCurrentState(States.INTERMEDIATE);
@@ -267,9 +284,12 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     private double wantedShooterPosition;
+
+    @AutoLogOutput(key = "Axis Add")
     public double a;
 
-    public final double podium = 30;
+    public final double podium_front = 34;
+    public final double podium_back = 0;
 
     public void update() {
         if(!DriverStation.isTest()) {
@@ -278,10 +298,14 @@ public class Superstructure extends AbstractSubsystem {
             if (superstructure.currentState != States.HOMING) {
                 elevator.setPosition(currentState.elevatorPos);
             }
-            if (superstructure.currentState != States.SPEAKER) {
+            if (superstructure.currentState != States.SPEAKER && superstructure.currentState != States.SPEAKER_OVER_DEFENSE) {
                 wrist.setWristPosition(currentState.wristPos);
             } else {
-                wrist.setWristPosition(-wantedShooterPosition - SS_SPEAKER_ARM);
+                var wristPos = edu.wpi.first.math.MathUtil.inputModulus(-wantedShooterPosition - arm.getPivotDegrees(), -0.5, 0.5);
+                wrist.setWristPosition(wristPos);
+                wantedAngle += a;
+
+                Logger.recordOutput("Wrist/Wanted Position Ground Relative", -wantedShooterPosition - arm.getPivotDegrees());
             }
             Logger.recordOutput("Superstructure/Current State", currentState);
         } else {
@@ -294,8 +318,7 @@ public class Superstructure extends AbstractSubsystem {
         if(isFlipped) {
             wantedPos += 2 * (0.25 - wantedPos);
         }
-        wantedPos = MathUtil.normalize(wantedPos, -0.5, 0.5);
-        wantedShooterPosition = superstructure.currentState == States.SPEAKER ? wantedPos : 0;
+        wantedShooterPosition = superstructure.currentState == States.SPEAKER || superstructure.currentState == States.SPEAKER_OVER_DEFENSE ? wantedPos : 0;
         Logger.recordOutput("Shooter/Wanted Angle", wantedShooterPosition);
     }
 
