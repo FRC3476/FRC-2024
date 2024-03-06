@@ -45,7 +45,7 @@ public class Superstructure extends AbstractSubsystem {
         climber = Robot.getClimber();
     }
 
-    public double wantedShooterAngle = 52;
+    public double wantedAngle = 52;
 
     public enum States {
         REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST) {
@@ -151,10 +151,10 @@ public class Superstructure extends AbstractSubsystem {
             //spin drivebase + aim mechanisms
             public void update() {
                 if(arm.getPivotDegrees() >= 0.05) {
-                    if (superstructure.wantedShooterAngle == SHOOTER_ANGLE_DYNAMIC) {
+                    if (superstructure.wantedAngle == SHOOTER_ANGLE_DYNAMIC) {
                         superstructure.setWantedShooterPosition(superstructure.getLowShooterAngle() / 360);
                     } else {
-                        superstructure.setWantedShooterPosition(superstructure.wantedShooterAngle / 360);
+                        superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
                     }
                 } else {
                     superstructure.setWantedShooterPosition(0);
@@ -325,7 +325,7 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     public void setWantedShooterAngle(double shooterAngle) {
-        this.wantedShooterAngle = shooterAngle;
+        this.wantedAngle = shooterAngle;
     }
 
     public double getLowShooterAngle(){
