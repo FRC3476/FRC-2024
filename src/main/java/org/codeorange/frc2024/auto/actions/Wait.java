@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.auto.actions;
 
+import edu.wpi.first.wpilibj.Timer;
 import org.littletonrobotics.junction.Logger;
 
 public class Wait implements BaseAction {
@@ -12,11 +13,11 @@ public class Wait implements BaseAction {
 
     @Override
     public void start() {
-        startTime = Logger.getTimestamp() * 1e-6;
+        startTime = Timer.getFPGATimestamp();
     }
 
     @Override
     public boolean isFinished() {
-        return Logger.getTimestamp() * 1e-6 - startTime >= timeToWait;
+        return Timer.getFPGATimestamp() - startTime >= timeToWait;
     }
 }

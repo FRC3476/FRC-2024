@@ -5,6 +5,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.codeorange.frc2024.robot.Robot;
@@ -70,6 +71,9 @@ public class Limelight {
             return;
         }
 
+        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 0.1 && DriverStation.isAutonomous()) {
+            return;
+        }
         limelightField.setRobotPose(measurement.pose);
 
         if(measurement.pose.getX() > FIELD_LENGTH_METERS || measurement.pose.getY() > FIELD_WIDTH_METERS) {
@@ -78,7 +82,7 @@ public class Limelight {
 
         if(Vision.unconditionallyTrustVision.get()) {
             drive.updateVisionStDev(VecBuilder.fill(0.01, 0.01, 1));
-        } else if ((drive.getPose().getX() > FIELD_LENGTH_METERS || drive.getPose().getY() > FIELD_WIDTH_METERS)) {
+        } else if ((drive.getPose().getX() > FIELD_LENGTH_METERS || drive.getPose().getY() > FIELD_WIDTH_METERS) || Double.isNaN(drive.getPose().getX()) || Double.isNaN(drive.getPose().getY())) {
             drive.updateVisionStDev(VecBuilder.fill(0.01, 0.01, 99999));
         } else if (measurement.tagCount >= 2 && measurement.avgTagArea > 0.1) {
             drive.updateVisionStDev(VecBuilder.fill(0.3, 0.3, 99999));

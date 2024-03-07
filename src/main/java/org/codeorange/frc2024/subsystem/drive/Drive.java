@@ -301,9 +301,9 @@ public class Drive extends AbstractSubsystem {
     }
 
     public void resetOdometry(Pose2d pose) {
-        resetGyro(pose.getRotation().getDegrees());
+        gyroIO.resetGyroYaw(pose.getRotation().getRotations());
         poseEstimator.resetPosition(
-                gyroInputs.rotation2d,
+                pose.getRotation(),
                 getModulePositions(),
                 pose
         );
@@ -318,7 +318,6 @@ public class Drive extends AbstractSubsystem {
                 new Pose2d(getPose().getX(),
                         getPose().getY(),
                         Rotation2d.fromRotations(yawPositionRot))
-
         );
     }
 

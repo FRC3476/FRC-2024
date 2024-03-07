@@ -18,8 +18,8 @@ public class DrivePath implements BaseAction {
     private static Drive drive = Robot.getDrive();
     private final ChoreoTrajectory trajectory;
     private final Timer pathTimer = new Timer();
-    private final LiveEditableValue<Double> translationP = new LiveEditableValue<>(5.0, SmartDashboard.getEntry("Translation P"));
-    private final LiveEditableValue<Double> rotationP = new LiveEditableValue<>(2.5, SmartDashboard.getEntry("Rotation P"));
+    private final LiveEditableValue<Double> translationP = new LiveEditableValue<>(8.5, SmartDashboard.getEntry("Translation P"));
+    private final LiveEditableValue<Double> rotationP = new LiveEditableValue<>(4.0, SmartDashboard.getEntry("Rotation P"));
 
     public DrivePath(ChoreoTrajectory trajectory) {
         this.trajectory = Robot.isRed() ? trajectory.flipped() : trajectory;
@@ -43,17 +43,12 @@ public class DrivePath implements BaseAction {
     @Override
     public void update() {
         var state = trajectory.sample(pathTimer.get());
-
         var speeds = choreoController.apply(drive.getPose(), state);
-
-        Logger.recordOutput("Auto/X Error", drive.getPose().getX() - state.x);
-        Logger.recordOutput("Auto/Y Error", drive.getPose().getY() - state.y);
-        Logger.recordOutput("Auto/Theta Error", Math.abs(drive.getPose().getRotation().getRadians()) - Math.abs(state.heading));
 
         drive.setNextChassisSpeeds(
                 new ChassisSpeeds(
-                        speeds.vxMetersPerSecond,
-                        speeds.vyMetersPerSecond,
+                        -speeds.vxMetersPerSecond,
+                        -speeds.vyMetersPerSecond,
                         -speeds.omegaRadiansPerSecond
                 )
         );
@@ -66,6 +61,6 @@ public class DrivePath implements BaseAction {
 
     @Override
     public void done() {
-        drive.setNextChassisSpeeds(new ChassisSpeeds());
+        drive.setNextChassisSpeeds(new ChassisSpeeds(0, 0, 0));
     }
 }

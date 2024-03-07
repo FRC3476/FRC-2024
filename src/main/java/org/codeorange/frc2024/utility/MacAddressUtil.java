@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 /**
- * Utility class for getting the MAC address of the robot radio and determining the robot's identity.
+ * Utility class for getting the MAC address of the RoboRIO and determining the robot's identity.
  *
  * @author 2910 and 1678
  */
@@ -24,9 +24,9 @@ public class MacAddressUtil {
     };
 
     /**
-     * Gets the MAC address of the robot's radio.
+     * Gets the MAC address of the RoboRIO.
      *
-     * @return the MAC address of the robot's radio
+     * @return the MAC address of the RoboRIO
      * @throws SocketException if no MAC address is found
      */
     public static byte[] getMacAddress() throws SocketException {

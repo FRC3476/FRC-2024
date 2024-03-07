@@ -226,6 +226,14 @@ public class Robot extends LoggedRobot {
         xbox.update();
         logitechThing.update();
         buttonPanel.update();
+
+        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 1 || !limelightLEDchooser.get()) {
+            LimelightHelpers.setLEDMode_ForceOff("limelight-front");
+            LimelightHelpers.setLEDMode_ForceOff("limelight-back");
+        } else {
+            LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
+            LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
+        }
     }
 
     private final LoggedDashboardChooser<Boolean> limelightLEDchooser = new LoggedDashboardChooser<>("Limelight LED Mode");
@@ -245,6 +253,11 @@ public class Robot extends LoggedRobot {
         LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
         AutoManager.getInstance().loadAuto(autoChooser.get());
         AutoManager.getInstance().startAuto();
+    }
+
+    @Override
+    public void autonomousExit() {
+        shooter.stop();
     }
 
     /** This function is called periodically during autonomous. */
@@ -272,12 +285,9 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 1 || !limelightLEDchooser.get()) {
-            LimelightHelpers.setLEDMode_ForceOff("limelight-front");
-            LimelightHelpers.setLEDMode_ForceOff("limelight-back");
-        } else {
-            LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
-            LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
+        //TODO: delete this
+        if(xbox.getRisingEdge(XboxButtons.START)) {
+            superstructure.setGoalState(Superstructure.States.SPEAKER_AUTO);
         }
 
         if(!prevHasNote && intake.hasNote()) {
@@ -322,18 +332,18 @@ public class Robot extends LoggedRobot {
             drive.resetGyro(Robot.isRed() ? 0.5 : 0);
         }
 
-        if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER)) {
+        if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
             superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
-        } else if (xbox.getFallingEdge(XboxButtons.RIGHT_BUMPER)) {
+        } else if (xbox.getFallingEdge(XboxButtons.RIGHT_BUMPER) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
-        if(xbox.getRisingEdge(XboxButtons.B)) {
+        if(xbox.getRisingEdge(XboxButtons.B) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
             if(intake.hasNote()) {
                 superstructure.setGoalState(Superstructure.States.AMP);
             } else {
                 superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
             }
-        } else if (xbox.getFallingEdge(XboxButtons.B)) {
+        } else if (xbox.getFallingEdge(XboxButtons.B) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
 
@@ -361,7 +371,7 @@ public class Robot extends LoggedRobot {
         } else if ((xbox.getRawButton(XboxButtons.B) && !intake.hasNote() && superstructure.getCurrentState() == Superstructure.States.SOURCE_INTAKE)) {
             intake.runIntake(0.3);
         } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
-            intake.runOuttake();
+            intake.runOuttake(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP ? -12 : -8.5);
         } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
             intake.runIntakeForShooter();
         } else if(logitechThing.getRawButton(11)) {
@@ -494,7 +504,7 @@ public class Robot extends LoggedRobot {
     public enum StageSpots {
         TOWARDS_CENTER(
                 new Pose2d(
-                        new Translation2d(10.406, 4.150),
+                        new Translation2d(10.368, 4.112),
                         Rotation2d.fromDegrees(0)
                 ),
                 new Pose2d(
@@ -512,7 +522,7 @@ public class Robot extends LoggedRobot {
         ),
         TOWARDS_AMP(
                 new Pose2d(
-                        new Translation2d(12.488, 5.222),
+                        new Translation2d(12.557, 5.2),
                         Rotation2d.fromDegrees(-120)
                 ),
                 new Pose2d(
@@ -530,7 +540,7 @@ public class Robot extends LoggedRobot {
         ),
         TOWARDS_SOURCE(
                 new Pose2d(
-                        new Translation2d(12.227, 2.880),
+                        new Translation2d(12.535, 3.000),
                         Rotation2d.fromDegrees(120)
                 ),
                 new Pose2d(

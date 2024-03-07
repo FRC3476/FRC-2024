@@ -143,7 +143,7 @@ public final class Constants {
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.378662109375 + 0.5;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.949462890625 + 0.5;
                 WRIST_ABSOLUTE_ENCODER_OFFSET = -0.10498046875;
-                ARM_ABSOLUTE_ENCODER_OFFSET = 0.4453125;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0.41650390625;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;
@@ -188,8 +188,8 @@ public final class Constants {
     public static final double SS_GENINTERMEDIATE_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_GENINTERMEDIATE_WRIST = isPrototype() ? 100 : 0;
     public static final double SS_GENINTERMEDIATE_CLIMBER = isPrototype() ? 100 : 0;
-    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 16;
-    public static final double SS_MIDINTAKE_ARM = isPrototype() ? 0.1 : 0;
+    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 12;
+    public static final double SS_MIDINTAKE_ARM = isPrototype() ? 0.1 : -0.01;
     public static final double SS_MIDINTAKE_WRIST = isPrototype() ? -0.1 : 0;
 
     public static final double SS_MIDINTAKE_CLIMBER = 0;
@@ -252,7 +252,7 @@ public final class Constants {
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
     public static final double CLIMBER_D = isPrototype() ? 0 : 0;
 
-    public static final double SHOOTER_P = isCompetition() ? 5 : 3;
+    public static final double SHOOTER_P = 0.00065134;
     public static final double SHOOTER_I = isPrototype() ? 0 : 0;
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;

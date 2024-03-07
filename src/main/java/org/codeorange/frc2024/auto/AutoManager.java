@@ -1,10 +1,11 @@
 package org.codeorange.frc2024.auto;
 
-import org.codeorange.frc2024.auto.routines.BaseRoutine;
-import org.codeorange.frc2024.auto.routines.DoNothing;
-import org.codeorange.frc2024.auto.routines.FourPiece;
-import org.codeorange.frc2024.auto.routines.TestRoutine;
+import org.codeorange.frc2024.auto.routines.*;
+import org.littletonrobotics.junction.Logger;
 
+/**
+ * @author pretty much 254
+ */
 public class AutoManager {
     private BaseRoutine selectedRoutine;
 
@@ -25,9 +26,12 @@ public class AutoManager {
             case 0 -> selectedRoutine = new DoNothing();
             case 1 -> selectedRoutine = new TestRoutine();
             case 2 -> selectedRoutine = new FourPiece();
+            case 3 -> selectedRoutine = new ThreePieceCenterSourceSide();
         }
         System.out.println("Selected routine " + selectedRoutine.getClass().getName());
-        thread = new Thread(() -> selectedRoutine.run());
+        thread = new Thread(() -> {
+            selectedRoutine.run();
+        });
     }
 
     public void startAuto() {

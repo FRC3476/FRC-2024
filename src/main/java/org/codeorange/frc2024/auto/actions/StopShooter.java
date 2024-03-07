@@ -4,16 +4,18 @@ import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.subsystem.shooter.Shooter;
 
-public class Stow implements BaseAction {
-    private final Superstructure superstructure = Superstructure.getSuperstructure();
-
+public class StopShooter implements BaseAction {
+    private final Shooter shooter;
+    public StopShooter() {
+        shooter = Robot.getShooter();
+    }
     @Override
     public void start() {
-        superstructure.setGoalState(Superstructure.States.STOW);
+        shooter.stop();
     }
 
     @Override
     public boolean isFinished() {
-        return superstructure.isAtGoalState() && Superstructure.States.STOW.isAtWantedState();
+        return true;
     }
 }

@@ -51,9 +51,9 @@ public class ArmIOTalonFX implements ArmIO {
         armFeedBackConfigs.RotorToSensorRatio = ARM_RTS;
 
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
-        armMotionMagicConfig.MotionMagicCruiseVelocity = 0.8;
-        armMotionMagicConfig.MotionMagicAcceleration = 3.2;     //TODO change motion magic values
-        armMotionMagicConfig.MotionMagicJerk = 16;
+        armMotionMagicConfig.MotionMagicCruiseVelocity = 1;
+        armMotionMagicConfig.MotionMagicAcceleration = 4;     //TODO change motion magic values
+        armMotionMagicConfig.MotionMagicJerk = 20;
 
         var armCurrentLimitConfigs = talonFXConfigs.CurrentLimits;
         armCurrentLimitConfigs.SupplyCurrentLimit = 50;

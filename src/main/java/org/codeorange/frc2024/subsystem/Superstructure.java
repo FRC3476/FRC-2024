@@ -61,7 +61,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code!
-                if(superstructure.goalState == States.SPEAKER || superstructure.goalState == States.AMP || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE || superstructure.goalState == States.CLIMBER || superstructure.goalState == States.SPEAKER_OVER_DEFENSE) {
+                if(superstructure.goalState == SPEAKER_AUTO || superstructure.goalState == States.SPEAKER || superstructure.goalState == States.AMP || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE || superstructure.goalState == States.CLIMBER || superstructure.goalState == States.SPEAKER_OVER_DEFENSE) {
                     superstructure.setCurrentState(INTERMEDIATE);
                 } else if(superstructure.goalState == States.GROUND_INTAKE) {
                     superstructure.setCurrentState(MID_INTAKE);
@@ -106,9 +106,10 @@ public class Superstructure extends AbstractSubsystem {
                 if(intake.hasNote() && DriverStation.isTeleop()) {
                     superstructure.setGoalState(States.STOW);
                 }
-                if(superstructure.goalState == States.STOW) {
-                    superstructure.setCurrentState(MID_INTAKE);
-                } else if (superstructure.goalState == States.SPEAKER) {
+//                if(superstructure.goalState == States.STOW) {
+//                    superstructure.setCurrentState(MID_INTAKE);
+//                } else
+                if (superstructure.goalState == States.SPEAKER) {
                     superstructure.setCurrentState(INTERMEDIATE);
                 } else if(superstructure.goalState != States.GROUND_INTAKE) {
                     superstructure.setCurrentState(superstructure.goalState);
@@ -147,6 +148,19 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
+        SPEAKER_AUTO(SS_GROUNDINTAKE_ELEVATOR, 0.1, 0) {
+            @Override
+            public void update() {
+                if(DriverStation.isAutonomous()) {
+                    superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                    shooter.runVelocityAuto(10000.0 / 60);
+                }
+                if(superstructure.goalState != SPEAKER_AUTO) {
+                    superstructure.setCurrentState(superstructure.goalState);
+                    superstructure.setWantedShooterPosition(0);
+                }
+            }
+        },
         SPEAKER(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST) {
             @Override
             //spin drivebase + aim mechanisms
@@ -156,13 +170,17 @@ public class Superstructure extends AbstractSubsystem {
                 } else {
                     superstructure.setWantedShooterPosition(0);
                 }
-                var shooting = shooter.runVelocity(10000.0 / 60);
-                if(!shooting) {
-                    superstructure.setGoalState(STOW);
+                if(DriverStation.isTeleop()) {
+                    var shooting = shooter.runVelocity(10000.0 / 60);
+                    if (!shooting) {
+                        superstructure.setGoalState(STOW);
+                    }
                 }
                 if(superstructure.goalState != States.SPEAKER) {
                     superstructure.setWantedShooterPosition(0);
-                    shooter.stop();
+                    if(!DriverStation.isAutonomous()) {
+                        shooter.stop();
+                    }
                     superstructure.setCurrentState(States.INTERMEDIATE);
                 }
             }
@@ -268,7 +286,7 @@ public class Superstructure extends AbstractSubsystem {
             return (MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
                     && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.03)
                     && (MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.015)
-                    || (MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - SS_SPEAKER_ARM, wrist.getWristAbsolutePosition(), 0.01) && superstructure.currentState == States.SPEAKER)));
+                    || (MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - arm.getPivotDegrees(), wrist.getWristAbsolutePosition(), 0.01) && superstructure.currentState == States.SPEAKER_AUTO)));
         }
         final double elevatorPos;
         final double armPos;
@@ -327,7 +345,7 @@ public class Superstructure extends AbstractSubsystem {
             if (superstructure.currentState != States.HOMING) {
                 elevator.setPosition(currentState.elevatorPos);
             }
-            if (superstructure.currentState != States.SPEAKER && superstructure.currentState != States.SPEAKER_OVER_DEFENSE) {
+            if (superstructure.currentState != States.SPEAKER && superstructure.currentState != States.SPEAKER_OVER_DEFENSE && superstructure.currentState != States.SPEAKER_AUTO) {
                 wrist.setWristPosition(currentState.wristPos);
             } else {
                 var wristPos = edu.wpi.first.math.MathUtil.inputModulus(-wantedShooterPosition - arm.getPivotDegrees(), -0.5, 0.5);
@@ -348,7 +366,7 @@ public class Superstructure extends AbstractSubsystem {
         if(isFlipped) {
             wantedPos += 2 * (0.25 - wantedPos);
         }
-        wantedShooterPosition = superstructure.currentState == States.SPEAKER || superstructure.currentState == States.SPEAKER_OVER_DEFENSE ? wantedPos : 0;
+        wantedShooterPosition = superstructure.currentState == States.SPEAKER || superstructure.currentState == States.SPEAKER_OVER_DEFENSE || superstructure.currentState == States.SPEAKER_AUTO ? wantedPos : 0;
         Logger.recordOutput("Shooter/Wanted Angle", wantedShooterPosition);
     }
 

@@ -24,7 +24,10 @@ public class Shoot implements BaseAction {
     @Override
     public void start() {
         superstructure.isFlipped = false;
-        superstructure.setGoalState(Superstructure.States.SPEAKER);
+        if(intake.hasNote()) {
+            superstructure.setGoalState(Superstructure.States.SPEAKER_AUTO);
+        }
+        intake.stop();
         superstructure.wantedAngle = angle;
         timer.stop();
         timer.reset();
@@ -47,7 +50,6 @@ public class Shoot implements BaseAction {
 
     public void done() {
         intake.stop();
-        shooter.stop();
         superstructure.wantedAngle = 54;
     }
 }

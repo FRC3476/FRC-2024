@@ -3,6 +3,7 @@ package org.codeorange.frc2024.subsystem.shooter;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.utility.MathUtil;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends AbstractSubsystem {
@@ -40,10 +41,25 @@ public class Shooter extends AbstractSubsystem {
         return true;
     }
 
+    public boolean runVelocityAuto(double targetVelocity) {
+        if(Robot.getIntake().hasNote()) {
+            shooterIO.setVelocity(targetVelocity, 0);
+            this.targetVelocity = targetVelocity;
+        } else {
+            shooterIO.setVelocity(targetVelocity*0.75, 0);
+        }
+
+        if(ShooterInputs.leaderVelocity < 0.80 * targetVelocity && !Robot.getIntake().hasNote()) {
+            return false;
+        }
+        return true;
+    }
+
     public void stop() {
         shooterIO.stop();
     }
 
+    @AutoLogOutput(key = "Shooter/Is At Target Velocity")
     public boolean isAtTargetVelocity() {
         return ShooterInputs.leaderVelocity > targetVelocity * 0.995;
     }
