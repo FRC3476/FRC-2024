@@ -27,5 +27,8 @@ public class MathUtilChecker {
         assertEquals(MathUtil.normalize(540, -180, 180), 180);
         assertEquals(MathUtil.normalize(-540, -180, 180), 180);
         assertEquals(MathUtil.normalize(-539, -180, 180), -179);
+        assertEquals(MathUtil.normalize(-1.5, -0.5, 0.5), 0.5);
+        assertEquals(MathUtil.normalize(-42.5, 0, 1), 0.5);
+        assertEquals(MathUtil.normalize(7 * Math.PI/2, -Math.PI, Math.PI), -Math.PI/2);
     }
 }
