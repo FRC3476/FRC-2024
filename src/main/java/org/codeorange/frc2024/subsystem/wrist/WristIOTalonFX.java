@@ -53,7 +53,7 @@ public class WristIOTalonFX implements WristIO {
         slot0.kI = WRIST_I;
         slot0.kD = WRIST_D;
         slot0.kV = 0.5;
-        slot0.kS = 0.8; // Approximately 0.25V to get the mechanism moving
+        slot0.kS = 1; // Approximately 0.25V to get the mechanism moving
 
         CurrentLimitsConfigs currentLimits = configs.CurrentLimits;
         currentLimits.SupplyCurrentLimit = 50;

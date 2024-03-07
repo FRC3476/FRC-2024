@@ -25,11 +25,11 @@ public class FourPiece extends BaseRoutine {
 
     @Override
     protected void routine() throws AutoEndedException {
-        runAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new Shoot(45)));
-        runAction(new ParallelAction(new SeriesAction(new GroundIntake(), new Shoot(29)), new SeriesAction(new Wait(0.25), new DrivePath(driveToFirstNote))));
-        runAction(new ParallelAction(new SeriesAction(new GroundIntake(), new Shoot(29)), new SeriesAction(new DrivePath(driveToSecondNote))));
+        runAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(45)));
+        runAction(new ParallelAction(new SeriesAction(new GroundIntake(), new ShootFromGround(29)), new SeriesAction(new Wait(0.25), new DrivePath(driveToFirstNote))));
+        runAction(new ParallelAction(new SeriesAction(new GroundIntake(), new ShootFromGround(29)), new SeriesAction(new DrivePath(driveToSecondNote))));
         runAction(new ParallelAction(new SeriesAction(new Wait(0.5), new GroundIntake()), new DrivePath(driveToThirdNote)));
-        runAction(new Shoot(29));
+        runAction(new ShootFromGround(29));
         runAction(new Stow());
         runAction(new StopShooter());
     }

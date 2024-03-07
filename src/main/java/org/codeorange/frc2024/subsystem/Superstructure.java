@@ -176,6 +176,10 @@ public class Superstructure extends AbstractSubsystem {
                         superstructure.setGoalState(STOW);
                     }
                 }
+                if(DriverStation.isAutonomous()) {
+                    superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                    shooter.runVelocityAuto(10000.0 / 60);
+                }
                 if(superstructure.goalState != States.SPEAKER) {
                     superstructure.setWantedShooterPosition(0);
                     if(!DriverStation.isAutonomous()) {
@@ -286,7 +290,7 @@ public class Superstructure extends AbstractSubsystem {
             return (MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
                     && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.03)
                     && (MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.015)
-                    || (MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - arm.getPivotDegrees(), wrist.getWristAbsolutePosition(), 0.01) && superstructure.currentState == States.SPEAKER_AUTO)));
+                    || (MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - arm.getPivotDegrees(), wrist.getWristAbsolutePosition(), 0.01) && (superstructure.currentState == States.SPEAKER_AUTO || superstructure.currentState == States.SPEAKER))));
         }
         final double elevatorPos;
         final double armPos;

@@ -30,22 +30,22 @@ public class SevenPcNearSide extends BaseRoutine {
     @Override
     protected void routine() throws AutoEndedException {
         runAction(new ResetOdometry(driveToFirstNote.sample(0, Robot.isRed())));
-        runAction(new Shoot());
+        runAction(new ShootFromGround());
         runAction(new ParallelAction(
                 new DrivePath(driveToFirstNote),
                 new GroundIntake()
         ));
-        runAction(new Shoot());
+        runAction(new ShootFromGround());
         runAction(new ParallelAction(
                 new DrivePath(driveToSecondNote),
                 new GroundIntake()
         ));
-        runAction(new Shoot());
+        runAction(new ShootFromGround());
         runAction(new ParallelAction(
                 new DrivePath(driveToThirdNote),
                 new GroundIntake()
         ));
-        runAction(new Shoot());
+        runAction(new ShootFromGround());
         runAction(new ParallelAction(
                 new DrivePath(driveToCenter),
                 new SeriesAction(
@@ -53,7 +53,7 @@ public class SevenPcNearSide extends BaseRoutine {
                         new GroundIntake()
                 )
         ));
-        runAction(new Shoot());
+        runAction(new ShootFromGround());
         runAction(new ParallelAction(
                 new DrivePath(driveToSecondCenter),
                 new SeriesAction(
@@ -61,7 +61,7 @@ public class SevenPcNearSide extends BaseRoutine {
                         new GroundIntake()
                 )
         ));
-        runAction(new Shoot());
+        runAction(new ShootFromGround());
         runAction(new ParallelAction(
                 new DrivePath(driveToThirdCenter),
                 new SeriesAction(
@@ -69,6 +69,6 @@ public class SevenPcNearSide extends BaseRoutine {
                         new GroundIntake()
                 )
         ));
-        runAction(new Shoot());
+        runAction(new ShootFromGround());
     }
 }

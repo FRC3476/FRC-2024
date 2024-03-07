@@ -73,7 +73,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveMotor.getConfigurator().apply(
                 new TalonFXConfiguration()
                         .withSlot0(new Slot0Configs()
-                                .withKP(0.00055128)
+                                .withKP(0.0055128)
                                 .withKI(0)
                                 .withKD(0)
                                 .withKS(DRIVE_FEEDFORWARD.ks)

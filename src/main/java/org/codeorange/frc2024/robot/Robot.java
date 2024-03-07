@@ -185,6 +185,7 @@ public class Robot extends LoggedRobot {
         autoChooser.addDefaultOption("Do Nothing", 0);
         autoChooser.addOption("Test", 1);
         autoChooser.addOption("Four Piece", 2);
+        autoChooser.addOption("Center Source Side 3 Piece", 3);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 

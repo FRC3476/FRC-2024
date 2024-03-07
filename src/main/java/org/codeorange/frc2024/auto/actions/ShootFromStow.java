@@ -6,18 +6,18 @@ import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.subsystem.intake.Intake;
 import org.codeorange.frc2024.subsystem.shooter.Shooter;
 
-public class Shoot implements BaseAction {
+public class ShootFromStow implements BaseAction {
     private final Superstructure superstructure = Superstructure.getSuperstructure();
     private final Shooter shooter = Robot.getShooter();
     private final Intake intake = Robot.getIntake();
     private final Timer timer = new Timer();
     private final double angle;
 
-    public Shoot(double angle) {
+    public ShootFromStow(double angle) {
         this.angle = angle;
     }
 
-    public Shoot() {
+    public ShootFromStow() {
         this.angle = 54;
     }
 
@@ -25,7 +25,7 @@ public class Shoot implements BaseAction {
     public void start() {
         superstructure.isFlipped = false;
         if(intake.hasNote()) {
-            superstructure.setGoalState(Superstructure.States.SPEAKER_AUTO);
+            superstructure.setGoalState(Superstructure.States.SPEAKER);
         }
         intake.stop();
         superstructure.wantedAngle = angle;
