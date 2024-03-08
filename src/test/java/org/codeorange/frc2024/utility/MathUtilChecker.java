@@ -1,3 +1,5 @@
+package org.codeorange.frc2024.utility;
+
 import org.codeorange.frc2024.utility.MathUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
