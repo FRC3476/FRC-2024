@@ -3,7 +3,6 @@ package org.codeorange.frc2024.subsystem.climber;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -12,14 +11,10 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Servo;
 import org.codeorange.frc2024.robot.Constants;
 
-import static edu.wpi.first.wpilibj.Relay.Value.*;
 import static org.codeorange.frc2024.robot.Constants.*;
-import static org.codeorange.frc2024.robot.Constants.Ports.WRIST_ENCODER;
-import static org.codeorange.frc2024.robot.Constants.Ports.WRIST_MOTOR;
 
 public class ClimberIOTalonFX implements ClimberIO {
     private final StatusSignal<Double> climberPosition;
@@ -29,8 +24,8 @@ public class ClimberIOTalonFX implements ClimberIO {
     private final StatusSignal<Double> climberVoltage;
 
     private final TalonFX motor;
-    private final Servo servo1;
-    private final Servo servo2;
+    private final Servo servoLeft;
+    private final Servo servoRight;
     private final DigitalInput limitSwitch;
     private final StaticBrake staticBrake = new StaticBrake();
 
@@ -38,8 +33,8 @@ public class ClimberIOTalonFX implements ClimberIO {
 
     public ClimberIOTalonFX() {
         motor = new TalonFX(Constants.Ports.CLIMBER);
-        servo1 = new Servo(Constants.Ports.SERVO_1);
-        servo2 = new Servo(Constants.Ports.SERVO_2);
+        servoLeft = new Servo(Constants.Ports.SERVO_1);
+        servoRight = new Servo(Constants.Ports.SERVO_2);
         limitSwitch = new DigitalInput(Ports.CLIMBER_LIMIT_SWITCH);
         //spikeRelay = new Relay(Constants.CLIMBER_PWM_RELAY_CHANNEL);
 
@@ -113,13 +108,13 @@ public class ClimberIOTalonFX implements ClimberIO {
     //}
 
     public void open() {
-        servo1.setPosition(0.5); //to compensate for bad servo programming :) opens left when facing robot-relative
-        servo2.setPosition(0.3); //opens to the right when facing robot-relative
+        servoLeft.setPosition(0.3); //to compensate for bad servo programming :) opens left when facing robot-relative
+        servoRight.setPosition(0.3); //opens to the right when facing robot-relative
     }
 
     public void close() {
-        servo1.setPosition(0.0); //should be about 90 degrees
-        servo2.setPosition(1.0); //should be about 90 degrees
+        servoLeft.setPosition(0.0); //should be about 90 degrees
+        servoRight.setPosition(1.0); //should be about 90 degrees
     }
 
     public void stop() {

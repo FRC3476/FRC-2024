@@ -12,32 +12,25 @@ import org.codeorange.frc2024.subsystem.drive.Drive;
 import org.codeorange.frc2024.utility.ControllerDriveInputs;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.codeorange.frc2024.utility.wpimodified.PIDController;
-import org.littletonrobotics.junction.Logger;
 
 public class DrivePath implements BaseAction {
     private static Drive drive = Robot.getDrive();
     private final ChoreoTrajectory trajectory;
     private final Timer pathTimer = new Timer();
-    private final LiveEditableValue<Double> translationP = new LiveEditableValue<>(8.5, SmartDashboard.getEntry("Translation P"));
-    private final LiveEditableValue<Double> rotationP = new LiveEditableValue<>(4.0, SmartDashboard.getEntry("Rotation P"));
 
     public DrivePath(ChoreoTrajectory trajectory) {
         this.trajectory = Robot.isRed() ? trajectory.flipped() : trajectory;
     }
 
-    private PIDController translationController;
-    private PIDController rotationController;
     private ChoreoControlFunction choreoController;
 
     @Override
     public void start() {
         pathTimer.reset();
         pathTimer.start();
-        drive.realField.getObject("traj").setPoses(trajectory.getInitialPose(), trajectory.getFinalPose());
-        drive.realField.getObject("trajPoses").setPoses(trajectory.getPoses());
 
-        translationController = new PIDController(translationP.get(), 0, 0);
-        rotationController = new PIDController(rotationP.get(), 0, 0.0);
+        PIDController translationController = new PIDController(8.5, 0, 0);
+        PIDController rotationController = new PIDController(4.0, 0, 0.0);
         choreoController = Choreo.choreoSwerveController(translationController, translationController, rotationController);
     }
     @Override

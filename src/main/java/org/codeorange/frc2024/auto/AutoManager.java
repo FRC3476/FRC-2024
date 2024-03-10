@@ -1,7 +1,6 @@
 package org.codeorange.frc2024.auto;
 
 import org.codeorange.frc2024.auto.routines.*;
-import org.littletonrobotics.junction.Logger;
 
 /**
  * @author pretty much 254
@@ -23,10 +22,15 @@ public class AutoManager {
 
     public void loadAuto(int key) {
         switch(key) {
-            case 0 -> selectedRoutine = new DoNothing();
-            case 1 -> selectedRoutine = new TestRoutine();
-            case 2 -> selectedRoutine = new FourPiece();
-            case 3 -> selectedRoutine = new ThreePieceCenterSourceSide();
+            case 0 -> selectedRoutine = new DoNothingCenter();
+            case 1 -> selectedRoutine = new DoNothingAmp();
+            case 2 -> selectedRoutine = new DoNothingSource();
+            case 3 -> selectedRoutine = new TestRoutine();
+            case 4 -> selectedRoutine = new FourPiece();
+            case 5 -> selectedRoutine = new ThreePieceCenterSourceSide();
+            case 6 -> selectedRoutine = new ShootAndLeaveSource();
+            case 7 -> selectedRoutine = new ShootAndLeaveAmp();
+            case 8 -> selectedRoutine = new TwoFarSource();
         }
         System.out.println("Selected routine " + selectedRoutine.getClass().getName());
         thread = new Thread(() -> {

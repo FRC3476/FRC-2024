@@ -142,8 +142,8 @@ public final class Constants {
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.02197265625 + 0.5;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.378662109375 + 0.5;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.949462890625 + 0.5;
-                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.10498046875;
-                ARM_ABSOLUTE_ENCODER_OFFSET = 0.41650390625;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.11181640625;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0.41259765625;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;
@@ -203,8 +203,8 @@ public final class Constants {
     public static final double SS_SOURCEINTAKE_WRIST = 0.008888888888888888888;
     public static final double SS_SOURCEINTAKE_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_AMP_ELEVATOR = isPrototype() ? 21.6 : 20;
-    public static final double SS_AMP_ARM = isPrototype() ? 0.16 : 0.175;
-    public static final double SS_AMP_WRIST = isPrototype() ? -0.24 : -0.275;
+    public static final double SS_AMP_ARM = isPrototype() ? 0.16 : 0.18;
+    public static final double SS_AMP_WRIST = isPrototype() ? -0.24 : -0.24;
     public static final double SS_AMP_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_SPEAKER_ELEVATOR = isPrototype() ? 10 : 6;
     public static final double SS_SPEAKER_ARM = isPrototype() ? 0.125 : 0.125;
@@ -257,7 +257,7 @@ public final class Constants {
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
 
-    public static final double WRIST_P = 200;
+    public static final double WRIST_P = 250;
     public static final double WRIST_I = isPrototype() ? 0 : 0;
     public static final double WRIST_D = isPrototype() ? 0 : 0;
 

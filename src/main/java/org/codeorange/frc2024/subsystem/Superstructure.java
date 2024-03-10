@@ -111,6 +111,8 @@ public class Superstructure extends AbstractSubsystem {
 //                } else
                 if (superstructure.goalState == States.SPEAKER) {
                     superstructure.setCurrentState(INTERMEDIATE);
+                } else if (superstructure.goalState == States.SPEAKER_AUTO) {
+                    superstructure.setCurrentState(SPEAKER_AUTO_MID);
                 } else if(superstructure.goalState != States.GROUND_INTAKE) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
@@ -144,6 +146,14 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 if(superstructure.goalState != States.AMP_UP) {
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
+        SPEAKER_AUTO_MID(SS_GROUNDINTAKE_ELEVATOR, 0.1, SS_GROUNDINTAKE_WRIST) {
+            @Override
+            public void update() {
+                if(isAtWantedState()) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
@@ -268,7 +278,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        TEST_TRAP(20, 0.125, 0.0485) {
+        TEST_TRAP(20, 0.125, 0.06) {
             @Override
             public void update() {
                 if (superstructure.goalState != States.TEST_TRAP) {
@@ -327,8 +337,8 @@ public class Superstructure extends AbstractSubsystem {
     public double wantedPuppeteerWrist = 0;
     public double wantedPuppeteerElevator = 0;
 
-    public final double podium_front = 34;
-    public final double podium_back = 0;
+    public final double podium_front = 32;
+    public final double podium_back = 34;
 
     private States prevState;
 

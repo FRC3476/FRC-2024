@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -182,10 +183,15 @@ public class Robot extends LoggedRobot {
             superstructure = Superstructure.getSuperstructure();
         }
         // Initialize auto chooser
-        autoChooser.addDefaultOption("Do Nothing", 0);
-        autoChooser.addOption("Test", 1);
-        autoChooser.addOption("Four Piece", 2);
-        autoChooser.addOption("Center Source Side 3 Piece", 3);
+        autoChooser.addDefaultOption("Shoot Do Nothing Center", 0);
+        autoChooser.addOption("Shoot Do Nothing Amp", 1);
+        autoChooser.addOption("Shoot Do Nothing Source", 2);
+        autoChooser.addOption("Shoot and Leave Source", 6);
+        autoChooser.addOption("Shoot and Leave Amp", 7);
+        autoChooser.addOption("Test", 3);
+        autoChooser.addOption("Four Piece", 4);
+        autoChooser.addOption("Center Source Side 3 Piece", 5);
+        autoChooser.addOption("Two Piece Far", 8);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 
@@ -228,7 +234,7 @@ public class Robot extends LoggedRobot {
         logitechThing.update();
         buttonPanel.update();
 
-        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 1 || !limelightLEDchooser.get()) {
+        if(DriverStation.isAutonomous() || Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 1 || !limelightLEDchooser.get()) {
             LimelightHelpers.setLEDMode_ForceOff("limelight-front");
             LimelightHelpers.setLEDMode_ForceOff("limelight-back");
         } else {
@@ -250,15 +256,15 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         drive.isOpenLoop = true;
-        LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
-        LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
         AutoManager.getInstance().loadAuto(autoChooser.get());
         AutoManager.getInstance().startAuto();
     }
 
     @Override
     public void autonomousExit() {
+        AutoManager.getInstance().endAuto();
         shooter.stop();
+        superstructure.setGoalState(Superstructure.States.STOW);
     }
 
     /** This function is called periodically during autonomous. */
@@ -269,11 +275,8 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
-        LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
         drive.isOpenLoop = true;
         drive.setBrakeMode(true);
-        AutoManager.getInstance().endAuto();
     }
 
 
@@ -292,7 +295,7 @@ public class Robot extends LoggedRobot {
         }
 
         if(!prevHasNote && intake.hasNote()) {
-            xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0.5);
+            xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0.9);
             rumbleStart = Logger.getRealTimestamp() * 1e-6;
         }
         if(Logger.getRealTimestamp() * 1e-6 - rumbleStart > 0.5) {
@@ -351,7 +354,7 @@ public class Robot extends LoggedRobot {
         if(buttonPanel.getRisingEdge(1, 0.6)) {
             if(superstructure.getCurrentState() == Superstructure.States.SPEAKER) {
                 superstructure.setGoalState(Superstructure.States.SPEAKER_OVER_DEFENSE);
-                superstructure.wantedAngle = 20;
+                superstructure.wantedAngle = 22;
             }
         }
         if(buttonPanel.getFallingEdge(1, -0.6)) {
@@ -387,7 +390,14 @@ public class Robot extends LoggedRobot {
         if(logitechThing.getFallingEdge(9)) {
             shooter.stop();
         }
-        if(buttonPanel.getRisingEdge(10)) {
+        if(xbox.getRisingEdge(XboxButtons.Y)) {
+            superstructure.setGoalState(Superstructure.States.SPEAKER);
+            superstructure.wantedAngle = 52;
+        }
+        if(xbox.getFallingEdge(XboxButtons.Y)) {
+            superstructure.setGoalState(Superstructure.States.STOW);
+        }
+        if(buttonPanel.getRisingEdge(10) && superstructure.getCurrentState() == Superstructure.States.STOW) {
             superstructure.setGoalState(Superstructure.States.HOMING);
             if(!(superstructure.getCurrentState() == Superstructure.States.CLIMBER)) {
                 elevator.home();
@@ -406,22 +416,33 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.PUPPETEERING);
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
+        if(xbox.getRawButton(XboxButtons.RIGHT_CLICK)) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
-        } else if(xbox.getRawButton(XboxButtons.Y)) {
+        } else if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             double targetAngle;
 
             if(intake.hasNote()) {
-                targetAngle = Units.Degrees.of(90).in(Units.Radians);
+                if(isRed()) {
+                    drive.driveTargetPose(new Pose2d(
+                            14.65,
+                            7.8,
+                            Rotation2d.fromDegrees(90)
+                    ));
+                } else {
+                    drive.driveTargetPose(new Pose2d(
+                            1.9,
+                            7.8,
+                            Rotation2d.fromDegrees(90)
+                    ));
+                }
             } else {
                 if(!isRed()) {
                     targetAngle = Units.Degrees.of(-60).in(Units.Radians);
                 } else {
                     targetAngle = Units.Degrees.of(240).in(Units.Radians);
                 }
+                drive.swerveDriveTargetAngle(controllerDriveInputs, targetAngle);
             }
-
-            drive.swerveDriveTargetAngle(controllerDriveInputs, targetAngle);
         } else if(xbox.getRawButton(XboxButtons.X)) {
             var drivePose = drive.getPose();
             double rotationFromStage;
@@ -466,7 +487,7 @@ public class Robot extends LoggedRobot {
                 }
             }
             
-            drive.driveTargetPose(wantedPose);
+            drive.swerveDriveTargetAngle(controllerDriveInputs, wantedPose.getRotation().getRadians());
         } else {
             drive.drive(controllerDriveInputs, true, true);
         }

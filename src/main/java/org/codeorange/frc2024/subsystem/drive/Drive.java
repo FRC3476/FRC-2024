@@ -34,10 +34,13 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
 public class Drive extends AbstractSubsystem {
+    public static final Lock driveLock = new ReentrantLock();
     final GyroIO gyroIO;
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
     private final ModuleIO[] moduleIO;
@@ -161,7 +164,7 @@ public class Drive extends AbstractSubsystem {
     double[] lastModuleVelocities = new double[4];
     double[] lastModuleTimes = new double[4];
 
-    private void setMotorSpeed(int module, double velocity, double acceleration, boolean isOpenLoop) {
+    private synchronized void setMotorSpeed(int module, double velocity, double acceleration, boolean isOpenLoop) {
         if (module < 0 || module > 3) {
             throw new IllegalArgumentException("Module must be between 0 and 3");
         }
@@ -174,25 +177,27 @@ public class Drive extends AbstractSubsystem {
         } else {
             moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
         }
-        Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
+        if(!DriverStation.isAutonomous()) {
+            Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
 
 
-        Logger.recordOutput("Drive/Out Volts " + module, ffv);
-        Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
-        Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
-        Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
-        Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
-                ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
+            Logger.recordOutput("Drive/Out Volts " + module, ffv);
+            Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
+            Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
+            Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
+            Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
+                    ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
 
-        double time = Logger.getRealTimestamp() * 1e-6;
-        double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
+            double time = Logger.getRealTimestamp() * 1e-6;
+            double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
 
-        Logger.recordOutput("Drive/Acceleration" + module, realAccel);
-        Logger.recordOutput("Drive/Expected Accel" + module,
-                (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
+            Logger.recordOutput("Drive/Acceleration" + module, realAccel);
+            Logger.recordOutput("Drive/Expected Accel" + module,
+                    (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
 
-        lastModuleVelocities[module] = getSwerveDriveVelocity(module);
-        lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
+            lastModuleVelocities[module] = getSwerveDriveVelocity(module);
+            lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
+        }
     }
 
     SwerveModuleState[] wantedStates = new SwerveModuleState[4];
@@ -207,15 +212,19 @@ public class Drive extends AbstractSubsystem {
             moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0, isOpenLoop);
 
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", moduleState.omega);
+            if(!DriverStation.isAutonomous()) {
+                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
+                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
+                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
+                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", moduleState.omega);
+            }
 
             realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
         }
-        Logger.recordOutput("Drive/Wanted States", wantedStates);
-        Logger.recordOutput("Drive/Real States", realStates);
+        if(!DriverStation.isAutonomous()) {
+            Logger.recordOutput("Drive/Wanted States", wantedStates);
+            Logger.recordOutput("Drive/Real States", realStates);
+        }
     }
 
     @AutoLogOutput(key = "Drive/Real Chassis Speeds")

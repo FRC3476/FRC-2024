@@ -71,7 +71,7 @@ public class Limelight {
             return;
         }
 
-        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 0.1 && DriverStation.isAutonomous()) {
+        if(DriverStation.isAutonomous()) {
             return;
         }
         limelightField.setRobotPose(measurement.pose);
