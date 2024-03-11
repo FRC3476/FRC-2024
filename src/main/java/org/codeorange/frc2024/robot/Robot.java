@@ -192,6 +192,7 @@ public class Robot extends LoggedRobot {
         autoChooser.addOption("Four Piece", 4);
         autoChooser.addOption("Center Source Side 3 Piece", 5);
         autoChooser.addOption("Two Piece Far", 8);
+        autoChooser.addOption("Cursed path", 9);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 

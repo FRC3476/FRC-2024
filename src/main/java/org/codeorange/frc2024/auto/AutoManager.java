@@ -31,6 +31,7 @@ public class AutoManager {
             case 6 -> selectedRoutine = new ShootAndLeaveSource();
             case 7 -> selectedRoutine = new ShootAndLeaveAmp();
             case 8 -> selectedRoutine = new TwoFarSource();
+            case 9 -> selectedRoutine = new TwoFarSourceSubwooferStart();
         }
         System.out.println("Selected routine " + selectedRoutine.getClass().getName());
         thread = new Thread(() -> {
