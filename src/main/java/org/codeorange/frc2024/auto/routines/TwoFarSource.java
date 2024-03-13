@@ -14,7 +14,7 @@ public class TwoFarSource extends BaseRoutine {
         driveToFirstNote = Choreo.getTrajectory("2_far_source.2");
     }
     @Override
-    protected void routine() throws AutoEndedException {
+    protected void routine() {
         runAction(new ParallelAction(new ResetOdometry(driveToFirstShot.sample(0))));
         runAction(new DrivePath(driveToFirstShot));
         runAction(new ShootFromStow(32));

@@ -28,7 +28,7 @@ public class SevenPcNearSide extends BaseRoutine {
     }
 
     @Override
-    protected void routine() throws AutoEndedException {
+    protected void routine() {
         runAction(new ResetOdometry(driveToFirstNote.sample(0, Robot.isRed())));
         runAction(new ShootFromGround());
         runAction(new ParallelAction(

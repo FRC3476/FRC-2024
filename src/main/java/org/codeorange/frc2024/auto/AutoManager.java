@@ -9,7 +9,6 @@ public class AutoManager {
     private BaseRoutine selectedRoutine;
 
     private static AutoManager instance;
-    private Thread thread;
 
     public static AutoManager getInstance() {
         if(instance == null) {
@@ -34,20 +33,19 @@ public class AutoManager {
             case 9 -> selectedRoutine = new TwoFarSourceSubwooferStart();
         }
         System.out.println("Selected routine " + selectedRoutine.getClass().getName());
-        thread = new Thread(() -> {
-            selectedRoutine.run();
-        });
     }
 
     public void startAuto() {
-        thread.start();
+        selectedRoutine.run();
+    }
+
+    public void updateAuto() {
+        selectedRoutine.update();
     }
 
     public void endAuto() {
         if(selectedRoutine != null) {
             selectedRoutine.stop();
         }
-
-        thread = null;
     }
 }

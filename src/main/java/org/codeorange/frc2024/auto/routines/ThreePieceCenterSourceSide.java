@@ -17,7 +17,7 @@ public class ThreePieceCenterSourceSide extends BaseRoutine {
         driveToThirdNote = Choreo.getTrajectory("3_center_source.3");
     }
     @Override
-    protected void routine() throws AutoEndedException {
+    protected void routine() {
         runAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(45)));
         runAction(new ParallelAction(
                 new SeriesAction(

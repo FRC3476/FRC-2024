@@ -22,7 +22,7 @@ public class TestRoutine extends BaseRoutine {
         drive = Robot.getDrive();
     }
     @Override
-    protected void routine() throws AutoEndedException {
+    protected void routine() {
         runAction(new ResetOdometry(driveToFirstNote.getInitialState()));
         runAction(new SeriesAction(
                 new DrivePath(driveToFirstNote),
