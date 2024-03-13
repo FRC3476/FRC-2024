@@ -1,18 +1,23 @@
 package org.codeorange.frc2024.robot;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.MacAddressUtil;
 import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
+import org.codeorange.frc2024.utility.swerve.SecondOrderModuleState;
 import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3d;
 
 import java.io.File;
+import java.io.ObjectInputStream;
 import java.net.SocketException;
 import java.nio.file.Files;
 
@@ -25,6 +30,7 @@ public final class Constants {
             mac = MacAddressUtil.getMacAddress();
         } catch (SocketException e) {
             System.out.println("Failed to get MAC address");
+            mac = new byte[6];
         }
     }
 
@@ -97,14 +103,20 @@ public final class Constants {
 
         public static final int INTAKE_MOTOR_ID = 31;
         public static final int CLIMBER = 36;
-
+        //next two are rio dio ports
         public static final int INTAKE_BEAM_BREAK = 0;
+        public static final int CLIMBER_LIMIT_SWITCH = 1;
+        //next two are rio pwm ports
+        public static final int SERVO_1 = 0;
+        public static final int SERVO_2 = 1;
     }
 
     public static final double FL_ABSOLUTE_ENCODER_OFFSET;
     public static final double BL_ABSOLUTE_ENCODER_OFFSET;
     public static final double FR_ABSOLUTE_ENCODER_OFFSET;
     public static final double BR_ABSOLUTE_ENCODER_OFFSET;
+    public static final double WRIST_ABSOLUTE_ENCODER_OFFSET;
+    public static final double ARM_ABSOLUTE_ENCODER_OFFSET;
 
     static {
         switch(robotIdentity) {
@@ -113,24 +125,33 @@ public final class Constants {
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.10107421875+0.5;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.33251953125;
                 BR_ABSOLUTE_ENCODER_OFFSET = 0.4794921875;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.389404296875;
+                ARM_ABSOLUTE_ENCODER_OFFSET = -0.36279296875;
             }
             case PRACTICE_BOT -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.130615234375;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.69091796875;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.94091796875;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.8701171875;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.8701171875+0.5;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.94091796875+0.5;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.69091796875+0.5;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.130615234375+0.5;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = 0.336669921875;
+                ARM_ABSOLUTE_ENCODER_OFFSET = -0.284423818125;
+
             }
             case COMPETITION_BOT -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.962158203125;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.38037109375;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.038330078125;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.699462890625;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.669677734375 + 0.5;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.02197265625 + 0.5;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.378662109375 + 0.5;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.949462890625 + 0.5;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.250732421875;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0.41259765625;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;
                 BL_ABSOLUTE_ENCODER_OFFSET = 0;
                 FR_ABSOLUTE_ENCODER_OFFSET = 0;
                 BR_ABSOLUTE_ENCODER_OFFSET = 0;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = 0;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0;
             }
         }
     }
@@ -140,14 +161,18 @@ public final class Constants {
     public static final int CLIMBER_PWM_RELAY_CHANNEL = 1; //TODO: get real channel #
 
     public static final double ELEVATOR_LOWER_LIMIT = 0;
-    public static final double ELEVATOR_UPPER_LIMIT = 20;
+    public static final double ELEVATOR_UPPER_LIMIT = 22;
     public static final double CLIMBER_LOWER_LIMIT_ROTATIONS = 0;
     public static final double CLIMBER_HANG_POSITION = 2;
-    public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 5;//TODO: find this
+    public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 190;//TODO: find this
+    public static final double CLIMBER_HOME_VOLTAGE = -1.0;
+    public static final double CLIMBER_CLIMB_VOLTAGE = -8.0;
+    public static final double CLIMBER_STALLING_CURRENT = 30; //TODO: FIND THIS IG
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
     public static final double ELEVATOR_STALLING_CURRENT = 30;
     public static final double MIN_ELEVATOR_HOME_TIME = 0.2;
+
 
     //positions for the superstructure
     //TODO: find all these for the robots
@@ -156,15 +181,15 @@ public final class Constants {
     public static final double SS_REST_WRIST = 0;
     public static final double SS_REST_CLIMBER = 0;
     public static final double SS_STOW_ELEVATOR = 0;
-    public static final double SS_STOW_ARM = -0.01;
+    public static final double SS_STOW_ARM = -0.01; //used to be -0.01
     public static final double SS_STOW_WRIST = 0;
     public static final double SS_STOW_CLIMBER = 0;
     public static final double SS_GENINTERMEDIATE_ELEVATOR = isPrototype() ? 3.5 : 0;
     public static final double SS_GENINTERMEDIATE_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_GENINTERMEDIATE_WRIST = isPrototype() ? 100 : 0;
     public static final double SS_GENINTERMEDIATE_CLIMBER = isPrototype() ? 100 : 0;
-    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 16;
-    public static final double SS_MIDINTAKE_ARM = isPrototype() ? 0.1 : 0;
+    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 12;
+    public static final double SS_MIDINTAKE_ARM = isPrototype() ? 0.1 : -0.01;
     public static final double SS_MIDINTAKE_WRIST = isPrototype() ? -0.1 : 0;
 
     public static final double SS_MIDINTAKE_CLIMBER = 0;
@@ -178,8 +203,8 @@ public final class Constants {
     public static final double SS_SOURCEINTAKE_WRIST = 0.008888888888888888888;
     public static final double SS_SOURCEINTAKE_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_AMP_ELEVATOR = isPrototype() ? 21.6 : 20;
-    public static final double SS_AMP_ARM = isPrototype() ? 0.16 : 0.175;
-    public static final double SS_AMP_WRIST = isPrototype() ? -0.24 : -0.275;
+    public static final double SS_AMP_ARM = isPrototype() ? 0.16 : 0.18;
+    public static final double SS_AMP_WRIST = isPrototype() ? -0.24 : -0.24;
     public static final double SS_AMP_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_SPEAKER_ELEVATOR = isPrototype() ? 10 : 6;
     public static final double SS_SPEAKER_ARM = isPrototype() ? 0.125 : 0.125;
@@ -197,16 +222,16 @@ public final class Constants {
     public static final double SS_DEPLOYCLIMBER2_ARM = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_CLIMBER = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
-    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 0;
-    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0;
+    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 18;
+    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.205555;
     public static final double SS_CLIMB_WRIST = isPrototype() ? 0 : 0;
-    public static final double SS_CLIMB_CLIMBER = isPrototype() ? CLIMBER_HANG_POSITION : 0;
+    public static final double SS_CLIMB_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_ELEVATOR = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
-    public static final double SWERVE_DRIVE_P = 100;
+    public static final double SWERVE_DRIVE_P = 30;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
@@ -223,16 +248,16 @@ public final class Constants {
     public static final double ELEVATOR_P = 2;
     public static final double ELEVATOR_INCHES_PER_ROTATION = isPrototype() ? 0.25*22*12/60 : (30 * 5 * 8.0 / 72.0 / 25.4); //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
 
-    public static final double CLIMBER_P = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_P = 1.5;
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
     public static final double CLIMBER_D = isPrototype() ? 0 : 0;
 
-    public static final double SHOOTER_P = isPrototype() ? 2 : 10;
+    public static final double SHOOTER_P = 0.00065134;
     public static final double SHOOTER_I = isPrototype() ? 0 : 0;
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
 
-    public static final double WRIST_P = 200;
+    public static final double WRIST_P = 250;
     public static final double WRIST_I = isPrototype() ? 0 : 0;
     public static final double WRIST_D = isPrototype() ? 0 : 0;
 
@@ -250,11 +275,11 @@ public final class Constants {
     public static final boolean USE_CANCODERS = true;
 
     //TODO: figure out how tf these numbers were obtained
-    public static final double SWERVE_WHEEL_RADIUS = 1.9261; // inches, gained from characterization
+    public static final double SWERVE_WHEEL_RADIUS = 1.88955; // inches, gained from characterization
     public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS;
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
-    public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 1 / 12.8;
+    public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 7.0 / 150.0;
     public static final double DRIVE_MOTOR_REDUCTION = 9 / 53.125;
 
     public static final double wheelBaseInches = isPrototype() ? 22.75 : 24.25; // not real number, just example
@@ -331,4 +356,18 @@ public final class Constants {
         }
     }
 
+
+    public static final Translation2d BLUE_STAGE_CENTER =
+            new Translation2d(
+                    4.904,
+                    4.107
+            );
+
+    public static final Translation2d RED_STAGE_CENTER =
+            new Translation2d(
+                    11.678,
+                    4.108
+            );
+
+    public static final double CLIMBER_SWITCH_OFFSET = 2.89 - 0.95 / CLIMBER_P;
 }

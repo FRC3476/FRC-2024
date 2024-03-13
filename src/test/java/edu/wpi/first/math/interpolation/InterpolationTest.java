@@ -1,3 +1,5 @@
+package edu.wpi.first.math.interpolation;
+
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

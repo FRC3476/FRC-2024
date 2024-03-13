@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
@@ -41,6 +42,7 @@ import static org.codeorange.frc2024.robot.Constants.*;
 
 public class Drive extends AbstractSubsystem {
     static final Lock odometryLock = new ReentrantLock();
+
     final GyroIO gyroIO;
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
     private final ModuleIO[] moduleIO;
@@ -56,6 +58,16 @@ public class Drive extends AbstractSubsystem {
                 TURN_D
         );
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
+    }
+
+    private final @NotNull PIDController drivePID;
+
+    {
+        drivePID = new PIDController(
+                3,
+                0,
+                0
+        );
     }
 
     public final Field2d realField = new Field2d();
@@ -81,7 +93,7 @@ public class Drive extends AbstractSubsystem {
             module.setBrakeMode(false);
         }
 
-        poseEstimator = new SwerveDrivePoseEstimator(
+        poseEstimator = new edu.wpi.first.math.estimator.SwerveDrivePoseEstimator(
                 SWERVE_DRIVE_KINEMATICS,
                 gyroInputs.rotation2d,
                 getModulePositions(),
@@ -145,7 +157,7 @@ public class Drive extends AbstractSubsystem {
         SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
             swerveModulePositions[i] = new SwerveModulePosition(
-                    getDrivePosition(i),
+                    -getDrivePosition(i),
                     Rotation2d.fromDegrees(getWheelRotation(i)));
         }
         return swerveModulePositions;
@@ -171,41 +183,44 @@ public class Drive extends AbstractSubsystem {
     double[] lastModuleVelocities = new double[4];
     double[] lastModuleTimes = new double[4];
 
-    private void setMotorSpeed(int module, double velocity, double acceleration, boolean isOpenLoop) {
+    private synchronized void setMotorSpeed(int module, double velocity, double acceleration, boolean isOpenLoop) {
         if (module < 0 || module > 3) {
             throw new IllegalArgumentException("Module must be between 0 and 3");
         }
 
         double ffv = 0;
         if (isOpenLoop) {
-            ffv = DRIVE_FEEDFORWARD.calculate(velocity, acceleration);
-            moduleIO[module].setDriveMotorVoltage(ffv);
+//            ffv = DRIVE_FEEDFORWARD.calculate(velocity, acceleration);
+//            moduleIO[module].setDriveMotorVoltage(ffv);
+            moduleIO[module].setDriveMotorDutyCycle(velocity/DRIVE_HIGH_SPEED_M);
         } else {
             moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
         }
-        Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
+        if(!DriverStation.isAutonomous()) {
+            Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
 
 
-        Logger.recordOutput("Drive/Out Volts " + module, ffv);
-        Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
-        Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
-        Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
-        Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
-                ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
+            Logger.recordOutput("Drive/Out Volts " + module, ffv);
+            Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
+            Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
+            Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
+            Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
+                    ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
 
-        double time = Logger.getRealTimestamp() * 1e-6;
-        double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
+            double time = Logger.getRealTimestamp() * 1e-6;
+            double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
 
-        Logger.recordOutput("Drive/Acceleration" + module, realAccel);
-        Logger.recordOutput("Drive/Expected Accel" + module,
-                (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
+            Logger.recordOutput("Drive/Acceleration" + module, realAccel);
+            Logger.recordOutput("Drive/Expected Accel" + module,
+                    (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
 
-        lastModuleVelocities[module] = getSwerveDriveVelocity(module);
-        lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
+            lastModuleVelocities[module] = getSwerveDriveVelocity(module);
+            lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
+        }
     }
 
     SwerveModuleState[] wantedStates = new SwerveModuleState[4];
-    SwerveModuleState[] realStates = new SwerveModuleState[4];
+    SwerveModuleState[] realStates = new SwerveModuleState[]{new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
 
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean isOpenLoop) {
         for (int i = 0; i < 4; i++) {
@@ -216,16 +231,24 @@ public class Drive extends AbstractSubsystem {
             moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0, isOpenLoop);
 
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", Units.radiansToRotations(moduleState.omega));
+            if(!DriverStation.isAutonomous()) {
+                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
+                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
+                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
+                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", moduleState.omega);
+            }
 
             realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
         }
-        Logger.recordOutput("Drive/Wanted States", wantedStates);
-        Logger.recordOutput("Drive/Real States", realStates);
+        if(!DriverStation.isAutonomous()) {
+            Logger.recordOutput("Drive/Wanted States", wantedStates);
+            Logger.recordOutput("Drive/Real States", realStates);
+        }
+    }
 
+    @AutoLogOutput(key = "Drive/Real Chassis Speeds")
+    public ChassisSpeeds getChassisSpeeds() {
+        return SWERVE_DRIVE_KINEMATICS.toChassisSpeeds(realStates);
     }
 
     public synchronized void drive(@NotNull ControllerDriveInputs inputs, boolean fieldRel, boolean openLoop) {
@@ -243,6 +266,8 @@ public class Drive extends AbstractSubsystem {
                                         inputs.getRotation() * MAX_TELEOP_TURN_SPEED), 0.02
                                 ));
         SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
+
+        realField.getObject("wantedPose").close();
 
         setSwerveModuleStates(states, openLoop);
     }
@@ -304,9 +329,9 @@ public class Drive extends AbstractSubsystem {
     }
 
     public void resetOdometry(Pose2d pose) {
-        resetGyro(pose.getRotation().getDegrees());
+        gyroIO.resetGyroYaw(pose.getRotation().getRotations());
         poseEstimator.resetPosition(
-                gyroInputs.rotation2d,
+                pose.getRotation(),
                 getModulePositions(),
                 pose
         );
@@ -315,6 +340,13 @@ public class Drive extends AbstractSubsystem {
 
     public void resetGyro(double yawPositionRot) {
         gyroIO.resetGyroYaw(yawPositionRot);
+        poseEstimator.resetPosition(
+                gyroInputs.rotation2d,
+                getModulePositions(),
+                new Pose2d(getPose().getX(),
+                        getPose().getY(),
+                        Rotation2d.fromRotations(yawPositionRot))
+        );
     }
 
     @AutoLogOutput(key = "Drive/Estimated Pose")
@@ -326,6 +358,17 @@ public class Drive extends AbstractSubsystem {
         var states = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(ChassisSpeeds.discretize(nextChassisSpeeds, 0.02));
         SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
         setSwerveModuleStates(states, false);
+    }
+
+    public void driveTargetPose(Pose2d target) {
+        var xSpeed = drivePID.calculate(getPose().getX(), target.getX());
+        var ySpeed = drivePID.calculate(getPose().getY(), target.getY());
+        var omega = turnPID.calculate(gyroInputs.yawPositionRad, target.getRotation().getRadians());
+
+        setNextChassisSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed, -ySpeed, -omega, gyroInputs.rotation2d));
+
+        realField.getObject("wantedPose").setPose(target);
+        Logger.recordOutput("Drive/Target Pose", target);
     }
 }
 

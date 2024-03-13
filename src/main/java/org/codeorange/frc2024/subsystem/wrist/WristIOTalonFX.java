@@ -53,14 +53,18 @@ public class WristIOTalonFX implements WristIO {
         slot0.kI = WRIST_I;
         slot0.kD = WRIST_D;
         slot0.kV = 0.5;
-        slot0.kS = 0.5; // Approximately 0.25V to get the mechanism moving
+        slot0.kS = 1; // Approximately 0.25V to get the mechanism moving
+
+        CurrentLimitsConfigs currentLimits = configs.CurrentLimits;
+        currentLimits.SupplyCurrentLimit = 50;
+        currentLimits.SupplyCurrentLimitEnable = true;
 
         wristMotor.getConfigurator().apply(configs);
 
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                        .withMagnetOffset(-0.361328125)));
+                        .withMagnetOffset(WRIST_ABSOLUTE_ENCODER_OFFSET)));
 
         wristAbsolutePosition = absoluteEncoder.getAbsolutePosition();
         wristRelativePosition = wristMotor.getPosition();
@@ -106,5 +110,10 @@ public class WristIOTalonFX implements WristIO {
 
     public void setVoltage(double volts) {
         wristMotor.setControl(new VoltageOut(volts).withOverrideBrakeDurNeutral(true));
+    }
+
+    @Override
+    public void stop() {
+        wristMotor.stopMotor();
     }
 }

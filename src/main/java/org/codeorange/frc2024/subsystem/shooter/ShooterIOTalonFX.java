@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -21,6 +20,7 @@ public class ShooterIOTalonFX implements ShooterIO {
     private final StatusSignal<Double> leaderVoltage;
     private final StatusSignal<Double> leaderAmps;
     private final StatusSignal<Double> leaderTemp;
+    private final StatusSignal<Double> leaderPosition;
 
     private final StatusSignal<Double> followerVelocity;
     private final StatusSignal<Double> followerVoltage;
@@ -32,20 +32,22 @@ public class ShooterIOTalonFX implements ShooterIO {
         follower = new TalonFX(Ports.SHOOTER_FOLLOW);
 
         var config = new TalonFXConfiguration();
-        config.CurrentLimits.StatorCurrentLimit = 30.0;
-        config.CurrentLimits.StatorCurrentLimitEnable = true;
+        config.CurrentLimits.SupplyCurrentLimitEnable = false;
+        config.CurrentLimits.StatorCurrentLimitEnable = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.Slot0.kP = SHOOTER_P;
         config.Slot0.kI = SHOOTER_I;
         config.Slot0.kD = SHOOTER_D;
-        config.Slot0.kS = 1.97;
-        config.Slot0.kA = 0.11758;
+        config.Slot0.kS = 0.52029;
+        config.Slot0.kV = 0.060602;
+        config.Slot0.kA = 0.0057248;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         leader.getConfigurator().apply(config);
         follower.getConfigurator().apply(config);
 
+        leaderPosition = leader.getPosition();
         leaderVelocity = leader.getVelocity();
         leaderVoltage = leader.getMotorVoltage();
         leaderAmps = leader.getSupplyCurrent();
@@ -56,9 +58,7 @@ public class ShooterIOTalonFX implements ShooterIO {
         followerAmps = follower.getSupplyCurrent();
         followerTemp = follower.getDeviceTemp();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(100.0, leaderVelocity);
-        BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0, leaderVoltage);
+        BaseStatusSignal.setUpdateFrequencyForAll(100.0, leaderVelocity, leaderPosition, leaderVoltage);
         BaseStatusSignal.setUpdateFrequencyForAll(2.0, followerVelocity, leaderAmps, leaderTemp, followerVoltage, followerAmps, followerTemp);
         leader.optimizeBusUtilization();
         follower.optimizeBusUtilization();
@@ -89,7 +89,13 @@ public class ShooterIOTalonFX implements ShooterIO {
         leader.setControl(voltageOut.withOutput(voltage));
     }
 
-    VelocityTorqueCurrentFOC velocityVoltage = new VelocityTorqueCurrentFOC(0);
+    TorqueCurrentFOC torqueOut = new TorqueCurrentFOC(0);
+    @Override
+    public void setMotorTorque(double torque) {
+        leader.setControl(torqueOut.withOutput(torque));
+    }
+
+    VelocityVoltage velocityVoltage = new VelocityVoltage(0);
     @Override
     public void setVelocity(double velocity, double ffVolts) {
         leader.setControl(velocityVoltage.withVelocity(velocity));
@@ -97,6 +103,6 @@ public class ShooterIOTalonFX implements ShooterIO {
 
     @Override
     public void stop() {
-        leader.setControl(new NeutralOut());
+        leader.setControl(new CoastOut());
     }
 }

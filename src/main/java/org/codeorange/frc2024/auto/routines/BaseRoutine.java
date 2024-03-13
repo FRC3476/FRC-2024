@@ -5,7 +5,6 @@ import org.codeorange.frc2024.auto.actions.BaseAction;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.drive.Drive;
-import org.littletonrobotics.junction.Logger;
 
 public abstract class BaseRoutine {
     protected boolean isActive = false;

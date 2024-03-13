@@ -40,10 +40,6 @@ public class ModuleIOTalonFX implements ModuleIO {
 
 
     private final CANcoder swerveCancoder;
-    private final ClosedLoopGeneralConfigs wrap = new ClosedLoopGeneralConfigs();
-    {
-        wrap.ContinuousWrap = true;
-    }
 
 
     public ModuleIOTalonFX(int id) {
@@ -87,7 +83,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveMotor.getConfigurator().apply(
                 new TalonFXConfiguration()
                         .withSlot0(new Slot0Configs()
-                                .withKP(0.00055128)
+                                .withKP(0.0055128)
                                 .withKI(0)
                                 .withKD(0)
                                 .withKS(DRIVE_FEEDFORWARD.ks)
@@ -114,6 +110,9 @@ public class ModuleIOTalonFX implements ModuleIO {
                                 .withVoltageOpenLoopRampPeriod(0.1)
                         )
         );
+
+        var wrap = new ClosedLoopGeneralConfigs();
+        wrap.ContinuousWrap = true;
 
         steerMotor.getConfigurator().apply(
                 new TalonFXConfiguration()
