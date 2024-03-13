@@ -176,7 +176,11 @@ public class Superstructure extends AbstractSubsystem {
             //spin drivebase + aim mechanisms
             public void update() {
                 if(arm.getPivotDegrees() >= 0.05) {
-                    superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                    if (superstructure.wantedAngle == SHOOTER_ANGLE_DYNAMIC) {
+                        superstructure.setWantedShooterPosition(superstructure.getLowShooterAngle() / 360);
+                    } else {
+                        superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                    }
                 } else {
                     superstructure.setWantedShooterPosition(0);
                 }
@@ -378,6 +382,8 @@ public class Superstructure extends AbstractSubsystem {
 
     public void setWantedShooterPosition(double wantedPos) {
         if(isFlipped) {
+            // reflect the wanted angle around the y axis, because we need additional
+            // rotation to turn the shooter towards the front of the robot
             wantedPos += 2 * (0.25 - wantedPos);
         }
         wantedShooterPosition = superstructure.currentState == States.SPEAKER || superstructure.currentState == States.SPEAKER_OVER_DEFENSE || superstructure.currentState == States.SPEAKER_AUTO ? wantedPos : 0;
@@ -402,12 +408,17 @@ public class Superstructure extends AbstractSubsystem {
         return superstructure;
     }
 
+    public void setWantedShooterAngle(double shooterAngle) {
+        this.wantedAngle = shooterAngle;
+    }
+
     public double getLowShooterAngle(){
         if (drive.findAngleToSpeaker() > Math.PI / 2) {
+            superstructure.isFlipped = true;
             return (AngleLookupInterpolation.SHOOTER_ANGLE_LOW_FRONT.get(drive.findDistanceToSpeaker()));
         } else {
+            superstructure.isFlipped = false;
             return AngleLookupInterpolation.SHOOTER_ANGLE_LOW_BACK.get(drive.findDistanceToSpeaker());
         }
-
     }
 }
