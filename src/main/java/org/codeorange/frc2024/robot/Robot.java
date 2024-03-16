@@ -285,7 +285,6 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         drive.isOpenLoop = true;
         drive.setBrakeMode(true);
-        AutoManager.getInstance().endAuto();
     }
 
 
@@ -617,7 +616,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void testInit() {
         // drive.setBrakeMode(false);
-        elevator.home();
     }
 
     /** This function is called periodically during test mode. */
