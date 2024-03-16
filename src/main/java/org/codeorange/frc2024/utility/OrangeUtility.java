@@ -196,7 +196,7 @@ public final class OrangeUtility {
     }
 
     /**
-     * Calls input.replaceAll() on everything after the index Precondition: 0 <= index < input.length
+     * Calls input.replaceAll() on everything after the index Precondition: 0 less than index less than input length
      *
      * @param input       the input String
      * @param regex       the regex to be found
@@ -244,9 +244,7 @@ public final class OrangeUtility {
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        } catch (InterruptedException ignored) {}
     }
 
     /**

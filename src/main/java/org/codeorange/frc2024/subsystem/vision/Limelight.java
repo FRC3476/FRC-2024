@@ -1,28 +1,28 @@
 package org.codeorange.frc2024.subsystem.vision;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.codeorange.frc2024.robot.Robot;
+import org.codeorange.frc2024.subsystem.drive.Drive;
 import org.codeorange.frc2024.utility.LimelightHelpers.LimelightResults;
 import org.codeorange.frc2024.utility.LimelightHelpers.LimelightTarget_Fiducial;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.utility.LimelightHelpers;
+import org.codeorange.frc2024.utility.geometry.GeometryUtils;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import static java.lang.Math.tan;
 import static org.codeorange.frc2024.robot.Constants.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 public class Limelight {
-
+    private final Drive drive = Robot.getDrive();
+    public final Matrix<N3, N1> LIMELIGHT_DEFAULT_VISION_DEVIATIONS = VecBuilder.fill(0.1, 0.1, Math.toRadians(45));
     private final String limelightName;
     private final Timer lastUpdateStopwatch = new Timer();
     private double previousHeartbeat = -1.0;
@@ -33,81 +33,64 @@ public class Limelight {
     private double translationStDev;
     private double rotationStDev;
 
-    public final LoggedDashboardChooser<Boolean> visionOnOffChooser = new LoggedDashboardChooser<>("Vision On Off Chooser");
-    public final LoggedDashboardChooser<Boolean> filterBadPoses = new LoggedDashboardChooser<>("Filter Bad Poses");
-
     public Limelight(String name) {
-        this.limelightName = name;
-        visionOnOffChooser.addDefaultOption("on", true);
-        visionOnOffChooser.addOption("off", false);
-        filterBadPoses.addDefaultOption("on", true);
-        filterBadPoses.addOption("off", false);
-        SmartDashboard.putData("Limelight Field", limelightField);
+        limelightName = name;
+
+        SmartDashboard.putData("Limelight Field: " + limelightName, limelightField);
     }
     public void update() {
-        // Code adapted from 1323 Madtown LimelightProcessor class https://github.com/MrThru/2023ChargedUp/
         double timestamp = Logger.getRealTimestamp();
-        // TODO: The "hb" entry is actually not in the NetworkTables documentation; make sure it's okay to use
         double currentHeartbeat = LimelightHelpers.getLimelightNTDouble(limelightName, "hb");
         if (currentHeartbeat != previousHeartbeat) {
             lastUpdateStopwatch.reset();
             limelightConnected = true;
-            SmartDashboard.putBoolean("Limelight Connected", limelightConnected);
-            boolean visionIsEnabled = visionOnOffChooser.get();
-            if (visionIsEnabled) {
-                LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(limelightName);
-                handleFiducialTargets(results, timestamp);
-                //handleRetroTargets(results, timestamp);
-                //handleDetectorTargets(results, timestamp);
+            boolean visionEnabled = Vision.visionChooser.get();
+            if (visionEnabled) {
+                handleFiducialTargets();
             }
-
             previousHeartbeat = currentHeartbeat;
         } else {
             lastUpdateStopwatch.start();
             if (lastUpdateStopwatch.get() > 0.5) {
                 limelightConnected = false;
-                SmartDashboard.putBoolean("Limelight Connected", limelightConnected);
             }
         }
-    }
-    private double getTotalLatencySeconds(LimelightResults results) {
-        return (results.targetingResults.latency_capture + results.targetingResults.latency_pipeline +
-                results.targetingResults.latency_jsonParse) / 1000.0;
+        SmartDashboard.putBoolean(limelightName + " Connected", limelightConnected);
     }
 
-    private void handleFiducialTargets(LimelightResults results, double timestamp) {
-        if (results.targetingResults.targets_Fiducials.length == 0) {
+
+    private void handleFiducialTargets() {
+        LimelightHelpers.PoseEstimate measurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
+
+
+        if(measurement.tagCount == 0) {
             return;
         }
-        if (results.targetingResults.targets_Fiducials.length > 1) {
-            translationStDev = 0.5;
-            rotationStDev = 6;
-            Robot.getDrive().updateVisionStDev(translationStDev, rotationStDev);
-            Robot.getDrive().addVisionMeasurement(results.targetingResults.getBotPose2d_wpiBlue(), timestamp - getTotalLatencySeconds(results));
-        } else if (LimelightHelpers.getTA(limelightName) > 0.5) {
-            translationStDev = 1.0;
-            rotationStDev = 12;
-        } else if (LimelightHelpers.getTA(limelightName) > 0.115) {
-            translationStDev = 2.0;
-            rotationStDev = 24;
+
+        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 1) {
+            return;
+        }
+
+        if(DriverStation.isAutonomous()) {
+            return;
+        }
+        limelightField.setRobotPose(measurement.pose);
+
+        if(measurement.pose.getX() > FIELD_LENGTH_METERS || measurement.pose.getY() > FIELD_WIDTH_METERS) {
+            return;
+        }
+
+        if(Vision.unconditionallyTrustVision.get()) {
+            drive.updateVisionStDev(VecBuilder.fill(0.01, 0.01, 1));
+        } else if ((drive.getPose().getX() > FIELD_LENGTH_METERS || drive.getPose().getY() > FIELD_WIDTH_METERS) || Double.isNaN(drive.getPose().getX()) || Double.isNaN(drive.getPose().getY())) {
+            drive.updateVisionStDev(VecBuilder.fill(0.01, 0.01, 99999));
+        } else if (measurement.tagCount >= 2 && measurement.avgTagArea > 0.1) {
+            drive.updateVisionStDev(VecBuilder.fill(0.3, 0.3, 99999));
+        } else if (measurement.avgTagArea > 0.5 && (drive.getPose().getTranslation().getDistance(measurement.pose.getTranslation()) < 2)) {
+            drive.updateVisionStDev(VecBuilder.fill(1, 1, 99999));
         } else {
             return;
         }
-        Pose2d estimatedRobotPoseMeters = results.targetingResults.getBotPose2d_wpiBlue();
-
-        estimatedBotPose = estimatedRobotPoseMeters;
-
-        if (estimatedRobotPoseMeters.getTranslation().getX() > FIELD_LENGTH_METERS ||
-            (estimatedRobotPoseMeters.getTranslation().getY() > FIELD_WIDTH_METERS)) {
-            return;
-        }
-        if(Robot.getDrive().getPose().getTranslation().getDistance(estimatedRobotPoseMeters.getTranslation()) > 1
-        && filterBadPoses.get()) {
-            return;
-        }
-        Logger.recordOutput("Vision/Estimated Pose", estimatedRobotPoseMeters);
-        limelightField.setRobotPose(estimatedRobotPoseMeters);
-        Robot.getDrive().updateVisionStDev(translationStDev, rotationStDev);
-        Robot.getDrive().addVisionMeasurement(estimatedRobotPoseMeters,  timestamp - getTotalLatencySeconds(results));
+        drive.addVisionMeasurement(measurement.pose, measurement.timestampSeconds);
     }
 }

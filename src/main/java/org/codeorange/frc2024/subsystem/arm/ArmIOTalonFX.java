@@ -1,16 +1,13 @@
 package org.codeorange.frc2024.subsystem.arm;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
@@ -54,9 +51,17 @@ public class ArmIOTalonFX implements ArmIO {
         armFeedBackConfigs.RotorToSensorRatio = ARM_RTS;
 
         var armMotionMagicConfig = talonFXConfigs.MotionMagic;
-        armMotionMagicConfig.MotionMagicCruiseVelocity = 0.4;
-        armMotionMagicConfig.MotionMagicAcceleration = 0.8;     //TODO change motion magic values
-        armMotionMagicConfig.MotionMagicJerk = 4;
+        armMotionMagicConfig.MotionMagicCruiseVelocity = 1;
+        armMotionMagicConfig.MotionMagicAcceleration = 4;     //TODO change motion magic values
+        armMotionMagicConfig.MotionMagicJerk = 20;
+
+        var armCurrentLimitConfigs = talonFXConfigs.CurrentLimits;
+        armCurrentLimitConfigs.SupplyCurrentLimit = 50;
+        armCurrentLimitConfigs.SupplyCurrentLimitEnable = false;
+
+        var voltageOutputConfigs = talonFXConfigs.Voltage;
+        voltageOutputConfigs.PeakForwardVoltage = 16;
+        voltageOutputConfigs.PeakReverseVoltage = -16;
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
         slot0.kP = ARM_P;
@@ -74,7 +79,7 @@ public class ArmIOTalonFX implements ArmIO {
         absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-                        .withMagnetOffset(-0.36279296875)
+                        .withMagnetOffset(ARM_ABSOLUTE_ENCODER_OFFSET)
                         .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
                 )
         );
@@ -118,6 +123,22 @@ public class ArmIOTalonFX implements ArmIO {
         BaseStatusSignal.setUpdateFrequencyForAll(50, leadVelocity, leadAccel, leadVoltage, leadCurrent, leadTemp);
 
         leadTalonFX.optimizeBusUtilization();
+
+        var absPos = absoluteEncoder.getAbsolutePosition().getValue();
+
+        if(absPos < -0.05) {
+            if(absPos > -0.30) {
+                for(var i = 0; i < 10; i++) {
+                    System.out.println("ILLEGAL CANCODER READING, CHECK");
+                }
+                absPos = 0.0;
+            } else {
+                absPos += 1;
+            }
+        }
+
+        absoluteEncoder.setPosition(absPos);
+
         absoluteEncoder.optimizeBusUtilization();
     }
 

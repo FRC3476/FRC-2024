@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.auto.actions;
 
+import edu.wpi.first.wpilibj.Timer;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.subsystem.intake.Intake;
@@ -12,11 +13,21 @@ public class GroundIntake implements BaseAction {
     @Override
     public void start() {
         superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
-        startTime = Logger.getTimestamp() * 1e-6;
+        startTime = Timer.getFPGATimestamp();
+    }
+
+    @Override
+    public void update() {
+        intake.runIntake(0.4);
     }
 
     @Override
     public boolean isFinished() {
-        return intake.hasNote() || (Logger.getTimestamp() * 1e-6 - startTime) > 1.5;
+        return intake.hasNote() || (Timer.getFPGATimestamp() - startTime) > 2.5;
+    }
+
+    @Override
+    public void done() {
+        intake.stop();
     }
 }

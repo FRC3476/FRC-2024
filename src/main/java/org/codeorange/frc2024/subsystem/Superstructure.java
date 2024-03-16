@@ -1,31 +1,22 @@
 package org.codeorange.frc2024.subsystem;
 
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
-import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.subsystem.shooter.Shooter;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.arm.Arm;
 import org.codeorange.frc2024.subsystem.drive.Drive;
 import org.codeorange.frc2024.subsystem.elevator.Elevator;
-import org.codeorange.frc2024.subsystem.shooter.Shooter;
 import org.codeorange.frc2024.subsystem.intake.Intake;
 import org.codeorange.frc2024.subsystem.wrist.Wrist;
 import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
+import org.codeorange.frc2024.subsystem.climber.Climber;
 
 public class Superstructure extends AbstractSubsystem {
     //unfortunately all of these need to be static so that the enum can access them
@@ -36,10 +27,13 @@ public class Superstructure extends AbstractSubsystem {
     private static Elevator elevator;
     private static Drive drive;
     private static Superstructure superstructure = new Superstructure();
-    // private static Climber climber;
+    private static Climber climber;
     //private static Vision vision;
     private States currentState = States.STOW;
+    @AutoLogOutput(key = "Superstructure/Goal State")
     private States goalState = States.STOW;
+    public boolean isFlipped = false;
+    public boolean climberOut = false;
     private final LiveEditableValue<Double> wristAngle = new LiveEditableValue<Double>(0.0, SmartDashboard.getEntry("Wrist Angle"));
     private Superstructure() {
         super();
@@ -49,163 +43,272 @@ public class Superstructure extends AbstractSubsystem {
         drive = Robot.getDrive();
         elevator = Robot.getElevator();
         shooter = Robot.getShooter();
-        // climber = Robot.getClimber();
+        climber = Robot.getClimber();
     }
 
+    public double wantedAngle = 52;
+
     public enum States {
-        REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST, SS_REST_CLIMBER) {
+        REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST) {
             //should make sure all motors are off and not trying to move anywhere
             @Override
             public void update() {
 
             }
         },
-        STOW(SS_STOW_ELEVATOR, SS_STOW_ARM, SS_STOW_WRIST, SS_STOW_CLIMBER) {
+        STOW(SS_STOW_ELEVATOR, SS_STOW_ARM, SS_STOW_WRIST) {
             //should move to most compact/low position for easy driving
             @Override
             public void update() {
                 //code!
-                if(superstructure.goalState == States.SPEAKER) {
-                    superstructure.setCurrentState(SPEAKER);
+                if(superstructure.goalState == SPEAKER_AUTO || superstructure.goalState == States.SPEAKER || superstructure.goalState == States.AMP || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE || superstructure.goalState == States.CLIMBER || superstructure.goalState == States.SPEAKER_OVER_DEFENSE) {
+                    superstructure.setCurrentState(INTERMEDIATE);
+                } else if(superstructure.goalState == States.GROUND_INTAKE) {
+                    superstructure.setCurrentState(MID_INTAKE);
                 } else if(superstructure.goalState != States.STOW){
-                    superstructure.setCurrentState(GENERAL_INTERMEDIATE);
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
-        GENERAL_INTERMEDIATE(SS_GENINTERMEDIATE_ELEVATOR, SS_GENINTERMEDIATE_ARM, SS_GENINTERMEDIATE_WRIST, SS_GENINTERMEDIATE_CLIMBER) {
+        GENERAL_INTERMEDIATE(SS_GENINTERMEDIATE_ELEVATOR, SS_GENINTERMEDIATE_ARM, SS_GENINTERMEDIATE_WRIST) {
             //moves arm up so that the elevator can extend. keeps wrist at safe angle so that it does not go crash :(
             @Override
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
+            }
+        },
+        MID_INTAKE(SS_MIDINTAKE_ELEVATOR, SS_MIDINTAKE_ARM, SS_MIDINTAKE_WRIST) {
+            //arm is up high enough, now move elevator out and wrist down.
+            @Override
+            public void update() {
+                //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
                 if(isAtWantedState()) {
-                    if(superstructure.goalState == States.GROUND_INTAKE){
-                        superstructure.setCurrentState(MID_INTAKE);
+                    if (superstructure.goalState == States.GROUND_INTAKE) {
+                        superstructure.setCurrentState(GROUND_INTAKE);
+                    }
+                    if (superstructure.goalState == States.STOW) {
+                        superstructure.setCurrentState(States.STOW);
+                    }
+                    if (superstructure.goalState == States.SPEAKER) {
+                        superstructure.setCurrentState(INTERMEDIATE);
+                    }
+                    if (superstructure.goalState != States.MID_INTAKE) {
+                        superstructure.setCurrentState(superstructure.goalState);
+                    }
+                }
+            }
+        },
+        GROUND_INTAKE(SS_GROUNDINTAKE_ELEVATOR, SS_STOW_ARM, SS_GROUNDINTAKE_WRIST) {
+            //elevator and wrist are to position, move arm back down
+            @Override
+            public void update() {
+                //code and such
+                if(intake.hasNote() && DriverStation.isTeleop()) {
+                    superstructure.setGoalState(States.STOW);
+                }
+//                if(superstructure.goalState == States.STOW) {
+//                    superstructure.setCurrentState(MID_INTAKE);
+//                } else
+                if (superstructure.goalState == States.SPEAKER) {
+                    superstructure.setCurrentState(INTERMEDIATE);
+                } else if (superstructure.goalState == States.SPEAKER_AUTO) {
+                    superstructure.setCurrentState(SPEAKER_AUTO_MID);
+                } else if(superstructure.goalState != States.GROUND_INTAKE) {
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
+        SOURCE_INTAKE(SS_SOURCEINTAKE_ELEVATOR, SS_SOURCEINTAKE_ARM, SS_SOURCEINTAKE_WRIST) { //TODO
+            @Override
+            public void update() {
+                //code and such
+                if(intake.hasNote()) {
+                    superstructure.setGoalState(States.STOW);
+                }
+                if(superstructure.goalState != States.SOURCE_INTAKE) {
+                        superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
+        AMP(SS_AMP_ELEVATOR, SS_AMP_ARM, SS_AMP_WRIST) {
+            @Override
+            public void update() {
+                if(superstructure.goalState != States.AMP && isAtWantedState()) {
+                    if(superstructure.goalState == States.STOW) {
+                        superstructure.setCurrentState(States.INTERMEDIATE);
                     } else {
                         superstructure.setCurrentState(superstructure.goalState);
                     }
                 }
             }
         },
-        MID_INTAKE(SS_MIDINTAKE_ELEVATOR, SS_MIDINTAKE_ARM, SS_MIDINTAKE_WRIST, SS_MIDINTAKE_CLIMBER) {
-            //arm is up high enough, now move elevator out and wrist down.
+        AMP_UP(13, 0, 0.24) {
             @Override
             public void update() {
-                //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
-                if(isAtWantedState()) {
-                    if(superstructure.goalState == States.GROUND_INTAKE){
-                        superstructure.setCurrentState(GROUND_INTAKE);
-                    }
-                    if(superstructure.goalState == States.STOW) {
-                        superstructure.setCurrentState(GENERAL_INTERMEDIATE);
-                    }
-                }
-            }
-        },
-        GROUND_INTAKE(SS_GROUNDINTAKE_ELEVATOR, SS_GROUNDINTAKE_ARM, SS_GROUNDINTAKE_WRIST, SS_GROUNDINTAKE_CLIMBER) {
-            //elevator and wrist are to position, move arm back down
-            @Override
-            public void update() {
-                //code and such
-                if(isAtWantedState()) {
-                    intake.runIntake();
-                }
-
-                if(superstructure.goalState == States.STOW) {
-                    superstructure.setCurrentState(MID_INTAKE);
-                } else if(superstructure.goalState != States.GROUND_INTAKE) {
+                if(superstructure.goalState != States.AMP_UP) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
-        SOURCE_INTAKE(SS_SOURCEINTAKE_ELEVATOR, SS_SOURCEINTAKE_ARM, SS_SOURCEINTAKE_WRIST, SS_SOURCEINTAKE_CLIMBER) { //TODO
+        SPEAKER_AUTO_MID(SS_GROUNDINTAKE_ELEVATOR, 0.1, SS_GROUNDINTAKE_WRIST) {
             @Override
             public void update() {
-                //code and such
                 if(isAtWantedState()) {
-                    intake.runIntake();
-                }
-            }
-        },
-        AMP(SS_AMP_ELEVATOR, SS_AMP_ARM, SS_AMP_WRIST, SS_AMP_CLIMBER) {
-            @Override
-            public void update() {
-                if(superstructure.goalState == States.GROUND_INTAKE) {
-                    superstructure.setCurrentState(MID_INTAKE);
-                } else if(superstructure.goalState == States.STOW) {
-                    superstructure.setCurrentState(GENERAL_INTERMEDIATE);
-                } else if(superstructure.goalState != States.AMP) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
-
-        SPEAKER(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST, SS_SPEAKER_CLIMBER) {
+        SPEAKER_AUTO(SS_GROUNDINTAKE_ELEVATOR, 0.1, 0) {
+            @Override
+            public void update() {
+                if(DriverStation.isAutonomous()) {
+                    superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                    shooter.runVelocityAuto(10000.0 / 60);
+                }
+                if(superstructure.goalState != SPEAKER_AUTO) {
+                    superstructure.setCurrentState(superstructure.goalState);
+                    superstructure.setWantedShooterPosition(0);
+                }
+            }
+        },
+        SPEAKER(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST) {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
+                if(arm.getPivotDegrees() >= 0.05) {
+                    superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                } else {
+                    superstructure.setWantedShooterPosition(0);
+                }
+                if(DriverStation.isTeleop()) {
+                    var shooting = shooter.runVelocity(10000.0 / 60);
+                    if (!shooting) {
+                        superstructure.setGoalState(STOW);
+                    }
+                }
+                if(DriverStation.isAutonomous()) {
+                    superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                    shooter.runVelocityAuto(10000.0 / 60);
+                }
                 if(superstructure.goalState != States.SPEAKER) {
                     superstructure.setWantedShooterPosition(0);
-                    superstructure.setCurrentState(States.GENERAL_INTERMEDIATE);
+                    if(!DriverStation.isAutonomous()) {
+                        shooter.stop();
+                    }
+                    superstructure.setCurrentState(States.INTERMEDIATE);
                 }
             }
         },
-        TRAP(SS_TRAP_ELEVATOR, SS_TRAP_ARM, SS_TRAP_WRIST, SS_TRAP_CLIMBER) {
+        SPEAKER_OVER_DEFENSE(21, 0.2, 0) {
+            @Override
+            public void update() {
+                superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
+                var shooting = shooter.runVelocity(10000.0 / 60);
+                if(!shooting) {
+                    superstructure.setGoalState(STOW);
+                }
+                if(superstructure.goalState == SPEAKER) {
+                    superstructure.setCurrentState(SPEAKER);
+                } else if(superstructure.goalState != States.SPEAKER_OVER_DEFENSE) {
+                    superstructure.setWantedShooterPosition(0);
+                    shooter.stop();
+                    superstructure.setCurrentState(States.INTERMEDIATE);
+                }
+            }
+        },
+        INTERMEDIATE(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST) {
+            @Override
+            public void update() {
+                if(isAtWantedState()) {
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
+        TRAP(SS_TRAP_ELEVATOR, SS_TRAP_ARM, SS_TRAP_WRIST) {
             @Override
             public void update() {
                 //code!
             }
         },
-        DEPLOY_CLIMBER_1(SS_DEPLOYCLIMBER1_ELEVATOR, SS_DEPLOYCLIMBER1_ARM, SS_DEPLOYCLIMBER1_WRIST, SS_DEPLOYCLIMBER1_CLIMBER) {
+        CLIMBER(SS_CLIMB_ELEVATOR, SS_CLIMB_ARM, SS_CLIMB_WRIST) {
             @Override
-            //should move mechanisms out of the way
             public void update() {
-                //needs to check whether mechanisms are out of the way before proceeding
-                if(true) {
-                    superstructure.setCurrentState(DEPLOY_CLIMBER_2);
+                if(isAtWantedState()) {
+                    climber.openServos();
+                    if(!superstructure.climberOut) {
+                        climber.setMotorPosition(190);
+                    }
+
+                    if(climber.getPositionInRotations() > 184) {
+                        superstructure.climberOut = true;
+                    }
+
+                    if(superstructure.goalState == States.PUPPETEERING) {
+                        superstructure.setCurrentState(States.PUPPETEERING);
+                    }
                 }
             }
         },
-        DEPLOY_CLIMBER_2(SS_DEPLOYCLIMBER2_ELEVATOR, SS_DEPLOYCLIMBER2_ARM, SS_DEPLOYCLIMBER2_WRIST, SS_DEPLOYCLIMBER2_CLIMBER) {
+        HOMING(SS_HOMING_ELEVATOR,SS_HOMING_ARM, SS_HOMING_WRIST) {
             @Override
-            //should extend climb arm to be on the chain
             public void update() {
-                //needs to check whether climb arm is extended + maybe check if it's actually around the chain
-                // climber.disengageRatchet();
+                    if(!elevator.homing) {
+                        superstructure.setCurrentState(States.STOW);
+                        superstructure.setGoalState(States.STOW);
+                    }
             }
         },
-        CLIMB(SS_CLIMB_ELEVATOR, SS_CLIMB_ARM, SS_CLIMB_WRIST, SS_CLIMB_CLIMBER) {
+        SHOOT_OVER_STAGE(15, 0.1666, -0.31) {
             @Override
-            //should pull robot up?? maybe??
             public void update() {
-                // climber.engageRatchet();
+                shooter.runVelocity(8500.0 / 60);
+                if (superstructure.goalState != States.SHOOT_OVER_STAGE) {
+                    shooter.stop();
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
             }
         },
-        HOMING(SS_HOMING_ELEVATOR,SS_HOMING_ARM, SS_HOMING_WRIST, SS_HOMING_CLIMBER) {
+        SHOOT_UNDER_STAGE(20, 0.1666, -0.16) {
             @Override
             public void update() {
-                try {
-                    elevator.home();
-                } finally {
-                    superstructure.setCurrentState(States.STOW);
-                    superstructure.setGoalState(States.STOW);
+                shooter.runVelocity(10000.0 / 60);
+                if (superstructure.goalState != States.SHOOT_UNDER_STAGE) {
+                    shooter.stop();
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
+        TEST_TRAP(20, 0.125, 0.06) {
+            @Override
+            public void update() {
+                if (superstructure.goalState != States.TEST_TRAP) {
+                    shooter.stop();
+                    superstructure.setCurrentState(superstructure.goalState);
+                }
+            }
+        },
+        PUPPETEERING(0, 0, 0) {
+            @Override
+            public void update() {
+                if(superstructure.goalState != States.PUPPETEERING) {
+                    superstructure.setCurrentState(States.INTERMEDIATE);
                 }
             }
         };
+        @AutoLogOutput(key = "Superstructure/Is At Wanted State")
         public boolean isAtWantedState() {
             return (MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
-                    && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.05)
-                    && MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.05));
-                    //&& MathUtil.epsilonEquals(climberPos, climber.getPositionInInches(), 0.05));
+                    && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.03)
+                    && (MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.015)
+                    || (MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - arm.getPivotDegrees(), wrist.getWristAbsolutePosition(), 0.01) && (superstructure.currentState == States.SPEAKER_AUTO || superstructure.currentState == States.SPEAKER))));
         }
         final double elevatorPos;
         final double armPos;
         final double wristPos;
-        final double climberPos;
-        States(double elevatorPos, double armPos, double wristPos, double climberPos) {
+        States(double elevatorPos, double armPos, double wristPos) {
             this.elevatorPos = elevatorPos;
             this.armPos = armPos;
             this.wristPos = wristPos;
-            this.climberPos = climberPos;
         }
 
         double getWristPos() {
@@ -226,20 +329,58 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     private double wantedShooterPosition;
+
+    @AutoLogOutput(key = "Axis Add")
+    public double shotWristdelta;
+
+    public double wantedPuppeteerArm = 0;
+    public double wantedPuppeteerWrist = 0;
+    public double wantedPuppeteerElevator = 0;
+
+    public final double podium_front = 32;
+    public final double podium_back = 34;
+
+    private States prevState;
+
     public void update() {
-        currentState.update();
-        setWantedShooterPosition(wristAngle.get());
-        arm.setPosition(currentState.armPos);
-        if(superstructure.currentState != States.HOMING) {
-            elevator.setPosition(currentState.elevatorPos);
+        if(prevState != currentState && currentState == States.PUPPETEERING) {
+            wantedPuppeteerArm = prevState.armPos;
+            wantedPuppeteerWrist = prevState.wristPos;
+            wantedPuppeteerElevator = prevState.elevatorPos;
         }
-        wrist.setWristPosition(currentState.wristPos + wantedShooterPosition);
-        Logger.recordOutput("Superstructure/Current State", currentState);
-        // climber.setPosition(currentState.climberPos);
+
+        if(currentState == States.PUPPETEERING) {
+            arm.setPosition(wantedPuppeteerArm);
+            wrist.setWristPosition(wantedPuppeteerWrist);
+            elevator.setPosition(wantedPuppeteerElevator);
+        } else if(!DriverStation.isTest()) {
+            currentState.update();
+            arm.setPosition(currentState.armPos);
+            if (superstructure.currentState != States.HOMING) {
+                elevator.setPosition(currentState.elevatorPos);
+            }
+            if (superstructure.currentState != States.SPEAKER && superstructure.currentState != States.SPEAKER_OVER_DEFENSE && superstructure.currentState != States.SPEAKER_AUTO) {
+                wrist.setWristPosition(currentState.wristPos);
+            } else {
+                var wristPos = edu.wpi.first.math.MathUtil.inputModulus(-wantedShooterPosition - arm.getPivotDegrees(), -0.5, 0.5);
+                wrist.setWristPosition(wristPos);
+                wantedAngle += shotWristdelta;
+
+                Logger.recordOutput("Wrist/Wanted Position Ground Relative", -wantedShooterPosition - arm.getPivotDegrees());
+            }
+            Logger.recordOutput("Superstructure/Current State", currentState);
+        } else {
+            arm.stop();
+            elevator.stop();
+        }
+        prevState = currentState;
     }
 
     public void setWantedShooterPosition(double wantedPos) {
-        wantedShooterPosition = superstructure.currentState == States.SPEAKER ? wantedPos : 0;
+        if(isFlipped) {
+            wantedPos += 2 * (0.25 - wantedPos);
+        }
+        wantedShooterPosition = superstructure.currentState == States.SPEAKER || superstructure.currentState == States.SPEAKER_OVER_DEFENSE || superstructure.currentState == States.SPEAKER_AUTO ? wantedPos : 0;
         Logger.recordOutput("Shooter/Wanted Angle", wantedShooterPosition);
     }
 
@@ -252,6 +393,7 @@ public class Superstructure extends AbstractSubsystem {
         this.goalState = goalState;
     }
 
+    @AutoLogOutput(key = "Superstructure/Is At Goal State")
     public boolean isAtGoalState() {
         return currentState == goalState;
     }
@@ -260,82 +402,11 @@ public class Superstructure extends AbstractSubsystem {
         return superstructure;
     }
 
-//    private String path = Filesystem.getDeployDirectory().getPath(); // need to append exact location of CSV file
-//    HashMap<String, ShooterConfiguration> map = new HashMap<String, ShooterConfiguration>();
-//
-//    public void toHashMap() {
-//
-//
-//        String line = "";
-//        String splitBy = ",";
-//        try {
-//            BufferedReader br = new BufferedReader(new FileReader(path));
-//            br.readLine();
-//            while ((line = br.readLine()) != null) {
-//                String[] fields = line.split(splitBy);
-//
-//                String distanceDirectionHeight = fields[0];
-//                String location = fields[1];
-//                double shooterAngle = Double.parseDouble(fields[2]);
-//                double shooterVelocity = Double.parseDouble(fields[3]);
-//
-//                ShooterConfiguration shooterConfiguration = new ShooterConfiguration(location, shooterAngle, shooterVelocity);
-//                map.put(distanceDirectionHeight, shooterConfiguration);
-//
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-
-
-    private String convertToKey(double distance, String direction, String height) {
-        return distance + direction + height;
-
-    }
-
-//    public String getLocationOfRobot(double distance, String direction, String height){
-//        return map.get(convertToKey(distance, direction, height)).getLocation();
-//    }
-//    public double getShooterAngle(double distance, String direction, String height){
-//        return map.get(convertToKey(distance, direction, height)).getShooterVelocity();
-//    }
-//    public double getShooterVelocity(double distance, String direction, String height){
-//        return map.get(convertToKey(distance, direction, height)).getShooterAngle();
-//    }
-
     public double getLowShooterAngle(){
         if (drive.findAngleToSpeaker() > Math.PI / 2) {
-            return (Constants.AngleLookupInterpolation.SHOOTER_ANGLE_LOW_FRONT.get(drive.findDistanceToSpeaker()));
+            return (AngleLookupInterpolation.SHOOTER_ANGLE_LOW_FRONT.get(drive.findDistanceToSpeaker()));
         } else {
-            return Constants.AngleLookupInterpolation.SHOOTER_ANGLE_LOW_BACK.get(drive.findDistanceToSpeaker());
-        }
-
-    }
-
-
-    static class ShooterConfiguration {
-        private String location;
-        private double shooterAngle;
-        private double shooterVelocity;
-
-        public ShooterConfiguration(String location, double shooterAngle, double shooterVelocity) {
-            this.location = location;
-            this.shooterAngle = shooterAngle;
-            this.shooterVelocity = shooterVelocity;
-        }
-
-        public String getLocation() {
-            return location;
-        }
-
-        public double getShooterAngle() {
-            return shooterAngle;
-        }
-
-        public double getShooterVelocity() {
-            return shooterVelocity;
+            return AngleLookupInterpolation.SHOOTER_ANGLE_LOW_BACK.get(drive.findDistanceToSpeaker());
         }
 
     }

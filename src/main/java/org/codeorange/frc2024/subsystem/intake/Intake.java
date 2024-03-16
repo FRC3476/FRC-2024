@@ -2,12 +2,16 @@ package org.codeorange.frc2024.subsystem.intake;
 
 import edu.wpi.first.math.MathUtil;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends AbstractSubsystem {
 
     private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged intakeInputs = new IntakeInputsAutoLogged();
+    private boolean hasNoteDebounced = false;
+    private boolean prevHasNote;
+    private double breakBeamEnabledStartTime;
 
 
     public Intake(IntakeIO intakeIO) {
@@ -19,37 +23,34 @@ public class Intake extends AbstractSubsystem {
     public synchronized void update() {
         intakeIO.updateInputs(intakeInputs);
         Logger.processInputs("Intake", intakeInputs);
+        if(intakeInputs.hasNote && !prevHasNote) {
+            breakBeamEnabledStartTime = Logger.getRealTimestamp() * 1e-6;
+        }
+        hasNoteDebounced = Logger.getRealTimestamp() * 1e-6 > breakBeamEnabledStartTime + 0.2 && intakeInputs.hasNote;
+        prevHasNote = intakeInputs.hasNote;
     }
 
 
-    public void runIntake() {
+    public void runIntake(double dutyCycle) {
         if (!intakeInputs.hasNote) {
-            intakeIO.invertMotor(false);
-            intakeIO.setMotorDutyCycle(0.8);
+            intakeIO.setMotorDutyCycle(dutyCycle);
         } else {
             stop();
         }
     }
     public void runIntakeForShooter() {
         if (intakeInputs.hasNote) {
-            intakeIO.invertMotor(false);
             intakeIO.setMotorDutyCycle(0.8);
         } else {
             stop();
         }
     }
-
-    public void runOuttake() {
-        if (intakeInputs.hasNote) {
-            intakeIO.invertMotor(true);
-            intakeIO.setMotorDutyCycle(0.8);
-        } else {
-            stop();
-        }
+    public void runOuttake(double volts) {
+        intakeIO.setMotorVoltage(volts);
     }
 
-    public void setMotorVoltage(double voltage) {
-        intakeIO.setMotorDutyCycle(MathUtil.clamp(voltage, -6, 6));
+    public void setDutyCycle(double dutyCycle) {
+        intakeIO.setMotorDutyCycle(MathUtil.clamp(dutyCycle, -1, 1));
 
     }
 
@@ -57,7 +58,8 @@ public class Intake extends AbstractSubsystem {
         intakeIO.setMotorDutyCycle(0);
     }
 
+    @AutoLogOutput(key = "Intake/Has Note Debounced")
     public boolean hasNote() {
-        return intakeInputs.hasNote;
+        return hasNoteDebounced;
     }
 }

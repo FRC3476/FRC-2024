@@ -62,4 +62,15 @@ public final class MathUtil {
         }
         return max;
     }
+
+    public static double normalize(double value, final double start, final double end) {
+        double width = end - start;
+        double offset = value - start;
+
+        double normalized = (offset - (Math.floor(offset/width) * width)) + start;
+        if(normalized == start) {
+            normalized = end;
+        }
+        return normalized;
+    }
 }

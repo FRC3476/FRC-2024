@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 /**
- * Utility class for getting the MAC address of the robot radio and determining the robot's identity.
+ * Utility class for getting the MAC address of the RoboRIO and determining the robot's identity.
  *
- * @author 2910 & 1678
+ * @author 2910 and 1678
  */
 public class MacAddressUtil {
     public static final byte[] PROTOTYPE_BOT = new byte[]{
@@ -20,13 +20,13 @@ public class MacAddressUtil {
             (byte) 0x00, (byte) 0x80, (byte) 0x2f, (byte) 0x34, (byte) 0x8f, (byte) 0xb9
     };
     public static final byte[] COMPETITION_BOT = new byte[]{
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+            (byte) 0x00, (byte) 0x80, (byte) 0x2f, (byte) 0x39, (byte) 0x0f, (byte) 0xc1
     };
 
     /**
-     * Gets the MAC address of the robot's radio.
+     * Gets the MAC address of the RoboRIO.
      *
-     * @return the MAC address of the robot's radio
+     * @return the MAC address of the RoboRIO
      * @throws SocketException if no MAC address is found
      */
     public static byte[] getMacAddress() throws SocketException {
@@ -82,8 +82,8 @@ public class MacAddressUtil {
                 return COMPETITION_BOT;
             } else {
                 System.out.println("Unknown MAC Address: " + macToString(mac));
-                System.out.println("Assuming Practice Bot");
-                return PRACTICE_BOT; // assume practice bot for now, change this to comp later
+                System.out.println("Assuming Comp Bot");
+                return COMPETITION_BOT;
             }
         }
     }

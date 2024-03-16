@@ -7,6 +7,7 @@ public interface ModuleIO {
     class ModuleInputs {
         public double driveMotorPosition;
         public double driveMotorVelocity;
+        public double driveMotorAcceleration;
         public double driveMotorVoltage;
         public double driveMotorAmps;
         public double driveMotorTemp;
@@ -18,6 +19,10 @@ public interface ModuleIO {
         public double steerMotorVoltage;
         public double steerMotorAmps;
         public double steerMotorTemp;
+
+        public boolean hardwareFault;
+        public boolean voltageFault;
+        public boolean badMagnetFault;
     }
     default void updateInputs(ModuleInputs inputs) {}
     // set brake mode of all motors
@@ -29,8 +34,12 @@ public interface ModuleIO {
     // sets target voltage of motor
     default void setSteerMotorVoltage(double voltage) {}
     default void setDriveMotorVoltage(double voltage) {}
+    default void setDriveMotorVelocity(double velocity, double accel) {}
     // resets zeroes on absolute encoders
     default void resetAbsoluteZeros() {}
+
+    default void setDriveMotorDutyCycle(double dutyCycle) {}
+
     // sets voltage compensation level
     default void setDriveVoltageCompLevel(double voltage) {}
 }

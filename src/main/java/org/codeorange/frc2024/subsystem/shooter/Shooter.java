@@ -2,13 +2,13 @@ package org.codeorange.frc2024.subsystem.shooter;
 
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
-import org.codeorange.frc2024.utility.MathUtil;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends AbstractSubsystem {
     private final ShooterIO shooterIO;
-    private final ShooterInputsAutoLogged ShooterInputs = new ShooterInputsAutoLogged();
-
+    private final ShooterInputsAutoLogged shooterInputs = new ShooterInputsAutoLogged();
+    private double targetVelocity;
 
     public Shooter(ShooterIO shooterIO) {
         super();
@@ -20,30 +20,54 @@ public class Shooter extends AbstractSubsystem {
 
     @Override
     public synchronized void update() {
-        shooterIO.updateInputs(ShooterInputs);
-        Logger.processInputs("Shooter", ShooterInputs);
+        shooterIO.updateInputs(shooterInputs);
+        Logger.processInputs("Shooter", shooterInputs);
     }
 
-    public void shoot(double velocity) {
-        runVelocity(velocity);
-        if(MathUtil.epsilonEquals(velocity, ShooterInputs.leaderVelocity, 0.05 * velocity)) {
-            Robot.getIntake().runIntakeForShooter();
+    double shotNoteTime;
+    public boolean runVelocity(double velocityRPS) {
+        Logger.recordOutput("Shooter/SetpointRPS", velocityRPS);
+        if (Robot.getIntake().hasNote()) {
+            shooterIO.setVelocity(velocityRPS, 0);
+            targetVelocity = velocityRPS;
+        } else {
+            stop();
         }
+
+        if(shooterInputs.leaderVelocity < 100 && !Robot.getIntake().hasNote()) {
+            return false;
+        }
+        return true;
     }
 
-    public void runVelocity(double velocityRPS) {
-        shooterIO.setVelocity(velocityRPS, 0);
+    public boolean runVelocityAuto(double targetVelocity) {
+        if(Robot.getIntake().hasNote()) {
+            shooterIO.setVelocity(targetVelocity, 0);
+            this.targetVelocity = targetVelocity;
+        } else {
+            shooterIO.setVelocity(targetVelocity*0.75, 0);
+        }
 
-        // Log flywheel setpoint
-        Logger.recordOutput("Flywheel/SetpointRPM", velocityRPS);
+        if(shooterInputs.leaderVelocity < 0.80 * targetVelocity && !Robot.getIntake().hasNote()) {
+            return false;
+        }
+        return true;
     }
 
     public void stop() {
         shooterIO.stop();
     }
 
+    @AutoLogOutput(key = "Shooter/Is At Target Velocity")
+    public boolean isAtTargetVelocity() {
+        return shooterInputs.leaderVelocity > targetVelocity * 0.995;
+    }
 
+    public boolean isAtTargetVelocityTimeout() {
+        return shooterInputs.leaderVelocity > targetVelocity * 0.85;
+    }
     public synchronized void setMotorVoltage(double voltage) {
         shooterIO.setMotorVoltage(voltage);
     }
+    public void setMotorTorque(double torque) {shooterIO.setMotorTorque(torque);}
 }

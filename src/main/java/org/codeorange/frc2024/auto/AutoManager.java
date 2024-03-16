@@ -1,16 +1,20 @@
 package org.codeorange.frc2024.auto;
 
-import org.codeorange.frc2024.auto.routines.BaseRoutine;
-import org.codeorange.frc2024.auto.routines.DoNothing;
-import org.codeorange.frc2024.auto.routines.TestRoutine;
+import org.codeorange.frc2024.auto.routines.*;
 
+/**
+ * @author pretty much 254
+ */
 public class AutoManager {
     private BaseRoutine selectedRoutine;
 
-    private static AutoManager instance = new AutoManager();
+    private static AutoManager instance;
     private Thread thread;
 
     public static AutoManager getInstance() {
+        if(instance == null) {
+            instance = new AutoManager();
+        }
         return instance;
     }
 
@@ -18,11 +22,21 @@ public class AutoManager {
 
     public void loadAuto(int key) {
         switch(key) {
-            case 0 -> selectedRoutine = new DoNothing();
-            case 1 -> selectedRoutine = new TestRoutine();
+            case 0 -> selectedRoutine = new DoNothingCenter();
+            case 1 -> selectedRoutine = new DoNothingAmp();
+            case 2 -> selectedRoutine = new DoNothingSource();
+            case 3 -> selectedRoutine = new TestRoutine();
+            case 4 -> selectedRoutine = new FourPiece();
+            case 5 -> selectedRoutine = new ThreePieceCenterSourceSide();
+            case 6 -> selectedRoutine = new ShootAndLeaveSource();
+            case 7 -> selectedRoutine = new ShootAndLeaveAmp();
+            case 8 -> selectedRoutine = new TwoFarSource();
+            case 9 -> selectedRoutine = new TwoFarSourceSubwooferStart();
         }
         System.out.println("Selected routine " + selectedRoutine.getClass().getName());
-        thread = new Thread(() -> selectedRoutine.run());
+        thread = new Thread(() -> {
+            selectedRoutine.run();
+        });
     }
 
     public void startAuto() {
@@ -30,8 +44,10 @@ public class AutoManager {
     }
 
     public void endAuto() {
-        if(thread != null) {
-            thread.stop();
+        if(selectedRoutine != null) {
+            selectedRoutine.stop();
         }
+
+        thread = null;
     }
 }

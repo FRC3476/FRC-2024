@@ -2,6 +2,7 @@ package org.codeorange.frc2024.auto.routines;
 
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
+import org.codeorange.frc2024.auto.AutoEndedException;
 import org.codeorange.frc2024.auto.actions.*;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.Superstructure;
@@ -21,7 +22,7 @@ public class TestRoutine extends BaseRoutine {
         drive = Robot.getDrive();
     }
     @Override
-    protected void routine() {
+    protected void routine() throws AutoEndedException {
         runAction(new ResetOdometry(driveToFirstNote.getInitialState()));
         runAction(new SeriesAction(
                 new DrivePath(driveToFirstNote),

@@ -7,10 +7,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.*;
 import org.codeorange.frc2024.robot.Constants;
 
 import static org.codeorange.frc2024.robot.Constants.*;
@@ -36,9 +33,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()
-                        .withMotionMagicCruiseVelocity(20)
-                        .withMotionMagicAcceleration(40)
-                        .withMotionMagicJerk(200)
+                        .withMotionMagicCruiseVelocity(200)
+                        .withMotionMagicAcceleration(200)
+                        .withMotionMagicJerk(10000)
                 ).withSlot0(new Slot0Configs()
                         .withKP(ELEVATOR_P)
                         .withKS(0.2)
@@ -98,8 +95,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     public void setEncoderToZero() {
-        leadMotor.setPosition(0);
-        followMotor.setPosition(0);
+        leadMotor.setPosition(-0.05);
+        followMotor.setPosition(-0.05);
         //elevatorFollower.getEncoder().setPosition(position);
     }
     
