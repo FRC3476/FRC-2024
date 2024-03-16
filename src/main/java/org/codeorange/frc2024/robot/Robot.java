@@ -280,6 +280,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousPeriodic() {
         AutoManager.getInstance().updateAuto();
+        blinkin.setPattern(BlinkinLEDController.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
     }
 
     /** This function is called once when teleop is enabled. */

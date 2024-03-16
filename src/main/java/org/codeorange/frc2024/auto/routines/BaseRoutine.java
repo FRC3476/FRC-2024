@@ -49,6 +49,7 @@ public abstract class BaseRoutine {
             // get the current first entry in the action list
             currentAction = remainingActions.get(0);
             remainingActions.remove(0);
+            System.out.println("Running action: " + currentAction.getClass().getSimpleName());
             currentAction.start();
         }
         if (currentAction.isFinished()) {
