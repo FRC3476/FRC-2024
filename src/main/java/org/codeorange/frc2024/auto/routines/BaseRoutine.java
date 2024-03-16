@@ -44,6 +44,7 @@ public abstract class BaseRoutine {
             if (remainingActions.isEmpty()) {
                 stop();
                 System.out.println("Auto ended");
+                return;
             }
             // get the current first entry in the action list
             currentAction = remainingActions.get(0);
