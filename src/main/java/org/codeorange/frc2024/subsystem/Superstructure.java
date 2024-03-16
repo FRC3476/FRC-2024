@@ -27,6 +27,7 @@ public class Superstructure extends AbstractSubsystem {
     private static Elevator elevator;
     private static Drive drive;
     private static Superstructure superstructure = new Superstructure();
+    private static BlinkinLEDController blinkin;
     private static Climber climber;
     //private static Vision vision;
     private States currentState = States.STOW;
@@ -44,6 +45,7 @@ public class Superstructure extends AbstractSubsystem {
         elevator = Robot.getElevator();
         shooter = Robot.getShooter();
         climber = Robot.getClimber();
+        blinkin = Robot.getBlinkin();
     }
 
     public double wantedAngle = 52;

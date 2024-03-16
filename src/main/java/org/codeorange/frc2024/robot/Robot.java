@@ -231,6 +231,7 @@ public class Robot extends LoggedRobot {
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
+        blinkin.setPattern(BlinkinLEDController.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
     }
 
     /** This function is called periodically during all modes. */
@@ -285,7 +286,6 @@ public class Robot extends LoggedRobot {
         drive.isOpenLoop = true;
         drive.setBrakeMode(true);
         AutoManager.getInstance().endAuto();
-        blinkin.setPattern(BlinkinLEDController.BlinkinPattern.COLOR_WAVES_RAINBOW_PALETTE);
     }
 
 
@@ -696,5 +696,9 @@ public class Robot extends LoggedRobot {
 
     public static Superstructure getSuperstructure() {
         return superstructure;
+    }
+
+    public static BlinkinLEDController getBlinkin() {
+        return blinkin;
     }
 }
