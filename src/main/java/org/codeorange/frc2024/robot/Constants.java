@@ -105,6 +105,8 @@ public final class Constants {
         public static final int CLIMBER = 36;
         //next two are rio dio ports
         public static final int INTAKE_BEAM_BREAK = 0;
+
+        public static final int BLINKIN_LED_CONTROLLER = 2;
         public static final int CLIMBER_LIMIT_SWITCH = 1;
         //next two are rio pwm ports
         public static final int SERVO_1 = 0;
