@@ -231,7 +231,7 @@ public class Robot extends LoggedRobot {
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
-        blinkin.setPattern(BlinkinLEDController.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
+        blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
     }
 
     /** This function is called periodically during all modes. */
@@ -521,6 +521,13 @@ public class Robot extends LoggedRobot {
         if((logitechThing.getFallingEdge(5) || logitechThing.getFallingEdge(3)) && climber.climbing){
             climber.stop();
         }
+
+        if(intake.hasNote()) {
+            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP1_HEARTBEAT_FAST);
+        } else {
+            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
+        }
+
     }
 
     /** This function is called once when the robot is disabled. */
