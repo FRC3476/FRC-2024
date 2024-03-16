@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
+import org.codeorange.frc2024.subsystem.BlinkinLEDController;
 import org.codeorange.frc2024.subsystem.arm.*;
 import org.codeorange.frc2024.subsystem.climber.*;
 import org.codeorange.frc2024.subsystem.drive.*;
@@ -78,6 +79,7 @@ public class Robot extends LoggedRobot {
     static Intake intake;
     static Climber climber;
     static Vision vision;
+    static BlinkinLEDController blinkin;
 
     static Superstructure superstructure;
 
@@ -159,6 +161,7 @@ public class Robot extends LoggedRobot {
             intake = new Intake(new IntakeIOTalonFX());
             if(isCompetition()) {
                 climber = new Climber(new ClimberIOTalonFX());
+                blinkin = new BlinkinLEDController();
             }
             superstructure = Superstructure.getSuperstructure();
         } else {
@@ -179,6 +182,7 @@ public class Robot extends LoggedRobot {
             intake = new Intake(new IntakeIO() {});
             if(isCompetition()) {
                 climber = new Climber(new ClimberIO() {});
+                blinkin = new BlinkinLEDController();
             }
             superstructure = Superstructure.getSuperstructure();
         }
@@ -211,7 +215,9 @@ public class Robot extends LoggedRobot {
         vision.start();
         if(isCompetition()) {
             assert climber != null;
+            assert blinkin != null;
             climber.start();
+            blinkin.start();
         }
 
 
@@ -225,6 +231,7 @@ public class Robot extends LoggedRobot {
 
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
+        blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
     }
 
     /** This function is called periodically during all modes. */
@@ -471,9 +478,9 @@ public class Robot extends LoggedRobot {
                     selectedSpot = StageSpots.TOWARDS_SOURCE;
                 }
             }
-            
+
             Pose2d wantedPose;
-            
+
             if(superstructure.getCurrentState() == Superstructure.States.CLIMBER) {
                 if(isRed()) {
                     wantedPose = selectedSpot.redClimbPose;
@@ -487,7 +494,7 @@ public class Robot extends LoggedRobot {
                     wantedPose = selectedSpot.blueTrapPose;
                 }
             }
-            
+
             drive.swerveDriveTargetAngle(controllerDriveInputs, wantedPose.getRotation().getRadians());
         } else {
             drive.drive(controllerDriveInputs, true, true);
@@ -513,6 +520,13 @@ public class Robot extends LoggedRobot {
         if((logitechThing.getFallingEdge(5) || logitechThing.getFallingEdge(3)) && climber.climbing){
             climber.stop();
         }
+
+        if(intake.hasNote()) {
+            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP1_HEARTBEAT_FAST);
+        } else {
+            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
+        }
+
     }
 
     /** This function is called once when the robot is disabled. */
@@ -687,5 +701,9 @@ public class Robot extends LoggedRobot {
 
     public static Superstructure getSuperstructure() {
         return superstructure;
+    }
+
+    public static BlinkinLEDController getBlinkin() {
+        return blinkin;
     }
 }
