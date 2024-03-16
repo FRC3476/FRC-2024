@@ -2,7 +2,6 @@ package org.codeorange.frc2024.auto.routines;
 
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
-import org.codeorange.frc2024.auto.AutoEndedException;
 import org.codeorange.frc2024.auto.actions.*;
 import org.codeorange.frc2024.robot.Robot;
 
@@ -24,13 +23,13 @@ public class FourPiece extends BaseRoutine {
     }
 
     @Override
-    protected void routine() {
-        runAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(45)));
-        runAction(new ParallelAction(new SeriesAction(new GroundIntake(), new ShootFromGround(29)), new SeriesAction(new Wait(0.25), new DrivePath(driveToFirstNote))));
-        runAction(new ParallelAction(new SeriesAction(new GroundIntake(), new ShootFromGround(29)), new SeriesAction(new DrivePath(driveToSecondNote))));
-        runAction(new ParallelAction(new SeriesAction(new Wait(0.5), new GroundIntake()), new DrivePath(driveToThirdNote)));
-        runAction(new ShootFromGround(29));
-        runAction(new Stow());
-        runAction(new StopShooter());
+    protected void configureRoutine() {
+        sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(45)));
+        sequenceAction(new ParallelAction(new SeriesAction(new GroundIntake(), new ShootFromGround(29)), new SeriesAction(new Wait(0.25), new DrivePath(driveToFirstNote))));
+        sequenceAction(new ParallelAction(new SeriesAction(new GroundIntake(), new ShootFromGround(29)), new SeriesAction(new DrivePath(driveToSecondNote))));
+        sequenceAction(new ParallelAction(new SeriesAction(new Wait(0.5), new GroundIntake()), new DrivePath(driveToThirdNote)));
+        sequenceAction(new ShootFromGround(29));
+        sequenceAction(new Stow());
+        sequenceAction(new StopShooter());
     }
 }

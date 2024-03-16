@@ -1,6 +1,5 @@
 package org.codeorange.frc2024.auto.routines;
 
-import org.codeorange.frc2024.auto.AutoEndedException;
 import org.codeorange.frc2024.auto.actions.BaseAction;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.drive.Drive;
@@ -13,12 +12,12 @@ public abstract class BaseRoutine {
     private BaseAction currentAction;
     private final ArrayList<BaseAction> remainingActions = new ArrayList<BaseAction>();
 
-    protected abstract void routine();
+    protected abstract void configureRoutine();
 
     public void run() {
         isActive = true;
         System.out.println("initializing auto");
-        routine();
+        configureRoutine();
         System.out.println("initialization complete");
     }
 
@@ -30,7 +29,7 @@ public abstract class BaseRoutine {
         return isActive;
     }
 
-    public void runAction(BaseAction action) {
+    public void sequenceAction(BaseAction action) {
         // doesn't actually run the code; just stores the action objects in order
         remainingActions.add(action);
     }
