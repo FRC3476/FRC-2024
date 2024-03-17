@@ -33,6 +33,8 @@ public class Limelight {
     private double translationStDev;
     private double rotationStDev;
 
+    private boolean enableVisionForAuto = false;
+
     public Limelight(String name) {
         limelightName = name;
 
@@ -67,11 +69,11 @@ public class Limelight {
             return;
         }
 
-        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 1) {
+        if(Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 3) {
             return;
         }
 
-        if(DriverStation.isAutonomous()) {
+        if(DriverStation.isAutonomous() && !enableVisionForAuto) {
             return;
         }
         limelightField.setRobotPose(measurement.pose);
@@ -92,5 +94,9 @@ public class Limelight {
             return;
         }
         drive.addVisionMeasurement(measurement.pose, measurement.timestampSeconds);
+    }
+
+    public void setVisionForAuto(boolean enabled) {
+        this.enableVisionForAuto = enabled;
     }
 }

@@ -8,6 +8,6 @@ public class DoNothingAmp extends BaseRoutine {
     protected void configureRoutine() {
         sequenceAction(new ResetOdometry(Choreo.getTrajectory("cursed_path.1").sample(0)));
         sequenceAction(new ShootFromGround(45));
-        sequenceAction(new ParallelAction(new Stow(), new StopShooter()));
+        sequenceAction(new SeriesAction(new Stow(), new StopShooter()));
     }
 }

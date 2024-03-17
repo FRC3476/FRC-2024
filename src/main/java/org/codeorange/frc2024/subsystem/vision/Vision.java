@@ -32,4 +32,8 @@ public class Vision extends AbstractSubsystem {
         backCamera.update();
     }
 
+    public void setVisionForAuto(boolean enabled) {
+        frontCamera.setVisionForAuto(enabled);
+        backCamera.setVisionForAuto(enabled);
+    }
 }
