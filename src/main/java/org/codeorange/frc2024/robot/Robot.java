@@ -160,9 +160,9 @@ public class Robot extends LoggedRobot {
             shooter = new Shooter(new ShooterIOTalonFX());
             arm = new Arm(new ArmIOTalonFX());
             intake = new Intake(new IntakeIOTalonFX());
+            blinkin = new BlinkinLEDController();
             if(isCompetition()) {
                 climber = new Climber(new ClimberIOTalonFX());
-                blinkin = new BlinkinLEDController();
             }
             superstructure = Superstructure.getSuperstructure();
         } else {
@@ -196,7 +196,7 @@ public class Robot extends LoggedRobot {
         autoChooser.addOption("Test", 3);
         autoChooser.addOption("Four Piece", 4);
         autoChooser.addOption("Center Source Side 3 Piece", 5);
-        autoChooser.addOption("Two Piece Far", 8);
+        autoChooser.addOption("Two Far Source", 8);
         autoChooser.addOption("Cursed path", 9);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
@@ -214,11 +214,10 @@ public class Robot extends LoggedRobot {
         arm.start();
         intake.start();
         vision.start();
+        blinkin.start();
         if(isCompetition()) {
             assert climber != null;
-            assert blinkin != null;
             climber.start();
-            blinkin.start();
         }
 
 
@@ -523,8 +522,7 @@ public class Robot extends LoggedRobot {
         if((logitechThing.getFallingEdge(5) || logitechThing.getFallingEdge(3)) && climber.climbing){
             climber.stop();
         }
-
-        if(intake.hasNote()) {
+        if (intake.hasNote()) {
             blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP1_HEARTBEAT_FAST);
         } else {
             blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
@@ -708,5 +706,8 @@ public class Robot extends LoggedRobot {
 
     public static BlinkinLEDController getBlinkin() {
         return blinkin;
+    }
+    public static void setVisionForAuto(boolean enabled) {
+        vision.setVisionForAuto(enabled);
     }
 }

@@ -8,6 +8,6 @@ public class DoNothingSource extends BaseRoutine {
     protected void configureRoutine() {
         sequenceAction(new ResetOdometry(Choreo.getTrajectory("3_center_source.1").sample(0)));
         sequenceAction(new ShootFromGround(45));
-        sequenceAction(new ParallelAction(new Stow(), new StopShooter()));
+        sequenceAction(new SeriesAction(new Stow(), new StopShooter()));
     }
 }

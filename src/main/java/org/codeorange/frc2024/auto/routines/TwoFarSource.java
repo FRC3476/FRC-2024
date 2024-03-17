@@ -3,6 +3,7 @@ package org.codeorange.frc2024.auto.routines;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import org.codeorange.frc2024.auto.actions.*;
+import org.codeorange.frc2024.robot.Robot;
 
 public class TwoFarSource extends BaseRoutine {
     final ChoreoTrajectory driveToFirstShot;
@@ -11,6 +12,7 @@ public class TwoFarSource extends BaseRoutine {
     public TwoFarSource() {
         driveToFirstShot = Choreo.getTrajectory("2_far_source.1");
         driveToFirstNote = Choreo.getTrajectory("2_far_source.2");
+        Robot.setVisionForAuto(true);
     }
     @Override
     protected void configureRoutine() {
