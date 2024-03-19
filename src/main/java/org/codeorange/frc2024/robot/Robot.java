@@ -289,6 +289,7 @@ public class Robot extends LoggedRobot {
         drive.setBrakeMode(true);
     }
 
+    boolean amp = false;
 
     public static final LiveEditableValue<Double> voltage = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Voltage"));
     public static final LiveEditableValue<Double> elevpos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("elevpos"));
@@ -402,6 +403,7 @@ public class Robot extends LoggedRobot {
         }
         if(xbox.getRisingEdge(XboxButtons.Y)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
+            superstructure.isFlipped = drive.isForward();
             superstructure.wantedAngle = 52;
         }
         if(xbox.getFallingEdge(XboxButtons.Y)) {
@@ -422,16 +424,24 @@ public class Robot extends LoggedRobot {
             superstructure.wantedPuppeteerElevator += (MathUtil.applyDeadband(logitechThing.getRawAxis(2), 0.1))/50;
         }
 
+        if(xbox.getRisingEdge(Controller.XboxAxes.LEFT_TRIGGER, 0.1)) {
+            if(intake.hasNote()) {
+                amp = true;
+            } else {
+                amp = false;
+            }
+        }
+
         if(logitechThing.getRawButton(4) && logitechThing.getRawButton(6)) {
             superstructure.setGoalState(Superstructure.States.PUPPETEERING);
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        if(xbox.getRawButton(XboxButtons.RIGHT_CLICK)) {
+        if(xbox.getRawButton(XboxButtons.Y)) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
         } else if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             double targetAngle;
 
-            if(intake.hasNote()) {
+            if(amp) {
                 if(isRed()) {
                     drive.driveTargetPose(new Pose2d(
                             14.65,

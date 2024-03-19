@@ -237,7 +237,7 @@ public final class Constants {
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
-    public static final double TURN_P = isPrototype() ? 2 : 5;
+    public static final double TURN_P = isPrototype() ? 2 : 8.5;
     public static final double TURN_I = isPrototype() ? 0 : 0;
     public static final double TURN_D = 0.3;
 

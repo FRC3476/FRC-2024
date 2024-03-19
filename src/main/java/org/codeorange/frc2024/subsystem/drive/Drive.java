@@ -71,10 +71,10 @@ public class Drive extends AbstractSubsystem {
     public final Field2d realField = new Field2d();
 
     private final Translation2d redAllianceSpeaker = new Translation2d(
-            FIELD_LENGTH_METERS, 5.525
+            FIELD_LENGTH_METERS - 0.25, 5.525
     );
     private final Translation2d blueAllianceSpeaker = new Translation2d(
-            0, 5.525
+            0.25, 5.525
     );
 
 
@@ -283,24 +283,33 @@ public class Drive extends AbstractSubsystem {
     @AutoLogOutput(key = "Drive/Angle to Speaker")
     public double findAngleToSpeaker() {
         Rotation2d heading = gyroInputs.rotation2d;
-        double deltaX;
-        double deltaY;
         Rotation2d delta;
-
-        if (Robot.isRed()) {
-            deltaY = redAllianceSpeaker.getY() - getPose().getY();
-            deltaX = redAllianceSpeaker.getX() - getPose().getX();
-        } else {
-            deltaY = blueAllianceSpeaker.getY() - getPose().getY();
-            deltaX = blueAllianceSpeaker.getX() - getPose().getX();
-        }
-        Rotation2d target = new Rotation2d(deltaX, deltaY);
+        Rotation2d target = getTranslationToGoal().getAngle();
         delta = target.minus(heading);
 
-        if(Math.abs(delta.getRadians()) > (Math.PI / 2)) {
-            target.rotateBy(Rotation2d.fromRadians(Math.PI));
+        if(delta.getCos() < 0) {
+            return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians();
         }
         return target.getRadians();
+    }
+
+    public Translation2d getTranslationToGoal() {
+        Translation2d botTranslation = getPose().getTranslation();
+
+        if(Robot.isRed()) {
+            return redAllianceSpeaker.minus(botTranslation);
+        } else {
+            return blueAllianceSpeaker.minus(botTranslation);
+        }
+    }
+
+    @AutoLogOutput(key = "Drive/Pointing Forward")
+    public boolean isForward() {
+        Rotation2d heading = gyroInputs.rotation2d;
+        Rotation2d target = getTranslationToGoal().getAngle();
+        Rotation2d delta = target.minus(heading);
+
+        return delta.getCos() > 0;
     }
 
     public void resetOdometry(Pose2d pose) {

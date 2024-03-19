@@ -38,7 +38,7 @@ public class SecondOrderModuleState extends SwerveModuleState {
     public static SecondOrderModuleState optimize(
             SecondOrderModuleState desiredState, Rotation2d currentAngle) {
         var delta = desiredState.angle.minus(currentAngle);
-        if (Math.abs(delta.getDegrees()) > 90.0) {
+        if (delta.getCos() < 0) {
             return new SecondOrderModuleState(
                     -desiredState.speedMetersPerSecond,
                     desiredState.angle.rotateBy(Rotation2d.fromDegrees(180.0)),

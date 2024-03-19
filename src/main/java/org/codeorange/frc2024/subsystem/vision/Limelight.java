@@ -83,7 +83,7 @@ public class Limelight {
         }
 
         if(Vision.unconditionallyTrustVision.get()) {
-            drive.updateVisionStDev(VecBuilder.fill(0.01, 0.01, 1));
+            drive.updateVisionStDev(VecBuilder.fill(1e-12, 1e-12, 1));
         } else if ((drive.getPose().getX() > FIELD_LENGTH_METERS || drive.getPose().getY() > FIELD_WIDTH_METERS) || Double.isNaN(drive.getPose().getX()) || Double.isNaN(drive.getPose().getY())) {
             drive.updateVisionStDev(VecBuilder.fill(0.01, 0.01, 99999));
         } else if (measurement.tagCount >= 2 && measurement.avgTagArea > 0.1) {
