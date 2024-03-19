@@ -1,23 +1,17 @@
 package org.codeorange.frc2024.robot;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.MacAddressUtil;
 import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
-import org.codeorange.frc2024.utility.swerve.SecondOrderModuleState;
 import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.ObjectInputStream;
 import java.net.SocketException;
 import java.nio.file.Files;
 
@@ -322,23 +316,25 @@ public final class Constants {
     public static final double ARM_LENGTH = .308;
 
     public static class AngleLookupInterpolation {
-        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_LOW_FRONT = new InterpolatingDoubleTreeMap();
+        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_BACK_LOW = new InterpolatingDoubleTreeMap();
         static {
-            SHOOTER_ANGLE_LOW_FRONT.put(0.0, 54.0);
-            SHOOTER_ANGLE_LOW_FRONT.put(6.0, 27.0);
-            SHOOTER_ANGLE_LOW_FRONT.put(12.0, 24.0);
-            SHOOTER_ANGLE_LOW_FRONT.put(18.0, 22.0);
-            SHOOTER_ANGLE_LOW_FRONT.put(24.0, 20.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.28, 52.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.50, 45.0);
+            SHOOTER_ANGLE_BACK_LOW.put(2.75, 32.4);
+            SHOOTER_ANGLE_BACK_LOW.put(3.5, 28.0);
+            SHOOTER_ANGLE_BACK_LOW.put(3.9, 22.2);
+            SHOOTER_ANGLE_BACK_LOW.put(10.0, 20.0);
         }
-        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_LOW_BACK = new InterpolatingDoubleTreeMap();
-        static {
-            // Need to find correct values
-            SHOOTER_ANGLE_LOW_BACK.put(0.0, 54.0);
-            SHOOTER_ANGLE_LOW_BACK.put(6.0, 27.0);
-            SHOOTER_ANGLE_LOW_BACK.put(12.0, 24.0);
-            SHOOTER_ANGLE_LOW_BACK.put(18.0, 22.0);
-            SHOOTER_ANGLE_LOW_BACK.put(24.0, 20.0);
-        }
+        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_FRONT_LOW = SHOOTER_ANGLE_BACK_LOW;
+                //new InterpolatingDoubleTreeMap();
+//        static {
+//            // Need to find correct values
+//            SHOOTER_ANGLE_LOW_BACK.put(0.0, 54.0);
+//            SHOOTER_ANGLE_LOW_BACK.put(6.0, 27.0);
+//            SHOOTER_ANGLE_LOW_BACK.put(12.0, 24.0);
+//            SHOOTER_ANGLE_LOW_BACK.put(18.0, 22.0);
+//            SHOOTER_ANGLE_LOW_BACK.put(24.0, 20.0);
+//        }
 
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_HIGH_FRONT = new InterpolatingDoubleTreeMap();
         static {

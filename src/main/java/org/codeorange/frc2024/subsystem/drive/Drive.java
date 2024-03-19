@@ -71,10 +71,10 @@ public class Drive extends AbstractSubsystem {
     public final Field2d realField = new Field2d();
 
     private final Translation2d redAllianceSpeaker = new Translation2d(
-            FIELD_LENGTH_METERS - 0.25, 5.525
+            FIELD_LENGTH_METERS, 5.525
     );
     private final Translation2d blueAllianceSpeaker = new Translation2d(
-            0.25, 5.525
+            0, 5.525
     );
 
 

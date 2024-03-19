@@ -404,7 +404,6 @@ public class Robot extends LoggedRobot {
         if(xbox.getRisingEdge(XboxButtons.Y)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = drive.isForward();
-            superstructure.wantedAngle = 52;
         }
         if(xbox.getFallingEdge(XboxButtons.Y)) {
             superstructure.setGoalState(Superstructure.States.STOW);
@@ -438,6 +437,7 @@ public class Robot extends LoggedRobot {
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawButton(XboxButtons.Y)) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
+            superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
         } else if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             double targetAngle;
 

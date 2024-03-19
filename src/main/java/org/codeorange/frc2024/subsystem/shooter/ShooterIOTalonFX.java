@@ -45,6 +45,7 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         leader.getConfigurator().apply(config);
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         follower.getConfigurator().apply(config);
 
         leaderPosition = leader.getPosition();
@@ -62,8 +63,6 @@ public class ShooterIOTalonFX implements ShooterIO {
         BaseStatusSignal.setUpdateFrequencyForAll(2.0, followerVelocity, leaderAmps, leaderTemp, followerVoltage, followerAmps, followerTemp);
         leader.optimizeBusUtilization();
         follower.optimizeBusUtilization();
-
-        follower.setControl(new Follower(leader.getDeviceID(), true)); //this is prob true
     }
 
     @Override
@@ -87,22 +86,26 @@ public class ShooterIOTalonFX implements ShooterIO {
     @Override
     public void setMotorVoltage(double voltage) {
         leader.setControl(voltageOut.withOutput(voltage));
+        follower.setControl(voltageOut.withOutput(voltage));
     }
 
     TorqueCurrentFOC torqueOut = new TorqueCurrentFOC(0);
     @Override
     public void setMotorTorque(double torque) {
         leader.setControl(torqueOut.withOutput(torque));
+        follower.setControl(torqueOut.withOutput(torque));
     }
 
     VelocityVoltage velocityVoltage = new VelocityVoltage(0);
     @Override
     public void setVelocity(double velocity, double ffVolts) {
         leader.setControl(velocityVoltage.withVelocity(velocity));
+        follower.setControl(velocityVoltage.withVelocity(velocity));
     }
 
     @Override
     public void stop() {
         leader.setControl(new CoastOut());
+        follower.setControl(new CoastOut());
     }
 }

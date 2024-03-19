@@ -368,7 +368,7 @@ public class Superstructure extends AbstractSubsystem {
                 wrist.setWristPosition(wristPos);
                 wantedAngle += shotWristdelta;
 
-                Logger.recordOutput("Wrist/Wanted Position Ground Relative", -wantedShooterPosition - arm.getPivotDegrees());
+                Logger.recordOutput("Wrist/Wanted Position Ground Relative", -wantedShooterPosition);
             }
             Logger.recordOutput("Superstructure/Current State", currentState);
         } else {
@@ -406,9 +406,9 @@ public class Superstructure extends AbstractSubsystem {
 
     public double getLowShooterAngle(){
         if (drive.findAngleToSpeaker() > Math.PI / 2) {
-            return (AngleLookupInterpolation.SHOOTER_ANGLE_LOW_FRONT.get(drive.findDistanceToSpeaker()));
+            return (AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker()));
         } else {
-            return AngleLookupInterpolation.SHOOTER_ANGLE_LOW_BACK.get(drive.findDistanceToSpeaker());
+            return AngleLookupInterpolation.SHOOTER_ANGLE_FRONT_LOW.get(drive.findDistanceToSpeaker());
         }
 
     }
