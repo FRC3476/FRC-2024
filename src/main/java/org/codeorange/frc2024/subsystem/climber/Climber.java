@@ -54,7 +54,7 @@ public class Climber extends AbstractSubsystem {
 
         if(climbing && !hasClimbed) {
             if(!negated) {
-                climberIO.setVoltage(-8);
+                climberIO.setVoltage(-7);
                 if (limitSwitchPushed()) {
                     climbing = false;
                     hasClimbed = true;

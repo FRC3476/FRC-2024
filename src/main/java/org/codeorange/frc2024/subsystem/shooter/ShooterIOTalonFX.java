@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import org.codeorange.frc2024.utility.OrangeUtility;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -44,9 +45,12 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.Slot0.kA = 0.0057248;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
-        leader.getConfigurator().apply(config);
+
+        OrangeUtility.betterCTREConfigApply(leader, config);
+
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        follower.getConfigurator().apply(config);
+
+        OrangeUtility.betterCTREConfigApply(follower, config);
 
         leaderPosition = leader.getPosition();
         leaderVelocity = leader.getVelocity();

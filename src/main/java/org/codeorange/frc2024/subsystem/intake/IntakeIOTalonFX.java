@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import org.codeorange.frc2024.robot.Constants;
+import org.codeorange.frc2024.utility.OrangeUtility;
 
 public class IntakeIOTalonFX implements IntakeIO {
     private final TalonFX motor;
@@ -23,7 +24,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     public IntakeIOTalonFX() {
         motor = new TalonFX(Constants.Ports.INTAKE_MOTOR_ID);
         beamBreak = new DigitalInput(Constants.Ports.INTAKE_BEAM_BREAK);
-        motor.getConfigurator().apply(new TalonFXConfiguration());
+        OrangeUtility.betterCTREConfigApply(motor, new TalonFXConfiguration());
 
         intakeVelocity = motor.getVelocity();
         intakeVoltage = motor.getMotorVoltage();

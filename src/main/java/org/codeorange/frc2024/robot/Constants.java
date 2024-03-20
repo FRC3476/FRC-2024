@@ -218,7 +218,7 @@ public final class Constants {
     public static final double SS_DEPLOYCLIMBER2_ARM = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_CLIMBER = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
-    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 18;
+    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 14;
     public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.225;
     public static final double SS_CLIMB_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_CLIMB_CLIMBER = isPrototype() ? 0 : 0;

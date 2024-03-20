@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.wpilibj.DriverStation;
+import org.codeorange.frc2024.utility.OrangeUtility;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
@@ -73,10 +74,10 @@ public class ArmIOTalonFX implements ArmIO {
         slot0.kG = isPrototype() ? 1 : 0.05;
         slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        leadTalonFX.getConfigurator().apply(talonFXConfigs);
+        OrangeUtility.betterCTREConfigApply(leadTalonFX, talonFXConfigs);
 
 
-        absoluteEncoder.getConfigurator().apply(new CANcoderConfiguration()
+        OrangeUtility.betterCTREConfigApply(absoluteEncoder, new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
                         .withMagnetOffset(ARM_ABSOLUTE_ENCODER_OFFSET)
@@ -96,7 +97,7 @@ public class ArmIOTalonFX implements ArmIO {
         if(!isPrototype()) {
             followTalonFX = new TalonFX(ARM_FOLLOW);
 
-            followTalonFX.getConfigurator().apply(talonFXConfigs);
+            OrangeUtility.betterCTREConfigApply(followTalonFX, talonFXConfigs);
             followTalonFX.setControl(new Follower(leadTalonFX.getDeviceID(), false));
             followTalonFX.setNeutralMode(NeutralModeValue.Brake);
 
