@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.codeorange.frc2024.auto.AutoEndedException;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.BlinkinLEDController;
@@ -28,11 +27,9 @@ import org.codeorange.frc2024.subsystem.wrist.*;
 import org.codeorange.frc2024.subsystem.elevator.*;
 import org.codeorange.frc2024.subsystem.shooter.*;
 import org.codeorange.frc2024.subsystem.Superstructure;
-import org.codeorange.frc2024.utility.Controller;
+import org.codeorange.frc2024.utility.*;
+import org.codeorange.frc2024.utility.Alert.AlertType;
 import org.codeorange.frc2024.utility.Controller.XboxButtons;
-import org.codeorange.frc2024.utility.ControllerDriveInputs;
-import org.codeorange.frc2024.utility.LimelightHelpers;
-import org.codeorange.frc2024.utility.MacAddressUtil;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -59,17 +56,20 @@ import static org.codeorange.frc2024.robot.Constants.*;
  * package after creating this project, you must also update the build.gradle file in the project.
  */
 public class Robot extends LoggedRobot {
-    private static final String defaultAuto = "Default";
-    private static final String customAuto = "My Auto";
-    private String autoSelected;
     private Controller xbox;
-    private Controller logitechThing;
+    private Controller flightStick;
     private Controller buttonPanel;
     public final LoggedDashboardChooser<Integer> autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
 
     private static PowerDistribution powerDistribution;
 
+
+    private final Alert xboxControllerAlert = new Alert("Driver Controller is NOT detected!", AlertType.ERROR);
+    private final Alert flightStickAlert = new Alert("Logitech Flight Stick is NOT detected!", AlertType.ERROR);
+    private final Alert buttonPanelAlert = new Alert("Button Panel is NOT detected!", AlertType.ERROR);
+    private final Alert batteryAlert = new Alert("Battery is low! Please replace before the start of the next comp match.", AlertType.WARNING);
+    private final Alert memoryAlert = new Alert("System Memory is critically low!!", AlertType.WARNING);
 
 
     static Drive drive;
@@ -202,7 +202,7 @@ public class Robot extends LoggedRobot {
         sideChooser.addOption("Red", "red");
 
         xbox = new Controller(0);
-        logitechThing = new Controller(1);
+        flightStick = new Controller(1);
         buttonPanel = new Controller(2);
         vision = new Vision();
 
@@ -233,13 +233,16 @@ public class Robot extends LoggedRobot {
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
         blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
     }
+    double totalMemory;
+    double usedMemory;
+    double freeMemory;
 
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
         AbstractSubsystem.tick();
         xbox.update();
-        logitechThing.update();
+        flightStick.update();
         buttonPanel.update();
 
         if(DriverStation.isAutonomous() || Math.hypot(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond) > 1 || !limelightLEDchooser.get()) {
@@ -249,6 +252,21 @@ public class Robot extends LoggedRobot {
             LimelightHelpers.setLEDMode_PipelineControl("limelight-front");
             LimelightHelpers.setLEDMode_PipelineControl("limelight-back");
         }
+
+        xboxControllerAlert.set(!DriverStation.isJoystickConnected(0));
+        flightStickAlert.set(!DriverStation.isJoystickConnected(1));
+        buttonPanelAlert.set(!DriverStation.isJoystickConnected(2));
+
+        totalMemory = Runtime.getRuntime().totalMemory() / Math.pow(1024.0, 2);
+        freeMemory = Runtime.getRuntime().freeMemory() / Math.pow(1024.0, 2);
+        usedMemory = totalMemory - freeMemory;
+
+        Logger.recordOutput("Memory/Total", totalMemory);
+        Logger.recordOutput("Memory/Free", freeMemory);
+        Logger.recordOutput("Memory/Used", usedMemory);
+
+        // throw alert if less free memory than half a MB
+        memoryAlert.set(freeMemory < 0.5);
     }
 
     private final LoggedDashboardChooser<Boolean> limelightLEDchooser = new LoggedDashboardChooser<>("Limelight LED Mode");
@@ -383,7 +401,7 @@ public class Robot extends LoggedRobot {
             superstructure.wantedAngle = superstructure.isFlipped ? superstructure.podium_back : superstructure.podium_front;
         }
 
-        if(logitechThing.getRisingEdge(2)) {
+        if(flightStick.getRisingEdge(2)) {
             drive.resetOdometry(vision.backCamera.estimatedBotPose);
         }
 
@@ -395,16 +413,16 @@ public class Robot extends LoggedRobot {
             intake.runOuttake(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP ? -12 : -8.5);
         } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
             intake.runIntakeForShooter();
-        } else if(logitechThing.getRawButton(11)) {
+        } else if(flightStick.getRawButton(11)) {
             intake.setDutyCycle(0.075);
-        } else if(logitechThing.getRawButton(9)) {
+        } else if(flightStick.getRawButton(9)) {
             // outtake
             intake.setDutyCycle(-0.075);
             shooter.setMotorTorque(-120);
         } else {
             intake.stop();
         }
-        if(logitechThing.getFallingEdge(9)) {
+        if(flightStick.getFallingEdge(9)) {
             shooter.stop();
         }
         if(xbox.getRisingEdge(XboxButtons.Y)) {
@@ -421,15 +439,15 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        superstructure.shotWristdelta = MathUtil.applyDeadband(-logitechThing.getRawAxis(1), 0.1);
+        superstructure.shotWristdelta = MathUtil.applyDeadband(-flightStick.getRawAxis(1), 0.1);
 
         if(superstructure.getCurrentState() == Superstructure.States.PUPPETEERING) {
-            superstructure.wantedPuppeteerWrist += (MathUtil.applyDeadband(-logitechThing.getRawAxis(1), 0.25))/360;
-            superstructure.wantedPuppeteerArm += (MathUtil.applyDeadband(-logitechThing.getRawAxis(0), 0.25))/360;
-            superstructure.wantedPuppeteerElevator += (MathUtil.applyDeadband(logitechThing.getRawAxis(2), 0.25))/50;
+            superstructure.wantedPuppeteerWrist += (MathUtil.applyDeadband(-flightStick.getRawAxis(1), 0.25))/360;
+            superstructure.wantedPuppeteerArm += (MathUtil.applyDeadband(-flightStick.getRawAxis(0), 0.25))/360;
+            superstructure.wantedPuppeteerElevator += (MathUtil.applyDeadband(flightStick.getRawAxis(2), 0.25))/50;
         }
 
-        if(logitechThing.getRisingEdge(8)) {
+        if(flightStick.getRisingEdge(8)) {
             if(superstructure.getCurrentState() == Superstructure.States.CLIMBER) {
                 superstructure.setGoalState(Superstructure.States.TRAP);
             } else if(superstructure.getCurrentState() == Superstructure.States.TRAP) {
@@ -445,7 +463,7 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        if(logitechThing.getRawButton(4) && logitechThing.getRawButton(6)) {
+        if(flightStick.getRawButton(4) && flightStick.getRawButton(6)) {
             superstructure.setGoalState(Superstructure.States.PUPPETEERING);
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
@@ -529,21 +547,21 @@ public class Robot extends LoggedRobot {
         prevHasNote = intake.hasNote();
 
 
-        if(logitechThing.getRawButton(1) && buttonPanel.getRawButton(9)) {
+        if(flightStick.getRawButton(1) && buttonPanel.getRawButton(9)) {
             //prepares for climb (sss in position, climber arm up, servos opened
             superstructure.setGoalState(Superstructure.States.CLIMBER);
         }
-        if(logitechThing.getRawButton(5)) {
+        if(flightStick.getRawButton(5)) {
             //pulls robot up, closes servos so they don't hit anything
             if(superstructure.climberOut) {
                 climber.climb();
                 climber.closeServos();
             }
-        } else if (logitechThing.getRawButton(3)) {
+        } else if (flightStick.getRawButton(3)) {
             //drops climber
             climber.reverseClimb();
         }
-        if((logitechThing.getFallingEdge(5) || logitechThing.getFallingEdge(3)) && climber.climbing){
+        if((flightStick.getFallingEdge(5) || flightStick.getFallingEdge(3)) && climber.climbing){
             climber.stop();
         }
         if (intake.hasNote() && shooter.isAtTargetVelocity()) {
@@ -637,6 +655,7 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically when disabled. */
     @Override
     public void disabledPeriodic() {
+        batteryAlert.set(powerDistribution.getVoltage() < 12.2);
     }
 
     /** This function is called once when test mode is enabled. */
