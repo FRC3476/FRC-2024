@@ -34,6 +34,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
+import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -98,11 +99,8 @@ public class Drive extends AbstractSubsystem {
                 VecBuilder.fill(0.3, 0.3, 0.3));
     }
 
-    public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp) {
-        poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp);
-    }
-    public void updateVisionStDev(Matrix<N3, N1> stdevs) {
-        poseEstimator.setVisionMeasurementStdDevs(stdevs);
+    public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp, Matrix<N3, N1> visionMeasurementStdevs) {
+        poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp, visionMeasurementStdevs);
     }
 
     double lastTimeStep;
