@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import static org.codeorange.frc2024.robot.Constants.*;
 
 public class Limelight {
-    public static final double defaultXYStdev = 0.3;
+    public static final double defaultXYStdev = 0.5;
     private final Drive drive = Robot.getDrive();
     private final String limelightName;
     private final Timer lastUpdateStopwatch = new Timer();

@@ -335,9 +335,9 @@ public class Superstructure extends AbstractSubsystem {
     @AutoLogOutput(key = "Axis Add")
     public double shotWristdelta;
 
-    public double wantedPuppeteerArm = 0;
-    public double wantedPuppeteerWrist = 0;
-    public double wantedPuppeteerElevator = 0;
+    public double wantedPuppeteerArm = SS_CLIMB_ARM;
+    public double wantedPuppeteerWrist = SS_CLIMB_WRIST;
+    public double wantedPuppeteerElevator = SS_CLIMB_ELEVATOR;
 
     public final double podium_front = 32;
     public final double podium_back = 34;

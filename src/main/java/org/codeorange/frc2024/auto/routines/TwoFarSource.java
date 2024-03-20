@@ -10,8 +10,13 @@ public class TwoFarSource extends BaseRoutine {
     final ChoreoTrajectory driveToFirstNote;
 
     public TwoFarSource() {
-        driveToFirstShot = Choreo.getTrajectory("2_far_source.1");
-        driveToFirstNote = Choreo.getTrajectory("2_far_source.2");
+        if(Robot.isRed()) {
+            driveToFirstShot = Choreo.getTrajectory("2_far_source_red.1");
+            driveToFirstNote = Choreo.getTrajectory("2_far_source_red.2");
+        } else {
+            driveToFirstShot = Choreo.getTrajectory("2_far_source_blue.1");
+            driveToFirstNote = Choreo.getTrajectory("2_far_source_blue.2");
+        }
         Robot.setVisionForAuto(true);
     }
     @Override
@@ -20,7 +25,7 @@ public class TwoFarSource extends BaseRoutine {
         sequenceAction(new DrivePath(driveToFirstShot));
         sequenceAction(new ShootFromStow(32));
         sequenceAction(new Stow());
-        sequenceAction(new ParallelAction(new DrivePath(driveToFirstNote), new SeriesAction(new Wait(1.5), new GroundIntake(), new Stow())));
+        sequenceAction(new ParallelAction(new DrivePath(driveToFirstNote), new SeriesAction(new Wait(0.2), new GroundIntake(), new Stow())));
         sequenceAction(new ShootFromStow(32));
         sequenceAction(new ParallelAction(new StopShooter(), new Stow()));
     }

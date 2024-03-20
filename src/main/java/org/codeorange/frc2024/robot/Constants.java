@@ -189,9 +189,9 @@ public final class Constants {
     public static final double SS_MIDINTAKE_WRIST = isPrototype() ? -0.1 : 0;
 
     public static final double SS_MIDINTAKE_CLIMBER = 0;
-    public static final double SS_GROUNDINTAKE_ELEVATOR = 16;
+    public static final double SS_GROUNDINTAKE_ELEVATOR = 14;
     public static final double SS_GROUNDINTAKE_ARM = isPrototype() ? 0.01 : 0;
-    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.19;
+    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.13;
     public static final double SS_GROUNDINTAKE_CLIMBER = 0;
 
     public static final double SS_SOURCEINTAKE_ELEVATOR = 6;
