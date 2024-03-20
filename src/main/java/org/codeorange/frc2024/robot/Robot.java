@@ -279,7 +279,13 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousPeriodic() {
         AutoManager.getInstance().updateAuto();
-        blinkin.setPattern(BlinkinLEDController.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
+        if (intake.hasNote() && shooter.isAtTargetVelocity()) {
+            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
+        } else if (intake.hasNote()){
+            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP1_HEARTBEAT_FAST);
+        } else {
+            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
+        }
     }
 
     /** This function is called once when teleop is enabled. */
