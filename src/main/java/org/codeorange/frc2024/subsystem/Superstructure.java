@@ -229,7 +229,9 @@ public class Superstructure extends AbstractSubsystem {
         TRAP(SS_TRAP_ELEVATOR, SS_TRAP_ARM, SS_TRAP_WRIST) {
             @Override
             public void update() {
-                //code!
+                if(superstructure.goalState == CLIMBER) {
+                    superstructure.setCurrentState(CLIMBER);
+                }
             }
         },
         CLIMBER(SS_CLIMB_ELEVATOR, SS_CLIMB_ARM, SS_CLIMB_WRIST) {
@@ -243,6 +245,10 @@ public class Superstructure extends AbstractSubsystem {
 
                     if(climber.getPositionInRotations() > 184) {
                         superstructure.climberOut = true;
+                    }
+
+                    if(superstructure.goalState == States.TRAP) {
+                        superstructure.setCurrentState(TRAP);
                     }
 
                     if(superstructure.goalState == States.PUPPETEERING) {

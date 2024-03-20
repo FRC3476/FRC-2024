@@ -424,9 +424,17 @@ public class Robot extends LoggedRobot {
         superstructure.shotWristdelta = MathUtil.applyDeadband(-logitechThing.getRawAxis(1), 0.1);
 
         if(superstructure.getCurrentState() == Superstructure.States.PUPPETEERING) {
-            superstructure.wantedPuppeteerWrist += (MathUtil.applyDeadband(-logitechThing.getRawAxis(1), 0.1))/360;
-            superstructure.wantedPuppeteerArm += (MathUtil.applyDeadband(-logitechThing.getRawAxis(0), 0.1))/360;
-            superstructure.wantedPuppeteerElevator += (MathUtil.applyDeadband(logitechThing.getRawAxis(2), 0.1))/50;
+            superstructure.wantedPuppeteerWrist += (MathUtil.applyDeadband(-logitechThing.getRawAxis(1), 0.25))/360;
+            superstructure.wantedPuppeteerArm += (MathUtil.applyDeadband(-logitechThing.getRawAxis(0), 0.25))/360;
+            superstructure.wantedPuppeteerElevator += (MathUtil.applyDeadband(logitechThing.getRawAxis(2), 0.25))/50;
+        }
+
+        if(logitechThing.getRisingEdge(8)) {
+            if(superstructure.getCurrentState() == Superstructure.States.CLIMBER) {
+                superstructure.setGoalState(Superstructure.States.TRAP);
+            } else if(superstructure.getCurrentState() == Superstructure.States.TRAP) {
+                superstructure.setGoalState(Superstructure.States.CLIMBER);
+            }
         }
 
         if(xbox.getRisingEdge(Controller.XboxAxes.LEFT_TRIGGER, 0.1)) {

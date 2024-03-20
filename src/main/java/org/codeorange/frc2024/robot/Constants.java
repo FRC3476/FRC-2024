@@ -206,9 +206,9 @@ public final class Constants {
     public static final double SS_SPEAKER_ARM = isPrototype() ? 0.125 : 0.125;
     public static final double SS_SPEAKER_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_SPEAKER_CLIMBER = isPrototype() ? 0 : 0;
-    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 0;
-    public static final double SS_TRAP_ARM = isPrototype() ? 0 : 0;
-    public static final double SS_TRAP_WRIST = isPrototype() ? 0 : 0;
+    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 20;
+    public static final double SS_TRAP_ARM = isPrototype() ? 0 : 0.17;
+    public static final double SS_TRAP_WRIST = isPrototype() ? 0 : 0.005;
     public static final double SS_TRAP_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER1_ELEVATOR = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER1_ARM = isPrototype() ? 0 : 0;
@@ -219,7 +219,7 @@ public final class Constants {
     public static final double SS_DEPLOYCLIMBER2_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_CLIMBER = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
     public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 18;
-    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.205555;
+    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.225;
     public static final double SS_CLIMB_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_CLIMB_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_ELEVATOR = isPrototype() ? 0 : 0;
