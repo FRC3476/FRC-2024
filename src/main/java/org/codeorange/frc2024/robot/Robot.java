@@ -462,7 +462,7 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        if(xbox.getRisingEdge(Controller.XboxAxes.LEFT_TRIGGER, 0.1)) {
+        if(xbox.getRisingEdge(XboxButtons.RIGHT_CLICK)) {
             if(intake.hasNote()) {
                 amp = true;
             } else {
@@ -480,7 +480,7 @@ public class Robot extends LoggedRobot {
             if(!isCompetition()) {
                 superstructure.wantedAngle -= 2;
             }
-        } else if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
+        } else if(xbox.getRawButton(XboxButtons.RIGHT_CLICK)) {
             double targetAngle;
 
             if(amp) {

@@ -80,77 +80,45 @@ public class ModuleIOTalonFX implements ModuleIO {
             default -> throw new IllegalArgumentException("Invalid module ID");
         }
 
-        OrangeUtility.betterCTREConfigApply(driveMotor,
-                new TalonFXConfiguration()
-                        .withSlot0(new Slot0Configs()
-                                .withKP(0.0055128)
-                                .withKI(0)
-                                .withKD(0)
-                                .withKS(DRIVE_FEEDFORWARD.ks)
-                                .withKV(DRIVE_FEEDFORWARD.kv)
-                                .withKA(DRIVE_FEEDFORWARD.ka)
-                        )
-                        .withCurrentLimits(new CurrentLimitsConfigs()
-                                .withSupplyCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT)
-                                .withSupplyCurrentLimitEnable(true)
-                                .withStatorCurrentLimitEnable(false)
-                        )
-                        .withTorqueCurrent(new TorqueCurrentConfigs()
-                                .withPeakForwardTorqueCurrent(DRIVE_MOTOR_CURRENT_LIMIT)
-                                .withPeakReverseTorqueCurrent(-DRIVE_MOTOR_CURRENT_LIMIT)
-                                .withTorqueNeutralDeadband(1)
-                        )
-                        .withFeedback(new FeedbackConfigs()
-                                .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                                .withSensorToMechanismRatio(1 / (DRIVE_MOTOR_REDUCTION * SWERVE_METER_PER_ROTATION))
-                                .withRotorToSensorRatio(1)
-                        ).withMotionMagic(new MotionMagicConfigs()
-                                .withMotionMagicAcceleration(100)
-                        ).withOpenLoopRamps(new OpenLoopRampsConfigs()
-                                .withVoltageOpenLoopRampPeriod(0.1)
-                        ).withMotorOutput(new MotorOutputConfigs()
-                                .withNeutralMode(NeutralModeValue.Brake)
-                                .withInverted(InvertedValue.Clockwise_Positive)
-                        )
-        );
+        var driveConfigs = new TalonFXConfiguration();
+        driveConfigs.Slot0.kP = 0.0055128;
+        driveConfigs.Slot0.kI = 0;
+        driveConfigs.Slot0.kD = 0;
+        driveConfigs.Slot0.kS = DRIVE_FEEDFORWARD.ks;
+        driveConfigs.Slot0.kV = DRIVE_FEEDFORWARD.kv;
+        driveConfigs.Slot0.kA = DRIVE_FEEDFORWARD.ka;
+        driveConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
+        driveConfigs.CurrentLimits.SupplyCurrentLimit = DRIVE_MOTOR_CURRENT_LIMIT;
+        driveConfigs.CurrentLimits.StatorCurrentLimitEnable = false;
+        driveConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        driveConfigs.Feedback.SensorToMechanismRatio = 1 / (DRIVE_MOTOR_REDUCTION * SWERVE_METER_PER_ROTATION);
+        driveConfigs.Feedback.RotorToSensorRatio = 1;
+        driveConfigs.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
+        driveConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        driveConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        var wrap = new ClosedLoopGeneralConfigs();
-        wrap.ContinuousWrap = true;
 
-        OrangeUtility.betterCTREConfigApply(steerMotor,
-                new TalonFXConfiguration()
-                        .withSlot0(new Slot0Configs()
-                                .withKP(SWERVE_DRIVE_P)
-                                .withKI(SWERVE_DRIVE_I)
-                                .withKD(SWERVE_DRIVE_D)
-                                .withKS(0)
-                                .withKV(0)
-                                .withKA(0)
-                        )
-                        .withCurrentLimits(new CurrentLimitsConfigs()
-                                .withSupplyCurrentLimit(STEER_MOTOR_CURRENT_LIMIT)
-                                .withSupplyCurrentLimitEnable(true)
-                                .withStatorCurrentLimitEnable(false)
-                        )
-                        .withTorqueCurrent(new TorqueCurrentConfigs()
-                                .withPeakForwardTorqueCurrent(STEER_MOTOR_CURRENT_LIMIT)
-                                .withPeakReverseTorqueCurrent(-STEER_MOTOR_CURRENT_LIMIT)
-                                .withTorqueNeutralDeadband(1)
-                        )
-                        .withFeedback(new FeedbackConfigs()
-                                .withFeedbackRemoteSensorID(this.swerveCancoder.getDeviceID())
-                                .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
-                                .withSensorToMechanismRatio(1)
-                                .withRotorToSensorRatio(1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR)
-                        )
-                        .withMotorOutput(new MotorOutputConfigs()
-                                .withInverted(InvertedValue.Clockwise_Positive)
-                                .withNeutralMode(NeutralModeValue.Coast)
-                        ).withMotionMagic(new MotionMagicConfigs()
-                                .withMotionMagicCruiseVelocity(98)
-                                .withMotionMagicAcceleration(1000)
-                        ).withClosedLoopGeneral(wrap)
-        );
+        OrangeUtility.betterCTREConfigApply(driveMotor, driveConfigs);
+
+        var steerConfigs = new TalonFXConfiguration();
+        steerConfigs.Slot0.kP = SWERVE_DRIVE_P;
+        steerConfigs.Slot0.kI = SWERVE_DRIVE_I;
+        steerConfigs.Slot0.kD = SWERVE_DRIVE_D;
+        steerConfigs.Slot0.kS = 0;
+        steerConfigs.Slot0.kV = 0;
+        steerConfigs.Slot0.kA = 0;
+        steerConfigs.CurrentLimits.SupplyCurrentLimit = STEER_MOTOR_CURRENT_LIMIT;
+        steerConfigs.CurrentLimits.StatorCurrentLimitEnable = false;
+        steerConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
+        steerConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        steerConfigs.Feedback.FeedbackRemoteSensorID = swerveCancoder.getDeviceID();
+        steerConfigs.Feedback.SensorToMechanismRatio = 1;
+        steerConfigs.Feedback.RotorToSensorRatio = 1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR;
+        steerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        steerConfigs.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        steerConfigs.ClosedLoopGeneral.ContinuousWrap = true;
+
+        OrangeUtility.betterCTREConfigApply(steerMotor, steerConfigs);
 
         OrangeUtility.betterCTREConfigApply(swerveCancoder, new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)));
 
