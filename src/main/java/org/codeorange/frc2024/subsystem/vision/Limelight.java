@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.drive.Drive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
 
@@ -29,9 +30,12 @@ public class Limelight {
     public Pose2d estimatedBotPose = new Pose2d();
     private boolean enableVisionForAuto = false;
 
+    private final Alert visionAlert;
+
     public Limelight(String name) {
         limelightName = name;
 
+        visionAlert = new Alert(limelightName + " is not connected! Vision will be hindered!", Alert.AlertType.WARNING);
         SmartDashboard.putData("Limelight Field: " + limelightName, limelightField);
     }
 
@@ -51,6 +55,7 @@ public class Limelight {
                 limelightConnected = false;
             }
         }
+        visionAlert.set(!limelightConnected);
         SmartDashboard.putBoolean(limelightName + " Connected", limelightConnected);
     }
 

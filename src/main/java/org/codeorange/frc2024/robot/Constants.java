@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
+import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.MacAddressUtil;
 import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
 import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
@@ -36,6 +37,9 @@ public final class Constants {
 
     public static boolean isCompetition() {
         return robotIdentity == RobotIdentity.COMPETITION_BOT;
+    }
+    static {
+        new Alert("Robot Identity: " + robotIdentity.toString(), Alert.AlertType.INFO).set(true);
     }
     public static final String LOG_DIRECTORY = "/home/lvuser/logs";
     public static final boolean IS_PRACTICE = Files.exists(new File("/home/lvuser/practice").toPath());

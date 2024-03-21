@@ -10,6 +10,7 @@ import org.codeorange.frc2024.subsystem.drive.Drive;
 import org.codeorange.frc2024.subsystem.elevator.Elevator;
 import org.codeorange.frc2024.subsystem.intake.Intake;
 import org.codeorange.frc2024.subsystem.wrist.Wrist;
+import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -35,7 +36,9 @@ public class Superstructure extends AbstractSubsystem {
     private States goalState = States.STOW;
     public boolean isFlipped = false;
     public boolean climberOut = false;
-    private final LiveEditableValue<Double> wristAngle = new LiveEditableValue<Double>(0.0, SmartDashboard.getEntry("Wrist Angle"));
+
+    private final Alert wristAlert = new Alert("WRIST WILL BREAK ITSELF IF ENABLED!!", Alert.AlertType.ERROR);
+
     private Superstructure() {
         super();
         arm = Robot.getArm();
@@ -351,6 +354,8 @@ public class Superstructure extends AbstractSubsystem {
     private States prevState;
 
     public void update() {
+        wristAlert.set(wrist.getWristAbsolutePosition() < 0 && currentState == States.STOW && DriverStation.isDisabled());
+
         if(prevState != currentState && currentState == States.PUPPETEERING) {
             wantedPuppeteerArm = prevState.armPos;
             wantedPuppeteerWrist = prevState.wristPos;
