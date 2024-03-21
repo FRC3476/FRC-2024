@@ -26,6 +26,7 @@ public class SeriesAction implements BaseAction {
             if(actions.isEmpty()) return;
 
             currentAction = actions.remove(0);
+            System.out.println("Starting series action for: " + currentAction.getClass().getSimpleName());
             currentAction.start();
         }
         currentAction.update();

@@ -26,6 +26,8 @@ public class DrivePath implements BaseAction {
 
     @Override
     public void start() {
+        drive.realField.getObject("traj").setPoses(trajectory.getInitialPose(), trajectory.getFinalPose());
+        drive.realField.getObject("trajPoses").setPoses(trajectory.getPoses());
         pathTimer.reset();
         pathTimer.start();
 

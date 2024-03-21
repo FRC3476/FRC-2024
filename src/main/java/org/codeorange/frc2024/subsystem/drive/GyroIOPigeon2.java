@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import org.codeorange.frc2024.utility.OrangeUtility;
 
 import java.util.Optional;
 import java.util.Queue;
@@ -28,7 +29,7 @@ public class GyroIOPigeon2 implements GyroIO {
     public GyroIOPigeon2() {
         pigeon = new Pigeon2(Ports.PIGEON);
 
-        pigeon.getConfigurator().apply(new Pigeon2Configuration());
+        OrangeUtility.betterCTREConfigApply(pigeon, new Pigeon2Configuration());
         pigeon.reset();
         pigeon.getConfigurator().setYaw(0.0);
 

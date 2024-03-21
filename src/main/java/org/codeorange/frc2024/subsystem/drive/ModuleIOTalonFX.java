@@ -80,7 +80,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             default -> throw new IllegalArgumentException("Invalid module ID");
         }
 
-        driveMotor.getConfigurator().apply(
+        OrangeUtility.betterCTREConfigApply(driveMotor,
                 new TalonFXConfiguration()
                         .withSlot0(new Slot0Configs()
                                 .withKP(0.0055128)
@@ -114,7 +114,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         var wrap = new ClosedLoopGeneralConfigs();
         wrap.ContinuousWrap = true;
 
-        steerMotor.getConfigurator().apply(
+        OrangeUtility.betterCTREConfigApply(steerMotor,
                 new TalonFXConfiguration()
                         .withSlot0(new Slot0Configs()
                                 .withKP(SWERVE_DRIVE_P)
@@ -149,7 +149,7 @@ public class ModuleIOTalonFX implements ModuleIO {
                         ).withClosedLoopGeneral(wrap)
         );
 
-        swerveCancoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)));
+        OrangeUtility.betterCTREConfigApply(swerveCancoder, new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)));
 
         timestampQueue = OdometryThread.getInstance().makeTimestampQueue();
 
@@ -254,16 +254,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     @Override
     public void setDriveMotorDutyCycle(double dutyCycle) {
         driveMotor.setControl(dutyCycleOut.withOutput(dutyCycle));
-    }
-
-    @Override
-    public void setDriveVoltageCompLevel(double voltage) {
-        VoltageConfigs voltageConfigs = new VoltageConfigs();
-        if (voltage > 0) {
-            voltageConfigs.PeakForwardVoltage = voltage;
-            voltageConfigs.PeakReverseVoltage = -voltage;
-        } // else leave at default (16V)
-        driveMotor.getConfigurator().apply(voltageConfigs);
     }
 
     @Override

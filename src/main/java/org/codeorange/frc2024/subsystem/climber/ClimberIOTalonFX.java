@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import org.codeorange.frc2024.robot.Constants;
+import org.codeorange.frc2024.utility.OrangeUtility;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -55,10 +56,10 @@ public class ClimberIOTalonFX implements ClimberIO {
                         .withNeutralMode(NeutralModeValue.Brake)
                 ).withVoltage(new VoltageConfigs()
                         .withPeakForwardVoltage(16)
-                        .withPeakReverseVoltage(-8)
+                        .withPeakReverseVoltage(-7)
                 );
 
-        motor.getConfigurator().apply(motorConfig);
+        OrangeUtility.betterCTREConfigApply(motor, motorConfig);
 
         climberPosition = motor.getPosition();
         climberVelocity = motor.getVelocity();

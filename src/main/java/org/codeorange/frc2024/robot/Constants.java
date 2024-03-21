@@ -1,23 +1,18 @@
 package org.codeorange.frc2024.robot;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.math.util.Units;
+import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.MacAddressUtil;
 import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
-import org.codeorange.frc2024.utility.swerve.SecondOrderModuleState;
 import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.ObjectInputStream;
 import java.net.SocketException;
 import java.nio.file.Files;
 
@@ -42,6 +37,9 @@ public final class Constants {
 
     public static boolean isCompetition() {
         return robotIdentity == RobotIdentity.COMPETITION_BOT;
+    }
+    static {
+        new Alert("Robot Identity: " + robotIdentity.toString(), Alert.AlertType.INFO).set(true);
     }
     public static final String LOG_DIRECTORY = "/home/lvuser/logs";
     public static final boolean IS_PRACTICE = Files.exists(new File("/home/lvuser/practice").toPath());
@@ -105,6 +103,8 @@ public final class Constants {
         public static final int CLIMBER = 36;
         //next two are rio dio ports
         public static final int INTAKE_BEAM_BREAK = 0;
+
+        public static final int BLINKIN_LED_CONTROLLER = 2;
         public static final int CLIMBER_LIMIT_SWITCH = 1;
         //next two are rio pwm ports
         public static final int SERVO_1 = 0;
@@ -129,20 +129,20 @@ public final class Constants {
                 ARM_ABSOLUTE_ENCODER_OFFSET = -0.36279296875;
             }
             case PRACTICE_BOT -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.8701171875+0.5;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.94091796875+0.5;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.69091796875+0.5;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.130615234375+0.5;
-                WRIST_ABSOLUTE_ENCODER_OFFSET = 0.336669921875;
-                ARM_ABSOLUTE_ENCODER_OFFSET = -0.284423818125;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.369873046875+0.0;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.9462890625+0.5;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.677978515625+0.5;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.12646484375+0.5;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.425537109375;
+                ARM_ABSOLUTE_ENCODER_OFFSET = -0.284423828125;
 
             }
             case COMPETITION_BOT -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.669677734375 + 0.5;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.02197265625 + 0.5;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.378662109375 + 0.5;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.949462890625 + 0.5;
-                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.250732421875;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.17041;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.52271;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.85181;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.45337;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.21435546875;
                 ARM_ABSOLUTE_ENCODER_OFFSET = 0.41259765625;
             }
             default -> {
@@ -193,9 +193,9 @@ public final class Constants {
     public static final double SS_MIDINTAKE_WRIST = isPrototype() ? -0.1 : 0;
 
     public static final double SS_MIDINTAKE_CLIMBER = 0;
-    public static final double SS_GROUNDINTAKE_ELEVATOR = 16;
+    public static final double SS_GROUNDINTAKE_ELEVATOR = 14;
     public static final double SS_GROUNDINTAKE_ARM = isPrototype() ? 0.01 : 0;
-    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.19;
+    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.13;
     public static final double SS_GROUNDINTAKE_CLIMBER = 0;
 
     public static final double SS_SOURCEINTAKE_ELEVATOR = 6;
@@ -210,9 +210,9 @@ public final class Constants {
     public static final double SS_SPEAKER_ARM = isPrototype() ? 0.125 : 0.125;
     public static final double SS_SPEAKER_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_SPEAKER_CLIMBER = isPrototype() ? 0 : 0;
-    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 0;
-    public static final double SS_TRAP_ARM = isPrototype() ? 0 : 0;
-    public static final double SS_TRAP_WRIST = isPrototype() ? 0 : 0;
+    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 20;
+    public static final double SS_TRAP_ARM = isPrototype() ? 0 : 0.17;
+    public static final double SS_TRAP_WRIST = isPrototype() ? 0 : 0.005;
     public static final double SS_TRAP_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER1_ELEVATOR = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER1_ARM = isPrototype() ? 0 : 0;
@@ -222,8 +222,8 @@ public final class Constants {
     public static final double SS_DEPLOYCLIMBER2_ARM = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER2_CLIMBER = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
-    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 18;
-    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.205555;
+    public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 14;
+    public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.225;
     public static final double SS_CLIMB_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_CLIMB_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_ELEVATOR = isPrototype() ? 0 : 0;
@@ -235,7 +235,7 @@ public final class Constants {
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
-    public static final double TURN_P = isPrototype() ? 2 : 5;
+    public static final double TURN_P = isPrototype() ? 2 : 8.5;
     public static final double TURN_I = isPrototype() ? 0 : 0;
     public static final double TURN_D = 0.3;
 
@@ -320,23 +320,25 @@ public final class Constants {
     public static final double ARM_LENGTH = .308;
 
     public static class AngleLookupInterpolation {
-        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_LOW_FRONT = new InterpolatingDoubleTreeMap();
+        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_BACK_LOW = new InterpolatingDoubleTreeMap();
         static {
-            SHOOTER_ANGLE_LOW_FRONT.put(0.0, 54.0);
-            SHOOTER_ANGLE_LOW_FRONT.put(6.0, 27.0);
-            SHOOTER_ANGLE_LOW_FRONT.put(12.0, 24.0);
-            SHOOTER_ANGLE_LOW_FRONT.put(18.0, 22.0);
-            SHOOTER_ANGLE_LOW_FRONT.put(24.0, 20.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.28, 52.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.50, 45.0);
+            SHOOTER_ANGLE_BACK_LOW.put(2.75, 32.4);
+            SHOOTER_ANGLE_BACK_LOW.put(3.5, 28.0);
+            SHOOTER_ANGLE_BACK_LOW.put(3.9, 22.2);
+            SHOOTER_ANGLE_BACK_LOW.put(10.0, 20.0);
         }
-        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_LOW_BACK = new InterpolatingDoubleTreeMap();
-        static {
-            // Need to find correct values
-            SHOOTER_ANGLE_LOW_BACK.put(0.0, 54.0);
-            SHOOTER_ANGLE_LOW_BACK.put(6.0, 27.0);
-            SHOOTER_ANGLE_LOW_BACK.put(12.0, 24.0);
-            SHOOTER_ANGLE_LOW_BACK.put(18.0, 22.0);
-            SHOOTER_ANGLE_LOW_BACK.put(24.0, 20.0);
-        }
+        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_FRONT_LOW = SHOOTER_ANGLE_BACK_LOW;
+                //new InterpolatingDoubleTreeMap();
+//        static {
+//            // Need to find correct values
+//            SHOOTER_ANGLE_LOW_BACK.put(0.0, 54.0);
+//            SHOOTER_ANGLE_LOW_BACK.put(6.0, 27.0);
+//            SHOOTER_ANGLE_LOW_BACK.put(12.0, 24.0);
+//            SHOOTER_ANGLE_LOW_BACK.put(18.0, 22.0);
+//            SHOOTER_ANGLE_LOW_BACK.put(24.0, 20.0);
+//        }
 
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_HIGH_FRONT = new InterpolatingDoubleTreeMap();
         static {

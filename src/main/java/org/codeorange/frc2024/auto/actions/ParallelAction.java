@@ -9,6 +9,9 @@ public class ParallelAction implements BaseAction {
 
     public ParallelAction(List<BaseAction> actions) {
         this.actions = new ArrayList<>(actions);
+        for (BaseAction i: actions) {
+            System.out.println("Running parallel action: " + i.getClass().getSimpleName());
+        }
     }
 
     public ParallelAction(BaseAction... actions) {

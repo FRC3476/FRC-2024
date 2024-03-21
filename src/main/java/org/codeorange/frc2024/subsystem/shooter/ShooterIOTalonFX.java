@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import org.codeorange.frc2024.utility.OrangeUtility;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -44,8 +45,12 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.Slot0.kA = 0.0057248;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
-        leader.getConfigurator().apply(config);
-        follower.getConfigurator().apply(config);
+
+        OrangeUtility.betterCTREConfigApply(leader, config);
+
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        OrangeUtility.betterCTREConfigApply(follower, config);
 
         leaderPosition = leader.getPosition();
         leaderVelocity = leader.getVelocity();
@@ -62,8 +67,6 @@ public class ShooterIOTalonFX implements ShooterIO {
         BaseStatusSignal.setUpdateFrequencyForAll(2.0, followerVelocity, leaderAmps, leaderTemp, followerVoltage, followerAmps, followerTemp);
         leader.optimizeBusUtilization();
         follower.optimizeBusUtilization();
-
-        follower.setControl(new Follower(leader.getDeviceID(), true)); //this is prob true
     }
 
     @Override
@@ -87,22 +90,26 @@ public class ShooterIOTalonFX implements ShooterIO {
     @Override
     public void setMotorVoltage(double voltage) {
         leader.setControl(voltageOut.withOutput(voltage));
+        follower.setControl(voltageOut.withOutput(voltage));
     }
 
     TorqueCurrentFOC torqueOut = new TorqueCurrentFOC(0);
     @Override
     public void setMotorTorque(double torque) {
         leader.setControl(torqueOut.withOutput(torque));
+        follower.setControl(torqueOut.withOutput(torque));
     }
 
     VelocityVoltage velocityVoltage = new VelocityVoltage(0);
     @Override
     public void setVelocity(double velocity, double ffVolts) {
         leader.setControl(velocityVoltage.withVelocity(velocity));
+        follower.setControl(velocityVoltage.withVelocity(velocity));
     }
 
     @Override
     public void stop() {
         leader.setControl(new CoastOut());
+        follower.setControl(new CoastOut());
     }
 }

@@ -2,6 +2,12 @@
 
 package org.codeorange.frc2024.utility;
 
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.ParentDevice;
+import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -9,12 +15,65 @@ import edu.wpi.first.wpilibj.DriverStation;
 import org.codeorange.frc2024.utility.geometry.MutableTranslation2d;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Driver;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.codeorange.frc2024.robot.Constants.FIELD_WIDTH_METERS;
 
 public final class OrangeUtility {
+
+
+    /**
+     * Continually reapplies configs to a motor until OK, or reports a warning if not
+     *
+     * @param device the TalonFX to apply configs to
+     * @param config the configuration to apply
+     */
+    public static void betterCTREConfigApply(TalonFX device, TalonFXConfiguration config) {
+        for(int i = 0; i < 10; i++) {
+            StatusCode statusCode = device.getConfigurator().apply(config);
+
+            if(statusCode.isOK()) {
+                return;
+            }
+        }
+        DriverStation.reportError("TalonFX " + device.getDeviceID() + " is unconfigured!!", false);
+    }
+
+    /**
+     * Continually reapplies configs to a CANcoder until OK, or reports a warning if not
+     *
+     * @param device the CANcoder to apply configs to
+     * @param config the configuration to apply
+     */
+    public static void betterCTREConfigApply(CANcoder device, CANcoderConfiguration config) {
+        for(int i = 0; i < 10; i++) {
+            StatusCode statusCode = device.getConfigurator().apply(config);
+
+            if(statusCode.isOK()) {
+                return;
+            }
+        }
+        DriverStation.reportError("CANcoder " + device.getDeviceID() + " is unconfigured!!", false);
+    }
+
+    /**
+     * Continually reapplies configs to a Pigeon2 until OK, or reports a warning if not
+     *
+     * @param device the Pigeon2 to apply configs to
+     * @param config the configuration to apply
+     */
+    public static void betterCTREConfigApply(Pigeon2 device, Pigeon2Configuration config) {
+        for(int i = 0; i < 10; i++) {
+            StatusCode statusCode = device.getConfigurator().apply(config);
+
+            if(statusCode.isOK()) {
+                return;
+            }
+        }
+        DriverStation.reportError("Pigeon2 " + device.getDeviceID() + " is unconfigured!!", false);
+    }
 
     /**
      * Extracts the double value from a string.

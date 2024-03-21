@@ -35,6 +35,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
+import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -102,11 +103,8 @@ public class Drive extends AbstractSubsystem {
                 VecBuilder.fill(0.3, 0.3, 0.3));
     }
 
-    public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp) {
-        poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp);
-    }
-    public void updateVisionStDev(Matrix<N3, N1> stdevs) {
-        poseEstimator.setVisionMeasurementStdDevs(stdevs);
+    public synchronized void addVisionMeasurement(Pose2d estimatedRobotPose, double observationTimestamp, Matrix<N3, N1> visionMeasurementStdevs) {
+        poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp, visionMeasurementStdevs);
     }
 
     double lastTimeStep;
@@ -196,27 +194,25 @@ public class Drive extends AbstractSubsystem {
         } else {
             moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
         }
-        if(!DriverStation.isAutonomous()) {
-            Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
+        Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
 
 
-            Logger.recordOutput("Drive/Out Volts " + module, ffv);
-            Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
-            Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
-            Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
-            Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
-                    ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
+        Logger.recordOutput("Drive/Out Volts " + module, ffv);
+        Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
+        Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
+        Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
+        Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
+                ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
 
-            double time = Logger.getRealTimestamp() * 1e-6;
-            double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
+        double time = Logger.getRealTimestamp() * 1e-6;
+        double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
 
-            Logger.recordOutput("Drive/Acceleration" + module, realAccel);
-            Logger.recordOutput("Drive/Expected Accel" + module,
-                    (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
+        Logger.recordOutput("Drive/Acceleration" + module, realAccel);
+        Logger.recordOutput("Drive/Expected Accel" + module,
+                (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
 
-            lastModuleVelocities[module] = getSwerveDriveVelocity(module);
-            lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
-        }
+        lastModuleVelocities[module] = getSwerveDriveVelocity(module);
+        lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
     }
 
     SwerveModuleState[] wantedStates = new SwerveModuleState[4];
@@ -231,19 +227,15 @@ public class Drive extends AbstractSubsystem {
             moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0, isOpenLoop);
 
-            if(!DriverStation.isAutonomous()) {
-                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
-                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
-                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
-                Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", moduleState.omega);
-            }
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
+            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", moduleState.omega);
 
             realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
         }
-        if(!DriverStation.isAutonomous()) {
-            Logger.recordOutput("Drive/Wanted States", wantedStates);
-            Logger.recordOutput("Drive/Real States", realStates);
-        }
+        Logger.recordOutput("Drive/Wanted States", wantedStates);
+        Logger.recordOutput("Drive/Real States", realStates);
     }
 
     @AutoLogOutput(key = "Drive/Real Chassis Speeds")
@@ -308,24 +300,33 @@ public class Drive extends AbstractSubsystem {
     @AutoLogOutput(key = "Drive/Angle to Speaker")
     public double findAngleToSpeaker() {
         Rotation2d heading = gyroInputs.rotation2d;
-        double deltaX;
-        double deltaY;
         Rotation2d delta;
-
-        if (Robot.isRed()) {
-            deltaY = redAllianceSpeaker.getY() - getPose().getY();
-            deltaX = redAllianceSpeaker.getX() - getPose().getX();
-        } else {
-            deltaY = blueAllianceSpeaker.getY() - getPose().getY();
-            deltaX = blueAllianceSpeaker.getX() - getPose().getX();
-        }
-        Rotation2d target = new Rotation2d(deltaX, deltaY);
+        Rotation2d target = getTranslationToGoal().getAngle();
         delta = target.minus(heading);
 
-        if(Math.abs(delta.getRadians()) > (Math.PI / 2)) {
-            target.rotateBy(Rotation2d.fromRadians(Math.PI));
+        if(delta.getCos() < 0) {
+            return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians();
         }
         return target.getRadians();
+    }
+
+    public Translation2d getTranslationToGoal() {
+        Translation2d botTranslation = getPose().getTranslation();
+
+        if(Robot.isRed()) {
+            return redAllianceSpeaker.minus(botTranslation);
+        } else {
+            return blueAllianceSpeaker.minus(botTranslation);
+        }
+    }
+
+    @AutoLogOutput(key = "Drive/Pointing Forward")
+    public boolean isForward() {
+        Rotation2d heading = gyroInputs.rotation2d;
+        Rotation2d target = getTranslationToGoal().getAngle();
+        Rotation2d delta = target.minus(heading);
+
+        return delta.getCos() > 0;
     }
 
     public void resetOdometry(Pose2d pose) {

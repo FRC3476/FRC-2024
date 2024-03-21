@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import org.codeorange.frc2024.robot.Constants;
+import org.codeorange.frc2024.utility.OrangeUtility;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -50,8 +51,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                         .withInverted(InvertedValue.CounterClockwise_Positive)
                         .withNeutralMode(NeutralModeValue.Brake));
 
-        leadMotor.getConfigurator().apply(motorConfig);
-        followMotor.getConfigurator().apply(motorConfig);
+        OrangeUtility.betterCTREConfigApply(leadMotor, motorConfig);
+        OrangeUtility.betterCTREConfigApply(followMotor, motorConfig);
 
         followMotor.setControl(new Follower(leadMotor.getDeviceID(), !isPrototype()));
 

@@ -10,6 +10,7 @@ import org.codeorange.frc2024.subsystem.drive.Drive;
 import org.codeorange.frc2024.subsystem.elevator.Elevator;
 import org.codeorange.frc2024.subsystem.intake.Intake;
 import org.codeorange.frc2024.subsystem.wrist.Wrist;
+import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -27,6 +28,7 @@ public class Superstructure extends AbstractSubsystem {
     private static Elevator elevator;
     private static Drive drive;
     private static Superstructure superstructure = new Superstructure();
+    private static BlinkinLEDController blinkin;
     private static Climber climber;
     //private static Vision vision;
     private States currentState = States.STOW;
@@ -34,7 +36,9 @@ public class Superstructure extends AbstractSubsystem {
     private States goalState = States.STOW;
     public boolean isFlipped = false;
     public boolean climberOut = false;
-    private final LiveEditableValue<Double> wristAngle = new LiveEditableValue<Double>(0.0, SmartDashboard.getEntry("Wrist Angle"));
+
+    private final Alert wristAlert = new Alert("WRIST WILL BREAK ITSELF IF ENABLED!!", Alert.AlertType.ERROR);
+
     private Superstructure() {
         super();
         arm = Robot.getArm();
@@ -44,6 +48,7 @@ public class Superstructure extends AbstractSubsystem {
         elevator = Robot.getElevator();
         shooter = Robot.getShooter();
         climber = Robot.getClimber();
+        blinkin = Robot.getBlinkin();
     }
 
     public double wantedAngle = 52;
@@ -227,7 +232,9 @@ public class Superstructure extends AbstractSubsystem {
         TRAP(SS_TRAP_ELEVATOR, SS_TRAP_ARM, SS_TRAP_WRIST) {
             @Override
             public void update() {
-                //code!
+                if(superstructure.goalState == CLIMBER) {
+                    superstructure.setCurrentState(CLIMBER);
+                }
             }
         },
         CLIMBER(SS_CLIMB_ELEVATOR, SS_CLIMB_ARM, SS_CLIMB_WRIST) {
@@ -241,6 +248,10 @@ public class Superstructure extends AbstractSubsystem {
 
                     if(climber.getPositionInRotations() > 184) {
                         superstructure.climberOut = true;
+                    }
+
+                    if(superstructure.goalState == States.TRAP) {
+                        superstructure.setCurrentState(TRAP);
                     }
 
                     if(superstructure.goalState == States.PUPPETEERING) {
@@ -333,9 +344,9 @@ public class Superstructure extends AbstractSubsystem {
     @AutoLogOutput(key = "Axis Add")
     public double shotWristdelta;
 
-    public double wantedPuppeteerArm = 0;
-    public double wantedPuppeteerWrist = 0;
-    public double wantedPuppeteerElevator = 0;
+    public double wantedPuppeteerArm = SS_CLIMB_ARM;
+    public double wantedPuppeteerWrist = SS_CLIMB_WRIST;
+    public double wantedPuppeteerElevator = SS_CLIMB_ELEVATOR;
 
     public final double podium_front = 32;
     public final double podium_back = 34;
@@ -343,6 +354,8 @@ public class Superstructure extends AbstractSubsystem {
     private States prevState;
 
     public void update() {
+        wristAlert.set(wrist.getWristAbsolutePosition() < 0 && currentState == States.STOW && DriverStation.isDisabled());
+
         if(prevState != currentState && currentState == States.PUPPETEERING) {
             wantedPuppeteerArm = prevState.armPos;
             wantedPuppeteerWrist = prevState.wristPos;
@@ -366,7 +379,7 @@ public class Superstructure extends AbstractSubsystem {
                 wrist.setWristPosition(wristPos);
                 wantedAngle += shotWristdelta;
 
-                Logger.recordOutput("Wrist/Wanted Position Ground Relative", -wantedShooterPosition - arm.getPivotDegrees());
+                Logger.recordOutput("Wrist/Wanted Position Ground Relative", -wantedShooterPosition);
             }
             Logger.recordOutput("Superstructure/Current State", currentState);
         } else {
@@ -404,9 +417,9 @@ public class Superstructure extends AbstractSubsystem {
 
     public double getLowShooterAngle(){
         if (drive.findAngleToSpeaker() > Math.PI / 2) {
-            return (AngleLookupInterpolation.SHOOTER_ANGLE_LOW_FRONT.get(drive.findDistanceToSpeaker()));
+            return (AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker()));
         } else {
-            return AngleLookupInterpolation.SHOOTER_ANGLE_LOW_BACK.get(drive.findDistanceToSpeaker());
+            return AngleLookupInterpolation.SHOOTER_ANGLE_FRONT_LOW.get(drive.findDistanceToSpeaker());
         }
 
     }
