@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.utility.OrangeUtility;
 
+import static org.codeorange.frc2024.robot.Constants.CAN_BUS;
+
 public class IntakeIOTalonFX implements IntakeIO {
     private final TalonFX motor;
     private final DigitalInput beamBreak;
@@ -22,7 +24,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     private final StatusSignal <Double> intakeTemp;
 
     public IntakeIOTalonFX() {
-        motor = new TalonFX(Constants.Ports.INTAKE_MOTOR_ID);
+        motor = new TalonFX(Constants.Ports.INTAKE_MOTOR_ID, CAN_BUS);
         beamBreak = new DigitalInput(Constants.Ports.INTAKE_BEAM_BREAK);
         OrangeUtility.betterCTREConfigApply(motor, new TalonFXConfiguration());
 

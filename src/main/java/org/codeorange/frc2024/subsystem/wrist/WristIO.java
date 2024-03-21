@@ -16,6 +16,8 @@ public interface WristIO {
 
     default void updateInputs(WristInputs inputs) {}
 
+    default void checkConfigs() {};
+
     default void zeroWristEncoder() {}
 
     default void setPosition(double position) {}

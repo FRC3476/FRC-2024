@@ -258,8 +258,8 @@ public class Robot extends LoggedRobot {
         flightStickAlert.set(!DriverStation.isJoystickConnected(1));
         buttonPanelAlert.set(!DriverStation.isJoystickConnected(2));
 
-        totalMemory = Runtime.getRuntime().totalMemory() / Math.pow(1024.0, 2);
-        freeMemory = Runtime.getRuntime().freeMemory() / Math.pow(1024.0, 2);
+        totalMemory = Runtime.getRuntime().totalMemory() / 1024.0 / 1024.0;
+        freeMemory = Runtime.getRuntime().freeMemory() / 1024.0 / 1024.0;
         usedMemory = totalMemory - freeMemory;
 
         Logger.recordOutput("Memory/Total", totalMemory);
@@ -267,7 +267,7 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("Memory/Used", usedMemory);
 
         // throw alert if less free memory than ~100 kB
-        memoryAlert.set(freeMemory < 0.5);
+        memoryAlert.set(freeMemory < 0.1);
 
         if(DriverStation.getAlliance().isPresent()) {
             var alliance = DriverStation.getAlliance().get();
@@ -477,6 +477,9 @@ public class Robot extends LoggedRobot {
         if(xbox.getRawButton(XboxButtons.Y)) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
             superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
+            if(!isCompetition()) {
+                superstructure.wantedAngle -= 2;
+            }
         } else if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
             double targetAngle;
 

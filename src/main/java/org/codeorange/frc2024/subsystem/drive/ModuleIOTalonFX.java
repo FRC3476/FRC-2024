@@ -54,27 +54,27 @@ public class ModuleIOTalonFX implements ModuleIO {
         double absoluteEncoderOffset;
         switch (id) {
             case 0 -> {
-                driveMotor = new TalonFX(Ports.FL_DRIVE);
-                steerMotor = new TalonFX(Ports.FL_STEER);
-                swerveCancoder = new CANcoder(Ports.FL_CANCODER);
+                driveMotor = new TalonFX(Ports.FL_DRIVE, CAN_BUS);
+                steerMotor = new TalonFX(Ports.FL_STEER, CAN_BUS);
+                swerveCancoder = new CANcoder(Ports.FL_CANCODER, CAN_BUS);
                 absoluteEncoderOffset = FL_ABSOLUTE_ENCODER_OFFSET;
             }
             case 1 -> {
-                driveMotor = new TalonFX(Ports.BL_DRIVE);
-                steerMotor = new TalonFX(Ports.BL_STEER);
-                swerveCancoder = new CANcoder(Ports.BL_CANCODER);
+                driveMotor = new TalonFX(Ports.BL_DRIVE, CAN_BUS);
+                steerMotor = new TalonFX(Ports.BL_STEER, CAN_BUS);
+                swerveCancoder = new CANcoder(Ports.BL_CANCODER, CAN_BUS);
                 absoluteEncoderOffset = BL_ABSOLUTE_ENCODER_OFFSET;
             }
             case 2 -> {
-                driveMotor = new TalonFX(Ports.FR_DRIVE);
-                steerMotor = new TalonFX(Ports.FR_STEER);
-                swerveCancoder = new CANcoder(Ports.FR_CANCODER);
+                driveMotor = new TalonFX(Ports.FR_DRIVE, CAN_BUS);
+                steerMotor = new TalonFX(Ports.FR_STEER, CAN_BUS);
+                swerveCancoder = new CANcoder(Ports.FR_CANCODER, CAN_BUS);
                 absoluteEncoderOffset = FR_ABSOLUTE_ENCODER_OFFSET;
             }
             case 3 -> {
-                driveMotor = new TalonFX(Ports.BR_DRIVE);
-                steerMotor = new TalonFX(Ports.BR_STEER);
-                swerveCancoder = new CANcoder(Ports.BR_CANCODER);
+                driveMotor = new TalonFX(Ports.BR_DRIVE, CAN_BUS);
+                steerMotor = new TalonFX(Ports.BR_STEER, CAN_BUS);
+                swerveCancoder = new CANcoder(Ports.BR_CANCODER, CAN_BUS);
                 absoluteEncoderOffset = BR_ABSOLUTE_ENCODER_OFFSET;
             }
             default -> throw new IllegalArgumentException("Invalid module ID");

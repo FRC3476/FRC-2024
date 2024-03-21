@@ -49,6 +49,9 @@ public final class Constants {
             1000000000; // 1 GB
     public static final int DEFAULT_PERIODS_PER_LOG = 0;
 
+    // "*" is ANY CANivore
+    public static final String CAN_BUS = isCompetition() ? "*" : "rio";
+
     public enum KinematicLimits {
         /**
          * Normal acceleration limit while driving. This ensures that the driver can't tip the robot.
