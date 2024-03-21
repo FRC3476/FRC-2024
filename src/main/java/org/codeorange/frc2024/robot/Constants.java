@@ -370,4 +370,6 @@ public final class Constants {
             );
 
     public static final double CLIMBER_SWITCH_OFFSET = 2.89 - 0.95 / CLIMBER_P;
+
+    public static final double ODOMETRY_REFRESH_HZ = 250;
 }

@@ -13,6 +13,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static org.codeorange.frc2024.robot.Constants.ODOMETRY_REFRESH_HZ;
+
 /**
  * @author 6328
  */
@@ -77,7 +79,7 @@ public class OdometryThread extends Thread {
         while(true) {
             signalsLock.lock();
             try {
-                Thread.sleep(Constants.ODOMETRY_REFRESH_PERIOD);
+                Thread.sleep((long) (1000 / ODOMETRY_REFRESH_HZ));
                 if(signals.length > 0) BaseStatusSignal.refreshAll(signals);
             } catch (InterruptedException ignored) {
             } finally {
