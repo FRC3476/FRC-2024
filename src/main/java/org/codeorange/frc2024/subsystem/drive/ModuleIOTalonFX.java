@@ -108,6 +108,9 @@ public class ModuleIOTalonFX implements ModuleIO {
                                 .withMotionMagicAcceleration(100)
                         ).withOpenLoopRamps(new OpenLoopRampsConfigs()
                                 .withVoltageOpenLoopRampPeriod(0.1)
+                        ).withMotorOutput(new MotorOutputConfigs()
+                                .withNeutralMode(NeutralModeValue.Brake)
+                                .withInverted(InvertedValue.Clockwise_Positive)
                         )
         );
 

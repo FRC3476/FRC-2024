@@ -42,9 +42,9 @@ public class DrivePath implements BaseAction {
 
         drive.setNextChassisSpeeds(
                 new ChassisSpeeds(
-                        -speeds.vxMetersPerSecond,
-                        -speeds.vyMetersPerSecond,
-                        -speeds.omegaRadiansPerSecond
+                        speeds.vxMetersPerSecond,
+                        speeds.vyMetersPerSecond,
+                        speeds.omegaRadiansPerSecond
                 )
         );
     }
