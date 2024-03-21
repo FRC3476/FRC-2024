@@ -29,8 +29,8 @@ public class ShooterIOTalonFX implements ShooterIO {
     private final StatusSignal<Double> followerTemp;
 
     public ShooterIOTalonFX() {
-        leader = new TalonFX(Ports.SHOOTER_LEAD);
-        follower = new TalonFX(Ports.SHOOTER_FOLLOW);
+        leader = new TalonFX(Ports.SHOOTER_LEAD, CAN_BUS);
+        follower = new TalonFX(Ports.SHOOTER_FOLLOW, CAN_BUS);
 
         var config = new TalonFXConfiguration();
         config.CurrentLimits.SupplyCurrentLimitEnable = false;

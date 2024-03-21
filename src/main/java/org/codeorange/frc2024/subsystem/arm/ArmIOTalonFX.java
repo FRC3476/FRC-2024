@@ -10,12 +10,13 @@ import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import org.codeorange.frc2024.utility.OrangeUtility;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import static org.codeorange.frc2024.robot.Constants.*;
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
 
 
 public class ArmIOTalonFX implements ArmIO {
-
     private final TalonFX leadTalonFX;
     private final TalonFX followTalonFX;
     private final CANcoder absoluteEncoder;
@@ -39,9 +40,9 @@ public class ArmIOTalonFX implements ArmIO {
 
     public ArmIOTalonFX() {
 
-        leadTalonFX = new TalonFX(ARM_LEAD);
+        leadTalonFX = new TalonFX(ARM_LEAD, CAN_BUS);
 
-        absoluteEncoder = new CANcoder(ARM_CANCODER);
+        absoluteEncoder = new CANcoder(ARM_CANCODER, CAN_BUS);
 
         var talonFXConfigs = new TalonFXConfiguration();
 
@@ -95,7 +96,7 @@ public class ArmIOTalonFX implements ArmIO {
         leadVoltage = leadTalonFX.getMotorVoltage();
 
         if(!isPrototype()) {
-            followTalonFX = new TalonFX(ARM_FOLLOW);
+            followTalonFX = new TalonFX(ARM_FOLLOW, CAN_BUS);
 
             OrangeUtility.betterCTREConfigApply(followTalonFX, talonFXConfigs);
             followTalonFX.setControl(new Follower(leadTalonFX.getDeviceID(), false));

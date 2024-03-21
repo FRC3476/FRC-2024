@@ -10,7 +10,6 @@ public class ShootFromStow implements BaseAction {
     private final Superstructure superstructure = Superstructure.getSuperstructure();
     private final Shooter shooter = Robot.getShooter();
     private final Intake intake = Robot.getIntake();
-    private final Timer timer = new Timer();
     private final double angle;
     private double shotStartTime;
 
@@ -30,28 +29,11 @@ public class ShootFromStow implements BaseAction {
         }
         intake.stop();
         superstructure.wantedAngle = angle;
-        timer.stop();
-        timer.reset();
         shotStartTime = Timer.getFPGATimestamp();
     }
 
     @Override
-    public void update() {
-        if(superstructure.getCurrentState().isAtWantedState() && superstructure.isAtGoalState() && (shooter.isAtTargetVelocity() || (shooter.isAtTargetVelocityTimeout() && Timer.getFPGATimestamp() > shotStartTime + 1))) {
-            intake.runIntakeForShooter();
-        }
-        if(!intake.hasNote()) {
-            timer.start();
-        }
-    }
-
-    @Override
     public boolean isFinished() {
-        return timer.hasElapsed(0.3);
-    }
-
-    public void done() {
-        intake.stop();
-        superstructure.wantedAngle = 54;
+        return superstructure.getCurrentState().isAtWantedState() && superstructure.isAtGoalState() && (shooter.isAtTargetVelocity() || (shooter.isAtTargetVelocityTimeout() && Timer.getFPGATimestamp() > shotStartTime + 1)) || !intake.hasNote();
     }
 }

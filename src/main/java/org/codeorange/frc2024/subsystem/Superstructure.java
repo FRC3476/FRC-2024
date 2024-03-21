@@ -354,7 +354,7 @@ public class Superstructure extends AbstractSubsystem {
     private States prevState;
 
     public void update() {
-        wristAlert.set(wrist.getWristAbsolutePosition() < 0 && currentState == States.STOW && DriverStation.isDisabled());
+        wristAlert.set(wrist.getWristAbsolutePosition() < -0.2 && currentState == States.STOW && DriverStation.isDisabled());
 
         if(prevState != currentState && currentState == States.PUPPETEERING) {
             wantedPuppeteerArm = prevState.armPos;

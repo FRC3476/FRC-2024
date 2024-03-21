@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem.drive;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
@@ -20,9 +21,10 @@ public interface ModuleIO {
         public double steerMotorAmps;
         public double steerMotorTemp;
 
-        public boolean hardwareFault;
-        public boolean voltageFault;
-        public boolean badMagnetFault;
+
+        public double[] odometryTimestamps = new double[] {};
+        public double[] odometryDrivePositionsMeters = new double[] {};
+        public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
     }
     default void updateInputs(ModuleInputs inputs) {}
     // set brake mode of all motors

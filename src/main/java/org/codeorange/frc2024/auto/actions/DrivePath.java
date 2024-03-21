@@ -12,6 +12,7 @@ import org.codeorange.frc2024.subsystem.drive.Drive;
 import org.codeorange.frc2024.utility.ControllerDriveInputs;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.codeorange.frc2024.utility.wpimodified.PIDController;
+import org.littletonrobotics.junction.Logger;
 
 public class DrivePath implements BaseAction {
     private static Drive drive = Robot.getDrive();
@@ -39,19 +40,20 @@ public class DrivePath implements BaseAction {
     public void update() {
         var state = trajectory.sample(pathTimer.get());
         var speeds = choreoController.apply(drive.getPose(), state);
+        Logger.recordOutput("Auto/Target Pose", state.getPose());
 
         drive.setNextChassisSpeeds(
                 new ChassisSpeeds(
-                        -speeds.vxMetersPerSecond,
-                        -speeds.vyMetersPerSecond,
-                        -speeds.omegaRadiansPerSecond
+                        speeds.vxMetersPerSecond,
+                        speeds.vyMetersPerSecond,
+                        speeds.omegaRadiansPerSecond
                 )
         );
     }
 
     @Override
     public boolean isFinished() {
-        return pathTimer.hasElapsed(trajectory.getTotalTime());
+        return pathTimer.hasElapsed(trajectory.getTotalTime() + 0.04);
     }
 
     @Override

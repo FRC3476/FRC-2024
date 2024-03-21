@@ -70,6 +70,7 @@ public class Robot extends LoggedRobot {
     private final Alert buttonPanelAlert = new Alert("Button Panel is NOT detected!", AlertType.ERROR);
     private final Alert batteryAlert = new Alert("Battery is low! Please replace before the start of the next comp match.", AlertType.WARNING);
     private final Alert memoryAlert = new Alert("System Memory is critically low!!", AlertType.WARNING);
+    private final Alert allianceColorAlert = new Alert("Chosen side doesn't match Driver Station! Is this okay?", AlertType.WARNING);
 
 
     static Drive drive;
@@ -258,16 +259,22 @@ public class Robot extends LoggedRobot {
         flightStickAlert.set(!DriverStation.isJoystickConnected(1));
         buttonPanelAlert.set(!DriverStation.isJoystickConnected(2));
 
-        totalMemory = Runtime.getRuntime().totalMemory() / Math.pow(1024.0, 2);
-        freeMemory = Runtime.getRuntime().freeMemory() / Math.pow(1024.0, 2);
+        totalMemory = Runtime.getRuntime().totalMemory() / 1024.0 / 1024.0;
+        freeMemory = Runtime.getRuntime().freeMemory() / 1024.0 / 1024.0;
         usedMemory = totalMemory - freeMemory;
 
         Logger.recordOutput("Memory/Total", totalMemory);
         Logger.recordOutput("Memory/Free", freeMemory);
         Logger.recordOutput("Memory/Used", usedMemory);
 
-        // throw alert if less free memory than half a MB
-        memoryAlert.set(freeMemory < 0.5);
+        // throw alert if less free memory than ~100 kB
+        memoryAlert.set(freeMemory < 0.1);
+
+        if(DriverStation.getAlliance().isPresent()) {
+            var alliance = DriverStation.getAlliance().get();
+
+            allianceColorAlert.set(alliance.equals(DriverStation.Alliance.Red) ^ Robot.isRed());
+        }
     }
 
     private final LoggedDashboardChooser<Boolean> limelightLEDchooser = new LoggedDashboardChooser<>("Limelight LED Mode");
@@ -453,7 +460,7 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        if(xbox.getRisingEdge(Controller.XboxAxes.LEFT_TRIGGER, 0.1)) {
+        if(xbox.getRisingEdge(XboxButtons.RIGHT_CLICK)) {
             if(intake.hasNote()) {
                 amp = true;
             } else {
@@ -468,7 +475,10 @@ public class Robot extends LoggedRobot {
         if(xbox.getRawButton(XboxButtons.Y)) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
             superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
-        } else if(xbox.getRawAxis(Controller.XboxAxes.LEFT_TRIGGER) > 0.1) {
+            if(!isCompetition()) {
+                superstructure.wantedAngle -= 2;
+            }
+        } else if(xbox.getRawButton(XboxButtons.RIGHT_CLICK)) {
             double targetAngle;
 
             if(amp) {
@@ -681,10 +691,10 @@ public class Robot extends LoggedRobot {
 
         if (isRed) {
             // Flip the x-axis for red
-            inputs = new ControllerDriveInputs(-xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), -xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
-                    xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
+            inputs = new ControllerDriveInputs(xbox.getRawAxis(Controller.XboxAxes.LEFT_Y), xbox.getRawAxis(Controller.XboxAxes.LEFT_X),
+                    -xbox.getRawAxis(Controller.XboxAxes.RIGHT_X));
         } else {
-            inputs = new ControllerDriveInputs(xbox.getRawAxis(1), xbox.getRawAxis(0), xbox.getRawAxis(4));
+            inputs = new ControllerDriveInputs(-xbox.getRawAxis(1), -xbox.getRawAxis(0), -xbox.getRawAxis(4));
         }
 
         inputs.applyDeadZone(0.05, 0.05, 0.2, 0.2);

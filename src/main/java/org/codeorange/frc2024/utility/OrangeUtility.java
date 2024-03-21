@@ -35,6 +35,7 @@ public final class OrangeUtility {
             StatusCode statusCode = device.getConfigurator().apply(config);
 
             if(statusCode.isOK()) {
+                System.out.println("TalonFX " + device.getDeviceID() + " configuration success!");
                 return;
             }
         }
@@ -52,6 +53,7 @@ public final class OrangeUtility {
             StatusCode statusCode = device.getConfigurator().apply(config);
 
             if(statusCode.isOK()) {
+                System.out.println("CANcoder " + device.getDeviceID() + " configuration success!");
                 return;
             }
         }
@@ -69,6 +71,7 @@ public final class OrangeUtility {
             StatusCode statusCode = device.getConfigurator().apply(config);
 
             if(statusCode.isOK()) {
+                System.out.println("Pigeon2 " + device.getDeviceID() + " configuration success!");
                 return;
             }
         }
