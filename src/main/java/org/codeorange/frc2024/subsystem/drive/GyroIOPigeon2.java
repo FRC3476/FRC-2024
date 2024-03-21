@@ -27,11 +27,10 @@ public class GyroIOPigeon2 implements GyroIO {
 
 
     public GyroIOPigeon2() {
-        pigeon = new Pigeon2(Ports.PIGEON);
+        pigeon = new Pigeon2(Ports.PIGEON, CAN_BUS);
 
         OrangeUtility.betterCTREConfigApply(pigeon, new Pigeon2Configuration());
         pigeon.reset();
-        pigeon.getConfigurator().setYaw(0.0);
 
         yawPositionDeg = pigeon.getYaw();
         yawVelocityDegPerSec = pigeon.getAngularVelocityZWorld();
