@@ -33,7 +33,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     //private final Relay spikeRelay;
 
     public ClimberIOTalonFX() {
-        motor = new TalonFX(Constants.Ports.CLIMBER);
+        motor = new TalonFX(Constants.Ports.CLIMBER, CAN_BUS);
         servoLeft = new Servo(Constants.Ports.SERVO_1);
         servoRight = new Servo(Constants.Ports.SERVO_2);
         limitSwitch = new DigitalInput(Ports.CLIMBER_LIMIT_SWITCH);

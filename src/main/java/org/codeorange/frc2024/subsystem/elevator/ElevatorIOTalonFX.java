@@ -29,8 +29,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final TalonFX followMotor;
 
     public ElevatorIOTalonFX() {
-        leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD);
-        followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW);
+        leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD, CAN_BUS);
+        followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW, CAN_BUS);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()

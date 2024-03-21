@@ -8,6 +8,8 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import org.codeorange.frc2024.utility.Alert;
+import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.OrangeUtility;
 
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
@@ -17,6 +19,8 @@ public class WristIOTalonFX implements WristIO {
 
     private final TalonFX wristMotor;
     private final CANcoder absoluteEncoder;
+    private final TalonFXConfiguration configs;
+    private final CANcoderConfiguration encoderConfigs;
 
 
     private final StatusSignal<Double> wristAbsolutePosition;
@@ -26,14 +30,16 @@ public class WristIOTalonFX implements WristIO {
     private final StatusSignal<Double> wristTemp;
     private final StatusSignal<Double> wristVoltage;
 
+    private final Alert encoderAlert = new Alert("Wrist Motor and CANcoder are NOT rotating the same way!", Alert.AlertType.ERROR);
+
 
 
     public WristIOTalonFX() {
 
-        wristMotor = new TalonFX(WRIST_MOTOR);
-        absoluteEncoder = new CANcoder(WRIST_ENCODER);
+        wristMotor = new TalonFX(WRIST_MOTOR, CAN_BUS);
+        absoluteEncoder = new CANcoder(WRIST_ENCODER, CAN_BUS);
 
-        TalonFXConfiguration configs = new TalonFXConfiguration();
+        configs = new TalonFXConfiguration();
 
         FeedbackConfigs wristFeedBackConfigs = configs.Feedback;
         wristFeedBackConfigs.FeedbackRemoteSensorID = absoluteEncoder.getDeviceID();
@@ -62,10 +68,12 @@ public class WristIOTalonFX implements WristIO {
 
         OrangeUtility.betterCTREConfigApply(wristMotor, configs);
 
-        OrangeUtility.betterCTREConfigApply(absoluteEncoder, new CANcoderConfiguration()
+        encoderConfigs = new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
-                        .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                        .withMagnetOffset(WRIST_ABSOLUTE_ENCODER_OFFSET)));
+                                .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+                                .withMagnetOffset(WRIST_ABSOLUTE_ENCODER_OFFSET));
+
+        OrangeUtility.betterCTREConfigApply(absoluteEncoder, encoderConfigs);
 
         wristAbsolutePosition = absoluteEncoder.getAbsolutePosition();
         wristRelativePosition = wristMotor.getPosition();
@@ -98,6 +106,22 @@ public class WristIOTalonFX implements WristIO {
         inputs.wristCurrent = wristCurrent.getValue();
         inputs.wristTemp = wristTemp.getValue();
         inputs.wristVoltage = wristVoltage.getValue();
+
+        MagnetSensorConfigs config = new MagnetSensorConfigs();
+        absoluteEncoder.getConfigurator().refresh(config);
+    }
+
+    @Override
+    public void checkConfigs() {
+        var isUnfused = !MathUtil.epsilonEquals(wristAbsolutePosition.refresh().getValue(), wristRelativePosition.refresh().getValue(), 0.03);
+
+        encoderAlert.set(isUnfused);
+
+        if(isUnfused) {
+            wristMotor.stopMotor();
+            OrangeUtility.betterCTREConfigApply(wristMotor, configs);
+            OrangeUtility.betterCTREConfigApply(absoluteEncoder, encoderConfigs);
+        }
     }
 
 

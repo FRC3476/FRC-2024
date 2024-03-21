@@ -49,6 +49,9 @@ public final class Constants {
             1000000000; // 1 GB
     public static final int DEFAULT_PERIODS_PER_LOG = 0;
 
+    // "*" is ANY CANivore
+    public static final String CAN_BUS = isCompetition() ? "*" : "rio";
+
     public enum KinematicLimits {
         /**
          * Normal acceleration limit while driving. This ensures that the driver can't tip the robot.
@@ -129,10 +132,10 @@ public final class Constants {
                 ARM_ABSOLUTE_ENCODER_OFFSET = -0.36279296875;
             }
             case PRACTICE_BOT -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.369873046875+0.0;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.9462890625+0.5;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.677978515625+0.5;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.12646484375+0.5;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.371826171875;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.44799804;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.177978515625;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.628662109;
                 WRIST_ABSOLUTE_ENCODER_OFFSET = -0.425537109375;
                 ARM_ABSOLUTE_ENCODER_OFFSET = -0.284423828125;
 
@@ -265,7 +268,7 @@ public final class Constants {
     public static final double WRIST_STM = 1.0;
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
-    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
+    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 120;
     public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.22381, 2.4278, 0.19076);
     public static final int SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO = 12;
     public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
@@ -372,4 +375,6 @@ public final class Constants {
             );
 
     public static final double CLIMBER_SWITCH_OFFSET = 2.89 - 0.95 / CLIMBER_P;
+
+    public static final double ODOMETRY_REFRESH_HZ = 250;
 }
