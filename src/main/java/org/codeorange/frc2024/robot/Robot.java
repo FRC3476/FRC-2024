@@ -165,6 +165,7 @@ public class Robot extends LoggedRobot {
                 climber = new Climber(new ClimberIOTalonFX());
             }
             superstructure = Superstructure.getSuperstructure();
+            vision = new Vision(new VisionIOLimelight("limelight-front"), new VisionIOLimelight("limelight-back"));
         } else {
             setUseTiming(false); // Run as fast as possible
             if(Objects.equals(VIRTUAL_MODE, "REPLAY")) {
@@ -186,6 +187,7 @@ public class Robot extends LoggedRobot {
                 blinkin = new BlinkinLEDController();
             }
             superstructure = Superstructure.getSuperstructure();
+            vision = new Vision(new VisionIO() {}, new VisionIO() {});
         }
         // Initialize auto chooser
         autoChooser.addDefaultOption("Shoot Do Nothing Center", 0);
@@ -204,7 +206,6 @@ public class Robot extends LoggedRobot {
         xbox = new Controller(0);
         flightStick = new Controller(1);
         buttonPanel = new Controller(2);
-        vision = new Vision();
 
         Logger.start();
         drive.start();
@@ -401,9 +402,6 @@ public class Robot extends LoggedRobot {
             superstructure.wantedAngle = superstructure.isFlipped ? superstructure.podium_back : superstructure.podium_front;
         }
 
-        if(flightStick.getRisingEdge(2)) {
-            drive.resetOdometry(vision.backCamera.estimatedBotPose);
-        }
 
         if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
             intake.runIntake(0.5);
@@ -751,8 +749,5 @@ public class Robot extends LoggedRobot {
 
     public static BlinkinLEDController getBlinkin() {
         return blinkin;
-    }
-    public static void setVisionForAuto(boolean enabled) {
-        vision.setVisionForAuto(enabled);
     }
 }

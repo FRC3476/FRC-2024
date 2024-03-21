@@ -17,7 +17,6 @@ public class TwoFarSource extends BaseRoutine {
             driveToFirstShot = Choreo.getTrajectory("2_far_source_blue.1");
             driveToFirstNote = Choreo.getTrajectory("2_far_source_blue.2");
         }
-        Robot.setVisionForAuto(true);
     }
     @Override
     protected void configureRoutine() {
