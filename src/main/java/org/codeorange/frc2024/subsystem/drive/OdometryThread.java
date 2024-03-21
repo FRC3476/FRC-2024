@@ -1,6 +1,7 @@
 package org.codeorange.frc2024.subsystem.drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import org.codeorange.frc2024.robot.Constants;
@@ -23,6 +24,7 @@ public class OdometryThread extends Thread {
     private BaseStatusSignal[] signals = new BaseStatusSignal[0];
     private final List<Queue<Double>> queues = new ArrayList<>();
     private final List<Queue<Double>> timestampQueues = new ArrayList<>();
+    private boolean isCANFD = false;
 
     private static OdometryThread INSTANCE;
     public static OdometryThread getInstance() {
@@ -49,6 +51,7 @@ public class OdometryThread extends Thread {
         Drive.odometryLock.lock();
         signalsLock.lock();
         try {
+            isCANFD = CANBus.isNetworkFD(device.getNetwork());
             BaseStatusSignal[] newSignals = new BaseStatusSignal[signals.length + 1];
             System.arraycopy(signals, 0, newSignals, 0, signals.length);
             newSignals[signals.length] = signal;
@@ -79,8 +82,12 @@ public class OdometryThread extends Thread {
         while(true) {
             signalsLock.lock();
             try {
-                Thread.sleep((long) (1000 / ODOMETRY_REFRESH_HZ));
-                if(signals.length > 0) BaseStatusSignal.refreshAll(signals);
+                if(isCANFD) {
+                    BaseStatusSignal.waitForAll(0.025, signals);
+                } else {
+                    Thread.sleep((long) (1000 / ODOMETRY_REFRESH_HZ));
+                    if (signals.length > 0) BaseStatusSignal.refreshAll(signals);
+                }
             } catch (InterruptedException ignored) {
             } finally {
                 signalsLock.unlock();
