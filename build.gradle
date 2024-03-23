@@ -53,10 +53,6 @@ wpi.java.debugJni = false
 def includeDesktopSupport = false
 
 repositories {
-    mavenCentral()
-    maven {
-        url "https://maven.dacubeking.com/snapshots/"
-    }
     maven {
         url = uri("https://maven.pkg.github.com/Mechanical-Advantage/AdvantageKit")
         credentials {
@@ -103,7 +99,6 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-params"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
-    implementation "com.dacubeking:autobuilder-robot:2.2.7"
     implementation 'org.joml:joml:1.10.4'
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
