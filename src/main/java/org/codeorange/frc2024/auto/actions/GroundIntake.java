@@ -23,7 +23,7 @@ public class GroundIntake implements BaseAction {
 
     @Override
     public boolean isFinished() {
-        return intake.hasNote() || (Timer.getFPGATimestamp() - startTime) > 2.5;
+        return intake.hasNote() || (Timer.getFPGATimestamp() - startTime) > 2.75;
     }
 
     @Override

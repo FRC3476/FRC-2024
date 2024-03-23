@@ -224,6 +224,7 @@ public class Superstructure extends AbstractSubsystem {
         INTERMEDIATE(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST) {
             @Override
             public void update() {
+                if(DriverStation.isAutonomous()) shooter.runVelocityAuto(10000.0 / 60);
                 if(isAtWantedState()) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }

@@ -18,6 +18,7 @@ public class AutoManager {
     private ShootAndLeaveSource SHOOT_AND_LEAVE_SOURCE;
     private TwoFarSource TWO_FAR_SOURCE;
     private TwoFarSourceSubwooferStart TWO_FAR_SOURCE_SUBWOOFER;
+    private ThreePointFiveFarSource THREE_PT_FIVE_FAR_SOURCE;
 
     public static AutoManager getInstance() {
         if(instance == null) {
@@ -36,6 +37,7 @@ public class AutoManager {
         SHOOT_AND_LEAVE_SOURCE = new ShootAndLeaveSource();
         TWO_FAR_SOURCE = new TwoFarSource();
         TWO_FAR_SOURCE_SUBWOOFER = new TwoFarSourceSubwooferStart();
+        THREE_PT_FIVE_FAR_SOURCE = new ThreePointFiveFarSource();
     }
 
     public void loadAuto(int key) {
@@ -50,6 +52,7 @@ public class AutoManager {
             case 7 -> selectedRoutine = SHOOT_AND_LEAVE_AMP;
             case 8 -> selectedRoutine = TWO_FAR_SOURCE;
             case 9 -> selectedRoutine = TWO_FAR_SOURCE_SUBWOOFER;
+            case 10 -> selectedRoutine = THREE_PT_FIVE_FAR_SOURCE;
         }
         System.out.println("Selected routine " + selectedRoutine.getClass().getName());
     }

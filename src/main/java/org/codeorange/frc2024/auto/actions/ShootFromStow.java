@@ -34,6 +34,6 @@ public class ShootFromStow implements BaseAction {
 
     @Override
     public boolean isFinished() {
-        return superstructure.getCurrentState().isAtWantedState() && superstructure.isAtGoalState() && (shooter.isAtTargetVelocity() || (shooter.isAtTargetVelocityTimeout() && Timer.getFPGATimestamp() > shotStartTime + 1)) || !intake.hasNote();
+        return superstructure.getCurrentState().isAtWantedState() && superstructure.isAtGoalState() && (shooter.isAtTargetVelocity() || (shooter.isAtTargetVelocityTimeout() && Timer.getFPGATimestamp() > shotStartTime + 2.75)) || !intake.hasNote();
     }
 }

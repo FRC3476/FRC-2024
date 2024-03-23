@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.drive.Drive;
 import org.codeorange.frc2024.utility.ControllerDriveInputs;
+import org.codeorange.frc2024.utility.geometry.GeometryUtils;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.codeorange.frc2024.utility.wpimodified.PIDController;
 import org.littletonrobotics.junction.Logger;
@@ -32,8 +33,8 @@ public class DrivePath implements BaseAction {
         pathTimer.reset();
         pathTimer.start();
 
-        PIDController translationController = new PIDController(8.5, 0, 0);
-        PIDController rotationController = new PIDController(4.0, 0, 0.0);
+        PIDController translationController = new PIDController(7, 0, 0.0);
+        PIDController rotationController = new PIDController(3.5, 0, 0.0);
         choreoController = Choreo.choreoSwerveController(translationController, translationController, rotationController);
     }
     @Override
@@ -53,7 +54,7 @@ public class DrivePath implements BaseAction {
 
     @Override
     public boolean isFinished() {
-        return pathTimer.hasElapsed(trajectory.getTotalTime() + 0.04);
+        return GeometryUtils.epsilonEqualsPose(drive.getPose(), trajectory.getFinalPose(), 0.1, 0.1) || pathTimer.hasElapsed(trajectory.getTotalTime() + 0.75);
     }
 
     @Override

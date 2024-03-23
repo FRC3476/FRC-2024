@@ -32,7 +32,7 @@ public class RunKicker implements BaseAction {
 
     @Override
     public boolean isFinished() {
-        return Logger.getRealTimestamp() * 1e-6 > leftIntakeTimestamp + 0.15;
+        return Logger.getRealTimestamp() * 1e-6 > leftIntakeTimestamp + 0.2;
     }
 
     @Override

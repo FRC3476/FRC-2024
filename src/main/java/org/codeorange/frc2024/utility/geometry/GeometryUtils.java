@@ -1,8 +1,11 @@
 package org.codeorange.frc2024.utility.geometry;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import org.codeorange.frc2024.utility.MathUtil;
+import org.codeorange.frc2024.utility.OrangeUtility;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -80,5 +83,9 @@ public final class GeometryUtils {
     @Contract(value = "_ -> new", pure = true)
     public static @NotNull Rotation2d angleOf(@NotNull Translation2d translation) {
         return new Rotation2d(Math.atan2(translation.getY(), translation.getX()));
+    }
+
+    public static boolean epsilonEqualsPose(Pose2d pose, Pose2d other, double epsilon, double angleEpsilon) {
+        return MathUtil.epsilonEquals(pose.getX(), other.getX(), epsilon) && MathUtil.epsilonEquals(pose.getY(), other.getY(), epsilon) && MathUtil.epsilonEquals(pose.getRotation().getRadians(), other.getRotation().getRadians(), angleEpsilon);
     }
 }

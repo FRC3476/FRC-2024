@@ -63,9 +63,7 @@ public class Vision extends AbstractSubsystem {
         }
 
         //exit if data sucks
-        if(inputs.botPose2d.equals(new Pose2d()) || inputs.botPose3d.equals(new Pose3d())) {
-            return;
-        }
+        if(inputs.botPose2d.equals(new Pose2d()) || inputs.botPose3d.equals(new Pose3d())) return;
 
         //exit if off the field, or too far above or below the ground
         if(
@@ -75,24 +73,19 @@ public class Vision extends AbstractSubsystem {
                         || inputs.botPose3d.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
                         || inputs.botPose3d.getZ() < -0.4
                         || inputs.botPose3d.getZ() > 0.1
-        ) {
-            return;
-        }
+        ) return;
 
         //exit if rotation doesn't match gyro measurement
-        if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2d.getRotation()).getDegrees()) > 5) {
-            return;
-        }
+        if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2d.getRotation()).getDegrees()) > 5) return;
 
         //exit if tags are too far in auto
-        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) {
-            return;
-        }
+        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
 
         Logger.recordOutput("Vision/" + io.getName() + "/Accepted Pose", inputs.botPose2d);
 
         //scale stdevs with square of distance and tag count
         double xyStdev = defaultXYStdev * inputs.avgDist * inputs.avgDist / inputs.tagCount / inputs.tagCount;
+        if(DriverStation.isAutonomousEnabled()) xyStdev *= inputs.avgDist;
 
         Logger.recordOutput("Vision/" + io.getName() + "/XY Standard Deviations", xyStdev);
         io.getDashboardField().setRobotPose(inputs.botPose2d);

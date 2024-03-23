@@ -24,7 +24,7 @@ public class VisionIOLimelight implements VisionIO {
     public void updateInputs(VisionInputs inputs) {
         LimelightHelpers.PoseEstimate measurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
         inputs.connected = LimelightHelpers.getLimelightNTDouble(limelightName, "hb") > 0;
-        visionAlert.set(inputs.connected);
+        visionAlert.set(!inputs.connected);
         inputs.hasTarget = LimelightHelpers.getTV(limelightName);
 
         double cl = LimelightHelpers.getLatency_Capture(limelightName);
