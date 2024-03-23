@@ -48,51 +48,54 @@ public class Vision extends AbstractSubsystem {
         for(int i = 0; i < visionIO.length; i++) {
             visionIO[i].updateInputs(visionInputs[i]);
             Logger.processInputs("Vision/" + visionIO[i].getName(), visionInputs[i]);
+
+            processVisionData(visionIO[i], visionInputs[i]);
+        }
+    }
+
+    private void processVisionData(VisionIO io, VisionIO.VisionInputs inputs) {
+        if(unconditionallyTrustVision.get()) {
+            drive.addVisionMeasurement(
+                    inputs.botPose2d,
+                    inputs.timestamp,
+                    VecBuilder.fill(0.01, 0.01, 1)
+            );
         }
 
-        for(int i = 0; i < visionIO.length; i++) {
-            // low stdev to super trust vision
-            if(unconditionallyTrustVision.get()) {
-                drive.addVisionMeasurement(
-                        visionInputs[i].botPose2d,
-                        visionInputs[i].timestamp,
-                        VecBuilder.fill(0.01, 0.01, 1)
-                );
-            }
-
-            //exit if data sucks
-            if(visionInputs[i].botPose2d.equals(new Pose2d()) || visionInputs[i].botPose3d.equals(new Pose3d())) {
-                continue;
-            }
-
-            //exit if off the field, or too far above or below the ground
-            if(
-                    visionInputs[i].botPose3d.getX() < -fieldBorderMargin
-                            || visionInputs[i].botPose3d.getX() > fieldBorderMargin + FIELD_LENGTH_METERS
-                            || visionInputs[i].botPose3d.getY() < -fieldBorderMargin
-                            || visionInputs[i].botPose3d.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
-                            || visionInputs[i].botPose3d.getZ() < -0.4
-                            || visionInputs[i].botPose3d.getZ() > 0.1
-            ) {
-                continue;
-            }
-
-            //exit if rotation doesn't match gyro measurement
-            if(drive.getPose().getRotation().minus(visionInputs[i].botPose2d.getRotation()).getDegrees() > 5) {
-                continue;
-            }
-
-            //exit if tags are too far in auto
-            if(visionInputs[i].avgDist > 4 && DriverStation.isAutonomous()) {
-                continue;
-            }
-
-            Logger.recordOutput("Vision/" + visionIO[i].getName() + "/Accepted Pose", visionInputs[i].botPose2d);
-
-            //scale stdevs with square of distance and tag count
-            double xyStdev = defaultXYStdev * visionInputs[i].avgDist * visionInputs[i].avgDist / visionInputs[i].tagCount / visionInputs[i].tagCount;
-            visionIO[i].getDashboardField().setRobotPose(visionInputs[i].botPose2d);
-            drive.addVisionMeasurement(visionInputs[i].botPose2d, visionInputs[i].timestamp, VecBuilder.fill(xyStdev, xyStdev, 9999999));
+        //exit if data sucks
+        if(inputs.botPose2d.equals(new Pose2d()) || inputs.botPose3d.equals(new Pose3d())) {
+            return;
         }
+
+        //exit if off the field, or too far above or below the ground
+        if(
+                inputs.botPose3d.getX() < -fieldBorderMargin
+                        || inputs.botPose3d.getX() > fieldBorderMargin + FIELD_LENGTH_METERS
+                        || inputs.botPose3d.getY() < -fieldBorderMargin
+                        || inputs.botPose3d.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
+                        || inputs.botPose3d.getZ() < -0.4
+                        || inputs.botPose3d.getZ() > 0.1
+        ) {
+            return;
+        }
+
+        //exit if rotation doesn't match gyro measurement
+        if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2d.getRotation()).getDegrees()) > 5) {
+            return;
+        }
+
+        //exit if tags are too far in auto
+        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) {
+            return;
+        }
+
+        Logger.recordOutput("Vision/" + io.getName() + "/Accepted Pose", inputs.botPose2d);
+
+        //scale stdevs with square of distance and tag count
+        double xyStdev = defaultXYStdev * inputs.avgDist * inputs.avgDist / inputs.tagCount / inputs.tagCount;
+
+        Logger.recordOutput("Vision/" + io.getName() + "/XY Standard Deviations", xyStdev);
+        io.getDashboardField().setRobotPose(inputs.botPose2d);
+        drive.addVisionMeasurement(inputs.botPose2d, inputs.timestamp, VecBuilder.fill(xyStdev, xyStdev, 9999999));
     }
 }
