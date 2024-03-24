@@ -269,7 +269,7 @@ public final class Constants {
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 120;
-    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.22381, 2.4278, 0.19076);
+    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.17052, 4.439, 0.23119);
     public static final int SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO = 12;
     public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
     public static final int MAX_TELEOP_TURN_SPEED = 10;

@@ -109,7 +109,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     //}
 
     public void open() {
-        servoLeft.setPosition(0.3); //to compensate for bad servo programming :) opens left when facing robot-relative
+        servoLeft.setPosition(0.5); //to compensate for bad servo programming :) opens left when facing robot-relative
         servoRight.setPosition(0.3); //opens to the right when facing robot-relative
     }
 
