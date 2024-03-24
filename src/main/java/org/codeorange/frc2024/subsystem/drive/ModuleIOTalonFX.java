@@ -228,21 +228,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     @Override
-    public void resetAbsoluteZeros() {
-        System.out.println("Resetting Zeroes...");
-        double oldVal = swerveCancoder.getAbsolutePosition().getValue();
-        swerveCancoder.getConfigurator().apply(new MagnetSensorConfigs(), 1);
-        swerveCancoder.getAbsolutePosition().waitForUpdate(1, true);
-
-        MagnetSensorConfigs magneticSensorConfigs = new MagnetSensorConfigs();
-        magneticSensorConfigs.MagnetOffset = -(swerveCancoder.getAbsolutePosition().getValue());
-        swerveCancoder.getConfigurator().apply(magneticSensorConfigs, 1);
-        swerveCancoder.getAbsolutePosition().waitForUpdate(1, true);
-
-        System.out.println("Setting Zero " + oldVal + " -> " + swerveCancoder.getAbsolutePosition().getValue());
-    }
-
-    @Override
     public void setDriveMotorVelocity(double velocity, double accel) {
         driveMotor.setControl(new VelocityVoltage(velocity).withAcceleration(accel).withOverrideBrakeDurNeutral(true));
     }

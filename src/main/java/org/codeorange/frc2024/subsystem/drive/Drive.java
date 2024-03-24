@@ -277,12 +277,6 @@ public class Drive extends AbstractSubsystem {
         setSwerveModuleStates(states, true);
     }
 
-    public synchronized void resetAbsoluteZeros() {
-        for (ModuleIO module : moduleIO) {
-            module.resetAbsoluteZeros();
-        }
-    }
-
     @AutoLogOutput(key = "Drive/Distance from Speaker")
     public double findDistanceToSpeaker() {
         if (Robot.isRed()) {

@@ -676,10 +676,6 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
-        if (xbox.getRawButton(XboxButtons.X) && xbox.getRawButton(XboxButtons.B)
-                && xbox.getRisingEdge(XboxButtons.X) && xbox.getRisingEdge(XboxButtons.B)) {
-            drive.resetAbsoluteZeros();
-        }
         if(buttonPanel.getRisingEdge(9)) {
             climber.home();
         }
