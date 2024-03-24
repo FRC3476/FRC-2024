@@ -145,8 +145,8 @@ public final class Constants {
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.52271;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.85181;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.45337;
-                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.21435546875;
-                ARM_ABSOLUTE_ENCODER_OFFSET = 0.41259765625;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = 0.0739746;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0.3251953125;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;

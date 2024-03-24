@@ -30,8 +30,9 @@ public class FivePointFive extends BaseRoutine {
             driveToCenter = Choreo.getTrajectory("5point5_blue.5");
         }
         sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromStow(45)));
-        sequenceAction(new Wait(0.1));
+        sequenceAction(new Wait(0.2));
         sequenceAction(new RunKicker());
+        sequenceAction(new Stow());
         sequenceAction(new ParallelAction(
                 new DrivePath(driveToFirstNote),
                 new SeriesAction(

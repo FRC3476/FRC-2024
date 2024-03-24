@@ -10,7 +10,9 @@ public class ShootAndLeaveSource extends BaseRoutine {
         sequenceAction(
             new ParallelAction(
                 new SeriesAction(
-                    new ShootFromGround(45),
+                    new ShootFromGround(48),
+                    new Wait(0.2),
+                    new RunKicker(),
                     new Stow(),
                     new StopShooter()
                 ),

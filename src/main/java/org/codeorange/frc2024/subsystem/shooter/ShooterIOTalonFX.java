@@ -36,7 +36,7 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.CurrentLimits.SupplyCurrentLimitEnable = false;
         config.CurrentLimits.StatorCurrentLimitEnable = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         config.Slot0.kP = SHOOTER_P;
         config.Slot0.kI = SHOOTER_I;
         config.Slot0.kD = SHOOTER_D;
@@ -45,12 +45,15 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.Slot0.kA = 0.0057248;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
+        OrangeUtility.betterCTREConfigApply(follower, config);
 
+        if(!isCompetition()) config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         OrangeUtility.betterCTREConfigApply(leader, config);
 
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        OrangeUtility.betterCTREConfigApply(follower, config);
+
+
+        follower.setControl(new StrictFollower(leader.getDeviceID()));
 
         leaderPosition = leader.getPosition();
         leaderVelocity = leader.getVelocity();
@@ -90,26 +93,22 @@ public class ShooterIOTalonFX implements ShooterIO {
     @Override
     public void setMotorVoltage(double voltage) {
         leader.setControl(voltageOut.withOutput(voltage));
-        follower.setControl(voltageOut.withOutput(voltage));
     }
 
     TorqueCurrentFOC torqueOut = new TorqueCurrentFOC(0);
     @Override
     public void setMotorTorque(double torque) {
         leader.setControl(torqueOut.withOutput(torque));
-        follower.setControl(torqueOut.withOutput(torque));
     }
 
     VelocityVoltage velocityVoltage = new VelocityVoltage(0);
     @Override
     public void setVelocity(double velocity, double ffVolts) {
         leader.setControl(velocityVoltage.withVelocity(velocity));
-        follower.setControl(velocityVoltage.withVelocity(velocity));
     }
 
     @Override
     public void stop() {
         leader.setControl(new CoastOut());
-        follower.setControl(new CoastOut());
     }
 }

@@ -202,6 +202,7 @@ public class Robot extends LoggedRobot {
         autoChooser.addOption("Two Far Source", 8);
         autoChooser.addOption("Cursed path", 9);
         autoChooser.addOption("3.5 Far Source", 10);
+        autoChooser.addOption("5.5", 11);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 
@@ -548,7 +549,7 @@ public class Robot extends LoggedRobot {
                 }
             }
 
-            drive.swerveDriveTargetAngle(controllerDriveInputs, wantedPose.getRotation().getRadians());
+            drive.driveTargetPose(wantedPose);
         } else {
             drive.drive(controllerDriveInputs, true, true);
         }
@@ -631,7 +632,7 @@ public class Robot extends LoggedRobot {
         ),
         TOWARDS_SOURCE(
                 new Pose2d(
-                        new Translation2d(12.535, 3.000),
+                        new Translation2d(12.023, 3.189),
                         Rotation2d.fromDegrees(120)
                 ),
                 new Pose2d(
@@ -639,7 +640,7 @@ public class Robot extends LoggedRobot {
                         Rotation2d.fromDegrees(60)
                 ),
                 new Pose2d(
-                        new Translation2d(12.121, 3.320),
+                        new Translation2d(12.023, 3.189),
                         Rotation2d.fromDegrees(120)
                 ),
                 new Pose2d(
