@@ -203,6 +203,7 @@ public class Robot extends LoggedRobot {
         autoChooser.addOption("Cursed path", 9);
         autoChooser.addOption("3.5 Far Source", 10);
         autoChooser.addOption("5.5", 11);
+        autoChooser.addOption("Tune PID", 100);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 
