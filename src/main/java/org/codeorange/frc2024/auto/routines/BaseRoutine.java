@@ -23,6 +23,7 @@ public abstract class BaseRoutine {
 
     public void stop() {
         isActive = false;
+        remainingActions.clear();
     }
 
     public boolean isActive() {
