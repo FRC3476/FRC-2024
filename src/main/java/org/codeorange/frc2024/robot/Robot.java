@@ -550,7 +550,7 @@ public class Robot extends LoggedRobot {
                 }
             }
 
-            drive.driveTargetPose(wantedPose);
+            drive.swerveDriveTargetAngle(controllerDriveInputs, wantedPose.getRotation().getRadians());;
         } else {
             drive.drive(controllerDriveInputs, true, true);
         }

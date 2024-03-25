@@ -114,7 +114,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     }
 
     public void close() {
-        servoLeft.setPosition(0.1); //should be about 90 degrees
+        servoLeft.setPosition(0.05); //should be about 90 degrees
         servoRight.setPosition(1.0); //should be about 90 degrees
     }
 

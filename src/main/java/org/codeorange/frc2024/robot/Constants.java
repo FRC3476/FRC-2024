@@ -191,14 +191,14 @@ public final class Constants {
     public static final double SS_GENINTERMEDIATE_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_GENINTERMEDIATE_WRIST = isPrototype() ? 100 : 0;
     public static final double SS_GENINTERMEDIATE_CLIMBER = isPrototype() ? 100 : 0;
-    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 12;
+    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 13;
     public static final double SS_MIDINTAKE_ARM = isPrototype() ? 0.1 : -0.01;
     public static final double SS_MIDINTAKE_WRIST = isPrototype() ? -0.1 : 0;
 
     public static final double SS_MIDINTAKE_CLIMBER = 0;
-    public static final double SS_GROUNDINTAKE_ELEVATOR = 14;
+    public static final double SS_GROUNDINTAKE_ELEVATOR = 15.89;
     public static final double SS_GROUNDINTAKE_ARM = isPrototype() ? 0.01 : 0;
-    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.135;
+    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.188;
     public static final double SS_GROUNDINTAKE_CLIMBER = 0;
 
     public static final double SS_SOURCEINTAKE_ELEVATOR = 6;
@@ -213,7 +213,7 @@ public final class Constants {
     public static final double SS_SPEAKER_ARM = isPrototype() ? 0.125 : 0.125;
     public static final double SS_SPEAKER_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_SPEAKER_CLIMBER = isPrototype() ? 0 : 0;
-    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 20;
+    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 19.5;
     public static final double SS_TRAP_ARM = isPrototype() ? 0 : 0.17;
     public static final double SS_TRAP_WRIST = isPrototype() ? 0 : 0.005;
     public static final double SS_TRAP_CLIMBER = isPrototype() ? 0 : 0;
@@ -234,7 +234,7 @@ public final class Constants {
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
-    public static final double SWERVE_DRIVE_P = 30;
+    public static final double SWERVE_DRIVE_P = 100;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
@@ -269,7 +269,7 @@ public final class Constants {
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 120;
-    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.17052, 4.439, 0.23119);
+    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.17052, 2.439, 0.23119);
     public static final int SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO = 12;
     public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
     public static final int MAX_TELEOP_TURN_SPEED = 10;
@@ -278,7 +278,7 @@ public final class Constants {
     public static final boolean USE_CANCODERS = true;
 
     //TODO: figure out how tf these numbers were obtained
-    public static final double SWERVE_WHEEL_RADIUS = 1.88955; // inches, gained from characterization
+    public static final double SWERVE_WHEEL_RADIUS = 1.93; // inches, gained from characterization
     public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS;
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;

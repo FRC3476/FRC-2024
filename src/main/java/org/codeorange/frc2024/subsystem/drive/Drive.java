@@ -190,12 +190,13 @@ public class Drive extends AbstractSubsystem {
         if (isOpenLoop) {
 //            ffv = DRIVE_FEEDFORWARD.calculate(velocity, acceleration);
 //            moduleIO[module].setDriveMotorVoltage(ffv);
-            moduleIO[module].setDriveMotorDutyCycle(velocity/DRIVE_HIGH_SPEED_M);
+//            moduleIO[module].setDriveMotorDutyCycle(velocity/DRIVE_HIGH_SPEED_M);
         } else {
-            moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
         }
-        Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
 
+        Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
+        Logger.recordOutput("Drive/Expected Voltage " + module, DRIVE_FEEDFORWARD.calculate(velocity));
+        moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
 
         Logger.recordOutput("Drive/Out Volts " + module, ffv);
         Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));

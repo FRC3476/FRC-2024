@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -81,7 +82,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         }
 
         var driveConfigs = new TalonFXConfiguration();
-        driveConfigs.Slot0.kP = 0.0055128;
+        driveConfigs.Slot0.kP = 4.5;
         driveConfigs.Slot0.kI = 0;
         driveConfigs.Slot0.kD = 0;
         driveConfigs.Slot0.kS = DRIVE_FEEDFORWARD.ks;
@@ -96,7 +97,6 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfigs.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
         driveConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
 
         OrangeUtility.betterCTREConfigApply(driveMotor, driveConfigs);
 
@@ -116,6 +116,8 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerConfigs.Feedback.RotorToSensorRatio = 1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR;
         steerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         steerConfigs.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        steerConfigs.MotionMagic.MotionMagicExpo_kV = 0;
+        steerConfigs.MotionMagic.MotionMagicExpo_kA = 0;
         steerConfigs.ClosedLoopGeneral.ContinuousWrap = true;
 
         OrangeUtility.betterCTREConfigApply(steerMotor, steerConfigs);
@@ -192,7 +194,8 @@ public class ModuleIOTalonFX implements ModuleIO {
         isBraking = enabled;
     }
 
-    private final PositionVoltage positionVoltage = new PositionVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+    private final PositionVoltage positionVoltage = new PositionVoltage(0).withEnableFOC(true);
+    private final MotionMagicExpoVoltage positionExpo = new MotionMagicExpoVoltage(0).withEnableFOC(true);
 
     @Override
     public void setSteerMotorPosition(double position) {
@@ -227,8 +230,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveMotor.setControl(dutyCycleOut.withOutput(dutyCycle));
     }
 
+    private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true).withSlot(0).withOverrideBrakeDurNeutral(true);
     @Override
     public void setDriveMotorVelocity(double velocity, double accel) {
-        driveMotor.setControl(new VelocityVoltage(velocity).withAcceleration(accel).withOverrideBrakeDurNeutral(true));
+        driveMotor.setControl(velocityOut.withVelocity(velocity));
     }
 }
