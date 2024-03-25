@@ -1,5 +1,7 @@
 package org.codeorange.frc2024.subsystem;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.subsystem.shooter.Shooter;
@@ -11,7 +13,6 @@ import org.codeorange.frc2024.subsystem.elevator.Elevator;
 import org.codeorange.frc2024.subsystem.intake.Intake;
 import org.codeorange.frc2024.subsystem.wrist.Wrist;
 import org.codeorange.frc2024.utility.Alert;
-import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -27,7 +28,7 @@ public class Superstructure extends AbstractSubsystem {
     private static Shooter shooter;
     private static Elevator elevator;
     private static Drive drive;
-    private static Superstructure superstructure = new Superstructure();
+    private static Superstructure superstructure;
     private static BlinkinLEDController blinkin;
     private static Climber climber;
     //private static Vision vision;
@@ -66,20 +67,11 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 //code!
-                if(superstructure.goalState == SPEAKER_AUTO || superstructure.goalState == States.SPEAKER || superstructure.goalState == States.AMP || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE || superstructure.goalState == States.CLIMBER || superstructure.goalState == States.SPEAKER_OVER_DEFENSE) {
+                if(superstructure.goalState == SPEAKER_AUTO || superstructure.goalState == States.SPEAKER || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE || superstructure.goalState == States.CLIMBER || superstructure.goalState == States.SPEAKER_OVER_DEFENSE) {
                     superstructure.setCurrentState(INTERMEDIATE);
-                } else if(superstructure.goalState == States.GROUND_INTAKE) {
-                    superstructure.setCurrentState(MID_INTAKE);
                 } else if(superstructure.goalState != States.STOW){
                     superstructure.setCurrentState(superstructure.goalState);
                 }
-            }
-        },
-        GENERAL_INTERMEDIATE(SS_GENINTERMEDIATE_ELEVATOR, SS_GENINTERMEDIATE_ARM, SS_GENINTERMEDIATE_WRIST) {
-            //moves arm up so that the elevator can extend. keeps wrist at safe angle so that it does not go crash :(
-            @Override
-            public void update() {
-                //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
             }
         },
         MID_INTAKE(SS_MIDINTAKE_ELEVATOR, SS_MIDINTAKE_ARM, SS_MIDINTAKE_WRIST) {
@@ -88,9 +80,6 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
                 if(isAtWantedState()) {
-                    if (superstructure.goalState == States.GROUND_INTAKE) {
-                        superstructure.setCurrentState(GROUND_INTAKE);
-                    }
                     if (superstructure.goalState == States.STOW) {
                         superstructure.setCurrentState(States.STOW);
                     }
@@ -111,9 +100,7 @@ public class Superstructure extends AbstractSubsystem {
                 if(intake.hasNote() && DriverStation.isTeleop()) {
                     superstructure.setGoalState(States.STOW);
                 }
-//                if(superstructure.goalState == States.STOW) {
-//                    superstructure.setCurrentState(MID_INTAKE);
-//                } else
+
                 if (superstructure.goalState == States.SPEAKER) {
                     superstructure.setCurrentState(INTERMEDIATE);
                 } else if (superstructure.goalState == States.SPEAKER_AUTO) {
@@ -139,11 +126,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 if(superstructure.goalState != States.AMP && isAtWantedState()) {
-                    if(superstructure.goalState == States.STOW) {
-                        superstructure.setCurrentState(States.INTERMEDIATE);
-                    } else {
-                        superstructure.setCurrentState(superstructure.goalState);
-                    }
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
@@ -309,10 +292,10 @@ public class Superstructure extends AbstractSubsystem {
         };
         @AutoLogOutput(key = "Superstructure/Is At Wanted State")
         public boolean isAtWantedState() {
-            return (MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
-                    && MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.03)
-                    && (MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.015)
-                    || (MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - arm.getPivotDegrees(), wrist.getWristAbsolutePosition(), 0.01) && (superstructure.currentState == States.SPEAKER_AUTO || superstructure.currentState == States.SPEAKER))));
+            return (org.codeorange.frc2024.utility.MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
+                    && org.codeorange.frc2024.utility.MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.03)
+                    && (org.codeorange.frc2024.utility.MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.015)
+                    || (org.codeorange.frc2024.utility.MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - arm.getPivotDegrees(), wrist.getWristAbsolutePosition(), 0.01) && (superstructure.currentState == States.SPEAKER_AUTO || superstructure.currentState == States.SPEAKER))));
         }
         final double elevatorPos;
         final double armPos;
@@ -371,10 +354,10 @@ public class Superstructure extends AbstractSubsystem {
             currentState.update();
             arm.setPosition(currentState.armPos);
             if (superstructure.currentState != States.HOMING) {
-                elevator.setPosition(currentState.elevatorPos);
+                elevator.setPosition(dynamicAdjustElevator(currentState.elevatorPos));
             }
             if (superstructure.currentState != States.SPEAKER && superstructure.currentState != States.SPEAKER_OVER_DEFENSE && superstructure.currentState != States.SPEAKER_AUTO) {
-                wrist.setWristPosition(currentState.wristPos);
+                wrist.setWristPosition(dynamicAdjustWrist(currentState.wristPos));
             } else {
                 var wristPos = edu.wpi.first.math.MathUtil.inputModulus(-wantedShooterPosition - arm.getPivotDegrees(), -0.5, 0.5);
                 wrist.setWristPosition(wristPos);
@@ -390,6 +373,69 @@ public class Superstructure extends AbstractSubsystem {
         prevState = currentState;
     }
 
+    /**
+     * dynamicAdjustWrist
+     * requirements:
+     * limit lower range of rotation for the wrist so that it can't intersect
+     * with the robot base. this depends on elevator position and arm rotation.
+     * also need to allow the ground_intake state to rotate down over the bumper to the ground.
+     * See https://www.desmos.com/calculator/h0udbhqpft for a graph of the trig function used here.
+     * In that graph, the x coordinate shows the angle of the arm in degrees, and the y coordinate
+     * shows the allowable angle of the wrist in degrees.
+     * @param wristPos - the angle (in rotations) of the wrist that we want to eventually reach
+     * @return a clamped value of wristPos that may limit the amount of negative rotation allowed
+     */
+    private double dynamicAdjustWrist(double wristPos) {
+        double wristLengthInches = 11.191;
+        double elevatorPivotToWristCarriageOffset = 10.5;
+        double elevatorPositionInches = elevator.getPositionInInches();
+        double armPositionDegrees = arm.getPivotDegrees();
+        double lowerBound = -0.5;
+        double upperBound = 0.5;
+
+        // special case for ground intake
+        if (elevatorPositionInches >= SS_MIDINTAKE_ELEVATOR && armPositionDegrees <= 0.0) {
+            lowerBound = SS_GROUNDINTAKE_WRIST;
+        } else {
+            elevatorPositionInches += elevatorPivotToWristCarriageOffset;
+
+            //checks if the wrist can rotate freely (its length is less than its distance from the base).
+            double verticalOffsetFromRobot = elevatorPositionInches * Math.sin(Units.degreesToRadians(armPositionDegrees));
+
+            if (verticalOffsetFromRobot <= wristLengthInches) {
+                // lowerBound is the degrees that wrist would have to rotate to form a triangle with the ground
+                // (so that it can't move into the ground). this is negative
+                lowerBound = Units.radiansToRotations(Math.acos(verticalOffsetFromRobot / wristLengthInches)) - Units.degreesToRotations(90);
+            }
+        }
+        return MathUtil.clamp(wristPos, lowerBound, upperBound);
+    }
+
+    /**
+     * dynamicAdjustElevator
+     * requirements: limit the upper movement of the elevator
+     * depending on the current arm rotation, we should never extend more than 12 inches beyond the robot frame.
+     * @param elevatorPos - the position (in inches) of the elevator that we want to eventually reach
+     * @return
+     */
+    private double dynamicAdjustElevator(double elevatorPos) {
+        double elevatorPivotToWristCarriageOffset = 10.5;
+        double upperBound;
+        // TODO this does not yet take into account the additional extension of the intake in front of the arm
+        if (goalState == States.AMP || goalState == States.SOURCE_INTAKE) {
+            // 26 inches is the horizontal distance from arm pivot to front of bumper
+            // use this when you want to raise the arm and you might be directly in front of a wall
+            // to avoid moving outside the robot boundary
+            upperBound = 26 / Math.cos(Units.degreesToRadians(arm.getPivotDegrees()));
+        } else {
+            // 38 allows the arm to go up to 12 inches beyond the bumper but no further.
+            upperBound = 38 / Math.cos(Units.degreesToRadians(arm.getPivotDegrees()));
+        }
+        upperBound -= elevatorPivotToWristCarriageOffset;
+        upperBound = Math.min(upperBound, ELEVATOR_UPPER_LIMIT);
+        return MathUtil.clamp(elevatorPos, ELEVATOR_LOWER_LIMIT, upperBound);
+    }
+
     public void setWantedShooterPosition(double wantedPos) {
         if(isFlipped) {
             wantedPos += 2 * (0.25 - wantedPos);
@@ -402,7 +448,7 @@ public class Superstructure extends AbstractSubsystem {
         double degreesRelativeToGround = degreesRelativeToArm + armPivotDegrees;
         return degreesRelativeToGround;
     }
-    
+
     public void setGoalState(States goalState) {
         this.goalState = goalState;
     }
@@ -413,6 +459,9 @@ public class Superstructure extends AbstractSubsystem {
     }
 
     public static Superstructure getSuperstructure() {
+        if(superstructure == null) {
+            superstructure = new Superstructure();
+        }
         return superstructure;
     }
 

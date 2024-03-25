@@ -24,6 +24,9 @@ public class Arm extends AbstractSubsystem {
         Logger.recordOutput("Pivot/Goal position", position);
     }
 
+    public double getPosition() {
+        return inputs.leadRelativePosition;
+    }
 
     @Override
     public synchronized void update() {
