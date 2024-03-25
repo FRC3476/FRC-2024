@@ -52,18 +52,6 @@ public final class Constants {
     // "*" is ANY CANivore
     public static final String CAN_BUS = isCompetition() ? "*" : "rio";
 
-    public enum KinematicLimits {
-        /**
-         * Normal acceleration limit while driving. This ensures that the driver can't tip the robot.
-         */
-        NORMAL_DRIVING(new SwerveSetpointGenerator.KinematicLimit(7, 5000, Math.PI * 2 * 2));
-        public final SwerveSetpointGenerator.KinematicLimit kinematicLimit;
-
-        KinematicLimits(SwerveSetpointGenerator.KinematicLimit kinematicLimit) {
-            this.kinematicLimit = kinematicLimit;
-        }
-    }
-
     /*
      * Module guide
      *    FL  FR

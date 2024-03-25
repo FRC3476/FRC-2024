@@ -14,7 +14,6 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.BlinkinLEDController;
@@ -30,7 +29,6 @@ import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.utility.*;
 import org.codeorange.frc2024.utility.Alert.AlertType;
 import org.codeorange.frc2024.utility.Controller.XboxButtons;
-import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -325,10 +323,6 @@ public class Robot extends LoggedRobot {
     }
 
     boolean amp = false;
-
-    public static final LiveEditableValue<Double> voltage = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Voltage"));
-    public static final LiveEditableValue<Double> elevpos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("elevpos"));
-    public static final LiveEditableValue<Double> wristPos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("wristpos"));
     boolean prevHasNote;
     double rumbleStart = 0;
 
@@ -750,10 +744,8 @@ public class Robot extends LoggedRobot {
     public static Wrist getWrist() {
         return wrist;
     }
-    public static Climber getClimber() { return climber; }
-
-    public static Superstructure getSuperstructure() {
-        return superstructure;
+    public static Climber getClimber() {
+        return climber;
     }
 
     public static BlinkinLEDController getBlinkin() {

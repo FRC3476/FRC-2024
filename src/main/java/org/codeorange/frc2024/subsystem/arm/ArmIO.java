@@ -1,6 +1,5 @@
 package org.codeorange.frc2024.subsystem.arm;
 
-import org.codeorange.frc2024.robot.Constants;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ArmIO {

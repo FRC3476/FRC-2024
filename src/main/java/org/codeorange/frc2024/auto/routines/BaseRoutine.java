@@ -1,16 +1,13 @@
 package org.codeorange.frc2024.auto.routines;
 
 import org.codeorange.frc2024.auto.actions.BaseAction;
-import org.codeorange.frc2024.robot.Robot;
-import org.codeorange.frc2024.subsystem.drive.Drive;
 
 import java.util.ArrayList;
 
 public abstract class BaseRoutine {
     protected boolean isActive = false;
-    private final Drive drive = Robot.getDrive();
     private BaseAction currentAction;
-    private final ArrayList<BaseAction> remainingActions = new ArrayList<BaseAction>();
+    private final ArrayList<BaseAction> remainingActions = new ArrayList<>();
 
     protected abstract void configureRoutine();
 
@@ -47,8 +44,7 @@ public abstract class BaseRoutine {
                 return;
             }
             // get the current first entry in the action list
-            currentAction = remainingActions.get(0);
-            remainingActions.remove(0);
+            currentAction = remainingActions.remove(0);
             System.out.println("Running action: " + currentAction.getClass().getSimpleName());
             currentAction.start();
         }

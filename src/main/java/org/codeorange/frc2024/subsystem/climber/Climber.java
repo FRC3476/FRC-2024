@@ -1,10 +1,12 @@
 package org.codeorange.frc2024.subsystem.climber;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
+
 /*
 The climber works by engaging and disengaging a ratchet through the Spike H-Bridge Relay. When the relay is set to the
 off position, the ratchet is engaged because of a spring-loaded pawl. When it is engaged, the climber can move back

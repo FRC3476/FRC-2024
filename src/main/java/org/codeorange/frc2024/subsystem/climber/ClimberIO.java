@@ -1,5 +1,5 @@
 package org.codeorange.frc2024.subsystem.climber;
-import com.ctre.phoenix6.StatusSignal;
+
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ClimberIO {

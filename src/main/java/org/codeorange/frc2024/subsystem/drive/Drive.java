@@ -1,24 +1,15 @@
 package org.codeorange.frc2024.subsystem.drive;
 
 import edu.wpi.first.math.Matrix;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.robot.Robot;
@@ -26,16 +17,13 @@ import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.utility.ControllerDriveInputs;
 import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.swerve.SecondOrderModuleState;
-import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.codeorange.frc2024.utility.wpimodified.PIDController;
-import org.jetbrains.annotations.Contract;
+import org.codeorange.frc2024.utility.wpimodified.SwerveDrivePoseEstimator;
 import org.jetbrains.annotations.NotNull;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Optional;
-import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -49,7 +37,7 @@ public class Drive extends AbstractSubsystem {
     private final ModuleIO[] moduleIO;
     private final ModuleInputsAutoLogged[] moduleInputs = new ModuleInputsAutoLogged[]{new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged(), new ModuleInputsAutoLogged()};
     private @NotNull ChassisSpeeds nextChassisSpeeds = new ChassisSpeeds();
-    private final edu.wpi.first.math.estimator.SwerveDrivePoseEstimator poseEstimator;
+    private final SwerveDrivePoseEstimator poseEstimator;
     private final @NotNull PIDController turnPID;
 
     {
@@ -94,7 +82,7 @@ public class Drive extends AbstractSubsystem {
             module.setBrakeMode(false);
         }
 
-        poseEstimator = new edu.wpi.first.math.estimator.SwerveDrivePoseEstimator(
+        poseEstimator = new SwerveDrivePoseEstimator(
                 SWERVE_DRIVE_KINEMATICS,
                 gyroInputs.rotation2d,
                 getModulePositions(),
