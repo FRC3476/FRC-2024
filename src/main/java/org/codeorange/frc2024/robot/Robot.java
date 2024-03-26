@@ -382,7 +382,7 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
         if(xbox.getRisingEdge(XboxButtons.B) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
-            if(intake.hasNote()) {
+            if(intake.hasNote() && superstructure.getCurrentState() != Superstructure.States.SOURCE_INTAKE) {
                 superstructure.setGoalState(Superstructure.States.AMP);
             } else {
                 superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
