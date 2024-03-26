@@ -7,10 +7,7 @@ import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
-import edu.wpi.first.wpilibj.DriverStation;
 import org.codeorange.frc2024.utility.OrangeUtility;
-
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 import static org.codeorange.frc2024.robot.Constants.Ports.*;

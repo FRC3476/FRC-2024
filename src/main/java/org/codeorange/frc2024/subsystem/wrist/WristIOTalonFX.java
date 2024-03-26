@@ -107,8 +107,6 @@ public class WristIOTalonFX implements WristIO {
         inputs.wristTemp = wristTemp.getValue();
         inputs.wristVoltage = wristVoltage.getValue();
 
-        MagnetSensorConfigs config = new MagnetSensorConfigs();
-        absoluteEncoder.getConfigurator().refresh(config);
     }
 
     @Override

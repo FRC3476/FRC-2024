@@ -1,7 +1,5 @@
 package org.codeorange.frc2024.auto.actions;
 
-import org.littletonrobotics.junction.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

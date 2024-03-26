@@ -346,6 +346,7 @@ public class Superstructure extends AbstractSubsystem {
             wantedPuppeteerElevator = prevState.elevatorPos;
         }
 
+
         if(currentState == States.PUPPETEERING) {
             arm.setPosition(wantedPuppeteerArm);
             wrist.setWristPosition(wantedPuppeteerWrist);
