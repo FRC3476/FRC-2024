@@ -55,57 +55,23 @@ public class Superstructure extends AbstractSubsystem {
     public double wantedAngle = 52;
 
     public enum States {
-        REST(SS_REST_ELEVATOR, SS_REST_ARM, SS_REST_WRIST) {
-            //should make sure all motors are off and not trying to move anywhere
-            @Override
-            public void update() {
-
-            }
-        },
         STOW(SS_STOW_ELEVATOR, SS_STOW_ARM, SS_STOW_WRIST) {
-            //should move to most compact/low position for easy driving
             @Override
             public void update() {
                 //code!
-                if(superstructure.goalState == SPEAKER_AUTO || superstructure.goalState == States.SPEAKER || superstructure.goalState == States.TEST_TRAP || superstructure.goalState == States.SHOOT_OVER_STAGE || superstructure.goalState == States.SHOOT_UNDER_STAGE || superstructure.goalState == States.CLIMBER || superstructure.goalState == States.SPEAKER_OVER_DEFENSE) {
-                    superstructure.setCurrentState(INTERMEDIATE);
-                } else if(superstructure.goalState != States.STOW){
+                if(superstructure.goalState != States.STOW){
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
-        MID_INTAKE(SS_MIDINTAKE_ELEVATOR, SS_MIDINTAKE_ARM, SS_MIDINTAKE_WRIST) {
-            //arm is up high enough, now move elevator out and wrist down.
-            @Override
-            public void update() {
-                //constantly checks whether the elevator and arm are within a small amount of the requested position, if so proceed to the next pos
-                if(isAtWantedState()) {
-                    if (superstructure.goalState == States.STOW) {
-                        superstructure.setCurrentState(States.STOW);
-                    }
-                    if (superstructure.goalState == States.SPEAKER) {
-                        superstructure.setCurrentState(INTERMEDIATE);
-                    }
-                    if (superstructure.goalState != States.MID_INTAKE) {
-                        superstructure.setCurrentState(superstructure.goalState);
-                    }
-                }
-            }
-        },
         GROUND_INTAKE(SS_GROUNDINTAKE_ELEVATOR, SS_STOW_ARM, SS_GROUNDINTAKE_WRIST) {
-            //elevator and wrist are to position, move arm back down
             @Override
             public void update() {
-                //code and such
                 if(intake.hasNote() && DriverStation.isTeleop()) {
                     superstructure.setGoalState(States.STOW);
                 }
 
-                if (superstructure.goalState == States.SPEAKER) {
-                    superstructure.setCurrentState(INTERMEDIATE);
-                } else if (superstructure.goalState == States.SPEAKER_AUTO) {
-                    superstructure.setCurrentState(SPEAKER_AUTO_MID);
-                } else if(superstructure.goalState != States.GROUND_INTAKE) {
+                if(superstructure.goalState != States.GROUND_INTAKE) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
@@ -113,12 +79,11 @@ public class Superstructure extends AbstractSubsystem {
         SOURCE_INTAKE(SS_SOURCEINTAKE_ELEVATOR, SS_SOURCEINTAKE_ARM, SS_SOURCEINTAKE_WRIST) { //TODO
             @Override
             public void update() {
-                //code and such
                 if(intake.hasNote()) {
                     superstructure.setGoalState(States.STOW);
                 }
                 if(superstructure.goalState != States.SOURCE_INTAKE) {
-                        superstructure.setCurrentState(superstructure.goalState);
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
@@ -134,14 +99,6 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 if(superstructure.goalState != States.AMP_UP) {
-                    superstructure.setCurrentState(superstructure.goalState);
-                }
-            }
-        },
-        SPEAKER_AUTO_MID(SS_GROUNDINTAKE_ELEVATOR, 0.1, SS_GROUNDINTAKE_WRIST) {
-            @Override
-            public void update() {
-                if(isAtWantedState()) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
@@ -183,7 +140,7 @@ public class Superstructure extends AbstractSubsystem {
                     if(!DriverStation.isAutonomous()) {
                         shooter.stop();
                     }
-                    superstructure.setCurrentState(States.INTERMEDIATE);
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
@@ -200,7 +157,7 @@ public class Superstructure extends AbstractSubsystem {
                 } else if(superstructure.goalState != States.SPEAKER_OVER_DEFENSE) {
                     superstructure.setWantedShooterPosition(0);
                     shooter.stop();
-                    superstructure.setCurrentState(States.INTERMEDIATE);
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
@@ -247,10 +204,10 @@ public class Superstructure extends AbstractSubsystem {
         HOMING(SS_HOMING_ELEVATOR,SS_HOMING_ARM, SS_HOMING_WRIST) {
             @Override
             public void update() {
-                    if(!elevator.homing) {
-                        superstructure.setCurrentState(States.STOW);
-                        superstructure.setGoalState(States.STOW);
-                    }
+                if(!elevator.homing) {
+                    superstructure.setCurrentState(States.STOW);
+                    superstructure.setGoalState(States.STOW);
+                }
             }
         },
         SHOOT_OVER_STAGE(15, 0.1666, -0.31) {
@@ -345,6 +302,7 @@ public class Superstructure extends AbstractSubsystem {
             wantedPuppeteerWrist = prevState.wristPos;
             wantedPuppeteerElevator = prevState.elevatorPos;
         }
+
 
         if(currentState == States.PUPPETEERING) {
             arm.setPosition(wantedPuppeteerArm);
