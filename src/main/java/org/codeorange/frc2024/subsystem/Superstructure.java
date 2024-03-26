@@ -387,15 +387,21 @@ public class Superstructure extends AbstractSubsystem {
      */
     private double dynamicAdjustWrist(double wristPos) {
         double wristLengthInches = 11.191;
-        double elevatorPivotToWristCarriageOffset = 10.5;
+        double elevatorPivotToWristCarriageOffset = 9.35;
         double elevatorPositionInches = elevator.getPositionInInches();
         double armPositionDegrees = arm.getPivotDegrees();
         double lowerBound = -0.5;
         double upperBound = 0.5;
 
-        // special case for ground intake
-        if (elevatorPositionInches >= SS_MIDINTAKE_ELEVATOR && armPositionDegrees <= 0.0) {
-            lowerBound = SS_GROUNDINTAKE_WRIST;
+        if (armPositionDegrees <= 0.0) {
+            // special case for ground intake
+            if(elevatorPositionInches >= SS_MIDINTAKE_ELEVATOR) {
+                lowerBound = SS_GROUNDINTAKE_WRIST;
+                upperBound = 0;
+            } else {
+                lowerBound = 0;
+                upperBound = 0;
+            }
         } else {
             elevatorPositionInches += elevatorPivotToWristCarriageOffset;
 
@@ -406,6 +412,7 @@ public class Superstructure extends AbstractSubsystem {
                 // lowerBound is the degrees that wrist would have to rotate to form a triangle with the ground
                 // (so that it can't move into the ground). this is negative
                 lowerBound = Units.radiansToRotations(Math.acos(verticalOffsetFromRobot / wristLengthInches)) - Units.degreesToRotations(90);
+                upperBound = -lowerBound;
             }
         }
         return MathUtil.clamp(wristPos, lowerBound, upperBound);
@@ -419,7 +426,7 @@ public class Superstructure extends AbstractSubsystem {
      * @return
      */
     private double dynamicAdjustElevator(double elevatorPos) {
-        double elevatorPivotToWristCarriageOffset = 10.5;
+        double elevatorPivotToWristCarriageOffset = 9.35;
         double upperBound;
         // TODO this does not yet take into account the additional extension of the intake in front of the arm
         if (goalState == States.AMP || goalState == States.SOURCE_INTAKE) {

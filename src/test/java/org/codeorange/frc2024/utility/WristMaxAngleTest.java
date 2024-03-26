@@ -45,29 +45,6 @@ public class WristMaxAngleTest {
         return maxRotation;
     }
 
-    double findMaxRotation(double elevatorPositionInches, double armPositionDegrees) {
-        //no matter what, position should be between -0.5 and 0.5 rotations
-
-        //double armPositionDegrees = Units.rotationsToDegrees(Robot.getArm().getPosition());
-        //double elevatorPositionInches = Robot.getElevator().getPositionInInches();
-        //value gotten from cad yay! it is the measurement from the tip of the wrist rollers to the wrist pivot point
-        double wristLengthInches = 11.191;
-        double maxRotation = -0.5;
-        double elevatorPivotToWristCarriageOffset = 10.5;
-
-        elevatorPositionInches += elevatorPivotToWristCarriageOffset;
-        //checks if the wrist can rotate freely (its length is less than its distance from the ground). if not, it does stuff
-        double verticalOffsetFromRobot = elevatorPositionInches * Math.sin(Units.degreesToRadians(armPositionDegrees)) + 1;
-
-        if(!(verticalOffsetFromRobot > wristLengthInches)) {
-            //maxRotation is the degrees that wrist would have to go to to form a triangle with the ground (so that it can't move into the ground). this is negative
-            maxRotation = Units.degreesToRotations((Units.radiansToDegrees(Math.acos(verticalOffsetFromRobot / wristLengthInches))) - 90 - armPositionDegrees);
-            //clamps position to between the maximum positive and negative rotation
-        }
-        //returns position
-        return maxRotation;
-    }
-
     @Test
     void testWithDegrees() {
         assertEquals(0, Math.round(findMaxRotationDegrees(0, 0)));
@@ -91,18 +68,5 @@ public class WristMaxAngleTest {
         assertEquals(0, Math.round(findMaxRotationDegrees(11, 0)));
         assertEquals(-49, Math.round(findMaxRotationDegrees(12, 0)));
         assertEquals(-49, Math.round(findMaxRotationDegrees(13, 0)));
-
-    }
-
-    void normalize() {
-        assertEquals(-0.014240685396267437, findMaxRotation(0, 0));
-        assertEquals(-0.004240685396267436, findMaxRotation(0, -3.6));
-        assertEquals(-0.5, findMaxRotation(20, 60));
-        assertEquals(-0.5, findMaxRotation(18, 40));
-        assertEquals(-0.034364526656408816, findMaxRotation(5, 5));
-        assertEquals(-0.01726768040605605, findMaxRotation(1, 1));
-        assertEquals(-0.09757401872960077, findMaxRotation(0, 30));
-        assertEquals(-0.5, findMaxRotation(10, 30));
-        /*assertEquals(-0.5, findMaxRotation(6, 45));*/
     }
 }
