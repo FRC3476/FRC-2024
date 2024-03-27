@@ -361,11 +361,13 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = false;
             superstructure.wantedAngle = 52;
+            superstructure.manualOverride = true;
         }
         if(buttonPanel.getRisingEdge(11)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = true;
             superstructure.wantedAngle = 52;
+            superstructure.manualOverride = true;
         }
         if(buttonPanel.getRisingEdge(6)) {
             superstructure.setGoalState(Superstructure.States.SHOOT_OVER_STAGE);

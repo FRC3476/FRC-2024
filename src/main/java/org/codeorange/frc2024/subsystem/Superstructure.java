@@ -35,6 +35,7 @@ public class Superstructure extends AbstractSubsystem {
     private States goalState = States.STOW;
     public boolean isFlipped = false;
     public boolean climberOut = false;
+    public boolean manualOverride = false;
 
     private final Alert wristAlert = new Alert("WRIST WILL BREAK ITSELF IF ENABLED!!", Alert.AlertType.ERROR);
 
@@ -186,7 +187,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
                 if(DriverStation.isTeleop()) {
                     var shooting = shooter.runVelocity(10000.0 / 60);
-                    if (!shooting) {
+                    if (!shooting && !superstructure.manualOverride) {
                         superstructure.setGoalState(STOW);
                     }
                 }
@@ -199,6 +200,7 @@ public class Superstructure extends AbstractSubsystem {
                     if(!DriverStation.isAutonomous()) {
                         shooter.stop();
                     }
+                    superstructure.manualOverride = false;
                     superstructure.setCurrentState(States.INTERMEDIATE);
                 }
             }
@@ -208,7 +210,7 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
                 var shooting = shooter.runVelocity(10000.0 / 60);
-                if(!shooting) {
+                if(!shooting && !superstructure.manualOverride) {
                     superstructure.setGoalState(STOW);
                 }
                 if(superstructure.goalState == SPEAKER) {
@@ -216,6 +218,7 @@ public class Superstructure extends AbstractSubsystem {
                 } else if(superstructure.goalState != States.SPEAKER_OVER_DEFENSE) {
                     superstructure.setWantedShooterPosition(0);
                     shooter.stop();
+                    superstructure.manualOverride = false;
                     superstructure.setCurrentState(States.INTERMEDIATE);
                 }
             }
