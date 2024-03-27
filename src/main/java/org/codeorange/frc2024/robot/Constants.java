@@ -52,18 +52,6 @@ public final class Constants {
     // "*" is ANY CANivore
     public static final String CAN_BUS = isCompetition() ? "*" : "rio";
 
-    public enum KinematicLimits {
-        /**
-         * Normal acceleration limit while driving. This ensures that the driver can't tip the robot.
-         */
-        NORMAL_DRIVING(new SwerveSetpointGenerator.KinematicLimit(7, 5000, Math.PI * 2 * 2));
-        public final SwerveSetpointGenerator.KinematicLimit kinematicLimit;
-
-        KinematicLimits(SwerveSetpointGenerator.KinematicLimit kinematicLimit) {
-            this.kinematicLimit = kinematicLimit;
-        }
-    }
-
     /*
      * Module guide
      *    FL  FR
@@ -141,12 +129,12 @@ public final class Constants {
 
             }
             case COMPETITION_BOT -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.17041;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.52271;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.85181;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.45337;
-                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.21435546875;
-                ARM_ABSOLUTE_ENCODER_OFFSET = 0.41259765625;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.172119140625;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.521728515625;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.836181640625;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.453857421875;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = 0.0739746;
+                ARM_ABSOLUTE_ENCODER_OFFSET = 0.3251953125;
             }
             default -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = 0;
@@ -191,14 +179,14 @@ public final class Constants {
     public static final double SS_GENINTERMEDIATE_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_GENINTERMEDIATE_WRIST = isPrototype() ? 100 : 0;
     public static final double SS_GENINTERMEDIATE_CLIMBER = isPrototype() ? 100 : 0;
-    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 12;
+    public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 13;
     public static final double SS_MIDINTAKE_ARM = isPrototype() ? 0.1 : -0.01;
     public static final double SS_MIDINTAKE_WRIST = isPrototype() ? -0.1 : 0;
 
     public static final double SS_MIDINTAKE_CLIMBER = 0;
-    public static final double SS_GROUNDINTAKE_ELEVATOR = 14;
+    public static final double SS_GROUNDINTAKE_ELEVATOR = 15.89;
     public static final double SS_GROUNDINTAKE_ARM = isPrototype() ? 0.01 : 0;
-    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.135;
+    public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.188;
     public static final double SS_GROUNDINTAKE_CLIMBER = 0;
 
     public static final double SS_SOURCEINTAKE_ELEVATOR = 6;
@@ -213,7 +201,7 @@ public final class Constants {
     public static final double SS_SPEAKER_ARM = isPrototype() ? 0.125 : 0.125;
     public static final double SS_SPEAKER_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_SPEAKER_CLIMBER = isPrototype() ? 0 : 0;
-    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 20;
+    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 19.5;
     public static final double SS_TRAP_ARM = isPrototype() ? 0 : 0.17;
     public static final double SS_TRAP_WRIST = isPrototype() ? 0 : 0.005;
     public static final double SS_TRAP_CLIMBER = isPrototype() ? 0 : 0;
@@ -234,7 +222,7 @@ public final class Constants {
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
-    public static final double SWERVE_DRIVE_P = 30;
+    public static final double SWERVE_DRIVE_P = 150;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
@@ -255,7 +243,7 @@ public final class Constants {
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
     public static final double CLIMBER_D = isPrototype() ? 0 : 0;
 
-    public static final double SHOOTER_P = 0.00065134;
+    public static final double SHOOTER_P = 0.089683;
     public static final double SHOOTER_I = isPrototype() ? 0 : 0;
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
@@ -269,7 +257,7 @@ public final class Constants {
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 120;
-    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.22381, 2.4278, 0.19076);
+    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.17052, 2.439, 0.23119);
     public static final int SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO = 12;
     public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
     public static final int MAX_TELEOP_TURN_SPEED = 10;
@@ -278,7 +266,7 @@ public final class Constants {
     public static final boolean USE_CANCODERS = true;
 
     //TODO: figure out how tf these numbers were obtained
-    public static final double SWERVE_WHEEL_RADIUS = 1.88955; // inches, gained from characterization
+    public static final double SWERVE_WHEEL_RADIUS = 1.93; // inches, gained from characterization
     public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS;
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;

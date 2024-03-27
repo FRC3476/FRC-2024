@@ -82,12 +82,6 @@ public class WristIOTalonFX implements WristIO {
         wristTemp = wristMotor.getDeviceTemp();
         wristVoltage = wristMotor.getMotorVoltage();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(50, wristAbsolutePosition, wristRelativePosition, wristVelocity, wristVoltage);
-        BaseStatusSignal.setUpdateFrequencyForAll(2.0, wristCurrent, wristTemp);
-
-        wristMotor.optimizeBusUtilization();
-        absoluteEncoder.optimizeBusUtilization();
-
         wristMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
@@ -107,8 +101,6 @@ public class WristIOTalonFX implements WristIO {
         inputs.wristTemp = wristTemp.getValue();
         inputs.wristVoltage = wristVoltage.getValue();
 
-        MagnetSensorConfigs config = new MagnetSensorConfigs();
-        absoluteEncoder.getConfigurator().refresh(config);
     }
 
     @Override

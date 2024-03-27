@@ -82,20 +82,28 @@ public class Controller extends Joystick {
 
     @Contract(pure = true)
     public boolean getRisingEdge(int axis, double threshold) {
-        if (axis <= axisCount) {
-            boolean oldVal = oldAxis[axis] > threshold;
-            boolean currentVal = currentAxis[axis] > threshold;
-            return !oldVal && currentVal;
+        try {
+            if (axis <= axisCount) {
+                boolean oldVal = oldAxis[axis] > threshold;
+                boolean currentVal = currentAxis[axis] > threshold;
+                return !oldVal && currentVal;
+            }
+        } catch(ArrayIndexOutOfBoundsException ignored) {
+            return false;
         }
         return false;
     }
 
     @Contract(pure = true)
     public boolean getFallingEdge(int axis, double threshold) {
-        if (axis <= axisCount) {
-            boolean oldVal = oldAxis[axis] > threshold;
-            boolean currentVal = currentAxis[axis] > threshold;
-            return oldVal && !currentVal;
+        try {
+            if (axis <= axisCount) {
+                boolean oldVal = oldAxis[axis] > threshold;
+                boolean currentVal = currentAxis[axis] > threshold;
+                return oldVal && !currentVal;
+            }
+        } catch(ArrayIndexOutOfBoundsException ignored) {
+            return false;
         }
         return false;
     }

@@ -4,7 +4,6 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.ParentDevice;
-import org.codeorange.frc2024.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.ArrayList;

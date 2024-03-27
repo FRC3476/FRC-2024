@@ -33,12 +33,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         intakeAmps = motor.getSupplyCurrent();
         intakeTemp = motor.getDeviceTemp();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(50.0, intakeVelocity, intakeVoltage);
-        BaseStatusSignal.setUpdateFrequencyForAll(2.0, intakeAmps, intakeTemp);
-
         motor.setNeutralMode(NeutralModeValue.Brake);
-
-        motor.optimizeBusUtilization();
     }
 
     @Override

@@ -26,7 +26,6 @@ public class Wrist extends AbstractSubsystem {
     @Override
     public synchronized void update() {
         wristIO.updateInputs(inputs);
-        wristIO.checkConfigs();
         Logger.processInputs("Wrist", inputs);
     }
 

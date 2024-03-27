@@ -29,33 +29,31 @@ public class ThreePointFiveFarSource extends BaseRoutine {
         sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstShot.sample(0))));
         sequenceAction(new ParallelAction(
                 new DrivePath(driveToFirstShot),
-                new ShootFromStow(26))
+                new ShootFromStow(Robot.isRed() ? 36 : 34))
         );
-        sequenceAction(new Wait(0.1));
+        sequenceAction(new Wait(0.3));
         sequenceAction(new RunKicker());
         sequenceAction(new ParallelAction(
                 new DrivePath(driveToFirstNote),
                 new SeriesAction(
                         new GroundIntake(),
                         new Stow(),
-                        new ShootFromStow(17)
+                        new Wait(0.3),
+                        new ShootFromStow(Robot.isRed() ? 29 : 30)
                 )
         ));
-        sequenceAction(new Wait(0.15));
+        sequenceAction(new Wait(0.4));
         sequenceAction(new RunKicker());
         sequenceAction(new ParallelAction(
-                new SeriesAction(
-                        new Wait(0.35),
-                         new DrivePath(driveToSecondNote)
-                ),
+                new DrivePath(driveToSecondNote),
                 new SeriesAction(
                         new GroundIntake(),
                         new Stow()
                 )
         ));
         sequenceAction(new SeriesAction(
-                new ShootFromStow(22),
-                new Wait(0.15),
+                new ShootFromStow(29.5),
+                new Wait(0.275),
                 new RunKicker()
         ));
         sequenceAction(new Stow());

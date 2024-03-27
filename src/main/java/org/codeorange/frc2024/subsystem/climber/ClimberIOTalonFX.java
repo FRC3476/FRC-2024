@@ -66,12 +66,6 @@ public class ClimberIOTalonFX implements ClimberIO {
         climberVoltage = motor.getMotorVoltage();
         climberCurrent = motor.getSupplyCurrent();
         climberTemp = motor.getDeviceTemp();
-
-        BaseStatusSignal.setUpdateFrequencyForAll(100, climberPosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50, climberVelocity, climberVoltage);
-        BaseStatusSignal.setUpdateFrequencyForAll(2.0, climberCurrent, climberTemp);
-
-        motor.optimizeBusUtilization();
     }
     private final PositionVoltage motionMagicRequest = new PositionVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
     public void setMotorPosition(double targetPosition) {
@@ -109,12 +103,12 @@ public class ClimberIOTalonFX implements ClimberIO {
     //}
 
     public void open() {
-        servoLeft.setPosition(0.3); //to compensate for bad servo programming :) opens left when facing robot-relative
+        servoLeft.setPosition(0.5); //to compensate for bad servo programming :) opens left when facing robot-relative
         servoRight.setPosition(0.3); //opens to the right when facing robot-relative
     }
 
     public void close() {
-        servoLeft.setPosition(0.0); //should be about 90 degrees
+        servoLeft.setPosition(0.05); //should be about 90 degrees
         servoRight.setPosition(1.0); //should be about 90 degrees
     }
 

@@ -35,8 +35,8 @@ public final class OrangeUtility {
             StatusCode statusCode = device.getConfigurator().apply(config);
 
             if(statusCode.isOK()) {
-                System.out.println("TalonFX " + device.getDeviceID() + " configuration success!");
-                return;
+                    System.out.println("TalonFX " + device.getDeviceID() + " configuration success!");
+                    return;
             }
         }
         DriverStation.reportError("TalonFX " + device.getDeviceID() + " is unconfigured!!", false);

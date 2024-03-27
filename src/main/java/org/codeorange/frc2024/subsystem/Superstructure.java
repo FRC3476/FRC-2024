@@ -21,7 +21,6 @@ import static org.codeorange.frc2024.robot.Constants.*;
 import org.codeorange.frc2024.subsystem.climber.Climber;
 
 public class Superstructure extends AbstractSubsystem {
-    //unfortunately all of these need to be static so that the enum can access them
     private static Arm arm;
     private static Wrist wrist;
     private static Intake intake;
@@ -37,6 +36,7 @@ public class Superstructure extends AbstractSubsystem {
     private States goalState = States.STOW;
     public boolean isFlipped = false;
     public boolean climberOut = false;
+    public boolean manualOverride = false;
 
     private final Alert wristAlert = new Alert("WRIST WILL BREAK ITSELF IF ENABLED!!", Alert.AlertType.ERROR);
 
@@ -140,6 +140,7 @@ public class Superstructure extends AbstractSubsystem {
                     if(!DriverStation.isAutonomous()) {
                         shooter.stop();
                     }
+                    superstructure.manualOverride = false;
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
@@ -149,7 +150,7 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
                 var shooting = shooter.runVelocity(10000.0 / 60);
-                if(!shooting) {
+                if(!shooting && !superstructure.manualOverride) {
                     superstructure.setGoalState(STOW);
                 }
                 if(superstructure.goalState == SPEAKER) {
@@ -157,6 +158,7 @@ public class Superstructure extends AbstractSubsystem {
                 } else if(superstructure.goalState != States.SPEAKER_OVER_DEFENSE) {
                     superstructure.setWantedShooterPosition(0);
                     shooter.stop();
+                    superstructure.manualOverride = false;
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }

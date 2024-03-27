@@ -2,6 +2,7 @@ package org.codeorange.frc2024.subsystem.shooter;
 
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
+import org.codeorange.frc2024.subsystem.Superstructure;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -27,7 +28,7 @@ public class Shooter extends AbstractSubsystem {
     double shotNoteTime;
     public boolean runVelocity(double velocityRPS) {
         Logger.recordOutput("Shooter/SetpointRPS", velocityRPS);
-        if (Robot.getIntake().hasNote()) {
+        if (Robot.getIntake().hasNote() || Superstructure.getSuperstructure().manualOverride) {
             shooterIO.setVelocity(velocityRPS, 0);
             targetVelocity = velocityRPS;
         } else {

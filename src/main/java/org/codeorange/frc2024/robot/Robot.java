@@ -6,6 +6,7 @@
 package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +15,6 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.BlinkinLEDController;
@@ -30,7 +30,6 @@ import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.utility.*;
 import org.codeorange.frc2024.utility.Alert.AlertType;
 import org.codeorange.frc2024.utility.Controller.XboxButtons;
-import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -202,6 +201,8 @@ public class Robot extends LoggedRobot {
         autoChooser.addOption("Two Far Source", 8);
         autoChooser.addOption("Cursed path", 9);
         autoChooser.addOption("3.5 Far Source", 10);
+        autoChooser.addOption("5.5", 11);
+        autoChooser.addOption("Tune PID", 100);
         sideChooser.addDefaultOption("Blue", "blue");
         sideChooser.addOption("Red", "red");
 
@@ -235,6 +236,8 @@ public class Robot extends LoggedRobot {
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
         blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
+
+        SignalLogger.start();
     }
     double totalMemory;
     double usedMemory;
@@ -320,13 +323,10 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         drive.isOpenLoop = true;
         drive.setBrakeMode(true);
+        shooter.stop();
     }
 
     boolean amp = false;
-
-    public static final LiveEditableValue<Double> voltage = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("Voltage"));
-    public static final LiveEditableValue<Double> elevpos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("elevpos"));
-    public static final LiveEditableValue<Double> wristPos = new LiveEditableValue<>(0.0, SmartDashboard.getEntry("wristpos"));
     boolean prevHasNote;
     double rumbleStart = 0;
 
@@ -361,11 +361,13 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = false;
             superstructure.wantedAngle = 52;
+            superstructure.manualOverride = true;
         }
         if(buttonPanel.getRisingEdge(11)) {
             superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = true;
             superstructure.wantedAngle = 52;
+            superstructure.manualOverride = true;
         }
         if(buttonPanel.getRisingEdge(6)) {
             superstructure.setGoalState(Superstructure.States.SHOOT_OVER_STAGE);
@@ -548,7 +550,7 @@ public class Robot extends LoggedRobot {
                 }
             }
 
-            drive.swerveDriveTargetAngle(controllerDriveInputs, wantedPose.getRotation().getRadians());
+            drive.swerveDriveTargetAngle(controllerDriveInputs, wantedPose.getRotation().getRadians());;
         } else {
             drive.drive(controllerDriveInputs, true, true);
         }
@@ -631,7 +633,7 @@ public class Robot extends LoggedRobot {
         ),
         TOWARDS_SOURCE(
                 new Pose2d(
-                        new Translation2d(12.535, 3.000),
+                        new Translation2d(12.023, 3.189),
                         Rotation2d.fromDegrees(120)
                 ),
                 new Pose2d(
@@ -639,7 +641,7 @@ public class Robot extends LoggedRobot {
                         Rotation2d.fromDegrees(60)
                 ),
                 new Pose2d(
-                        new Translation2d(12.121, 3.320),
+                        new Translation2d(12.023, 3.189),
                         Rotation2d.fromDegrees(120)
                 ),
                 new Pose2d(
@@ -676,10 +678,6 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
-        if (xbox.getRawButton(XboxButtons.X) && xbox.getRawButton(XboxButtons.B)
-                && xbox.getRisingEdge(XboxButtons.X) && xbox.getRisingEdge(XboxButtons.B)) {
-            drive.resetAbsoluteZeros();
-        }
         if(buttonPanel.getRisingEdge(9)) {
             climber.home();
         }
@@ -752,10 +750,8 @@ public class Robot extends LoggedRobot {
     public static Wrist getWrist() {
         return wrist;
     }
-    public static Climber getClimber() { return climber; }
-
-    public static Superstructure getSuperstructure() {
-        return superstructure;
+    public static Climber getClimber() {
+        return climber;
     }
 
     public static BlinkinLEDController getBlinkin() {

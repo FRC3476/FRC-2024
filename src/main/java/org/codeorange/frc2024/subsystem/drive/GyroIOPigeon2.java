@@ -4,13 +4,10 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import org.codeorange.frc2024.utility.OrangeUtility;
 
-import java.util.Optional;
 import java.util.Queue;
 
 import static org.codeorange.frc2024.robot.Constants.*;
@@ -36,12 +33,10 @@ public class GyroIOPigeon2 implements GyroIO {
         yawVelocityDegPerSec = pigeon.getAngularVelocityZWorld();
         uptime = pigeon.getUpTime();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(50, yawPositionDeg, yawVelocityDegPerSec, uptime);
+        BaseStatusSignal.setUpdateFrequencyForAll(ODOMETRY_REFRESH_HZ, yawPositionDeg);
 
         yawTimestampQueue = OdometryThread.getInstance().makeTimestampQueue();
         yawPositionQueue = OdometryThread.getInstance().registerSignal(pigeon, pigeon.getYaw());
-
-        pigeon.optimizeBusUtilization();
     }
 
 
