@@ -253,15 +253,19 @@ public class Drive extends AbstractSubsystem {
         setSwerveModuleStates(states, openLoop);
     }
 
-    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad) {
+    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad, boolean fieldRel) {
         double turn = turnPID.calculate(gyroInputs.yawPositionRad, targetAngleRad);
         Logger.recordOutput("Drive/Wanted Omega", turn);
         SecondOrderModuleState[] states = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(
                 ChassisSpeeds.discretize(
+                        fieldRel ?
                         ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
                                 DRIVE_HIGH_SPEED_M * inputs.getY(),
                                 turn,
-                                gyroInputs.rotation2d), 0.02));
+                                gyroInputs.rotation2d) :
+                        new ChassisSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
+                                DRIVE_HIGH_SPEED_M * inputs.getY(),
+                                turn), 0.02));
         SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
         setSwerveModuleStates(states, true);
     }

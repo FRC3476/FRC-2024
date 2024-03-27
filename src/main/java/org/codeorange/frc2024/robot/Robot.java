@@ -476,7 +476,7 @@ public class Robot extends LoggedRobot {
         }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawButton(XboxButtons.Y)) {
-            drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker());
+            drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker(), true);
             superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
             if(!isCompetition()) {
                 superstructure.wantedAngle -= 2;
@@ -504,7 +504,7 @@ public class Robot extends LoggedRobot {
                 } else {
                     targetAngle = Units.Degrees.of(240).in(Units.Radians);
                 }
-                drive.swerveDriveTargetAngle(controllerDriveInputs, targetAngle);
+                drive.swerveDriveTargetAngle(controllerDriveInputs, targetAngle, true);
             }
         } else if(xbox.getRawButton(XboxButtons.X)) {
             var drivePose = drive.getPose();
@@ -550,7 +550,7 @@ public class Robot extends LoggedRobot {
                 }
             }
 
-            drive.swerveDriveTargetAngle(controllerDriveInputs, wantedPose.getRotation().getRadians());;
+            drive.swerveDriveTargetAngle(controllerDriveInputs, wantedPose.getRotation().getRadians(), false);;
         } else {
             drive.drive(controllerDriveInputs, true, true);
         }
