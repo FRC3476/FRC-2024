@@ -478,9 +478,6 @@ public class Robot extends LoggedRobot {
         if(xbox.getRawButton(XboxButtons.Y)) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker(), true);
             superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
-            if(!isCompetition()) {
-                superstructure.wantedAngle -= 2;
-            }
         } else if(xbox.getRawButton(XboxButtons.RIGHT_CLICK)) {
             double targetAngle;
 

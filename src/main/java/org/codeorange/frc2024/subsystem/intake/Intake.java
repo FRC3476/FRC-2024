@@ -1,12 +1,14 @@
 package org.codeorange.frc2024.subsystem.intake;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends AbstractSubsystem {
 
+    public static double debounceTime = 0.2;
     private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged intakeInputs = new IntakeInputsAutoLogged();
     private boolean hasNoteDebounced = false;
@@ -26,7 +28,7 @@ public class Intake extends AbstractSubsystem {
         if(intakeInputs.hasNote && !prevHasNote) {
             breakBeamEnabledStartTime = Logger.getRealTimestamp() * 1e-6;
         }
-        hasNoteDebounced = Logger.getRealTimestamp() * 1e-6 > breakBeamEnabledStartTime + 0.2 && intakeInputs.hasNote;
+        hasNoteDebounced = Logger.getRealTimestamp() * 1e-6 > breakBeamEnabledStartTime + debounceTime && intakeInputs.hasNote;
         prevHasNote = intakeInputs.hasNote;
     }
 
@@ -60,6 +62,6 @@ public class Intake extends AbstractSubsystem {
 
     @AutoLogOutput(key = "Intake/Has Note Debounced")
     public boolean hasNote() {
-        return hasNoteDebounced;
+        return DriverStation.isAutonomous() ? intakeInputs.hasNote : hasNoteDebounced;
     }
 }

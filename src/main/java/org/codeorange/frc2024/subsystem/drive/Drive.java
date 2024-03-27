@@ -255,7 +255,7 @@ public class Drive extends AbstractSubsystem {
     public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad, boolean fieldRel) {
         double turnRadPerSec = turnPID.calculate(gyroInputs.yawPositionRad, targetAngleRad);
         Logger.recordOutput("Drive/Wanted Omega", turnRadPerSec);
-        if(turnRadPerSec < Math.PI/36) turnRadPerSec = 0;
+        if(Math.abs(turnRadPerSec) < Math.PI/36) turnRadPerSec = 0;
         SecondOrderModuleState[] states = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(
                 ChassisSpeeds.discretize(
                         fieldRel ?
