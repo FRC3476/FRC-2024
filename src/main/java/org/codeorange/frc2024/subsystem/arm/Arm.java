@@ -36,7 +36,7 @@ public class Arm extends AbstractSubsystem {
 
         //position, velocity, and acceleration of the profile at that time
 
-    public double getPivotDegrees() {
+    public double getPivotRotations() {
         return inputs.leadRelativePosition;
     }
 

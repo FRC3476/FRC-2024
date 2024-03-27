@@ -3,7 +3,6 @@ package org.codeorange.frc2024.subsystem;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.subsystem.shooter.Shooter;
 
 import org.codeorange.frc2024.robot.Robot;
@@ -13,7 +12,6 @@ import org.codeorange.frc2024.subsystem.elevator.Elevator;
 import org.codeorange.frc2024.subsystem.intake.Intake;
 import org.codeorange.frc2024.subsystem.wrist.Wrist;
 import org.codeorange.frc2024.utility.Alert;
-import org.codeorange.frc2024.utility.net.editing.LiveEditableValue;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -120,7 +118,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             //spin drivebase + aim mechanisms
             public void update() {
-                if(arm.getPivotDegrees() >= 0.05) {
+                if(arm.getPivotRotations() >= 0.05) {
                     superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
                 } else {
                     superstructure.setWantedShooterPosition(0);
@@ -252,9 +250,9 @@ public class Superstructure extends AbstractSubsystem {
         @AutoLogOutput(key = "Superstructure/Is At Wanted State")
         public boolean isAtWantedState() {
             return (org.codeorange.frc2024.utility.MathUtil.epsilonEquals(elevatorPos, elevator.getPositionInInches(), 0.5)
-                    && org.codeorange.frc2024.utility.MathUtil.epsilonEquals(armPos, arm.getPivotDegrees(), 0.03)
+                    && org.codeorange.frc2024.utility.MathUtil.epsilonEquals(armPos, arm.getPivotRotations(), 0.03)
                     && (org.codeorange.frc2024.utility.MathUtil.epsilonEquals(wristPos, wrist.getWristAbsolutePosition(), 0.015)
-                    || (org.codeorange.frc2024.utility.MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - arm.getPivotDegrees(), wrist.getWristAbsolutePosition(), 0.01) && (superstructure.currentState == States.SPEAKER_AUTO || superstructure.currentState == States.SPEAKER))));
+                    || (org.codeorange.frc2024.utility.MathUtil.epsilonEquals(-superstructure.wantedShooterPosition - arm.getPivotRotations(), wrist.getWristAbsolutePosition(), 0.01) && (superstructure.currentState == States.SPEAKER_AUTO || superstructure.currentState == States.SPEAKER))));
         }
         final double elevatorPos;
         final double armPos;
@@ -319,7 +317,7 @@ public class Superstructure extends AbstractSubsystem {
             if (superstructure.currentState != States.SPEAKER && superstructure.currentState != States.SPEAKER_OVER_DEFENSE && superstructure.currentState != States.SPEAKER_AUTO) {
                 wrist.setWristPosition(dynamicAdjustWrist(currentState.wristPos));
             } else {
-                var wristPos = edu.wpi.first.math.MathUtil.inputModulus(-wantedShooterPosition - arm.getPivotDegrees(), -0.5, 0.5);
+                var wristPos = edu.wpi.first.math.MathUtil.inputModulus(-wantedShooterPosition - arm.getPivotRotations(), -0.5, 0.5);
                 wrist.setWristPosition(wristPos);
                 wantedAngle += shotWristdelta;
 
@@ -349,7 +347,7 @@ public class Superstructure extends AbstractSubsystem {
         double wristLengthInches = 11.191;
         double elevatorPivotToWristCarriageOffset = 9.35;
         double elevatorPositionInches = elevator.getPositionInInches();
-        double armPositionDegrees = arm.getPivotDegrees();
+        double armPositionDegrees = Units.rotationsToDegrees(arm.getPivotRotations());
         double lowerBound = -0.5;
         double upperBound = 0.5;
 
@@ -393,10 +391,10 @@ public class Superstructure extends AbstractSubsystem {
             // 26 inches is the horizontal distance from arm pivot to front of bumper
             // use this when you want to raise the arm and you might be directly in front of a wall
             // to avoid moving outside the robot boundary
-            upperBound = 26 / Math.cos(Units.degreesToRadians(arm.getPivotDegrees()));
+            upperBound = 26 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
         } else {
             // 38 allows the arm to go up to 12 inches beyond the bumper but no further.
-            upperBound = 38 / Math.cos(Units.degreesToRadians(arm.getPivotDegrees()));
+            upperBound = 38 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
         }
         upperBound -= elevatorPivotToWristCarriageOffset;
         upperBound = Math.min(upperBound, ELEVATOR_UPPER_LIMIT);
