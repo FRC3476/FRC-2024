@@ -66,7 +66,8 @@ public class WristMaxAngleTest {
         assertEquals(0, Math.round(findMaxRotationDegrees(6, 0)));
         assertEquals(0, Math.round(findMaxRotationDegrees(10, 0)));
         assertEquals(0, Math.round(findMaxRotationDegrees(11, 0)));
-        assertEquals(-49, Math.round(findMaxRotationDegrees(12, 0)));
-        assertEquals(-49, Math.round(findMaxRotationDegrees(13, 0)));
+        assertEquals(0, Math.round(findMaxRotationDegrees(12, 0)));
+        assertEquals(Math.round(SS_GROUNDINTAKE_WRIST * 360), Math.round(findMaxRotationDegrees(13.5, 0)));
+        assertEquals(Math.round(SS_GROUNDINTAKE_WRIST * 360), Math.round(findMaxRotationDegrees(15, 0)));
     }
 }
