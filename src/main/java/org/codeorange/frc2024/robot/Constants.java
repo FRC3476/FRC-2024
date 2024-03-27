@@ -8,7 +8,6 @@ import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.MacAddressUtil;
 import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
-import org.codeorange.frc2024.utility.swerve.SwerveSetpointGenerator;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,11 +31,11 @@ public final class Constants {
     public static RobotIdentity robotIdentity = RobotIdentity.getRobotIdentity(mac);
 
     public static boolean isPrototype() {
-        return robotIdentity == RobotIdentity.PROTOTYPE_BOT;
+        return robotIdentity == RobotIdentity.WOBBLES;
     }
 
     public static boolean isCompetition() {
-        return robotIdentity == RobotIdentity.COMPETITION_BOT;
+        return robotIdentity == RobotIdentity.HALEIWA;
     }
     static {
         new Alert("Robot Identity: " + robotIdentity.toString(), Alert.AlertType.INFO).set(true);
@@ -111,7 +110,7 @@ public final class Constants {
 
     static {
         switch(robotIdentity) {
-            case PROTOTYPE_BOT -> {
+            case WOBBLES -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = -0.234130859375+0.5;
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.10107421875+0.5;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.33251953125;
@@ -119,7 +118,7 @@ public final class Constants {
                 WRIST_ABSOLUTE_ENCODER_OFFSET = -0.389404296875;
                 ARM_ABSOLUTE_ENCODER_OFFSET = -0.36279296875;
             }
-            case PRACTICE_BOT -> {
+            case JON -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = -0.371826171875;
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.44799804;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.177978515625;
@@ -128,7 +127,7 @@ public final class Constants {
                 ARM_ABSOLUTE_ENCODER_OFFSET = -0.284423828125;
 
             }
-            case COMPETITION_BOT -> {
+            case HALEIWA -> {
                 FL_ABSOLUTE_ENCODER_OFFSET = -0.172119140625;
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.521728515625;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.836181640625;
@@ -194,16 +193,16 @@ public final class Constants {
     public static final double SS_SOURCEINTAKE_WRIST = 0.008888888888888888888;
     public static final double SS_SOURCEINTAKE_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_AMP_ELEVATOR = isPrototype() ? 21.6 : 20;
-    public static final double SS_AMP_ARM = isPrototype() ? 0.16 : 0.18;
+    public static final double SS_AMP_ARM = isPrototype() ? 0.16 : 0.17;
     public static final double SS_AMP_WRIST = isPrototype() ? -0.24 : -0.24;
     public static final double SS_AMP_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_SPEAKER_ELEVATOR = isPrototype() ? 10 : 6;
     public static final double SS_SPEAKER_ARM = isPrototype() ? 0.125 : 0.125;
     public static final double SS_SPEAKER_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_SPEAKER_CLIMBER = isPrototype() ? 0 : 0;
-    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 19.5;
-    public static final double SS_TRAP_ARM = isPrototype() ? 0 : 0.17;
-    public static final double SS_TRAP_WRIST = isPrototype() ? 0 : 0.005;
+    public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 20.5;
+    public static final double SS_TRAP_ARM = isPrototype() ? 0 : 0.16666666;
+    public static final double SS_TRAP_WRIST = isPrototype() ? 0 : 0.04;
     public static final double SS_TRAP_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER1_ELEVATOR = isPrototype() ? 0 : 0;
     public static final double SS_DEPLOYCLIMBER1_ARM = isPrototype() ? 0 : 0;
