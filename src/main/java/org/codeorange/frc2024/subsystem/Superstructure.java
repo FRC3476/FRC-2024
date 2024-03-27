@@ -20,7 +20,6 @@ import static org.codeorange.frc2024.robot.Constants.*;
 import org.codeorange.frc2024.subsystem.climber.Climber;
 
 public class Superstructure extends AbstractSubsystem {
-    //unfortunately all of these need to be static so that the enum can access them
     private static Arm arm;
     private static Wrist wrist;
     private static Intake intake;

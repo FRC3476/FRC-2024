@@ -104,11 +104,6 @@ public class ArmIOTalonFX implements ArmIO {
             followCurrent = followTalonFX.getSupplyCurrent();
             followTemp = followTalonFX.getDeviceTemp();
             followVoltage = followTalonFX.getMotorVoltage();
-
-            BaseStatusSignal.setUpdateFrequencyForAll(100, followPosition);
-            BaseStatusSignal.setUpdateFrequencyForAll(50, followVelocity, followCurrent, followTemp, followVoltage);
-
-            followTalonFX.optimizeBusUtilization();
         } else {
             followTalonFX = null;
             followPosition = null;
@@ -117,11 +112,6 @@ public class ArmIOTalonFX implements ArmIO {
             followTemp = null;
             followVoltage = null;
         }
-
-        BaseStatusSignal.setUpdateFrequencyForAll(100, leadAbsolutePosition, leadRelativePosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50, leadVelocity, leadAccel, leadVoltage, leadCurrent, leadTemp);
-
-        leadTalonFX.optimizeBusUtilization();
 
         var absPos = absoluteEncoder.getAbsolutePosition().getValue();
 

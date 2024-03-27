@@ -66,12 +66,6 @@ public class ClimberIOTalonFX implements ClimberIO {
         climberVoltage = motor.getMotorVoltage();
         climberCurrent = motor.getSupplyCurrent();
         climberTemp = motor.getDeviceTemp();
-
-        BaseStatusSignal.setUpdateFrequencyForAll(100, climberPosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50, climberVelocity, climberVoltage);
-        BaseStatusSignal.setUpdateFrequencyForAll(2.0, climberCurrent, climberTemp);
-
-        motor.optimizeBusUtilization();
     }
     private final PositionVoltage motionMagicRequest = new PositionVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
     public void setMotorPosition(double targetPosition) {

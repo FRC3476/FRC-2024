@@ -14,6 +14,9 @@ public interface ShooterIO {
         public double followerVoltage = 0.0;
         public double followerAmps = 0.0;
         public double followerTemp = 0.0;
+
+        public double PID_ffVolts = 0.0;
+        public double PID_pOutput = 0.0;
     }
 
     default void updateInputs(ShooterInputs inputs) {

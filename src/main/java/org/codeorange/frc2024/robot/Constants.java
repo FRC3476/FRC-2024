@@ -129,10 +129,10 @@ public final class Constants {
 
             }
             case COMPETITION_BOT -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.17041;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.52271;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.85181;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.45337;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.172119140625;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.521728515625;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.836181640625;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.453857421875;
                 WRIST_ABSOLUTE_ENCODER_OFFSET = 0.0739746;
                 ARM_ABSOLUTE_ENCODER_OFFSET = 0.3251953125;
             }
@@ -222,7 +222,7 @@ public final class Constants {
     public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
     public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
 
-    public static final double SWERVE_DRIVE_P = 100;
+    public static final double SWERVE_DRIVE_P = 150;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
@@ -243,7 +243,7 @@ public final class Constants {
     public static final double CLIMBER_I = isPrototype() ? 0 : 0;
     public static final double CLIMBER_D = isPrototype() ? 0 : 0;
 
-    public static final double SHOOTER_P = 0.00065134;
+    public static final double SHOOTER_P = 0.089683;
     public static final double SHOOTER_I = isPrototype() ? 0 : 0;
     public static final double SHOOTER_D = isPrototype() ? 0 : 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;

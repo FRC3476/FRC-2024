@@ -6,6 +6,7 @@
 package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -235,6 +236,8 @@ public class Robot extends LoggedRobot {
         AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
         blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
+
+        SignalLogger.start();
     }
     double totalMemory;
     double usedMemory;
@@ -320,6 +323,7 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         drive.isOpenLoop = true;
         drive.setBrakeMode(true);
+        shooter.stop();
     }
 
     boolean amp = false;

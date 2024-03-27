@@ -21,13 +21,13 @@ public class ShooterIOTalonFX implements ShooterIO {
     private final StatusSignal<Double> leaderVoltage;
     private final StatusSignal<Double> leaderAmps;
     private final StatusSignal<Double> leaderTemp;
-    private final StatusSignal<Double> leaderPosition;
+    private final StatusSignal<Double> PID_ffVolts;
+    private final StatusSignal<Double> PID_pOutput;
 
     private final StatusSignal<Double> followerVelocity;
     private final StatusSignal<Double> followerVoltage;
     private final StatusSignal<Double> followerAmps;
     private final StatusSignal<Double> followerTemp;
-
     public ShooterIOTalonFX() {
         leader = new TalonFX(Ports.SHOOTER_LEAD, CAN_BUS);
         follower = new TalonFX(Ports.SHOOTER_FOLLOW, CAN_BUS);
@@ -40,9 +40,9 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.Slot0.kP = SHOOTER_P;
         config.Slot0.kI = SHOOTER_I;
         config.Slot0.kD = SHOOTER_D;
-        config.Slot0.kS = 0.52029;
-        config.Slot0.kV = 0.060602;
-        config.Slot0.kA = 0.0057248;
+        config.Slot0.kS = 0.24045;
+        config.Slot0.kV = 0.061218;
+        config.Slot0.kA = 0.0030777;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         OrangeUtility.betterCTREConfigApply(follower, config);
@@ -51,30 +51,24 @@ public class ShooterIOTalonFX implements ShooterIO {
         OrangeUtility.betterCTREConfigApply(leader, config);
 
 
-
-
         follower.setControl(new StrictFollower(leader.getDeviceID()));
 
-        leaderPosition = leader.getPosition();
         leaderVelocity = leader.getVelocity();
         leaderVoltage = leader.getMotorVoltage();
         leaderAmps = leader.getSupplyCurrent();
         leaderTemp = leader.getDeviceTemp();
+        PID_ffVolts = leader.getClosedLoopFeedForward();
+        PID_pOutput = leader.getClosedLoopProportionalOutput();
 
         followerVelocity = follower.getVelocity();
         followerVoltage = follower.getMotorVoltage();
         followerAmps = follower.getSupplyCurrent();
         followerTemp = follower.getDeviceTemp();
-
-        BaseStatusSignal.setUpdateFrequencyForAll(100.0, leaderVelocity, leaderPosition, leaderVoltage);
-        BaseStatusSignal.setUpdateFrequencyForAll(2.0, followerVelocity, leaderAmps, leaderTemp, followerVoltage, followerAmps, followerTemp);
-        leader.optimizeBusUtilization();
-        follower.optimizeBusUtilization();
     }
 
     @Override
     public void updateInputs(ShooterInputs inputs) {
-        BaseStatusSignal.refreshAll(leaderVelocity, leaderVoltage, leaderAmps, followerTemp, followerVelocity, followerVoltage, followerAmps, followerTemp);
+        BaseStatusSignal.refreshAll(leaderVelocity, leaderVoltage, leaderAmps, followerTemp, followerVelocity, followerVoltage, followerAmps, followerTemp, PID_ffVolts, PID_pOutput);
 
         inputs.leaderVelocity = leaderVelocity.getValueAsDouble();
         inputs.leaderVoltage = leaderVoltage.getValueAsDouble();
@@ -86,7 +80,8 @@ public class ShooterIOTalonFX implements ShooterIO {
         inputs.followerAmps = followerAmps.getValueAsDouble();
         inputs.followerTemp = followerTemp.getValueAsDouble();
 
-
+        inputs.PID_ffVolts = PID_ffVolts.getValueAsDouble();
+        inputs.PID_pOutput = PID_pOutput.getValueAsDouble();
     }
 
     VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
