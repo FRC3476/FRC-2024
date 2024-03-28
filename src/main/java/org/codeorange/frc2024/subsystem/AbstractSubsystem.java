@@ -36,7 +36,7 @@ public abstract class AbstractSubsystem {
     }
 
     public AbstractSubsystem() {
-        this(Constants.DEFAULT_PERIODS_PER_LOG);
+        this(0);
     }
 
     public void selfTest() {}

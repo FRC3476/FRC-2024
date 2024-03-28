@@ -41,12 +41,8 @@ public final class Constants {
         new Alert("Robot Identity: " + robotIdentity.toString(), Alert.AlertType.INFO).set(true);
     }
     public static final String LOG_DIRECTORY = "/home/lvuser/logs";
-    public static final boolean IS_PRACTICE = Files.exists(new File("/home/lvuser/practice").toPath());
     public static final String VIRTUAL_MODE = "SIM";
-    public static final long MIN_FREE_SPACE = IS_PRACTICE ?
-            100000000 : // 100 MB
-            1000000000; // 1 GB
-    public static final int DEFAULT_PERIODS_PER_LOG = 0;
+    public static final long MIN_FREE_SPACE = 1000000000; // 1 GB
 
     // "*" is ANY CANivore
     public static final String CAN_BUS = isCompetition() ? "*" : "rio";
@@ -148,16 +144,12 @@ public final class Constants {
 
 
 
-    public static final int CLIMBER_PWM_RELAY_CHANNEL = 1; //TODO: get real channel #
 
     public static final double ELEVATOR_LOWER_LIMIT = 0;
     public static final double ELEVATOR_UPPER_LIMIT = 22;
     public static final double CLIMBER_LOWER_LIMIT_ROTATIONS = 0;
-    public static final double CLIMBER_HANG_POSITION = 2;
     public static final double CLIMBER_UPPER_LIMIT_ROTATIONS = 190;//TODO: find this
     public static final double CLIMBER_HOME_VOLTAGE = -1.0;
-    public static final double CLIMBER_CLIMB_VOLTAGE = -8.0;
-    public static final double CLIMBER_STALLING_CURRENT = 30; //TODO: FIND THIS IG
     public static final double NOMINAL_DT = 0.02;
     public static final double ELEVATOR_HOME_VOLTAGE = -1.5;
     public static final double ELEVATOR_STALLING_CURRENT = 30;
@@ -169,64 +161,43 @@ public final class Constants {
     public static final double SS_REST_ELEVATOR = 0;
     public static final double SS_REST_ARM = 0;
     public static final double SS_REST_WRIST = 0;
-    public static final double SS_REST_CLIMBER = 0;
     public static final double SS_STOW_ELEVATOR = 0;
-    public static final double SS_STOW_ARM = -0.01; //used to be -0.01
+    public static final double SS_STOW_ARM = -0.01;
     public static final double SS_STOW_WRIST = 0;
-    public static final double SS_STOW_CLIMBER = 0;
     public static final double SS_GENINTERMEDIATE_ELEVATOR = isPrototype() ? 3.5 : 0;
     public static final double SS_GENINTERMEDIATE_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_GENINTERMEDIATE_WRIST = isPrototype() ? 100 : 0;
-    public static final double SS_GENINTERMEDIATE_CLIMBER = isPrototype() ? 100 : 0;
     public static final double SS_MIDINTAKE_ELEVATOR = isPrototype() ? 14.1 : 13;
     public static final double SS_MIDINTAKE_ARM = isPrototype() ? 0.1 : -0.01;
     public static final double SS_MIDINTAKE_WRIST = isPrototype() ? -0.1 : 0;
-
-    public static final double SS_MIDINTAKE_CLIMBER = 0;
     public static final double SS_GROUNDINTAKE_ELEVATOR = 15.89;
     public static final double SS_GROUNDINTAKE_ARM = isPrototype() ? 0.01 : 0;
     public static final double SS_GROUNDINTAKE_WRIST = isPrototype() ? -0.1 : -0.188;
-    public static final double SS_GROUNDINTAKE_CLIMBER = 0;
-
     public static final double SS_SOURCEINTAKE_ELEVATOR = 6;
     public static final double SS_SOURCEINTAKE_ARM = 0.13;
     public static final double SS_SOURCEINTAKE_WRIST = 0.008888888888888888888;
-    public static final double SS_SOURCEINTAKE_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_AMP_ELEVATOR = isPrototype() ? 21.6 : 20;
     public static final double SS_AMP_ARM = isPrototype() ? 0.16 : 0.17;
     public static final double SS_AMP_WRIST = isPrototype() ? -0.24 : -0.24;
-    public static final double SS_AMP_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_SPEAKER_ELEVATOR = isPrototype() ? 10 : 6;
     public static final double SS_SPEAKER_ARM = isPrototype() ? 0.125 : 0.125;
     public static final double SS_SPEAKER_WRIST = isPrototype() ? 0 : 0;
-    public static final double SS_SPEAKER_CLIMBER = isPrototype() ? 0 : 0;
     public static final double SS_TRAP_ELEVATOR = isPrototype() ? 0 : 20.5;
     public static final double SS_TRAP_ARM = isPrototype() ? 0 : 0.16666666;
     public static final double SS_TRAP_WRIST = isPrototype() ? 0 : 0.04;
-    public static final double SS_TRAP_CLIMBER = isPrototype() ? 0 : 0;
-    public static final double SS_DEPLOYCLIMBER1_ELEVATOR = isPrototype() ? 0 : 0;
-    public static final double SS_DEPLOYCLIMBER1_ARM = isPrototype() ? 0 : 0;
-    public static final double SS_DEPLOYCLIMBER1_WRIST = isPrototype() ? 0 : 0;
-    public static final double SS_DEPLOYCLIMBER1_CLIMBER = isPrototype() ? 0 : 0;
-    public static final double SS_DEPLOYCLIMBER2_ELEVATOR = isPrototype() ? 0 : 0;
-    public static final double SS_DEPLOYCLIMBER2_ARM = isPrototype() ? 0 : 0;
-    public static final double SS_DEPLOYCLIMBER2_WRIST = isPrototype() ? 0 : 0;
-    public static final double SS_DEPLOYCLIMBER2_CLIMBER = isPrototype() ? CLIMBER_UPPER_LIMIT_ROTATIONS : 0;
     public static final double SS_CLIMB_ELEVATOR = isPrototype() ? 0 : 14;
     public static final double SS_CLIMB_ARM = isPrototype() ? 0 : 0.225;
-    public static final double SS_CLIMB_WRIST = isPrototype() ? 0 : 0;
-    public static final double SS_CLIMB_CLIMBER = isPrototype() ? 0 : 0;
-    public static final double SS_HOMING_ELEVATOR = isPrototype() ? 0 : 0;
+    public static final double SS_CLIMB_WRIST = 0;
+    public static final double SS_HOMING_ELEVATOR = 0;
     public static final double SS_HOMING_ARM = isPrototype() ? 0.1 : 0;
-    public static final double SS_HOMING_WRIST = isPrototype() ? 0 : 0;
-    public static final double SS_HOMING_CLIMBER = isPrototype() ? 0 : 0;
+    public static final double SS_HOMING_WRIST = 0;
 
     public static final double SWERVE_DRIVE_P = 150;
     public static final double SWERVE_DRIVE_D = 0;
     public static final double SWERVE_DRIVE_I = 0;
 
     public static final double TURN_P = isPrototype() ? 2 : 8.5;
-    public static final double TURN_I = isPrototype() ? 0 : 0;
+    public static final double TURN_I = 0;
     public static final double TURN_D = 0.3;
 
     public static final double ARM_P = 200;
@@ -239,17 +210,17 @@ public final class Constants {
     public static final double ELEVATOR_INCHES_PER_ROTATION = isPrototype() ? 0.25*22*12/60 : (30 * 5 * 8.0 / 72.0 / 25.4); //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
 
     public static final double CLIMBER_P = 1.5;
-    public static final double CLIMBER_I = isPrototype() ? 0 : 0;
-    public static final double CLIMBER_D = isPrototype() ? 0 : 0;
+    public static final double CLIMBER_I = 0;
+    public static final double CLIMBER_D = 0;
 
     public static final double SHOOTER_P = 0.089683;
-    public static final double SHOOTER_I = isPrototype() ? 0 : 0;
-    public static final double SHOOTER_D = isPrototype() ? 0 : 0;
+    public static final double SHOOTER_I = 0;
+    public static final double SHOOTER_D = 0;
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
 
     public static final double WRIST_P = 250;
-    public static final double WRIST_I = isPrototype() ? 0 : 0;
-    public static final double WRIST_D = isPrototype() ? 0 : 0;
+    public static final double WRIST_I = 0;
+    public static final double WRIST_D = 0;
 
     public static final double WRIST_RTS = isPrototype() ? 81.0 : (isCompetition() ? 45.0 : 125.0);
     public static final double WRIST_STM = 1.0;
@@ -296,18 +267,6 @@ public final class Constants {
 
     public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
 
-    //all value to be changed
-    public static final double ARM_NOMINAL_VOLTAGE = 9;
-    public static final int ARM_SMART_CURRENT_LIMIT = 35;
-    public static final int ARM_CURRENT_THRESHOLD = ARM_SMART_CURRENT_LIMIT - 10;
-    public static final int PIVOT_SMART_CURRENT_LIMIT = 40;
-
-    public static final double ARM_CLOSE_THRESHOLD_DEGREES = 48;
-    public static final double ARM_OPEN_THRESHOLD_DEGREES = 55;
-    public static final boolean USE_ARM_ENCODER = false;
-    public static final boolean ARM_WHEELS_USED = false;
-
-    public static final double ARM_LENGTH = .308;
 
     public static class AngleLookupInterpolation {
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_BACK_LOW = new InterpolatingDoubleTreeMap();
