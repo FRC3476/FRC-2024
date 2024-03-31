@@ -33,7 +33,8 @@ public class ShooterIOTalonFX implements ShooterIO {
         follower = new TalonFX(Ports.SHOOTER_FOLLOW, CAN_BUS);
 
         var config = new TalonFXConfiguration();
-        config.CurrentLimits.SupplyCurrentLimitEnable = false;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        config.CurrentLimits.SupplyCurrentLimit = 70;
         config.CurrentLimits.StatorCurrentLimitEnable = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

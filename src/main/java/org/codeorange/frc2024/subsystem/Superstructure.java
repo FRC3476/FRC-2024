@@ -139,11 +139,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 if(superstructure.goalState != States.AMP && isAtWantedState()) {
-                    if(superstructure.goalState == States.STOW) {
-                        superstructure.setCurrentState(States.INTERMEDIATE);
-                    } else {
-                        superstructure.setCurrentState(superstructure.goalState);
-                    }
+                    superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },

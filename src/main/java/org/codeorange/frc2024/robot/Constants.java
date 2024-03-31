@@ -124,7 +124,7 @@ public final class Constants {
 
             }
             case HALEIWA -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.172119140625;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.16748046875;
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.521728515625;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.836181640625;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.453857421875;
@@ -272,22 +272,30 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_BACK_LOW = new InterpolatingDoubleTreeMap();
         static {
             SHOOTER_ANGLE_BACK_LOW.put(1.28, 52.0);
-            SHOOTER_ANGLE_BACK_LOW.put(1.50, 45.0);
-            SHOOTER_ANGLE_BACK_LOW.put(2.75, 32.4);
-            SHOOTER_ANGLE_BACK_LOW.put(3.5, 28.0);
-            SHOOTER_ANGLE_BACK_LOW.put(3.9, 22.2);
-            SHOOTER_ANGLE_BACK_LOW.put(10.0, 20.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.50, 46.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.75, 44.0);
+            SHOOTER_ANGLE_BACK_LOW.put(2.35, 38.3);
+            SHOOTER_ANGLE_BACK_LOW.put(2.75, 35.0);
+            SHOOTER_ANGLE_BACK_LOW.put(3.3, 31.25);
+            SHOOTER_ANGLE_BACK_LOW.put(3.5, 31.0);
+            SHOOTER_ANGLE_BACK_LOW.put(3.8, 28.5);
+            SHOOTER_ANGLE_BACK_LOW.put(4.3, 27.7);
+            SHOOTER_ANGLE_BACK_LOW.put(5.15, 26.0);
+            SHOOTER_ANGLE_BACK_LOW.put(5.25, 25.5);
+            SHOOTER_ANGLE_BACK_LOW.put(10.0, 23.0);
         }
-        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_FRONT_LOW = SHOOTER_ANGLE_BACK_LOW;
-                //new InterpolatingDoubleTreeMap();
-//        static {
-//            // Need to find correct values
-//            SHOOTER_ANGLE_LOW_BACK.put(0.0, 54.0);
-//            SHOOTER_ANGLE_LOW_BACK.put(6.0, 27.0);
-//            SHOOTER_ANGLE_LOW_BACK.put(12.0, 24.0);
-//            SHOOTER_ANGLE_LOW_BACK.put(18.0, 22.0);
-//            SHOOTER_ANGLE_LOW_BACK.put(24.0, 20.0);
-//        }
+        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_FRONT_LOW = new InterpolatingDoubleTreeMap();
+        static {
+            SHOOTER_ANGLE_FRONT_LOW.put(1.28, 52.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(1.50, 45.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(2.75, 35.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(3.5, 30.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(3.8, 28.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(4.3, 26.7);
+            SHOOTER_ANGLE_FRONT_LOW.put(5.15, 25.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(5.25, 24.5);
+            SHOOTER_ANGLE_FRONT_LOW.put(10.0, 22.0);
+        }
 
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_HIGH_FRONT = new InterpolatingDoubleTreeMap();
         static {
@@ -299,11 +307,15 @@ public final class Constants {
         }
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_HIGH_BACK = new InterpolatingDoubleTreeMap();
         static {
-            SHOOTER_ANGLE_HIGH_BACK.put(0.0, 54.0);
-            SHOOTER_ANGLE_HIGH_BACK.put(6.0, 27.0);
-            SHOOTER_ANGLE_HIGH_BACK.put(12.0, 24.0);
-            SHOOTER_ANGLE_HIGH_BACK.put(18.0, 22.0);
-            SHOOTER_ANGLE_HIGH_BACK.put(24.0, 20.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(1.28, 42.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(1.50, 35.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(2.75, 27.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(3.5, 25.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(3.8, 23.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(4.3, 21.7);
+            SHOOTER_ANGLE_HIGH_BACK.put(5.15, 21.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(5.25, 20.5);
+            SHOOTER_ANGLE_HIGH_BACK.put(10.0, 19.0);
         }
     }
 
@@ -320,7 +332,7 @@ public final class Constants {
                     4.108
             );
 
-    public static final double CLIMBER_SWITCH_OFFSET = 2.89 - 0.95 / CLIMBER_P;
+    public static final double CLIMBER_SWITCH_OFFSET = 2.4 - 0.95 / CLIMBER_P;
 
     public static final double ODOMETRY_REFRESH_HZ = 250;
 }

@@ -119,7 +119,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         OrangeUtility.betterCTREConfigApply(steerMotor, steerConfigs);
 
-        OrangeUtility.betterCTREConfigApply(swerveCancoder, new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)));
+        OrangeUtility.betterCTREConfigApply(swerveCancoder, new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1).withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
 
         timestampQueue = OdometryThread.getInstance().makeTimestampQueue();
 

@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.robot.Robot;
@@ -31,6 +32,7 @@ import static org.codeorange.frc2024.robot.Constants.*;
 
 public class Drive extends AbstractSubsystem {
     static final Lock odometryLock = new ReentrantLock();
+    public static final double SPEAKER_ANGLE_OFFSET = Units.degreesToRadians(4);
 
     final GyroIO gyroIO;
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
@@ -263,9 +265,13 @@ public class Drive extends AbstractSubsystem {
                                 DRIVE_HIGH_SPEED_M * inputs.getY(),
                                 turnRadPerSec,
                                 gyroInputs.rotation2d) :
+                                Robot.isRed() ?
                         new ChassisSpeeds(-DRIVE_HIGH_SPEED_M * inputs.getX(),
                                 -DRIVE_HIGH_SPEED_M * inputs.getY(),
-                                turnRadPerSec), 0.02));
+                                turnRadPerSec)
+                        : new ChassisSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
+                                        DRIVE_HIGH_SPEED_M * inputs.getY(),
+                                        turnRadPerSec), 0.02));
         SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
         setSwerveModuleStates(states, true);
     }
@@ -292,9 +298,9 @@ public class Drive extends AbstractSubsystem {
         delta = target.minus(heading);
 
         if(delta.getCos() < 0) {
-            return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians();
+            return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians() + SPEAKER_ANGLE_OFFSET;
         }
-        return target.getRadians();
+        return target.getRadians() - SPEAKER_ANGLE_OFFSET;
     }
 
     public Translation2d getTranslationToGoal() {

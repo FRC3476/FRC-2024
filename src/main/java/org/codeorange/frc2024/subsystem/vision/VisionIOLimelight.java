@@ -11,6 +11,8 @@ public class VisionIOLimelight implements VisionIO {
     private final String limelightName;
     public final Field2d limelightField = new Field2d();
     private final Alert visionAlert;
+    private double prevHB = 0;
+    private double prevHBtimestamp;
 
 
     public VisionIOLimelight(String name) {
@@ -23,8 +25,13 @@ public class VisionIOLimelight implements VisionIO {
     @Override
     public void updateInputs(VisionInputs inputs) {
         LimelightHelpers.PoseEstimate measurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
-        inputs.connected = LimelightHelpers.getLimelightNTDouble(limelightName, "hb") > 0;
+        var hb = LimelightHelpers.getLimelightNTDouble(limelightName, "hb");
+        inputs.connected = (hb > 0) && !(Logger.getRealTimestamp() * 1e-6 > prevHBtimestamp + 0.5);
         visionAlert.set(!inputs.connected);
+        if(hb != prevHB) {
+            prevHBtimestamp = Logger.getRealTimestamp() * 1e-6;
+            prevHB = hb;
+        }
         inputs.hasTarget = LimelightHelpers.getTV(limelightName);
 
         double cl = LimelightHelpers.getLatency_Capture(limelightName);
