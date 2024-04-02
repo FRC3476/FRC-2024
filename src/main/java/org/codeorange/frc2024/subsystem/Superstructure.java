@@ -384,19 +384,25 @@ public class Superstructure extends AbstractSubsystem {
      * @return
      */
     private double dynamicAdjustElevator(double elevatorPos) {
-        double elevatorPivotToWristCarriageOffset = 9.35;
+        double elevatorPivotToWristCarriage0ffset = 9.35;
+        double wristLengthInches = 11.191;
         double upperBound;
-        // TODO this does not yet take into account the additional extension of the intake in front of the arm
+        double elevatorExtension = elevator.getPositionInInches();
+        double armAngle = arm.getPosition();
+        double wistAngle = wrist.getWristAbsolutePosition();
+        double horLengthOfElevator = (elevatorPivotToWristCarriage0ffset + elevatorExtension) * Math.cos(armAngle);
+        double horLength0fWrist = wristLengthInches * Math.sin(wistAngle);
+
         if (goalState == States.AMP || goalState == States.SOURCE_INTAKE) {
             // 26 inches is the horizontal distance from arm pivot to front of bumper
-            // use this when you want to raise the arm and you might be directly in front of a wall
-            // to avoid moving outside the robot boundary
-            upperBound = 26 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
+            // use this when you want to raise the arm and when you might be directly in front of a wall
+            // to avoid moving outside Maththe robot boundary
+            upperBound = 26 - (horLength0fWrist + (horLengthOfElevator-26));
         } else {
             // 38 allows the arm to go up to 12 inches beyond the bumper but no further.
-            upperBound = 38 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
+            upperBound = 38 - (horLength0fWrist + (horLengthOfElevator-26));
         }
-        upperBound -= elevatorPivotToWristCarriageOffset;
+        upperBound -= elevatorPivotToWristCarriage0ffset;
         upperBound = Math.min(upperBound, ELEVATOR_UPPER_LIMIT);
         return MathUtil.clamp(elevatorPos, ELEVATOR_LOWER_LIMIT, upperBound);
     }
