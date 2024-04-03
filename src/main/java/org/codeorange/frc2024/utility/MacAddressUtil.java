@@ -1,7 +1,5 @@
 package org.codeorange.frc2024.utility;
 
-import org.codeorange.frc2024.robot.Robot;
-
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Arrays;
@@ -13,13 +11,13 @@ import java.util.Enumeration;
  * @author 2910 and 1678
  */
 public class MacAddressUtil {
-    public static final byte[] PROTOTYPE_BOT = new byte[]{
+    public static final byte[] WOBBLES = new byte[]{
             (byte) 0x00, (byte) 0x80, (byte) 0x2f, (byte) 0x34, (byte) 0x8f, (byte) 0xa7
     };
-    public static final byte[] PRACTICE_BOT = new byte[]{
+    public static final byte[] JON = new byte[]{
             (byte) 0x00, (byte) 0x80, (byte) 0x2f, (byte) 0x34, (byte) 0x8f, (byte) 0xb9
     };
-    public static final byte[] COMPETITION_BOT = new byte[]{
+    public static final byte[] HALEIWA = new byte[]{
             (byte) 0x00, (byte) 0x80, (byte) 0x2f, (byte) 0x39, (byte) 0x0f, (byte) 0xc1
     };
 
@@ -63,9 +61,9 @@ public class MacAddressUtil {
      * Enum representing the possible robot identities.
      */
     public enum RobotIdentity {
-        PROTOTYPE_BOT,
-        PRACTICE_BOT,
-        COMPETITION_BOT;
+        WOBBLES,
+        JON,
+        HALEIWA;
 
         /**
          * Gets the robot identity based on the MAC address.
@@ -74,16 +72,16 @@ public class MacAddressUtil {
          * @return the robot identity
          */
         public static RobotIdentity getRobotIdentity(byte[] mac) {
-            if (Arrays.compare(mac, MacAddressUtil.PROTOTYPE_BOT) == 0) {
-                return PROTOTYPE_BOT;
-            } else if (Arrays.compare(mac, MacAddressUtil.PRACTICE_BOT) == 0) {
-                return PRACTICE_BOT;
-            } else if (Arrays.compare(mac, MacAddressUtil.COMPETITION_BOT) == 0) {
-                return COMPETITION_BOT;
+            if (Arrays.compare(mac, MacAddressUtil.WOBBLES) == 0) {
+                return WOBBLES;
+            } else if (Arrays.compare(mac, MacAddressUtil.JON) == 0) {
+                return JON;
+            } else if (Arrays.compare(mac, MacAddressUtil.HALEIWA) == 0) {
+                return HALEIWA;
             } else {
                 System.out.println("Unknown MAC Address: " + macToString(mac));
                 System.out.println("Assuming Comp Bot");
-                return COMPETITION_BOT;
+                return HALEIWA;
             }
         }
     }

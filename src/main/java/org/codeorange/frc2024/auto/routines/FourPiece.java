@@ -26,7 +26,16 @@ public class FourPiece extends BaseRoutine {
         }
         sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(45)));
         sequenceAction(new RunKicker());
-        sequenceAction(new ParallelAction(new SeriesAction(new GroundIntake(), new ShootFromGround(32), new Wait(0.15), new RunKicker()), new SeriesAction(new Wait(0.25), new DrivePath(driveToFirstNote))));
+        sequenceAction(new ParallelAction(
+                new SeriesAction(
+                        new GroundIntake(),
+                        new ShootFromGround(32),
+                        new Wait(0.15),
+                        new RunKicker()
+                ), new SeriesAction(
+                        new Wait(0.25),
+                        new DrivePath(driveToFirstNote)
+        )));
         sequenceAction(new ParallelAction(new SeriesAction(new GroundIntake(), new ShootFromGround(Robot.isRed() ? 30 : 32), new Wait(0.15), new RunKicker()), new SeriesAction(new DrivePath(driveToSecondNote))));
         sequenceAction(new ParallelAction(new SeriesAction(new Wait(0.5), new GroundIntake()), new DrivePath(driveToThirdNote)));
         sequenceAction(new ShootFromGround(31.5));

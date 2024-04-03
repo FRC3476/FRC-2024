@@ -10,7 +10,7 @@ public class FivePointFive extends BaseRoutine {
     ChoreoTrajectory driveToSecondNote;
     ChoreoTrajectory driveToThirdNote;
     ChoreoTrajectory driveToFourthNote;
-    ChoreoTrajectory driveToCenter;
+    ChoreoTrajectory driveToEdge;
 
     public FivePointFive() {}
 
@@ -21,46 +21,47 @@ public class FivePointFive extends BaseRoutine {
             driveToSecondNote = Choreo.getTrajectory("5point5_red.2");
             driveToThirdNote = Choreo.getTrajectory("5point5_red.3");
             driveToFourthNote = Choreo.getTrajectory("5point5_red.4");
-            driveToCenter = Choreo.getTrajectory("5point5_red.5");
+            driveToEdge = Choreo.getTrajectory("5point5_red.5");
         } else {
             driveToFirstNote = Choreo.getTrajectory("5point5_blue.1");
             driveToSecondNote = Choreo.getTrajectory("5point5_blue.2");
             driveToThirdNote = Choreo.getTrajectory("5point5_blue.3");
             driveToFourthNote = Choreo.getTrajectory("5point5_blue.4");
-            driveToCenter = Choreo.getTrajectory("5point5_blue.5");
+            driveToEdge = Choreo.getTrajectory("5point5_blue.5");
         }
-        sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromStow(45)));
-        sequenceAction(new Wait(0.2));
+        sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(46)));
         sequenceAction(new RunKicker());
-        sequenceAction(new Stow());
         sequenceAction(new ParallelAction(
-                new DrivePath(driveToFirstNote),
                 new SeriesAction(
-                        new Wait(1.4),
                         new GroundIntake(),
-                        new Stow(),
-                        new Wait(1),
-                        new ShootFromStow(38)
-                )
-        ));
-        sequenceAction(new Wait(0.1));
-        sequenceAction(new RunKicker());
+                        new ShootFromGround(31),
+                        new RunKicker()
+                ), new SeriesAction(
+                new Wait(0.25),
+                new DrivePath(driveToFirstNote)
+        )));
+
         sequenceAction(new ParallelAction(
                 new SeriesAction(
                         new DrivePath(driveToSecondNote)
                 ),
                 new SeriesAction(
+                        new Stow(),
+                        new Wait(0.2),
                         new GroundIntake(),
-                        new ShootFromGround(29)
+                        new Stow(),
+                        new Wait(0.9),
+                        new ShootFromGround(35)
                 )
         ));
         sequenceAction(new SeriesAction(
-                new Wait(0.1),
+                new Wait(0.05),
                 new RunKicker()
         ));
 
         sequenceAction(new ParallelAction(
                 new SeriesAction(
+                        new Wait(0.25),
                         new DrivePath(driveToThirdNote)
                 ),
                 new SeriesAction(
@@ -69,7 +70,7 @@ public class FivePointFive extends BaseRoutine {
                 )
         ));
         sequenceAction(new SeriesAction(
-                new Wait(0.1),
+                new Wait(0.05),
                 new RunKicker()
         ));
         sequenceAction(new ParallelAction(
@@ -82,7 +83,7 @@ public class FivePointFive extends BaseRoutine {
                 )
         ));
         sequenceAction(new SeriesAction(
-                new Wait(0.1),
+                new Wait(0.05),
                 new RunKicker()
         ));
         sequenceAction(new SeriesAction(
@@ -91,9 +92,10 @@ public class FivePointFive extends BaseRoutine {
         ));
         sequenceAction(new ParallelAction(
                 new SeriesAction(
-                        new DrivePath(driveToCenter)
+                        new DrivePath(driveToEdge)
                 ),
                 new SeriesAction(
+                        new Wait(0.6),
                         new GroundIntake(),
                         new Stow()
                 )

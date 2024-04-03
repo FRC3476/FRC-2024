@@ -178,15 +178,14 @@ public class Drive extends AbstractSubsystem {
         if (isOpenLoop) {
 //            ffv = DRIVE_FEEDFORWARD.calculate(velocity, acceleration);
 //            moduleIO[module].setDriveMotorVoltage(ffv);
-//            moduleIO[module].setDriveMotorDutyCycle(velocity/DRIVE_HIGH_SPEED_M);
+            moduleIO[module].setDriveMotorDutyCycle(velocity/DRIVE_HIGH_SPEED_M);
         } else {
+            moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
         }
 
         Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
         Logger.recordOutput("Drive/Expected Voltage " + module, DRIVE_FEEDFORWARD.calculate(velocity));
-        moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
 
-        Logger.recordOutput("Drive/Out Volts " + module, ffv);
         Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
         Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
         Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
@@ -253,15 +252,20 @@ public class Drive extends AbstractSubsystem {
         setSwerveModuleStates(states, openLoop);
     }
 
-    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad) {
-        double turn = turnPID.calculate(gyroInputs.yawPositionRad, targetAngleRad);
-        Logger.recordOutput("Drive/Wanted Omega", turn);
+    public void swerveDriveTargetAngle(@NotNull ControllerDriveInputs inputs, double targetAngleRad, boolean fieldRel) {
+        double turnRadPerSec = turnPID.calculate(gyroInputs.yawPositionRad, targetAngleRad);
+        Logger.recordOutput("Drive/Wanted Omega", turnRadPerSec);
+        if(Math.abs(turnRadPerSec) < Math.PI/36) turnRadPerSec = 0;
         SecondOrderModuleState[] states = SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(
                 ChassisSpeeds.discretize(
+                        fieldRel ?
                         ChassisSpeeds.fromFieldRelativeSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
                                 DRIVE_HIGH_SPEED_M * inputs.getY(),
-                                turn,
-                                gyroInputs.rotation2d), 0.02));
+                                turnRadPerSec,
+                                gyroInputs.rotation2d) :
+                        new ChassisSpeeds(-DRIVE_HIGH_SPEED_M * inputs.getX(),
+                                -DRIVE_HIGH_SPEED_M * inputs.getY(),
+                                turnRadPerSec), 0.02));
         SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
         setSwerveModuleStates(states, true);
     }
