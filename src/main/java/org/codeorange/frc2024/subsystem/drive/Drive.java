@@ -111,7 +111,7 @@ public class Drive extends AbstractSubsystem {
         gyroIO.updateInputs(gyroInputs);
         odometryLock.unlock();
         for(int i = 0; i < 4; i++) {
-            Logger.processInputs("Drive/Module " + i, moduleInputs[i]);
+            Logger.processInputs("Drive/Module " + getModuleName(i), moduleInputs[i]);
         }
         Logger.processInputs("Drive/Gyro", gyroInputs);
 
@@ -185,20 +185,20 @@ public class Drive extends AbstractSubsystem {
             moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
         }
 
-        Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
-        Logger.recordOutput("Drive/Expected Voltage " + module, DRIVE_FEEDFORWARD.calculate(velocity));
+        Logger.recordOutput("Drive/Expected Velocity " + getModuleName(module), velocity);
+        Logger.recordOutput("Drive/Expected Voltage " + getModuleName(module), DRIVE_FEEDFORWARD.calculate(velocity));
 
-        Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
-        Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
-        Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
-        Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
+        Logger.recordOutput("Drive/Out Volts Ks" + getModuleName(module), DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
+        Logger.recordOutput("Drive/Out Volts Kv" + getModuleName(module), DRIVE_FEEDFORWARD.kv * velocity);
+        Logger.recordOutput("Drive/Out Volts Ka" + getModuleName(module), DRIVE_FEEDFORWARD.ka * acceleration);
+        Logger.recordOutput("Drive/Voltage Contrib to Accel" + getModuleName(module),
                 ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
 
         double time = Logger.getRealTimestamp() * 1e-6;
         double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
 
-        Logger.recordOutput("Drive/Acceleration" + module, realAccel);
-        Logger.recordOutput("Drive/Expected Accel" + module,
+        Logger.recordOutput("Drive/Acceleration" + getModuleName(module), realAccel);
+        Logger.recordOutput("Drive/Expected Accel" + getModuleName(module),
                 (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
 
         lastModuleVelocities[module] = getSwerveDriveVelocity(module);
@@ -217,10 +217,10 @@ public class Drive extends AbstractSubsystem {
             moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0, isOpenLoop);
 
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", moduleState.omega);
+            Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Angle", moduleState.angle.getDegrees());
+            Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Speed", moduleState.speedMetersPerSecond);
+            Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Acceleration", 0);
+            Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Angular Speed", moduleState.omega);
 
             realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
         }
@@ -363,6 +363,16 @@ public class Drive extends AbstractSubsystem {
 
         realField.getObject("wantedPose").setPose(target);
         Logger.recordOutput("Drive/Target Pose", target);
+    }
+
+    private String getModuleName(int i) {
+        return switch(i) {
+            case 0 -> "FL";
+            case 1 -> "BL";
+            case 2 -> "FR";
+            case 3 -> "BR";
+            default -> "";
+        };
     }
 }
 

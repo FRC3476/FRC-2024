@@ -91,6 +91,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         driveConfigs.Feedback.SensorToMechanismRatio = 1 / (DRIVE_MOTOR_REDUCTION * SWERVE_METER_PER_ROTATION);
         driveConfigs.Feedback.RotorToSensorRatio = 1;
+        driveConfigs.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.25;
         driveConfigs.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
         driveConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
