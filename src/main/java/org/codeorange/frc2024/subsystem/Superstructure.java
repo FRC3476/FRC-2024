@@ -442,5 +442,6 @@ public class Superstructure extends AbstractSubsystem {
         } else {
             return AngleLookupInterpolation.SHOOTER_ANGLE_FRONT_LOW.get(drive.findDistanceToSpeaker());
         }
+
     }
 }
