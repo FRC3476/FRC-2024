@@ -391,7 +391,7 @@ public class Superstructure extends AbstractSubsystem {
             // 26 inches is the horizontal distance from arm pivot to front of bumper
             // use this when you want to raise the arm and you might be directly in front of a wall
             // to avoid moving outside the robot boundary
-            upperBound = 26 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
+            upperBound = 16 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
         } else {
             // 38 allows the arm to go up to 12 inches beyond the bumper but no further.
             upperBound = 38 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
