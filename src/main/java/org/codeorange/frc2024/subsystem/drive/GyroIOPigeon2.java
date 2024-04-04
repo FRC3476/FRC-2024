@@ -17,6 +17,10 @@ public class GyroIOPigeon2 implements GyroIO {
 
     private final StatusSignal<Double> yawPositionDeg;
     private final StatusSignal<Double> yawVelocityDegPerSec;
+    private final StatusSignal<Double> pitchPositionDeg;
+    private final StatusSignal<Double> pitchVelocityDegPerSec;
+    private final StatusSignal<Double> rollPositionDeg;
+    private final StatusSignal<Double> rollVelocityDegPerSec;
     private final Queue<Double> yawPositionQueue;
     private final Queue<Double> yawTimestampQueue;
     private final StatusSignal<Double> uptime;
@@ -26,11 +30,21 @@ public class GyroIOPigeon2 implements GyroIO {
     public GyroIOPigeon2() {
         pigeon = new Pigeon2(Ports.PIGEON, CAN_BUS);
 
+        var config = new Pigeon2Configuration();
+
+        config.MountPose.MountPoseYaw = -94;
+        config.MountPose.MountPosePitch = 0;
+        config.MountPose.MountPoseRoll = 0;
+
         OrangeUtility.betterCTREConfigApply(pigeon, new Pigeon2Configuration());
         pigeon.reset();
 
         yawPositionDeg = pigeon.getYaw();
         yawVelocityDegPerSec = pigeon.getAngularVelocityZWorld();
+        pitchPositionDeg = pigeon.getPitch();
+        pitchVelocityDegPerSec = pigeon.getAngularVelocityXWorld();
+        rollPositionDeg = pigeon.getRoll();
+        rollVelocityDegPerSec = pigeon.getAngularVelocityYWorld();
         uptime = pigeon.getUpTime();
 
         BaseStatusSignal.setUpdateFrequencyForAll(ODOMETRY_REFRESH_HZ, yawPositionDeg);
@@ -42,7 +56,7 @@ public class GyroIOPigeon2 implements GyroIO {
 
     @Override
     public void updateInputs(GyroInputs inputs) {
-        BaseStatusSignal.refreshAll(uptime, yawPositionDeg, yawVelocityDegPerSec);
+        BaseStatusSignal.refreshAll(uptime, yawPositionDeg, yawVelocityDegPerSec, pitchPositionDeg, pitchVelocityDegPerSec, rollPositionDeg, rollVelocityDegPerSec);
         inputs.connected = uptime.getValue() > 0;
         /*
          * X-axis points forward
@@ -52,6 +66,10 @@ public class GyroIOPigeon2 implements GyroIO {
 
         inputs.yawPositionRad = Units.degreesToRadians(yawPositionDeg.getValue()); // counterclockwise positive
         inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocityDegPerSec.getValue());
+        inputs.pitchPositionRad = Units.degreesToRadians(pitchPositionDeg.getValue()); // counterclockwise positive
+        inputs.pitchVelocityRadPerSec = Units.degreesToRadians(pitchVelocityDegPerSec.getValue());
+        inputs.rollPositionRad = Units.degreesToRadians(rollPositionDeg.getValue()); // counterclockwise positive
+        inputs.rollVelocityRadPerSec = Units.degreesToRadians(rollVelocityDegPerSec.getValue());
 
         inputs.rotation3d = pigeon.getRotation3d();
         inputs.rotation2d = pigeon.getRotation2d();

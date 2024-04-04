@@ -773,6 +773,10 @@ public class Robot extends LoggedRobot {
         return climber;
     }
 
+    public static Vision getVision() {
+        return vision;
+    }
+
     public static BlinkinLEDController getBlinkin() {
         return blinkin;
     }

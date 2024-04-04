@@ -74,7 +74,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     public void updateInputs(ElevatorInputs inputs) {
-        BaseStatusSignal.refreshAll(leadMotorPosition, leadMotorVelocity, leadMotorVoltage, leadMotorAmps, leadMotorTemp, followMotorPosition, followMotorVoltage, followMotorAmps, followMotorTemp);
+        BaseStatusSignal.refreshAll(leadMotorPosition, leadMotorVelocity, leadMotorVoltage, leadMotorAmps, leadMotorTemp, followMotorPosition, followMotorVelocity, followMotorVoltage, followMotorAmps, followMotorTemp);
 
         inputs.leadMotorPosition = leadMotorPosition.getValue();
         inputs.leadMotorVelocity = leadMotorVelocity.getValue();

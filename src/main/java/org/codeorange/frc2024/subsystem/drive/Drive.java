@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
+import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.ControllerDriveInputs;
+import org.codeorange.frc2024.utility.LimelightHelpers;
 import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.swerve.SecondOrderModuleState;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
@@ -33,6 +35,11 @@ import static org.codeorange.frc2024.robot.Constants.*;
 public class Drive extends AbstractSubsystem {
     static final Lock odometryLock = new ReentrantLock();
     public static final double SPEAKER_ANGLE_OFFSET = Units.degreesToRadians(4);
+
+    private final Alert odomAlert = new Alert("ODOMETRY WENT TO NAN!!!!", Alert.AlertType.ERROR);
+    {
+        odomAlert.set(false);
+    }
 
     final GyroIO gyroIO;
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
@@ -133,6 +140,24 @@ public class Drive extends AbstractSubsystem {
         }
 
         realField.setRobotPose(getPose());
+
+        if(Double.isNaN(getPose().getX()) || Double.isNaN(getPose().getY()) || Double.isNaN(getPose().getRotation().getRadians())) {
+            poseEstimator.resetPosition(
+                    gyroInputs.rotation2d,
+                    getModulePositions(),
+                    new Pose2d(0, 0, gyroInputs.rotation2d)
+            );
+            odomAlert.set(true);
+        }
+
+        Robot.getVision().updateBotOrientation(
+                Units.radiansToDegrees(gyroInputs.yawPositionRad),
+                Units.radiansToDegrees(gyroInputs.yawVelocityRadPerSec),
+                Units.radiansToDegrees(gyroInputs.pitchPositionRad),
+                Units.radiansToDegrees(gyroInputs.pitchVelocityRadPerSec),
+                Units.radiansToDegrees(gyroInputs.rollPositionRad),
+                Units.radiansToDegrees(gyroInputs.rollVelocityRadPerSec)
+        );
     }
 
     public synchronized void setBrakeMode(boolean brakeMode) {

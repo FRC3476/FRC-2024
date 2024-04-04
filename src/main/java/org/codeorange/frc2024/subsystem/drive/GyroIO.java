@@ -10,6 +10,10 @@ public interface GyroIO {
         public boolean connected = false;
         public double yawPositionRad = 0.0;
         public double yawVelocityRadPerSec = 0.0;
+        public double pitchPositionRad = 0.0;
+        public double pitchVelocityRadPerSec = 0.0;
+        public double rollPositionRad = 0.0;
+        public double rollVelocityRadPerSec = 0.0;
 
         public Rotation3d rotation3d = new Rotation3d();
 
