@@ -20,7 +20,7 @@ public class Arm extends AbstractSubsystem {
     */
     public void setPosition(double position) {
         position = MathUtil.clamp(position, -0.02, 0.24);
-        armIO.setLeadPosition(position, 0);
+        armIO.setLeadPosition(position);
         Logger.recordOutput("Pivot/Goal position", position);
     }
 

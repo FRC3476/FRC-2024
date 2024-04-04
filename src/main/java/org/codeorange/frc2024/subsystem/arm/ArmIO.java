@@ -24,7 +24,7 @@ public interface ArmIO {
 
     default void setLeadVoltage(double voltage) {}
 
-    default void setLeadPosition(double position, double arbFFVoltage) {}
+    default void setLeadPosition(double position) {}
 
     default void resetLeadPosition() {}
 

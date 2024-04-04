@@ -31,7 +31,7 @@ public class ArmIOTalonFX implements ArmIO {
     private final StatusSignal<Double> followTemp;
     private final StatusSignal<Double> followVoltage;
     private final StatusSignal<Double> followCurrent;
-    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true).withUpdateFreqHz(0.0);
 
 
 
@@ -170,8 +170,8 @@ public class ArmIOTalonFX implements ArmIO {
     }
 
     @Override
-    public void setLeadPosition(double position, double arbFFVoltage) {
-        leadTalonFX.setControl(new MotionMagicVoltage(position).withFeedForward(arbFFVoltage).withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+    public void setLeadPosition(double position) {
+        leadTalonFX.setControl(new MotionMagicVoltage(position).withEnableFOC(true).withOverrideBrakeDurNeutral(true).withUpdateFreqHz(0.0));
     }
 
     @Override

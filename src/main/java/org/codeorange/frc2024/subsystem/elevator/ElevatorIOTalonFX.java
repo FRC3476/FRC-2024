@@ -70,7 +70,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         followMotorAmps = followMotor.getSupplyCurrent();
         followMotorTemp = followMotor.getDeviceTemp();
     }
-    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(true);
+    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(true).withUpdateFreqHz(0.0);
     public void setPosition(double targetPosition) {
         this.targetPosition = targetPosition;
         leadMotor.setControl(motionMagicRequest.withPosition(targetPosition));
