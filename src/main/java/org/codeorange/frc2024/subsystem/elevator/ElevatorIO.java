@@ -16,6 +16,8 @@ public interface ElevatorIO {
         public double followMotorVoltage;
         public double followMotorAmps;
         public double followMotorTemp;
+
+        public double targetPosition;
     }
 
     default void updateInputs(ElevatorInputs inputs) {}

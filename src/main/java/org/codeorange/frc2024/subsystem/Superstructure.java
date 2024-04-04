@@ -388,22 +388,28 @@ public class Superstructure extends AbstractSubsystem {
         double wristLengthInches = 11.191;
         double upperBound;
         double elevatorExtension = elevator.getPositionInInches();
-        double armAngle = arm.getPosition();
-        double wistAngle = wrist.getWristAbsolutePosition();
+        double armAngle = Units.rotationsToRadians(arm.getPivotRotations());
+        double wistAngle = Units.rotationsToRadians(wrist.getWristAbsolutePosition() + 0.25);
         double horLengthOfElevator = (elevatorPivotToWristCarriage0ffset + elevatorExtension) * Math.cos(armAngle);
-        double horLength0fWrist = wristLengthInches * Math.sin(wistAngle);
+        double horLength0fWrist = wristLengthInches * Math.abs(Math.sin(wistAngle));
 
         if (goalState == States.AMP || goalState == States.SOURCE_INTAKE) {
             // 26 inches is the horizontal distance from arm pivot to front of bumper
             // use this when you want to raise the arm and when you might be directly in front of a wall
             // to avoid moving outside Maththe robot boundary
-            upperBound = 26 - (horLength0fWrist + (horLengthOfElevator-26));
+            upperBound = 26 - (horLength0fWrist + horLengthOfElevator);
         } else {
             // 38 allows the arm to go up to 12 inches beyond the bumper but no further.
-            upperBound = 38 - (horLength0fWrist + (horLengthOfElevator-26));
+            upperBound = 38 - (horLength0fWrist + horLengthOfElevator);
         }
         upperBound -= elevatorPivotToWristCarriage0ffset;
-        upperBound = Math.min(upperBound, ELEVATOR_UPPER_LIMIT);
+        upperBound = MathUtil.clamp(upperBound, ELEVATOR_LOWER_LIMIT, ELEVATOR_UPPER_LIMIT);
+
+
+        Logger.recordOutput("Superstructure/ElevatorHorizontalLength", horLengthOfElevator);
+        Logger.recordOutput("Superstructure/WristHorizontalLength", horLength0fWrist);
+        Logger.recordOutput("Superstructure/ElevatorUpperBound", upperBound);
+
         return MathUtil.clamp(elevatorPos, ELEVATOR_LOWER_LIMIT, upperBound);
     }
 
