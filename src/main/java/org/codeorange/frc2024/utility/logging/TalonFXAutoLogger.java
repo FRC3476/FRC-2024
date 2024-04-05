@@ -5,6 +5,9 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.core.CoreTalonFX;
 
+/**
+ * Logs desired signals from a given TalonFX motor controller.
+ */
 public class TalonFXAutoLogger implements MotorAutoLogger {
     private final StatusSignal<Double> position;
     private final StatusSignal<Double> velocity;

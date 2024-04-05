@@ -5,6 +5,9 @@ import edu.wpi.first.util.struct.StructSerializable;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Represents various desired fields from a motor controller.
+ */
 public class MotorInputs implements StructSerializable {
     public double position;
     public double velocity;
