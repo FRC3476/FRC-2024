@@ -135,7 +135,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.driveMotor = driveMotorLogger.update();
         inputs.steerMotor = steerMotorLogger.update();
 
-        inputs.steerMotorAbsolutePosition = steerMotorAbsolutePosition.getValue();
+        inputs.steerMotorAbsolutePosition = steerMotorAbsolutePosition.refresh().getValue();
 
 
         inputs.odometryDrivePositionsMeters =

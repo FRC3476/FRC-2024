@@ -112,9 +112,7 @@ public class ArmIOTalonFX implements ArmIO {
     }
 
     public void updateInputs(ArmInputs inputs) {
-        BaseStatusSignal.refreshAll(absolutePosition);
-
-        inputs.absolutePosition = absolutePosition.getValue();
+        inputs.absolutePosition = absolutePosition.refresh().getValue();
 
         inputs.leadMotor = leadMotorLogger.update();
 

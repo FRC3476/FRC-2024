@@ -85,9 +85,7 @@ public class WristIOTalonFX implements WristIO {
     }
 
     public void updateInputs(WristInputs inputs) {
-         BaseStatusSignal.refreshAll(wristAbsolutePosition);
-
-        inputs.wristAbsolutePosition = wristAbsolutePosition.getValue();
+        inputs.wristAbsolutePosition = wristAbsolutePosition.refresh().getValue();
         inputs.wrist = wristMotorLogger.update();
     }
 
