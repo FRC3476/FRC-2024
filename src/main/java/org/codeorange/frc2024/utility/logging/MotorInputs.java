@@ -16,6 +16,7 @@ public class MotorInputs implements StructSerializable {
     public double supplyVoltage;
     public double motorVoltage;
     public double temperature;
+    public double energy;
 
     public MotorInputs(double position, double velocity, double supplyCurrent, double statorCurrent, double supplyVoltage, double motorVoltage, double temperature) {
         this.position = position;
@@ -31,7 +32,7 @@ public class MotorInputs implements StructSerializable {
         this(0, 0, 0, 0, 0, 0, 0);
     }
 
-    public static final MotorInputsStruct STRUCT = new MotorInputsStruct();
+    public static final MotorInputsStruct struct = new MotorInputsStruct();
 
     public static class MotorInputsStruct implements Struct<MotorInputs> {
         @Override

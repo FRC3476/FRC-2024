@@ -5,6 +5,8 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.core.CoreTalonFX;
 
+import static org.codeorange.frc2024.robot.Constants.NOMINAL_DT;
+
 /**
  * Logs desired signals from a given TalonFX motor controller.
  */
@@ -44,6 +46,7 @@ public class TalonFXAutoLogger implements MotorAutoLogger {
         inputs.supplyVoltage = supplyVoltage.getValue();
         inputs.motorVoltage = motorVoltage.getValue();
         inputs.temperature = temperature.getValue();
+        inputs.energy += inputs.supplyVoltage * inputs.supplyCurrent * NOMINAL_DT;
 
         return inputs;
     }
