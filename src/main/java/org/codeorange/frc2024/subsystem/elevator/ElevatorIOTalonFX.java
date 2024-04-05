@@ -10,23 +10,15 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.utility.OrangeUtility;
+import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
-    private final StatusSignal<Double> leadMotorPosition;
-    private final StatusSignal<Double> leadMotorVelocity;
-    private final StatusSignal<Double> leadMotorVoltage;
-    private final StatusSignal<Double> leadMotorAmps;
-    private final StatusSignal<Double> leadMotorTemp;
-    private final StatusSignal<Double> followMotorPosition;
-    private final StatusSignal<Double> followMotorVelocity;
-    private final StatusSignal<Double> followMotorVoltage;
-    private final StatusSignal<Double> followMotorAmps;
-    private final StatusSignal<Double> followMotorTemp;
-
     private final TalonFX leadMotor;
     private final TalonFX followMotor;
+    private final TalonFXAutoLogger leadMotorLogger;
+    private final TalonFXAutoLogger followMotorLogger;
 
     public ElevatorIOTalonFX() {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD, CAN_BUS);
@@ -54,19 +46,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         OrangeUtility.betterCTREConfigApply(leadMotor, motorConfig);
         OrangeUtility.betterCTREConfigApply(followMotor, motorConfig);
 
+        leadMotorLogger = new TalonFXAutoLogger(leadMotor);
+        followMotorLogger = new TalonFXAutoLogger(followMotor);
+
         followMotor.setControl(new Follower(leadMotor.getDeviceID(), !isPrototype()));
 
-        leadMotorPosition = leadMotor.getPosition();
-        leadMotorVelocity = leadMotor.getVelocity();
-        leadMotorVoltage = leadMotor.getMotorVoltage();
-        leadMotorAmps = leadMotor.getSupplyCurrent();
-        leadMotorTemp = leadMotor.getDeviceTemp();
-
-        followMotorPosition = followMotor.getPosition();
-        followMotorVelocity = followMotor.getVelocity();
-        followMotorVoltage = followMotor.getMotorVoltage();
-        followMotorAmps = followMotor.getSupplyCurrent();
-        followMotorTemp = followMotor.getDeviceTemp();
     }
     private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(true);
     public void setPosition(double targetPosition) {
@@ -74,19 +58,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     public void updateInputs(ElevatorInputs inputs) {
-        BaseStatusSignal.refreshAll(leadMotorPosition, leadMotorVelocity, leadMotorVoltage, leadMotorAmps, leadMotorTemp, followMotorPosition, followMotorVelocity, followMotorVoltage, followMotorAmps, followMotorTemp);
-
-        inputs.leadMotorPosition = leadMotorPosition.getValue();
-        inputs.leadMotorVelocity = leadMotorVelocity.getValue();
-        inputs.leadMotorVoltage = leadMotorVoltage.getValue();
-        inputs.leadMotorAmps = leadMotorAmps.getValue();
-        inputs.leadMotorTemp = leadMotorTemp.getValue();
-
-        inputs.followMotorPosition = followMotorPosition.getValue();
-        inputs.followMotorVelocity = followMotorVelocity.getValue();
-        inputs.followMotorVoltage = followMotorVoltage.getValue();
-        inputs.followMotorAmps = followMotorAmps.getValue();
-        inputs.followMotorTemp = followMotorTemp.getValue();
+        inputs.leadMotor = leadMotorLogger.update();
+        inputs.followMotor = followMotorLogger.update();
     }
 
     public void setEncoderToZero() {

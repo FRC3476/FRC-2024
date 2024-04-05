@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import org.codeorange.frc2024.utility.OrangeUtility;
+import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
@@ -19,26 +20,15 @@ public class ArmIOTalonFX implements ArmIO {
     private final CANcoder absoluteEncoder;
 
 
-    private final StatusSignal<Double> leadAbsolutePosition;
-    private final StatusSignal<Double> leadRelativePosition;
-    private final StatusSignal<Double> leadVelocity;
-    private final StatusSignal<Double> leadAccel;
-    private final StatusSignal<Double> leadCurrent;
-    private final StatusSignal<Double> leadTemp;
-    private final StatusSignal<Double> leadVoltage;
-    private final StatusSignal<Double> followVelocity;
-    private final StatusSignal<Double> followPosition;
-    private final StatusSignal<Double> followTemp;
-    private final StatusSignal<Double> followVoltage;
-    private final StatusSignal<Double> followCurrent;
+    private final StatusSignal<Double> absolutePosition;
+    private final TalonFXAutoLogger leadMotorLogger;
+    private final TalonFXAutoLogger followMotorLogger;
     private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
 
 
 
     public ArmIOTalonFX() {
-
         leadTalonFX = new TalonFX(ARM_LEAD, CAN_BUS);
-
         absoluteEncoder = new CANcoder(ARM_CANCODER, CAN_BUS);
 
         var talonFXConfigs = new TalonFXConfiguration();
@@ -74,7 +64,6 @@ public class ArmIOTalonFX implements ArmIO {
 
         OrangeUtility.betterCTREConfigApply(leadTalonFX, talonFXConfigs);
 
-
         OrangeUtility.betterCTREConfigApply(absoluteEncoder, new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                         .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
@@ -83,14 +72,9 @@ public class ArmIOTalonFX implements ArmIO {
                 )
         );
 
+        absolutePosition = absoluteEncoder.getAbsolutePosition();
 
-        leadRelativePosition = leadTalonFX.getPosition();
-        leadAbsolutePosition = absoluteEncoder.getAbsolutePosition();
-        leadVelocity = leadTalonFX.getVelocity();
-        leadAccel = leadTalonFX.getAcceleration();
-        leadCurrent = leadTalonFX.getSupplyCurrent();
-        leadTemp = leadTalonFX.getDeviceTemp();
-        leadVoltage = leadTalonFX.getMotorVoltage();
+        leadMotorLogger = new TalonFXAutoLogger(leadTalonFX);
 
         if(!isPrototype()) {
             followTalonFX = new TalonFX(ARM_FOLLOW, CAN_BUS);
@@ -99,18 +83,10 @@ public class ArmIOTalonFX implements ArmIO {
             followTalonFX.setControl(new Follower(leadTalonFX.getDeviceID(), false));
             followTalonFX.setNeutralMode(NeutralModeValue.Brake);
 
-            followPosition = followTalonFX.getPosition();
-            followVelocity = followTalonFX.getVelocity();
-            followCurrent = followTalonFX.getSupplyCurrent();
-            followTemp = followTalonFX.getDeviceTemp();
-            followVoltage = followTalonFX.getMotorVoltage();
+            followMotorLogger = new TalonFXAutoLogger(followTalonFX);
         } else {
             followTalonFX = null;
-            followPosition = null;
-            followVelocity = null;
-            followCurrent = null;
-            followTemp = null;
-            followVoltage = null;
+            followMotorLogger = null;
         }
 
         var absPos = absoluteEncoder.getAbsolutePosition().getValue();
@@ -118,7 +94,7 @@ public class ArmIOTalonFX implements ArmIO {
         if(absPos < -0.05) {
             if(absPos > -0.30) {
                 for(var i = 0; i < 10; i++) {
-                    System.out.println("ILLEGAL CANCODER READING, CHECK");
+                    System.err.println("ILLEGAL CANCODER READING, CHECK");
                 }
                 absPos = 0.0;
             } else {
@@ -136,26 +112,14 @@ public class ArmIOTalonFX implements ArmIO {
     }
 
     public void updateInputs(ArmInputs inputs) {
-        BaseStatusSignal.refreshAll(leadAbsolutePosition, leadRelativePosition, leadVelocity, leadAccel, leadCurrent,
-                leadTemp, leadVoltage);
+        inputs.absolutePosition = absolutePosition.refresh().getValue();
 
-        inputs.leadAbsolutePosition = leadAbsolutePosition.getValue();
-        inputs.leadRelativePosition = leadRelativePosition.getValue();
-        inputs.leadVelocity = leadVelocity.getValue();
-        inputs.leadAccel = leadAccel.getValue();
-        inputs.leadCurrent = leadCurrent.getValue();
-        inputs.leadTemp = leadTemp.getValue();
-        inputs.leadVoltage = leadVoltage.getValue();
+        inputs.leadMotor = leadMotorLogger.update();
 
         if(!isPrototype()) {
             assert followTalonFX != null;
 
-            BaseStatusSignal.refreshAll(followPosition, followVelocity, followCurrent, followTemp, followVoltage);
-            inputs.followPosition = followPosition.getValue();
-            inputs.followVelocity = followVelocity.getValue();
-            inputs.followCurrent = followCurrent.getValue();
-            inputs.followTemp = followTemp.getValue();
-            inputs.followVoltage = followVoltage.getValue();
+            inputs.followMotor = followMotorLogger.update();
         }
     }
 

@@ -31,7 +31,11 @@ public class Climber extends AbstractSubsystem {
     }
 
     public void setMotorPosition(double positionInRotations) {
-        climberIO.setMotorPosition(MathUtil.clamp(positionInRotations, CLIMBER_LOWER_LIMIT_ROTATIONS, CLIMBER_UPPER_LIMIT_ROTATIONS));
+        if (climberInputs.limitSwitchPushed && positionInRotations < climberInputs.climber.position) {
+            stop();
+        } else {
+            climberIO.setMotorPosition(MathUtil.clamp(positionInRotations, CLIMBER_LOWER_LIMIT_ROTATIONS, CLIMBER_UPPER_LIMIT_ROTATIONS));
+        }
     }
 
     public void update() {
@@ -60,7 +64,7 @@ public class Climber extends AbstractSubsystem {
                 if (limitSwitchPushed()) {
                     climbing = false;
                     hasClimbed = true;
-                    holdPosition = climberInputs.climberPosition + CLIMBER_SWITCH_OFFSET;
+                    holdPosition = climberInputs.climber.position + CLIMBER_SWITCH_OFFSET;
                 }
             } else {
                 climberIO.setVoltage(4);
@@ -75,7 +79,7 @@ public class Climber extends AbstractSubsystem {
     }
 
     public double getPositionInRotations() {
-        return climberInputs.climberPosition;
+        return climberInputs.climber.position;
     }
     public void zeroEncoder() {
         climberIO.setEncoderToZero();

@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.*;
 import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.OrangeUtility;
+import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
 import static org.codeorange.frc2024.robot.Constants.*;
@@ -19,16 +20,13 @@ public class WristIOTalonFX implements WristIO {
 
     private final TalonFX wristMotor;
     private final CANcoder absoluteEncoder;
+    private final TalonFXAutoLogger wristMotorLogger;
+
     private final TalonFXConfiguration configs;
     private final CANcoderConfiguration encoderConfigs;
 
 
     private final StatusSignal<Double> wristAbsolutePosition;
-    private final StatusSignal<Double> wristRelativePosition;
-    private final StatusSignal<Double> wristVelocity;
-    private final StatusSignal<Double> wristCurrent;
-    private final StatusSignal<Double> wristTemp;
-    private final StatusSignal<Double> wristVoltage;
 
     private final Alert encoderAlert = new Alert("Wrist Motor and CANcoder are NOT rotating the same way!", Alert.AlertType.ERROR);
 
@@ -76,11 +74,7 @@ public class WristIOTalonFX implements WristIO {
         OrangeUtility.betterCTREConfigApply(absoluteEncoder, encoderConfigs);
 
         wristAbsolutePosition = absoluteEncoder.getAbsolutePosition();
-        wristRelativePosition = wristMotor.getPosition();
-        wristVelocity = wristMotor.getVelocity();
-        wristCurrent = wristMotor.getSupplyCurrent();
-        wristTemp = wristMotor.getDeviceTemp();
-        wristVoltage = wristMotor.getMotorVoltage();
+        wristMotorLogger = new TalonFXAutoLogger(wristMotor);
 
         wristMotor.setNeutralMode(NeutralModeValue.Brake);
     }
@@ -91,31 +85,9 @@ public class WristIOTalonFX implements WristIO {
     }
 
     public void updateInputs(WristInputs inputs) {
-         BaseStatusSignal.refreshAll(wristAbsolutePosition, wristRelativePosition, wristVelocity, wristCurrent,
-                wristTemp, wristVoltage);
-
-        inputs.wristAbsolutePosition = wristAbsolutePosition.getValue();
-        inputs.wristRelativePosition = wristRelativePosition.getValue();
-        inputs.wristVelocity = wristVelocity.getValue();
-        inputs.wristCurrent = wristCurrent.getValue();
-        inputs.wristTemp = wristTemp.getValue();
-        inputs.wristVoltage = wristVoltage.getValue();
-
+        inputs.wristAbsolutePosition = wristAbsolutePosition.refresh().getValue();
+        inputs.wrist = wristMotorLogger.update();
     }
-
-    @Override
-    public void checkConfigs() {
-        var isUnfused = !MathUtil.epsilonEquals(wristAbsolutePosition.refresh().getValue(), wristRelativePosition.refresh().getValue(), 0.03);
-
-        encoderAlert.set(isUnfused);
-
-        if(isUnfused) {
-            wristMotor.stopMotor();
-            OrangeUtility.betterCTREConfigApply(wristMotor, configs);
-            OrangeUtility.betterCTREConfigApply(absoluteEncoder, encoderConfigs);
-        }
-    }
-
 
     public void zeroWristEncoder() {
         absoluteEncoder.setPosition(0);

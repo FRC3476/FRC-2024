@@ -9,6 +9,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.codeorange.frc2024.utility.OrangeUtility;
+import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -16,18 +17,9 @@ import static org.codeorange.frc2024.robot.Constants.*;
 public class ShooterIOTalonFX implements ShooterIO {
     private final TalonFX leader;
     private final TalonFX follower;
+    private final TalonFXAutoLogger leaderLogger;
+    private final TalonFXAutoLogger followerLogger;
 
-    private final StatusSignal<Double> leaderVelocity;
-    private final StatusSignal<Double> leaderVoltage;
-    private final StatusSignal<Double> leaderAmps;
-    private final StatusSignal<Double> leaderTemp;
-    private final StatusSignal<Double> PID_ffVolts;
-    private final StatusSignal<Double> PID_pOutput;
-
-    private final StatusSignal<Double> followerVelocity;
-    private final StatusSignal<Double> followerVoltage;
-    private final StatusSignal<Double> followerAmps;
-    private final StatusSignal<Double> followerTemp;
     public ShooterIOTalonFX() {
         leader = new TalonFX(Ports.SHOOTER_LEAD, CAN_BUS);
         follower = new TalonFX(Ports.SHOOTER_FOLLOW, CAN_BUS);
@@ -51,38 +43,16 @@ public class ShooterIOTalonFX implements ShooterIO {
         if(!isCompetition()) config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         OrangeUtility.betterCTREConfigApply(leader, config);
 
-
         follower.setControl(new StrictFollower(leader.getDeviceID()));
 
-        leaderVelocity = leader.getVelocity();
-        leaderVoltage = leader.getMotorVoltage();
-        leaderAmps = leader.getSupplyCurrent();
-        leaderTemp = leader.getDeviceTemp();
-        PID_ffVolts = leader.getClosedLoopFeedForward();
-        PID_pOutput = leader.getClosedLoopProportionalOutput();
-
-        followerVelocity = follower.getVelocity();
-        followerVoltage = follower.getMotorVoltage();
-        followerAmps = follower.getSupplyCurrent();
-        followerTemp = follower.getDeviceTemp();
+        leaderLogger = new TalonFXAutoLogger(leader);
+        followerLogger = new TalonFXAutoLogger(follower);
     }
 
     @Override
     public void updateInputs(ShooterInputs inputs) {
-        BaseStatusSignal.refreshAll(leaderVelocity, leaderVoltage, leaderAmps, followerTemp, followerVelocity, followerVoltage, followerAmps, followerTemp, PID_ffVolts, PID_pOutput);
-
-        inputs.leaderVelocity = leaderVelocity.getValueAsDouble();
-        inputs.leaderVoltage = leaderVoltage.getValueAsDouble();
-        inputs.leaderAmps = leaderAmps.getValueAsDouble();
-        inputs.leaderTemp = leaderTemp.getValueAsDouble();
-
-        inputs.followerVelocity = followerVelocity.getValueAsDouble();
-        inputs.followerVoltage = followerVoltage.getValueAsDouble();
-        inputs.followerAmps = followerAmps.getValueAsDouble();
-        inputs.followerTemp = followerTemp.getValueAsDouble();
-
-        inputs.PID_ffVolts = PID_ffVolts.getValueAsDouble();
-        inputs.PID_pOutput = PID_pOutput.getValueAsDouble();
+        inputs.leadMotor = leaderLogger.update();
+        inputs.followMotor = followerLogger.update();
     }
 
     VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
