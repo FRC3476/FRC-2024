@@ -1,7 +1,5 @@
 package org.codeorange.frc2024.subsystem.shooter;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -51,8 +49,8 @@ public class ShooterIOTalonFX implements ShooterIO {
 
     @Override
     public void updateInputs(ShooterInputs inputs) {
-        inputs.leadMotor = leaderLogger.update();
-        inputs.followMotor = followerLogger.update();
+        inputs.leadMotor = leaderLogger.log();
+        inputs.followMotor = followerLogger.log();
     }
 
     VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);

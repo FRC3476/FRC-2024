@@ -1,7 +1,5 @@
 package org.codeorange.frc2024.subsystem.climber;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
@@ -65,7 +63,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     }
 
     public void updateInputs(ClimberInputs inputs) {
-        inputs.climber = motorLogger.update();
+        inputs.climber = motorLogger.log();
 
         inputs.limitSwitchPushed = !limitSwitch.get();
         //inputs.relayValue = spikeRelay.get().getPrettyValue();

@@ -1,7 +1,5 @@
 package org.codeorange.frc2024.subsystem.elevator;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -58,8 +56,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     public void updateInputs(ElevatorInputs inputs) {
-        inputs.leadMotor = leadMotorLogger.update();
-        inputs.followMotor = followMotorLogger.update();
+        inputs.leadMotor = leadMotorLogger.log();
+        inputs.followMotor = followMotorLogger.log();
     }
 
     public void setEncoderToZero() {

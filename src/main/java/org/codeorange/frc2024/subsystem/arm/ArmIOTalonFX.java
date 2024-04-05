@@ -1,6 +1,5 @@
 package org.codeorange.frc2024.subsystem.arm;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
@@ -114,12 +113,12 @@ public class ArmIOTalonFX implements ArmIO {
     public void updateInputs(ArmInputs inputs) {
         inputs.absolutePosition = absolutePosition.refresh().getValue();
 
-        inputs.leadMotor = leadMotorLogger.update();
+        inputs.leadMotor = leadMotorLogger.log();
 
         if(!isPrototype()) {
             assert followTalonFX != null;
 
-            inputs.followMotor = followMotorLogger.update();
+            inputs.followMotor = followMotorLogger.log();
         }
     }
 

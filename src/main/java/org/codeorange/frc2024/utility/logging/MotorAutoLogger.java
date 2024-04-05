@@ -5,5 +5,5 @@ package org.codeorange.frc2024.utility.logging;
  */
 public interface MotorAutoLogger {
     MotorInputs inputs = new MotorInputs();
-    MotorInputs update();
+    MotorInputs log();
 }

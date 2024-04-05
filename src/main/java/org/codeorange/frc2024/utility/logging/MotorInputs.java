@@ -18,7 +18,7 @@ public class MotorInputs implements StructSerializable {
     public double temperature;
     public double energy;
 
-    public MotorInputs(double position, double velocity, double supplyCurrent, double statorCurrent, double supplyVoltage, double motorVoltage, double temperature) {
+    public MotorInputs(double position, double velocity, double supplyCurrent, double statorCurrent, double supplyVoltage, double motorVoltage, double temperature, double energy) {
         this.position = position;
         this.velocity = velocity;
         this.supplyCurrent = supplyCurrent;
@@ -26,10 +26,11 @@ public class MotorInputs implements StructSerializable {
         this.supplyVoltage = supplyVoltage;
         this.motorVoltage = motorVoltage;
         this.temperature = temperature;
+        this.energy = energy;
     }
 
     public MotorInputs() {
-        this(0, 0, 0, 0, 0, 0, 0);
+        this(0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     public static final MotorInputsStruct struct = new MotorInputsStruct();
@@ -47,12 +48,12 @@ public class MotorInputs implements StructSerializable {
 
         @Override
         public int getSize() {
-            return kSizeDouble * 7;
+            return kSizeDouble * 8;
         }
 
         @Override
         public String getSchema() {
-            return "double position;double velocity;double supplyCurrent;double statorCurrent;double supplyVoltage;double motorVoltage;double temperature;";
+            return "double position;double velocity;double supplyCurrent;double statorCurrent;double supplyVoltage;double motorVoltage;double temperature;double energy;";
         }
 
         @Override
@@ -64,8 +65,9 @@ public class MotorInputs implements StructSerializable {
             double supplyVoltage = bb.getDouble();
             double motorVoltage = bb.getDouble();
             double temperature = bb.getDouble();
+            double energy = bb.getDouble();
 
-            return new MotorInputs(position, velocity, supplyCurrent, statorCurrent, supplyVoltage, motorVoltage, temperature);
+            return new MotorInputs(position, velocity, supplyCurrent, statorCurrent, supplyVoltage, motorVoltage, temperature, energy);
         }
 
         @Override
@@ -77,6 +79,7 @@ public class MotorInputs implements StructSerializable {
             bb.putDouble(value.supplyVoltage);
             bb.putDouble(value.motorVoltage);
             bb.putDouble(value.temperature);
+            bb.putDouble(value.energy);
         }
     }
 }

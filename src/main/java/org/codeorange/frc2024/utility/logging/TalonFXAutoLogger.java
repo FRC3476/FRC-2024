@@ -28,7 +28,7 @@ public class TalonFXAutoLogger implements MotorAutoLogger {
         motorVoltage = motor.getMotorVoltage();
         temperature = motor.getDeviceTemp();
     }
-    public MotorInputs update() {
+    public MotorInputs log() {
         BaseStatusSignal.refreshAll(
             position,
             velocity,

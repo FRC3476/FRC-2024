@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.OrangeUtility;
 import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
@@ -132,8 +131,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
     @Override
     public void updateInputs(ModuleInputs inputs) {
-        inputs.driveMotor = driveMotorLogger.update();
-        inputs.steerMotor = steerMotorLogger.update();
+        inputs.driveMotor = driveMotorLogger.log();
+        inputs.steerMotor = steerMotorLogger.log();
 
         inputs.steerMotorAbsolutePosition = steerMotorAbsolutePosition.refresh().getValue();
 

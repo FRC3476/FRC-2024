@@ -1,6 +1,5 @@
 package org.codeorange.frc2024.subsystem.wrist;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -9,7 +8,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import org.codeorange.frc2024.utility.Alert;
-import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.OrangeUtility;
 import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
@@ -86,7 +84,7 @@ public class WristIOTalonFX implements WristIO {
 
     public void updateInputs(WristInputs inputs) {
         inputs.wristAbsolutePosition = wristAbsolutePosition.refresh().getValue();
-        inputs.wrist = wristMotorLogger.update();
+        inputs.wrist = wristMotorLogger.log();
     }
 
     public void zeroWristEncoder() {
