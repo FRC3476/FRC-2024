@@ -1,23 +1,14 @@
 package org.codeorange.frc2024.subsystem.arm;
 
+import org.codeorange.frc2024.utility.logging.MotorInputs;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ArmIO {
     @AutoLog
     class ArmInputs {
-        double leadAbsolutePosition = 0.0;
-        double leadVelocity = 0.0;
-        double leadRelativePosition = 0.0;
-        double leadAccel = 0.0;
-        double leadCurrent = 0.0;
-        double leadTemp = 0.0;
-        double leadVoltage = 0.0;
-
-        double followPosition = 0.0;
-        double followVelocity = 0.0;
-        double followCurrent = 0.0;
-        double followTemp = 0.0;
-        double followVoltage = 0.0;
+        double absolutePosition = 0.0;
+        MotorInputs leadMotor;
+        MotorInputs followMotor;
     }
 
     default void updateInputs(ArmInputs inputs) {}

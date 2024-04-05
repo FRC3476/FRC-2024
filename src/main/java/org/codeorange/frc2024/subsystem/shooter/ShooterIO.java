@@ -1,22 +1,13 @@
 package org.codeorange.frc2024.subsystem.shooter;
 
+import org.codeorange.frc2024.utility.logging.MotorInputs;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ShooterIO {
     @AutoLog
     class ShooterInputs {
-        public double leaderVelocity = 0.0;
-        public double leaderVoltage = 0.0;
-        public double leaderAmps = 0.0;
-        public double leaderTemp = 0.0;
-
-        public double followerVelocity = 0.0;
-        public double followerVoltage = 0.0;
-        public double followerAmps = 0.0;
-        public double followerTemp = 0.0;
-
-        public double PID_ffVolts = 0.0;
-        public double PID_pOutput = 0.0;
+        MotorInputs leadMotor;
+        MotorInputs followMotor;
     }
 
     default void updateInputs(ShooterInputs inputs) {

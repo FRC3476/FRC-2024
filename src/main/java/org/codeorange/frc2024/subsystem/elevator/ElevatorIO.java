@@ -1,21 +1,13 @@
 package org.codeorange.frc2024.subsystem.elevator;
 
+import org.codeorange.frc2024.utility.logging.MotorInputs;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ElevatorIO {
     @AutoLog
     class ElevatorInputs {
-        public double leadMotorPosition;
-        public double leadMotorVelocity;
-        public double leadMotorVoltage;
-        public double leadMotorAmps;
-        public double leadMotorTemp;
-
-        public double followMotorPosition;
-        public double followMotorVelocity;
-        public double followMotorVoltage;
-        public double followMotorAmps;
-        public double followMotorTemp;
+        MotorInputs leadMotor;
+        MotorInputs followMotor;
     }
 
     default void updateInputs(ElevatorInputs inputs) {}

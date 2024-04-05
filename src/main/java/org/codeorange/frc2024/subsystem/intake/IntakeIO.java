@@ -1,14 +1,12 @@
 package org.codeorange.frc2024.subsystem.intake;
 
+import org.codeorange.frc2024.utility.logging.MotorInputs;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeIO {
     @AutoLog
     class IntakeInputs {
-        double motorVelocity;
-        double motorVoltage;
-        double motorAmps;
-        double motorTemp;
+        MotorInputs intake;
         boolean hasNote;
     }
 

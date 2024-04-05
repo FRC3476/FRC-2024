@@ -171,26 +171,26 @@ public class Drive extends AbstractSubsystem {
         for (int i = 0; i < 4; i++) {
             swerveModulePositions[i] = new SwerveModulePosition(
                     getDrivePosition(i),
-                    Rotation2d.fromDegrees(getWheelRotation(i)));
+                    Rotation2d.fromRotations(getWheelRotation(i)));
         }
         return swerveModulePositions;
     }
 
     private double getSwerveDriveVelocity(int motorNum) {
-        return moduleInputs[motorNum].driveMotorVelocity;
+        return moduleInputs[motorNum].driveMotor.velocity;
     }
 
     @AutoLogOutput(key = "Drive/Wheel Rotations")
     public double getWheelRotation(int moduleNumber) {
         if (USE_RELATIVE_ENCODER_POSITION) {
-            return MathUtil.normalize(moduleInputs[moduleNumber].steerMotorRelativePosition, 0, 360);
+            return MathUtil.normalize(moduleInputs[moduleNumber].steerMotor.position, 0, 1);
         } else {
             return moduleInputs[moduleNumber].steerMotorAbsolutePosition;
         }
     }
 
     public double getDrivePosition(int moduleNumber) {
-        return moduleInputs[moduleNumber].driveMotorPosition;
+        return moduleInputs[moduleNumber].driveMotor.position;
     }
 
     double[] lastModuleVelocities = new double[4];
@@ -247,7 +247,7 @@ public class Drive extends AbstractSubsystem {
             Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Acceleration", 0);
             Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Angular Speed", moduleState.omega);
 
-            realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
+            realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotor.velocity, Rotation2d.fromRotations(moduleInputs[i].steerMotor.position));
         }
         Logger.recordOutput("Drive/Wanted States", wantedStates);
         Logger.recordOutput("Drive/Real States", realStates);

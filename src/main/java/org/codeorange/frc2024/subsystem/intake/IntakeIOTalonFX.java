@@ -11,39 +11,29 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.utility.OrangeUtility;
+import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
 import static org.codeorange.frc2024.robot.Constants.CAN_BUS;
 
 public class IntakeIOTalonFX implements IntakeIO {
     private final TalonFX motor;
+    private final TalonFXAutoLogger motorLogger;
     private final DigitalInput beamBreak;
 
-    private final StatusSignal<Double> intakeVelocity;
-    private final StatusSignal<Double> intakeVoltage;
-    private final StatusSignal<Double> intakeAmps;
-    private final StatusSignal <Double> intakeTemp;
 
     public IntakeIOTalonFX() {
         motor = new TalonFX(Constants.Ports.INTAKE_MOTOR_ID, CAN_BUS);
         beamBreak = new DigitalInput(Constants.Ports.INTAKE_BEAM_BREAK);
         OrangeUtility.betterCTREConfigApply(motor, new TalonFXConfiguration());
 
-        intakeVelocity = motor.getVelocity();
-        intakeVoltage = motor.getMotorVoltage();
-        intakeAmps = motor.getSupplyCurrent();
-        intakeTemp = motor.getDeviceTemp();
+        motorLogger = new TalonFXAutoLogger(motor);
 
         motor.setNeutralMode(NeutralModeValue.Brake);
     }
 
     @Override
     public void updateInputs(IntakeInputs inputs) {
-        BaseStatusSignal.refreshAll(intakeVelocity, intakeVoltage, intakeAmps, intakeTemp);
-
-        inputs.motorVelocity = intakeVelocity.getValue();
-        inputs.motorVoltage = intakeVoltage.getValue();
-        inputs.motorAmps = intakeAmps.getValue();
-        inputs.motorTemp = intakeTemp.getValue();
+        inputs.intake = motorLogger.update();
         inputs.hasNote = beamBreak.get();
     }
 

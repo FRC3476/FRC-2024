@@ -1,15 +1,12 @@
 package org.codeorange.frc2024.subsystem.climber;
 
+import org.codeorange.frc2024.utility.logging.MotorInputs;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ClimberIO {
     @AutoLog
     class ClimberInputs {
-        double climberPosition = 0.0;
-        double climberVelocity = 0.0;
-        double climberCurrent = 0.0;
-        double climberTemp = 0.0;
-        double climberVoltage = 0.0;
+        MotorInputs climber;
         boolean limitSwitchPushed = false;
         //String relayValue = "hi";
 
