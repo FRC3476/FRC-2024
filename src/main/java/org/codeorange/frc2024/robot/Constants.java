@@ -227,6 +227,8 @@ public final class Constants {
     public static final double SWERVE_WHEEL_RADIUS = 1.93; // inches, gained from characterization
     public static final double SWERVE_INCHES_PER_ROTATION = 2*Math.PI*SWERVE_WHEEL_RADIUS;
     public static final double SWERVE_METER_PER_ROTATION = Units.inchesToMeters(SWERVE_INCHES_PER_ROTATION);
+
+    public static final double freeSpeed = 95.81986264394831;
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
     public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 7.0 / 150.0;
     public static final double DRIVE_MOTOR_REDUCTION = 9 / 53.125;
