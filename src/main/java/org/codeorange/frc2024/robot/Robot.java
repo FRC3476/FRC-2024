@@ -489,9 +489,9 @@ public class Robot extends LoggedRobot {
             }
         }
 
-//        if(flightStick.getRawButton(4) && flightStick.getRawButton(6)) {
-//            superstructure.setGoalState(Superstructure.States.PUPPETEERING);
-//        }
+        if(flightStick.getRawButton(4) && flightStick.getRawButton(6)) {
+            superstructure.setGoalState(Superstructure.States.PUPPETEERING);
+        }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawButton(XboxButtons.Y)) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker(), true);
