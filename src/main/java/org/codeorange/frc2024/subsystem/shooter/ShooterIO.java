@@ -6,8 +6,8 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ShooterIO {
     @AutoLog
     class ShooterInputs {
-        MotorInputs leadMotor;
-        MotorInputs followMotor;
+        MotorInputs leadMotor = new MotorInputs();
+        MotorInputs followMotor = new MotorInputs();
     }
 
     default void updateInputs(ShooterInputs inputs) {

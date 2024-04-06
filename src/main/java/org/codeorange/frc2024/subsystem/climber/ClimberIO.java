@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ClimberIO {
     @AutoLog
     class ClimberInputs {
-        MotorInputs climber;
+        MotorInputs climber = new MotorInputs();
         boolean limitSwitchPushed = false;
         //String relayValue = "hi";
 

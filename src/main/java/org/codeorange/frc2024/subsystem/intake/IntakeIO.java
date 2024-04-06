@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.AutoLog;
 public interface IntakeIO {
     @AutoLog
     class IntakeInputs {
-        MotorInputs intake;
+        MotorInputs intake = new MotorInputs();
         boolean hasNote;
     }
 

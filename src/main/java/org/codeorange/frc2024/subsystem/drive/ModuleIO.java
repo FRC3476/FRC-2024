@@ -7,9 +7,9 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ModuleIO {
     @AutoLog
     class ModuleInputs {
-        MotorInputs driveMotor;
+        MotorInputs driveMotor = new MotorInputs();
         public double steerMotorAbsolutePosition;
-        MotorInputs steerMotor;
+        MotorInputs steerMotor = new MotorInputs();
 
         public double[] odometryTimestamps = new double[] {};
         public double[] odometryDrivePositionsMeters = new double[] {};

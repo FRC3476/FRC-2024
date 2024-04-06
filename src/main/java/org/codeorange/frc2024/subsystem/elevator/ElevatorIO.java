@@ -6,8 +6,8 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ElevatorIO {
     @AutoLog
     class ElevatorInputs {
-        MotorInputs leadMotor;
-        MotorInputs followMotor;
+        MotorInputs leadMotor = new MotorInputs();
+        MotorInputs followMotor = new MotorInputs();
     }
 
     default void updateInputs(ElevatorInputs inputs) {}
