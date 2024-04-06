@@ -57,6 +57,8 @@ public class Vision extends AbstractSubsystem {
     private void processVisionData(VisionIO io, VisionIO.VisionInputs inputs) {
         if(!inputs.hasTarget) return;
 
+        if(inputs.tagCount < 1) return;
+
         if(unconditionallyTrustVision.get()) {
             drive.addVisionMeasurement(
                     inputs.botPose2d,
