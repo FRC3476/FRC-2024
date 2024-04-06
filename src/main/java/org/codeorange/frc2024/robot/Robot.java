@@ -376,16 +376,16 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
         }
         if(buttonPanel.getRisingEdge(5)) {
-            superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = false;
             superstructure.wantedAngle = 52;
             superstructure.manualOverride = true;
+            superstructure.setGoalState(Superstructure.States.SPEAKER);
         }
         if(buttonPanel.getRisingEdge(11)) {
-            superstructure.setGoalState(Superstructure.States.SPEAKER);
             superstructure.isFlipped = true;
             superstructure.wantedAngle = 52;
             superstructure.manualOverride = true;
+            superstructure.setGoalState(Superstructure.States.SPEAKER);
         }
         if(buttonPanel.getRisingEdge(6)) {
             superstructure.setGoalState(Superstructure.States.SHOOT_OVER_STAGE);
@@ -452,8 +452,9 @@ public class Robot extends LoggedRobot {
             shooter.stop();
         }
         if(xbox.getRisingEdge(XboxButtons.Y)) {
-            superstructure.setGoalState(Superstructure.States.SPEAKER);
+            superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker())
             superstructure.isFlipped = drive.isForward();
+            superstructure.setGoalState(Superstructure.States.SPEAKER);
         }
         if(xbox.getFallingEdge(XboxButtons.Y)) {
             superstructure.setGoalState(Superstructure.States.STOW);
