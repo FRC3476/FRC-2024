@@ -356,7 +356,7 @@ public class Superstructure extends AbstractSubsystem {
      * @return a clamped value of wristPos that may limit the amount of negative rotation allowed
      */
     private double dynamicAdjustWrist(double wristPos) {
-        double wristLengthInches = 11.191;
+        double wristLengthInches = 12;//originally 11.191
         double elevatorPivotToWristCarriageOffset = 9.35;
         double elevatorPositionInches = elevator.getPositionInInches();
         double armPositionDegrees = Units.rotationsToDegrees(arm.getPivotRotations());

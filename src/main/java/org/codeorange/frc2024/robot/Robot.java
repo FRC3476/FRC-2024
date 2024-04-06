@@ -452,7 +452,7 @@ public class Robot extends LoggedRobot {
             shooter.stop();
         }
         if(xbox.getRisingEdge(XboxButtons.Y)) {
-            superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker())
+            superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
             superstructure.isFlipped = drive.isForward();
             superstructure.setGoalState(Superstructure.States.SPEAKER);
         }
