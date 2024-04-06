@@ -11,37 +11,27 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.utility.OrangeUtility;
+import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
-    private final StatusSignal<Double> leadMotorPosition;
-    private final StatusSignal<Double> leadMotorVelocity;
-    private final StatusSignal<Double> leadMotorVoltage;
-    private final StatusSignal<Double> leadMotorAmps;
-    private final StatusSignal<Double> leadMotorTemp;
-    private final StatusSignal<Double> followMotorPosition;
-    private final StatusSignal<Double> followMotorVelocity;
-    private final StatusSignal<Double> followMotorVoltage;
-    private final StatusSignal<Double> followMotorAmps;
-    private final StatusSignal<Double> followMotorTemp;
-
     private final TalonFX leadMotor;
     private final TalonFX followMotor;
-
-    private double targetPosition;
+    private final TalonFXAutoLogger leadMotorLogger;
+    private final TalonFXAutoLogger followMotorLogger;
 
     public ElevatorIOTalonFX() {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD, CAN_BUS);
         followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW, CAN_BUS);
-        //36 and 240 works for going down
+
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()
                         .withMotionMagicCruiseVelocity(200)
                         .withMotionMagicAcceleration(200)
                         .withMotionMagicJerk(10000)
                 ).withSlot0(new Slot0Configs()
-                        .withKP(ELEVATOR_P)
+                        .withKP(ELEVATOR_GAINS.kP())
                         .withKS(0.2)
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
@@ -57,42 +47,21 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         OrangeUtility.betterCTREConfigApply(leadMotor, motorConfig);
         OrangeUtility.betterCTREConfigApply(followMotor, motorConfig);
 
+        leadMotorLogger = new TalonFXAutoLogger(leadMotor);
+        followMotorLogger = new TalonFXAutoLogger(followMotor);
+
         followMotor.setControl(new Follower(leadMotor.getDeviceID(), !isPrototype()));
 
-        leadMotorPosition = leadMotor.getPosition();
-        leadMotorVelocity = leadMotor.getVelocity();
-        leadMotorVoltage = leadMotor.getMotorVoltage();
-        leadMotorAmps = leadMotor.getSupplyCurrent();
-        leadMotorTemp = leadMotor.getDeviceTemp();
-
-        followMotorPosition = followMotor.getPosition();
-        followMotorVelocity = followMotor.getVelocity();
-        followMotorVoltage = followMotor.getMotorVoltage();
-        followMotorAmps = followMotor.getSupplyCurrent();
-        followMotorTemp = followMotor.getDeviceTemp();
     }
+
     private final DynamicMotionMagicVoltage motionMagicRequest = new DynamicMotionMagicVoltage(0, 200, 200, 10000).withSlot(0).withEnableFOC(true).withUpdateFreqHz(0.0);
     public void setPosition(double targetPosition, double velocity, double acceleration) {
-        this.targetPosition = targetPosition;
         leadMotor.setControl(motionMagicRequest.withPosition(targetPosition).withVelocity(velocity).withAcceleration(acceleration));
     }
 
     public void updateInputs(ElevatorInputs inputs) {
-        BaseStatusSignal.refreshAll(leadMotorPosition, leadMotorVelocity, leadMotorVoltage, leadMotorAmps, leadMotorTemp, followMotorPosition, followMotorVoltage, followMotorAmps, followMotorTemp);
-
-        inputs.leadMotorPosition = leadMotorPosition.getValue();
-        inputs.leadMotorVelocity = leadMotorVelocity.getValue();
-        inputs.leadMotorVoltage = leadMotorVoltage.getValue();
-        inputs.leadMotorAmps = leadMotorAmps.getValue();
-        inputs.leadMotorTemp = leadMotorTemp.getValue();
-
-        inputs.followMotorPosition = followMotorPosition.getValue();
-        inputs.followMotorVelocity = followMotorVelocity.getValue();
-        inputs.followMotorVoltage = followMotorVoltage.getValue();
-        inputs.followMotorAmps = followMotorAmps.getValue();
-        inputs.followMotorTemp = followMotorTemp.getValue();
-
-        inputs.targetPosition = targetPosition;
+        inputs.leadMotor = leadMotorLogger.log();
+        inputs.followMotor = followMotorLogger.log();
     }
 
     public void setEncoderToZero() {

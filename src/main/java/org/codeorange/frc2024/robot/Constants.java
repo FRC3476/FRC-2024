@@ -124,7 +124,7 @@ public final class Constants {
 
             }
             case HALEIWA -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.172119140625;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.16748046875;
                 BL_ABSOLUTE_ENCODER_OFFSET = -0.521728515625;
                 FR_ABSOLUTE_ENCODER_OFFSET = -0.836181640625;
                 BR_ABSOLUTE_ENCODER_OFFSET = -0.453857421875;
@@ -192,44 +192,32 @@ public final class Constants {
     public static final double SS_HOMING_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_HOMING_WRIST = 0;
 
-    public static final double SWERVE_DRIVE_P = 150;
-    public static final double SWERVE_DRIVE_D = 0;
-    public static final double SWERVE_DRIVE_I = 0;
+    public static final Gains SWERVE_DRIVE_GAINS = new Gains(4.5, 0, 0, 0.17052, 2.439, 0.23119);
 
-    public static final double TURN_P = isPrototype() ? 2 : 8.5;
-    public static final double TURN_I = 0;
-    public static final double TURN_D = 0.3;
+    public static final Gains SWERVE_STEER_GAINS = new Gains(150, 0, 0);
 
-    public static final double ARM_P = 200;
-    public static final double ARM_I = 0;
-    public static final double ARM_D = isPrototype() ? 5 : 0;
+    public static final Gains CHASSIS_OMEGA_GAINS = new Gains(8.5, 0, 0.3);
+
+    public static final Gains ARM_GAINS = new Gains(200, 0, 0);
     public static final double ARM_RTS = isPrototype() ? 144.0 : 36.0 * 3;
     public static final double ARM_STM = isPrototype() ? 1.0 : 3.0;
 
-    public static final double ELEVATOR_P = 2;
+    public static final Gains ELEVATOR_GAINS = new Gains(2, 0, 0);
     public static final double ELEVATOR_INCHES_PER_ROTATION = isPrototype() ? 0.25*22*12/60 : (30 * 5 * 8.0 / 72.0 / 25.4); //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
 
-    public static final double CLIMBER_P = 1.5;
-    public static final double CLIMBER_I = 0;
-    public static final double CLIMBER_D = 0;
+    public static final Gains CLIMBER_GAINS = new Gains(1.5, 0, 0);
 
-    public static final double SHOOTER_P = 0.089683;
-    public static final double SHOOTER_I = 0;
-    public static final double SHOOTER_D = 0;
+    public static final Gains SHOOTER_GAINS = new Gains(0.089683, 0, 0, 0.24045, 0.061218, 0.0030777);
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
 
-    public static final double WRIST_P = 250;
-    public static final double WRIST_I = 0;
-    public static final double WRIST_D = 0;
-
+    public static final Gains WRIST_GAINS = new Gains(250, 0, 0);
     public static final double WRIST_RTS = isPrototype() ? 81.0 : (isCompetition() ? 45.0 : 125.0);
     public static final double WRIST_STM = 1.0;
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 120;
-    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.17052, 2.439, 0.23119);
     public static final int SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO = 12;
-    public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
+    public static final double DRIVE_HIGH_SPEED_M = (12 - SWERVE_DRIVE_GAINS.kS()) / SWERVE_DRIVE_GAINS.kV();
     public static final int MAX_TELEOP_TURN_SPEED = 10;
     public static final boolean USE_RELATIVE_ENCODER_POSITION = true;
     public static final double ALLOWED_SWERVE_ANGLE_ERROR = 0;
@@ -272,22 +260,30 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_BACK_LOW = new InterpolatingDoubleTreeMap();
         static {
             SHOOTER_ANGLE_BACK_LOW.put(1.28, 52.0);
-            SHOOTER_ANGLE_BACK_LOW.put(1.50, 45.0);
-            SHOOTER_ANGLE_BACK_LOW.put(2.75, 32.4);
-            SHOOTER_ANGLE_BACK_LOW.put(3.5, 28.0);
-            SHOOTER_ANGLE_BACK_LOW.put(3.9, 22.2);
-            SHOOTER_ANGLE_BACK_LOW.put(10.0, 20.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.50, 46.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.75, 44.0);
+            SHOOTER_ANGLE_BACK_LOW.put(2.35, 38.3);
+            SHOOTER_ANGLE_BACK_LOW.put(2.75, 35.0);
+            SHOOTER_ANGLE_BACK_LOW.put(3.3, 31.25);
+            SHOOTER_ANGLE_BACK_LOW.put(3.5, 31.0);
+            SHOOTER_ANGLE_BACK_LOW.put(3.8, 28.5);
+            SHOOTER_ANGLE_BACK_LOW.put(4.3, 27.7);
+            SHOOTER_ANGLE_BACK_LOW.put(5.15, 26.0);
+            SHOOTER_ANGLE_BACK_LOW.put(5.25, 25.5);
+            SHOOTER_ANGLE_BACK_LOW.put(10.0, 23.0);
         }
-        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_FRONT_LOW = SHOOTER_ANGLE_BACK_LOW;
-                //new InterpolatingDoubleTreeMap();
-//        static {
-//            // Need to find correct values
-//            SHOOTER_ANGLE_LOW_BACK.put(0.0, 54.0);
-//            SHOOTER_ANGLE_LOW_BACK.put(6.0, 27.0);
-//            SHOOTER_ANGLE_LOW_BACK.put(12.0, 24.0);
-//            SHOOTER_ANGLE_LOW_BACK.put(18.0, 22.0);
-//            SHOOTER_ANGLE_LOW_BACK.put(24.0, 20.0);
-//        }
+        public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_FRONT_LOW = new InterpolatingDoubleTreeMap();
+        static {
+            SHOOTER_ANGLE_FRONT_LOW.put(1.28, 52.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(1.50, 45.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(2.75, 35.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(3.5, 30.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(3.8, 28.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(4.3, 26.7);
+            SHOOTER_ANGLE_FRONT_LOW.put(5.15, 25.0);
+            SHOOTER_ANGLE_FRONT_LOW.put(5.25, 24.5);
+            SHOOTER_ANGLE_FRONT_LOW.put(10.0, 22.0);
+        }
 
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_HIGH_FRONT = new InterpolatingDoubleTreeMap();
         static {
@@ -299,11 +295,15 @@ public final class Constants {
         }
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_HIGH_BACK = new InterpolatingDoubleTreeMap();
         static {
-            SHOOTER_ANGLE_HIGH_BACK.put(0.0, 54.0);
-            SHOOTER_ANGLE_HIGH_BACK.put(6.0, 27.0);
-            SHOOTER_ANGLE_HIGH_BACK.put(12.0, 24.0);
-            SHOOTER_ANGLE_HIGH_BACK.put(18.0, 22.0);
-            SHOOTER_ANGLE_HIGH_BACK.put(24.0, 20.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(1.28, 42.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(1.50, 35.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(2.75, 27.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(3.5, 25.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(3.8, 23.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(4.3, 21.7);
+            SHOOTER_ANGLE_HIGH_BACK.put(5.15, 21.0);
+            SHOOTER_ANGLE_HIGH_BACK.put(5.25, 20.5);
+            SHOOTER_ANGLE_HIGH_BACK.put(10.0, 19.0);
         }
     }
 
@@ -320,7 +320,13 @@ public final class Constants {
                     4.108
             );
 
-    public static final double CLIMBER_SWITCH_OFFSET = 2.89 - 0.95 / CLIMBER_P;
+    public static final double CLIMBER_SWITCH_OFFSET = 2.4 - 0.95 / CLIMBER_GAINS.kP();
 
     public static final double ODOMETRY_REFRESH_HZ = 250;
+
+    public record Gains(double kP, double kI, double kD, double kS, double kV, double kA) {
+        public Gains(double kP, double kI, double kD) {
+            this(kP, kI, kD, 0, 0, 0);
+        }
+    }
 }

@@ -39,7 +39,7 @@ public class Elevator extends AbstractSubsystem {
             if (DriverStation.isEnabled()) {
                 homeTime -= NOMINAL_DT;
                 elevatorIO.setElevatorVoltage(ELEVATOR_HOME_VOLTAGE);
-                double avgMotorCurrent = (elevatorInputs.leadMotorAmps + elevatorInputs.followMotorAmps) / 2.0;
+                double avgMotorCurrent = (elevatorInputs.leadMotor.supplyCurrent + elevatorInputs.leadMotor.supplyCurrent) / 2.0;
                 if (homeTime <= 0 && avgMotorCurrent > 10) {
                     homing = false;
                     elevatorIO.setEncoderToZero();
@@ -56,7 +56,7 @@ public class Elevator extends AbstractSubsystem {
 
     public double getPositionInInches() {
         //apparently leadMotorPosition already returns in inches! yay!
-        return elevatorInputs.leadMotorPosition;
+        return elevatorInputs.leadMotor.position;
     }
     public void zeroEncoder() {
         elevatorIO.setEncoderToZero();

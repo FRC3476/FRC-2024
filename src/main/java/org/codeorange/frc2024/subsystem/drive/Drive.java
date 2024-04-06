@@ -10,11 +10,14 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
+import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.ControllerDriveInputs;
+import org.codeorange.frc2024.utility.LimelightHelpers;
 import org.codeorange.frc2024.utility.MathUtil;
 import org.codeorange.frc2024.utility.swerve.SecondOrderModuleState;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
@@ -31,6 +34,12 @@ import static org.codeorange.frc2024.robot.Constants.*;
 
 public class Drive extends AbstractSubsystem {
     static final Lock odometryLock = new ReentrantLock();
+    public static final double SPEAKER_ANGLE_OFFSET = Units.degreesToRadians(4);
+
+    private final Alert odomAlert = new Alert("ODOMETRY WENT TO NAN!!!!", Alert.AlertType.ERROR);
+    {
+        odomAlert.set(false);
+    }
 
     final GyroIO gyroIO;
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
@@ -42,9 +51,9 @@ public class Drive extends AbstractSubsystem {
 
     {
         turnPID = new PIDController(
-                TURN_P,
-                TURN_I,
-                TURN_D
+                CHASSIS_OMEGA_GAINS.kP(),
+                CHASSIS_OMEGA_GAINS.kI(),
+                CHASSIS_OMEGA_GAINS.kD()
         );
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -109,7 +118,7 @@ public class Drive extends AbstractSubsystem {
         gyroIO.updateInputs(gyroInputs);
         odometryLock.unlock();
         for(int i = 0; i < 4; i++) {
-            Logger.processInputs("Drive/Module " + i, moduleInputs[i]);
+            Logger.processInputs("Drive/Module " + getModuleName(i), moduleInputs[i]);
         }
         Logger.processInputs("Drive/Gyro", gyroInputs);
 
@@ -131,6 +140,24 @@ public class Drive extends AbstractSubsystem {
         }
 
         realField.setRobotPose(getPose());
+
+        if(Double.isNaN(getPose().getX()) || Double.isNaN(getPose().getY()) || Double.isNaN(getPose().getRotation().getRadians())) {
+            poseEstimator.resetPosition(
+                    gyroInputs.rotation2d,
+                    getModulePositions(),
+                    new Pose2d(0, 0, gyroInputs.rotation2d)
+            );
+            odomAlert.set(true);
+        }
+
+        Robot.getVision().updateBotOrientation(
+                Units.radiansToDegrees(gyroInputs.yawPositionRad),
+                Units.radiansToDegrees(gyroInputs.yawVelocityRadPerSec),
+                Units.radiansToDegrees(gyroInputs.pitchPositionRad),
+                Units.radiansToDegrees(gyroInputs.pitchVelocityRadPerSec),
+                Units.radiansToDegrees(gyroInputs.rollPositionRad),
+                Units.radiansToDegrees(gyroInputs.rollVelocityRadPerSec)
+        );
     }
 
     public synchronized void setBrakeMode(boolean brakeMode) {
@@ -144,26 +171,26 @@ public class Drive extends AbstractSubsystem {
         for (int i = 0; i < 4; i++) {
             swerveModulePositions[i] = new SwerveModulePosition(
                     getDrivePosition(i),
-                    Rotation2d.fromDegrees(getWheelRotation(i)));
+                    Rotation2d.fromRotations(getWheelRotation(i)));
         }
         return swerveModulePositions;
     }
 
     private double getSwerveDriveVelocity(int motorNum) {
-        return moduleInputs[motorNum].driveMotorVelocity;
+        return moduleInputs[motorNum].driveMotor.velocity;
     }
 
     @AutoLogOutput(key = "Drive/Wheel Rotations")
     public double getWheelRotation(int moduleNumber) {
         if (USE_RELATIVE_ENCODER_POSITION) {
-            return MathUtil.normalize(moduleInputs[moduleNumber].steerMotorRelativePosition, 0, 360);
+            return MathUtil.normalize(moduleInputs[moduleNumber].steerMotor.position, 0, 1);
         } else {
             return moduleInputs[moduleNumber].steerMotorAbsolutePosition;
         }
     }
 
     public double getDrivePosition(int moduleNumber) {
-        return moduleInputs[moduleNumber].driveMotorPosition;
+        return moduleInputs[moduleNumber].driveMotor.position;
     }
 
     double[] lastModuleVelocities = new double[4];
@@ -183,21 +210,12 @@ public class Drive extends AbstractSubsystem {
             moduleIO[module].setDriveMotorVelocity(velocity, acceleration);
         }
 
-        Logger.recordOutput("Drive/Expected Velocity " + module, velocity);
-        Logger.recordOutput("Drive/Expected Voltage " + module, DRIVE_FEEDFORWARD.calculate(velocity));
-
-        Logger.recordOutput("Drive/Out Volts Ks" + module, DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
-        Logger.recordOutput("Drive/Out Volts Kv" + module, DRIVE_FEEDFORWARD.kv * velocity);
-        Logger.recordOutput("Drive/Out Volts Ka" + module, DRIVE_FEEDFORWARD.ka * acceleration);
-        Logger.recordOutput("Drive/Voltage Contrib to Accel" + module,
-                ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
+        Logger.recordOutput("Drive/Expected Velocity " + getModuleName(module), velocity);
 
         double time = Logger.getRealTimestamp() * 1e-6;
         double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
 
-        Logger.recordOutput("Drive/Acceleration" + module, realAccel);
-        Logger.recordOutput("Drive/Expected Accel" + module,
-                (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
+        Logger.recordOutput("Drive/Acceleration" + getModuleName(module), realAccel);
 
         lastModuleVelocities[module] = getSwerveDriveVelocity(module);
         lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;
@@ -215,12 +233,12 @@ public class Drive extends AbstractSubsystem {
             moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
             setMotorSpeed(i, moduleState.speedMetersPerSecond, 0, isOpenLoop);
 
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angle", moduleState.angle.getDegrees());
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Speed", moduleState.speedMetersPerSecond);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Acceleration", 0);
-            Logger.recordOutput("Drive/SwerveModule " + i + "/Wanted Angular Speed", moduleState.omega);
+            Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Angle", moduleState.angle.getDegrees());
+            Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Speed", moduleState.speedMetersPerSecond);
+            Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Acceleration", 0);
+            Logger.recordOutput("Drive/SwerveModule " + getModuleName(i) + "/Wanted Angular Speed", moduleState.omega);
 
-            realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotorVelocity, Rotation2d.fromDegrees(moduleInputs[i].steerMotorRelativePosition));
+            realStates[i] = new SwerveModuleState(moduleInputs[i].driveMotor.velocity, Rotation2d.fromRotations(moduleInputs[i].steerMotor.position));
         }
         Logger.recordOutput("Drive/Wanted States", wantedStates);
         Logger.recordOutput("Drive/Real States", realStates);
@@ -263,9 +281,13 @@ public class Drive extends AbstractSubsystem {
                                 DRIVE_HIGH_SPEED_M * inputs.getY(),
                                 turnRadPerSec,
                                 gyroInputs.rotation2d) :
+                                Robot.isRed() ?
                         new ChassisSpeeds(-DRIVE_HIGH_SPEED_M * inputs.getX(),
                                 -DRIVE_HIGH_SPEED_M * inputs.getY(),
-                                turnRadPerSec), 0.02));
+                                turnRadPerSec)
+                        : new ChassisSpeeds(DRIVE_HIGH_SPEED_M * inputs.getX(),
+                                        DRIVE_HIGH_SPEED_M * inputs.getY(),
+                                        turnRadPerSec), 0.02));
         SecondOrderKinematics.desaturateWheelSpeeds(states, DRIVE_HIGH_SPEED_M);
         setSwerveModuleStates(states, true);
     }
@@ -292,9 +314,9 @@ public class Drive extends AbstractSubsystem {
         delta = target.minus(heading);
 
         if(delta.getCos() < 0) {
-            return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians();
+            return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians() + SPEAKER_ANGLE_OFFSET;
         }
-        return target.getRadians();
+        return target.getRadians() - SPEAKER_ANGLE_OFFSET;
     }
 
     public Translation2d getTranslationToGoal() {
@@ -357,6 +379,16 @@ public class Drive extends AbstractSubsystem {
 
         realField.getObject("wantedPose").setPose(target);
         Logger.recordOutput("Drive/Target Pose", target);
+    }
+
+    private String getModuleName(int i) {
+        return switch(i) {
+            case 0 -> "FL";
+            case 1 -> "BL";
+            case 2 -> "FR";
+            case 3 -> "BR";
+            default -> "";
+        };
     }
 }
 

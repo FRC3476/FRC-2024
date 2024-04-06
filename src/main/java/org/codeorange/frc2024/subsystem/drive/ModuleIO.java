@@ -1,26 +1,15 @@
 package org.codeorange.frc2024.subsystem.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import org.codeorange.frc2024.utility.logging.MotorInputs;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
     @AutoLog
     class ModuleInputs {
-        public double driveMotorPosition;
-        public double driveMotorVelocity;
-        public double driveMotorAcceleration;
-        public double driveMotorVoltage;
-        public double driveMotorAmps;
-        public double driveMotorTemp;
-
+        MotorInputs driveMotor;
         public double steerMotorAbsolutePosition;
-        public double steerMotorRelativePosition;
-        // omega
-        public double steerMotorVelocity;
-        public double steerMotorVoltage;
-        public double steerMotorAmps;
-        public double steerMotorTemp;
-
+        MotorInputs steerMotor;
 
         public double[] odometryTimestamps = new double[] {};
         public double[] odometryDrivePositionsMeters = new double[] {};

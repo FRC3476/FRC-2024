@@ -66,7 +66,7 @@ public class FivePointFive extends BaseRoutine {
                 ),
                 new SeriesAction(
                         new GroundIntake(),
-                        new ShootFromGround(29)
+                        new ShootFromGround(Robot.isRed() ? 29 : 30)
                 )
         ));
         sequenceAction(new SeriesAction(

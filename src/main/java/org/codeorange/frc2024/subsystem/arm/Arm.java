@@ -25,7 +25,7 @@ public class Arm extends AbstractSubsystem {
     }
 
     public double getPosition() {
-        return inputs.leadRelativePosition;
+        return inputs.leadMotor.position;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class Arm extends AbstractSubsystem {
         //position, velocity, and acceleration of the profile at that time
 
     public double getPivotRotations() {
-        return inputs.leadRelativePosition;
+        return inputs.leadMotor.position;
     }
 
     public void resetPosition() {

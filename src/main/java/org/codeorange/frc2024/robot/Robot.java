@@ -11,10 +11,12 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotController;
 import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.BlinkinLEDController;
@@ -34,6 +36,7 @@ import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggedPowerDistribution;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
@@ -46,6 +49,7 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.stream.IntStream;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -224,6 +228,7 @@ public class Robot extends LoggedRobot {
             climber.start();
         }
 
+        RobotController.setBrownoutVoltage(6.4);
 
         LimelightHelpers.setLEDMode_ForceOff("limelight-front");
         LimelightHelpers.setLEDMode_ForceOff("limelight-back");
@@ -242,6 +247,8 @@ public class Robot extends LoggedRobot {
     double totalMemory;
     double usedMemory;
     double freeMemory;
+    double[] powerUsageJoules = new double[24];
+    double previousTimestamp;
 
     /** This function is called periodically during all modes. */
     @Override
@@ -279,6 +286,17 @@ public class Robot extends LoggedRobot {
 
             allianceColorAlert.set(alliance.equals(DriverStation.Alliance.Red) ^ Robot.isRed());
         }
+
+        double currentTimestamp = Logger.getRealTimestamp() * 1e-6;
+        double[] currentUsage = LoggedPowerDistribution.getInstance().getInputs().pdpChannelCurrents;
+        double voltsSeconds = (currentTimestamp - previousTimestamp) * powerDistribution.getVoltage();
+        previousTimestamp = currentTimestamp;
+
+        double[] powerUsageLoopJoules = Arrays.stream(currentUsage).map((value) -> value * voltsSeconds).toArray();
+
+        powerUsageJoules = IntStream.range(0, 24).mapToDouble((i) -> powerUsageJoules[i] + powerUsageLoopJoules[i]).toArray();
+
+        Logger.recordOutput("Power Output", powerUsageJoules);
     }
 
     private final LoggedDashboardChooser<Boolean> limelightLEDchooser = new LoggedDashboardChooser<>("Limelight LED Mode");
@@ -471,13 +489,17 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        if(flightStick.getRawButton(4) && flightStick.getRawButton(6)) {
-            superstructure.setGoalState(Superstructure.States.PUPPETEERING);
-        }
+//        if(flightStick.getRawButton(4) && flightStick.getRawButton(6)) {
+//            superstructure.setGoalState(Superstructure.States.PUPPETEERING);
+//        }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawButton(XboxButtons.Y)) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker(), true);
-            superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
+            if(superstructure.getCurrentState() == Superstructure.States.SPEAKER_OVER_DEFENSE) {
+                superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_HIGH_BACK.get(drive.findDistanceToSpeaker());
+            } else {
+                superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
+            }
         } else if(xbox.getRawButton(XboxButtons.RIGHT_CLICK)) {
             double targetAngle;
 
@@ -565,11 +587,11 @@ public class Robot extends LoggedRobot {
                 climber.climb();
                 climber.closeServos();
             }
-        } else if (flightStick.getRawButton(3)) {
+        } else if (flightStick.getRawButton(6)) {
             //drops climber
             climber.reverseClimb();
         }
-        if((flightStick.getFallingEdge(5) || flightStick.getFallingEdge(3)) && climber.climbing){
+        if((flightStick.getFallingEdge(5) || flightStick.getFallingEdge(6)) && climber.climbing){
             climber.stop();
         }
         if (intake.hasNote() && shooter.isAtTargetVelocity()) {
@@ -749,6 +771,10 @@ public class Robot extends LoggedRobot {
     }
     public static Climber getClimber() {
         return climber;
+    }
+
+    public static Vision getVision() {
+        return vision;
     }
 
     public static BlinkinLEDController getBlinkin() {

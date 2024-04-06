@@ -1,7 +1,5 @@
 package org.codeorange.frc2024.subsystem.climber;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
@@ -14,17 +12,13 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.utility.OrangeUtility;
+import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
 public class ClimberIOTalonFX implements ClimberIO {
-    private final StatusSignal<Double> climberPosition;
-    private final StatusSignal<Double> climberVelocity;
-    private final StatusSignal<Double> climberCurrent;
-    private final StatusSignal<Double> climberTemp;
-    private final StatusSignal<Double> climberVoltage;
-
     private final TalonFX motor;
+    private final TalonFXAutoLogger motorLogger;
     private final Servo servoLeft;
     private final Servo servoRight;
     private final DigitalInput limitSwitch;
@@ -41,9 +35,9 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withSlot0(new Slot0Configs()
-                        .withKP(CLIMBER_P)
-                        .withKI(CLIMBER_I)
-                        .withKD(CLIMBER_D)
+                        .withKP(CLIMBER_GAINS.kP())
+                        .withKI(CLIMBER_GAINS.kI())
+                        .withKD(CLIMBER_GAINS.kD())
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                         .withSensorToMechanismRatio(1)
@@ -61,29 +55,16 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         OrangeUtility.betterCTREConfigApply(motor, motorConfig);
 
-        climberPosition = motor.getPosition();
-        climberVelocity = motor.getVelocity();
-        climberVoltage = motor.getMotorVoltage();
-        climberCurrent = motor.getSupplyCurrent();
-        climberTemp = motor.getDeviceTemp();
+        motorLogger = new TalonFXAutoLogger(motor);
     }
     private final PositionVoltage motionMagicRequest = new PositionVoltage(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
     public void setMotorPosition(double targetPosition) {
-        if (!limitSwitch.get() && targetPosition < climberPosition.getValue()) {
-            stop();
-        } else {
-            motor.setControl(motionMagicRequest.withPosition(targetPosition));
-        }
+        motor.setControl(motionMagicRequest.withPosition(targetPosition));
     }
 
     public void updateInputs(ClimberInputs inputs) {
-        BaseStatusSignal.refreshAll(climberPosition, climberVelocity, climberVoltage, climberCurrent, climberTemp);
+        inputs.climber = motorLogger.log();
 
-        inputs.climberPosition = climberPosition.getValue();
-        inputs.climberVelocity = climberVelocity.getValue();
-        inputs.climberVoltage = climberVoltage.getValue();
-        inputs.climberCurrent = climberCurrent.getValue();
-        inputs.climberTemp = climberTemp.getValue();
         inputs.limitSwitchPushed = !limitSwitch.get();
         //inputs.relayValue = spikeRelay.get().getPrettyValue();
     }
@@ -108,7 +89,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     }
 
     public void close() {
-        servoLeft.setPosition(0.05); //should be about 90 degrees
+        servoLeft.setPosition(0.1); //should be about 90 degrees
         servoRight.setPosition(1.0); //should be about 90 degrees
     }
 

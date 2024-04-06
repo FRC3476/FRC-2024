@@ -1,7 +1,5 @@
 package org.codeorange.frc2024.subsystem.shooter;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -9,6 +7,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.codeorange.frc2024.utility.OrangeUtility;
+import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -16,33 +15,25 @@ import static org.codeorange.frc2024.robot.Constants.*;
 public class ShooterIOTalonFX implements ShooterIO {
     private final TalonFX leader;
     private final TalonFX follower;
+    private final TalonFXAutoLogger leaderLogger;
+    private final TalonFXAutoLogger followerLogger;
 
-    private final StatusSignal<Double> leaderVelocity;
-    private final StatusSignal<Double> leaderVoltage;
-    private final StatusSignal<Double> leaderAmps;
-    private final StatusSignal<Double> leaderTemp;
-    private final StatusSignal<Double> PID_ffVolts;
-    private final StatusSignal<Double> PID_pOutput;
-
-    private final StatusSignal<Double> followerVelocity;
-    private final StatusSignal<Double> followerVoltage;
-    private final StatusSignal<Double> followerAmps;
-    private final StatusSignal<Double> followerTemp;
     public ShooterIOTalonFX() {
         leader = new TalonFX(Ports.SHOOTER_LEAD, CAN_BUS);
         follower = new TalonFX(Ports.SHOOTER_FOLLOW, CAN_BUS);
 
         var config = new TalonFXConfiguration();
-        config.CurrentLimits.SupplyCurrentLimitEnable = false;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        config.CurrentLimits.SupplyCurrentLimit = 70;
         config.CurrentLimits.StatorCurrentLimitEnable = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        config.Slot0.kP = SHOOTER_P;
-        config.Slot0.kI = SHOOTER_I;
-        config.Slot0.kD = SHOOTER_D;
-        config.Slot0.kS = 0.24045;
-        config.Slot0.kV = 0.061218;
-        config.Slot0.kA = 0.0030777;
+        config.Slot0.kP = SHOOTER_GAINS.kP();
+        config.Slot0.kI = SHOOTER_GAINS.kI();
+        config.Slot0.kD = SHOOTER_GAINS.kD();
+        config.Slot0.kS = SHOOTER_GAINS.kS();
+        config.Slot0.kV = SHOOTER_GAINS.kV();
+        config.Slot0.kA = SHOOTER_GAINS.kA();
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         OrangeUtility.betterCTREConfigApply(follower, config);
@@ -50,38 +41,16 @@ public class ShooterIOTalonFX implements ShooterIO {
         if(!isCompetition()) config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         OrangeUtility.betterCTREConfigApply(leader, config);
 
-
         follower.setControl(new StrictFollower(leader.getDeviceID()));
 
-        leaderVelocity = leader.getVelocity();
-        leaderVoltage = leader.getMotorVoltage();
-        leaderAmps = leader.getSupplyCurrent();
-        leaderTemp = leader.getDeviceTemp();
-        PID_ffVolts = leader.getClosedLoopFeedForward();
-        PID_pOutput = leader.getClosedLoopProportionalOutput();
-
-        followerVelocity = follower.getVelocity();
-        followerVoltage = follower.getMotorVoltage();
-        followerAmps = follower.getSupplyCurrent();
-        followerTemp = follower.getDeviceTemp();
+        leaderLogger = new TalonFXAutoLogger(leader);
+        followerLogger = new TalonFXAutoLogger(follower);
     }
 
     @Override
     public void updateInputs(ShooterInputs inputs) {
-        BaseStatusSignal.refreshAll(leaderVelocity, leaderVoltage, leaderAmps, followerTemp, followerVelocity, followerVoltage, followerAmps, followerTemp, PID_ffVolts, PID_pOutput);
-
-        inputs.leaderVelocity = leaderVelocity.getValueAsDouble();
-        inputs.leaderVoltage = leaderVoltage.getValueAsDouble();
-        inputs.leaderAmps = leaderAmps.getValueAsDouble();
-        inputs.leaderTemp = leaderTemp.getValueAsDouble();
-
-        inputs.followerVelocity = followerVelocity.getValueAsDouble();
-        inputs.followerVoltage = followerVoltage.getValueAsDouble();
-        inputs.followerAmps = followerAmps.getValueAsDouble();
-        inputs.followerTemp = followerTemp.getValueAsDouble();
-
-        inputs.PID_ffVolts = PID_ffVolts.getValueAsDouble();
-        inputs.PID_pOutput = PID_pOutput.getValueAsDouble();
+        inputs.leadMotor = leaderLogger.log();
+        inputs.followMotor = followerLogger.log();
     }
 
     VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);

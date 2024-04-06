@@ -8,8 +8,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.OrangeUtility;
+import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
 import java.util.Queue;
 
@@ -18,23 +18,13 @@ import static org.codeorange.frc2024.robot.Constants.*;
 public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFX driveMotor;
     private final TalonFX steerMotor;
+    private final TalonFXAutoLogger driveMotorLogger;
+    private final TalonFXAutoLogger steerMotorLogger;
 
     private final Queue<Double> timestampQueue;
-
-    private final StatusSignal<Double> driveMotorPosition;
     private final Queue<Double> driveMotorPositionQueue;
-    private final StatusSignal<Double> driveMotorVelocity;
-    private final StatusSignal<Double> driveMotorVoltage;
-    private final StatusSignal<Double> driveMotorAcceleration;
-    private final StatusSignal<Double> driveMotorAmps;
-    private final StatusSignal<Double> driveMotorTemp;
     private final StatusSignal<Double> steerMotorAbsolutePosition;
-    private final StatusSignal<Double> steerMotorRelativePosition;
     private final Queue<Double> steerMotorPositionQueue;
-    private final StatusSignal<Double> steerMotorVelocity;
-    private final StatusSignal<Double> steerMotorVoltage;
-    private final StatusSignal<Double> steerMotorAmps;
-    private final StatusSignal<Double> steerMotorTemp;
 
 
     private final CANcoder swerveCancoder;
@@ -79,18 +69,19 @@ public class ModuleIOTalonFX implements ModuleIO {
         }
 
         var driveConfigs = new TalonFXConfiguration();
-        driveConfigs.Slot0.kP = 4.5;
-        driveConfigs.Slot0.kI = 0;
-        driveConfigs.Slot0.kD = 0;
-        driveConfigs.Slot0.kS = DRIVE_FEEDFORWARD.ks;
-        driveConfigs.Slot0.kV = DRIVE_FEEDFORWARD.kv;
-        driveConfigs.Slot0.kA = DRIVE_FEEDFORWARD.ka;
+        driveConfigs.Slot0.kP = SWERVE_DRIVE_GAINS.kP();
+        driveConfigs.Slot0.kI = SWERVE_DRIVE_GAINS.kI();
+        driveConfigs.Slot0.kD = SWERVE_DRIVE_GAINS.kD();
+        driveConfigs.Slot0.kS = SWERVE_DRIVE_GAINS.kS();
+        driveConfigs.Slot0.kV = SWERVE_DRIVE_GAINS.kV();
+        driveConfigs.Slot0.kA = SWERVE_DRIVE_GAINS.kA();
         driveConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfigs.CurrentLimits.SupplyCurrentLimit = DRIVE_MOTOR_CURRENT_LIMIT;
         driveConfigs.CurrentLimits.StatorCurrentLimitEnable = false;
         driveConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         driveConfigs.Feedback.SensorToMechanismRatio = 1 / (DRIVE_MOTOR_REDUCTION * SWERVE_METER_PER_ROTATION);
         driveConfigs.Feedback.RotorToSensorRatio = 1;
+        driveConfigs.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.25;
         driveConfigs.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
         driveConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -98,9 +89,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         OrangeUtility.betterCTREConfigApply(driveMotor, driveConfigs);
 
         var steerConfigs = new TalonFXConfiguration();
-        steerConfigs.Slot0.kP = SWERVE_DRIVE_P;
-        steerConfigs.Slot0.kI = SWERVE_DRIVE_I;
-        steerConfigs.Slot0.kD = SWERVE_DRIVE_D;
+        steerConfigs.Slot0.kP = SWERVE_STEER_GAINS.kP();
+        steerConfigs.Slot0.kI = SWERVE_STEER_GAINS.kI();
+        steerConfigs.Slot0.kD = SWERVE_STEER_GAINS.kD();
         steerConfigs.Slot0.kS = 0;
         steerConfigs.Slot0.kV = 0;
         steerConfigs.Slot0.kA = 0;
@@ -119,29 +110,19 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         OrangeUtility.betterCTREConfigApply(steerMotor, steerConfigs);
 
-        OrangeUtility.betterCTREConfigApply(swerveCancoder, new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)));
+        OrangeUtility.betterCTREConfigApply(swerveCancoder, new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withMagnetOffset(absoluteEncoderOffset).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1).withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
+
+        driveMotorLogger = new TalonFXAutoLogger(driveMotor);
+        steerMotorLogger = new TalonFXAutoLogger(steerMotor);
 
         timestampQueue = OdometryThread.getInstance().makeTimestampQueue();
 
-        driveMotorPosition = driveMotor.getPosition();
         driveMotorPositionQueue = OdometryThread.getInstance().registerSignal(driveMotor, driveMotor.getPosition());
-        driveMotorVelocity = driveMotor.getVelocity();
-        driveMotorAcceleration = driveMotor.getAcceleration();
-        driveMotorVoltage = driveMotor.getMotorVoltage();
-        driveMotorAmps = driveMotor.getSupplyCurrent();
-        driveMotorTemp = driveMotor.getDeviceTemp();
+        steerMotorPositionQueue = OdometryThread.getInstance().registerSignal(steerMotor, steerMotor.getPosition());
 
         steerMotorAbsolutePosition = swerveCancoder.getAbsolutePosition();
-        steerMotorRelativePosition = steerMotor.getPosition();
-        steerMotorPositionQueue = OdometryThread.getInstance().registerSignal(steerMotor, steerMotor.getPosition());
-        steerMotorVelocity = steerMotor.getVelocity();
-        steerMotorVoltage = steerMotor.getMotorVoltage();
-        steerMotorAmps = steerMotor.getSupplyCurrent();
-        steerMotorTemp = steerMotor.getDeviceTemp();
 
-        steerMotor.getStickyFault_BridgeBrownout();
-
-        BaseStatusSignal.setUpdateFrequencyForAll(ODOMETRY_REFRESH_HZ, driveMotorPosition, steerMotorRelativePosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(ODOMETRY_REFRESH_HZ, driveMotor.getPosition(), steerMotor.getPosition());
 
         driveMotor.setPosition(0);
 
@@ -150,20 +131,11 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
     @Override
     public void updateInputs(ModuleInputs inputs) {
-        BaseStatusSignal.refreshAll(driveMotorPosition, steerMotorRelativePosition, driveMotorVelocity, driveMotorAcceleration, driveMotorVoltage, driveMotorAmps, driveMotorTemp, steerMotorAbsolutePosition, steerMotorRelativePosition, steerMotorVoltage, steerMotorAmps, steerMotorTemp);
-        inputs.driveMotorPosition = driveMotorPosition.getValue();
-        inputs.driveMotorVelocity = driveMotorVelocity.getValue();
-        inputs.driveMotorAcceleration = driveMotorAcceleration.getValue();
-        inputs.driveMotorVoltage = driveMotorVoltage.getValue();
-        inputs.driveMotorAmps = driveMotorAmps.getValue();
-        inputs.driveMotorTemp = driveMotorTemp.getValue();
+        inputs.driveMotor = driveMotorLogger.log();
+        inputs.steerMotor = steerMotorLogger.log();
 
-        inputs.steerMotorRelativePosition = Units.rotationsToDegrees(steerMotorRelativePosition.getValue());
-        inputs.steerMotorAbsolutePosition = Units.rotationsToDegrees(steerMotorAbsolutePosition.getValue());
-        inputs.steerMotorVelocity = Units.rotationsToRadians(steerMotorVelocity.getValue());
-        inputs.steerMotorVoltage = steerMotorVoltage.getValue();
-        inputs.steerMotorAmps = steerMotorAmps.getValue();
-        inputs.steerMotorTemp = steerMotorTemp.getValue();
+        inputs.steerMotorAbsolutePosition = steerMotorAbsolutePosition.refresh().getValue();
+
 
         inputs.odometryDrivePositionsMeters =
                 driveMotorPositionQueue.stream().mapToDouble((value) -> value).toArray();

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.drive.Drive;
+import org.codeorange.frc2024.utility.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -22,7 +23,7 @@ public class Vision extends AbstractSubsystem {
     private static final String LL_BACK = "limelight-back";
     private static Drive drive;
     double fieldBorderMargin = 0.15;
-    double defaultXYStdev = 0.7;
+    double defaultXYStdev = 0.3;
 
 
     public static final LoggedDashboardChooser<Boolean> visionChooser;
@@ -54,6 +55,10 @@ public class Vision extends AbstractSubsystem {
     }
 
     private void processVisionData(VisionIO io, VisionIO.VisionInputs inputs) {
+        if(!inputs.hasTarget) return;
+
+        if(inputs.tagCount < 1) return;
+
         if(unconditionallyTrustVision.get()) {
             drive.addVisionMeasurement(
                     inputs.botPose2d,
@@ -67,28 +72,32 @@ public class Vision extends AbstractSubsystem {
 
         //exit if off the field, or too far above or below the ground
         if(
-                inputs.botPose3d.getX() < -fieldBorderMargin
-                        || inputs.botPose3d.getX() > fieldBorderMargin + FIELD_LENGTH_METERS
-                        || inputs.botPose3d.getY() < -fieldBorderMargin
-                        || inputs.botPose3d.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
-                        || inputs.botPose3d.getZ() < -0.4
-                        || inputs.botPose3d.getZ() > 0.1
+                inputs.botPose2d.getX() < -fieldBorderMargin
+                        || inputs.botPose2d.getX() > fieldBorderMargin + FIELD_LENGTH_METERS
+                        || inputs.botPose2d.getY() < -fieldBorderMargin
+                        || inputs.botPose2d.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
         ) return;
 
         //exit if rotation doesn't match gyro measurement
         if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2d.getRotation()).getDegrees()) > 5) return;
 
         //exit if tags are too far in auto
-        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
+        // if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
+
 
         Logger.recordOutput("Vision/" + io.getName() + "/Accepted Pose", inputs.botPose2d);
 
-        //scale stdevs with square of distance and tag count
-        double xyStdev = defaultXYStdev * inputs.avgDist * inputs.avgDist / inputs.tagCount / inputs.tagCount;
-        if(DriverStation.isAutonomousEnabled()) xyStdev *= inputs.avgDist;
+        //scale stdevs with ??
+        double xyStdev = defaultXYStdev * inputs.avgDist;
 
         Logger.recordOutput("Vision/" + io.getName() + "/XY Standard Deviations", xyStdev);
         io.getDashboardField().setRobotPose(inputs.botPose2d);
         drive.addVisionMeasurement(inputs.botPose2d, inputs.timestamp, VecBuilder.fill(xyStdev, xyStdev, 9999999));
+    }
+
+    public void updateBotOrientation(double yaw, double yawVel, double pitch, double pitchVel, double roll, double rollVel) {
+        for(VisionIO io : visionIO) {
+            LimelightHelpers.SetRobotOrientation(io.getName(), yaw, yawVel, pitch, pitchVel, roll, rollVel);
+        }
     }
 }

@@ -35,7 +35,7 @@ public class Shooter extends AbstractSubsystem {
             stop();
         }
 
-        if(shooterInputs.leaderVelocity < 100 && !Robot.getIntake().hasNote()) {
+        if(shooterInputs.leadMotor.velocity < 100 && !Robot.getIntake().hasNote()) {
             return false;
         }
         return true;
@@ -49,7 +49,7 @@ public class Shooter extends AbstractSubsystem {
             shooterIO.setVelocity(targetVelocity*0.85, 0);
         }
 
-        if(shooterInputs.leaderVelocity < 0.80 * targetVelocity && !Robot.getIntake().hasNote()) {
+        if(shooterInputs.leadMotor.velocity < 0.80 * targetVelocity && !Robot.getIntake().hasNote()) {
             return false;
         }
         return true;
@@ -61,11 +61,11 @@ public class Shooter extends AbstractSubsystem {
 
     @AutoLogOutput(key = "Shooter/Is At Target Velocity")
     public boolean isAtTargetVelocity() {
-        return shooterInputs.leaderVelocity > targetVelocity * 0.995;
+        return shooterInputs.leadMotor.velocity > targetVelocity * 0.995;
     }
 
     public boolean isAtTargetVelocityTimeout() {
-        return shooterInputs.leaderVelocity > targetVelocity * 0.85;
+        return shooterInputs.leadMotor.velocity > targetVelocity * 0.85;
     }
     public synchronized void setMotorVoltage(double voltage) {
         shooterIO.setMotorVoltage(voltage);
