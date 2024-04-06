@@ -69,12 +69,12 @@ public class ModuleIOTalonFX implements ModuleIO {
         }
 
         var driveConfigs = new TalonFXConfiguration();
-        driveConfigs.Slot0.kP = 4.5;
-        driveConfigs.Slot0.kI = 0;
-        driveConfigs.Slot0.kD = 0;
-        driveConfigs.Slot0.kS = DRIVE_FEEDFORWARD.ks;
-        driveConfigs.Slot0.kV = DRIVE_FEEDFORWARD.kv;
-        driveConfigs.Slot0.kA = DRIVE_FEEDFORWARD.ka;
+        driveConfigs.Slot0.kP = SWERVE_DRIVE_GAINS.kP();
+        driveConfigs.Slot0.kI = SWERVE_DRIVE_GAINS.kI();
+        driveConfigs.Slot0.kD = SWERVE_DRIVE_GAINS.kD();
+        driveConfigs.Slot0.kS = SWERVE_DRIVE_GAINS.kS();
+        driveConfigs.Slot0.kV = SWERVE_DRIVE_GAINS.kV();
+        driveConfigs.Slot0.kA = SWERVE_DRIVE_GAINS.kA();
         driveConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfigs.CurrentLimits.SupplyCurrentLimit = DRIVE_MOTOR_CURRENT_LIMIT;
         driveConfigs.CurrentLimits.StatorCurrentLimitEnable = false;
@@ -89,9 +89,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         OrangeUtility.betterCTREConfigApply(driveMotor, driveConfigs);
 
         var steerConfigs = new TalonFXConfiguration();
-        steerConfigs.Slot0.kP = SWERVE_DRIVE_P;
-        steerConfigs.Slot0.kI = SWERVE_DRIVE_I;
-        steerConfigs.Slot0.kD = SWERVE_DRIVE_D;
+        steerConfigs.Slot0.kP = SWERVE_STEER_GAINS.kP();
+        steerConfigs.Slot0.kI = SWERVE_STEER_GAINS.kI();
+        steerConfigs.Slot0.kD = SWERVE_STEER_GAINS.kD();
         steerConfigs.Slot0.kS = 0;
         steerConfigs.Slot0.kV = 0;
         steerConfigs.Slot0.kA = 0;

@@ -35,9 +35,9 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withSlot0(new Slot0Configs()
-                        .withKP(CLIMBER_P)
-                        .withKI(CLIMBER_I)
-                        .withKD(CLIMBER_D)
+                        .withKP(CLIMBER_GAINS.kP())
+                        .withKI(CLIMBER_GAINS.kI())
+                        .withKD(CLIMBER_GAINS.kD())
                 ).withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                         .withSensorToMechanismRatio(1)

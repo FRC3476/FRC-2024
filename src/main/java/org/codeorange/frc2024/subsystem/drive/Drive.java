@@ -51,9 +51,9 @@ public class Drive extends AbstractSubsystem {
 
     {
         turnPID = new PIDController(
-                TURN_P,
-                TURN_I,
-                TURN_D
+                CHASSIS_OMEGA_GAINS.kP(),
+                CHASSIS_OMEGA_GAINS.kI(),
+                CHASSIS_OMEGA_GAINS.kD()
         );
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -211,20 +211,11 @@ public class Drive extends AbstractSubsystem {
         }
 
         Logger.recordOutput("Drive/Expected Velocity " + getModuleName(module), velocity);
-        Logger.recordOutput("Drive/Expected Voltage " + getModuleName(module), DRIVE_FEEDFORWARD.calculate(velocity));
-
-        Logger.recordOutput("Drive/Out Volts Ks" + getModuleName(module), DRIVE_FEEDFORWARD.ks * Math.signum(velocity));
-        Logger.recordOutput("Drive/Out Volts Kv" + getModuleName(module), DRIVE_FEEDFORWARD.kv * velocity);
-        Logger.recordOutput("Drive/Out Volts Ka" + getModuleName(module), DRIVE_FEEDFORWARD.ka * acceleration);
-        Logger.recordOutput("Drive/Voltage Contrib to Accel" + getModuleName(module),
-                ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)));
 
         double time = Logger.getRealTimestamp() * 1e-6;
         double realAccel = (getSwerveDriveVelocity(module) - lastModuleVelocities[module]) / (time - lastModuleTimes[module]);
 
         Logger.recordOutput("Drive/Acceleration" + getModuleName(module), realAccel);
-        Logger.recordOutput("Drive/Expected Accel" + getModuleName(module),
-                (ffv - DRIVE_FEEDFORWARD.calculate(getSwerveDriveVelocity(module)) / DRIVE_FEEDFORWARD.ka));
 
         lastModuleVelocities[module] = getSwerveDriveVelocity(module);
         lastModuleTimes[module] = Logger.getRealTimestamp() * 1e-6;

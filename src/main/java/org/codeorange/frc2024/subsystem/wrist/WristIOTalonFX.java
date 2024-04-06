@@ -52,9 +52,9 @@ public class WristIOTalonFX implements WristIO {
         motorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         Slot0Configs slot0 = configs.Slot0;
-        slot0.kP = WRIST_P;
-        slot0.kI = WRIST_I;
-        slot0.kD = WRIST_D;
+        slot0.kP = WRIST_GAINS.kP();
+        slot0.kI = WRIST_GAINS.kI();
+        slot0.kD = WRIST_GAINS.kD();
         slot0.kV = 0.5;
         slot0.kS = 1; // Approximately 0.25V to get the mechanism moving
 

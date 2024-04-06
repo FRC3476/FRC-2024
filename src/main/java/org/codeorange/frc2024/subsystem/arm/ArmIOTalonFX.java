@@ -52,9 +52,9 @@ public class ArmIOTalonFX implements ArmIO {
         voltageOutputConfigs.PeakReverseVoltage = -16;
 
         Slot0Configs slot0 = talonFXConfigs.Slot0;
-        slot0.kP = ARM_P;
-        slot0.kI = ARM_I;
-        slot0.kD = ARM_D;
+        slot0.kP = ARM_GAINS.kP();
+        slot0.kI = ARM_GAINS.kI();
+        slot0.kD = ARM_GAINS.kD();
         slot0.kS = 0.25; // Approximately 0.25V to get the mechanism moving
         slot0.kV = 0.02;
         slot0.kA = 0;

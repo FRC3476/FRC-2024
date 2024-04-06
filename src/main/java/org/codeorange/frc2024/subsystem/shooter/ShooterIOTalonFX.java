@@ -28,12 +28,12 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.CurrentLimits.StatorCurrentLimitEnable = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        config.Slot0.kP = SHOOTER_P;
-        config.Slot0.kI = SHOOTER_I;
-        config.Slot0.kD = SHOOTER_D;
-        config.Slot0.kS = 0.24045;
-        config.Slot0.kV = 0.061218;
-        config.Slot0.kA = 0.0030777;
+        config.Slot0.kP = SHOOTER_GAINS.kP();
+        config.Slot0.kI = SHOOTER_GAINS.kI();
+        config.Slot0.kD = SHOOTER_GAINS.kD();
+        config.Slot0.kS = SHOOTER_GAINS.kS();
+        config.Slot0.kV = SHOOTER_GAINS.kV();
+        config.Slot0.kA = SHOOTER_GAINS.kA();
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         OrangeUtility.betterCTREConfigApply(follower, config);

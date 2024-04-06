@@ -192,44 +192,32 @@ public final class Constants {
     public static final double SS_HOMING_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_HOMING_WRIST = 0;
 
-    public static final double SWERVE_DRIVE_P = 150;
-    public static final double SWERVE_DRIVE_D = 0;
-    public static final double SWERVE_DRIVE_I = 0;
+    public static final Gains SWERVE_DRIVE_GAINS = new Gains(4.5, 0, 0, 0.17052, 2.439, 0.23119);
 
-    public static final double TURN_P = isPrototype() ? 2 : 8.5;
-    public static final double TURN_I = 0;
-    public static final double TURN_D = 0.3;
+    public static final Gains SWERVE_STEER_GAINS = new Gains(150, 0, 0);
 
-    public static final double ARM_P = 200;
-    public static final double ARM_I = 0;
-    public static final double ARM_D = isPrototype() ? 5 : 0;
+    public static final Gains CHASSIS_OMEGA_GAINS = new Gains(8.5, 0, 0.3);
+
+    public static final Gains ARM_GAINS = new Gains(200, 0, 0);
     public static final double ARM_RTS = isPrototype() ? 144.0 : 36.0 * 3;
     public static final double ARM_STM = isPrototype() ? 1.0 : 3.0;
 
-    public static final double ELEVATOR_P = 2;
+    public static final Gains ELEVATOR_GAINS = new Gains(2, 0, 0);
     public static final double ELEVATOR_INCHES_PER_ROTATION = isPrototype() ? 0.25*22*12/60 : (30 * 5 * 8.0 / 72.0 / 25.4); //12:60 gears attached to 22 tooth sprocket on #25 chain with 0.25 inch pitch
 
-    public static final double CLIMBER_P = 1.5;
-    public static final double CLIMBER_I = 0;
-    public static final double CLIMBER_D = 0;
+    public static final Gains CLIMBER_GAINS = new Gains(1.5, 0, 0);
 
-    public static final double SHOOTER_P = 0.089683;
-    public static final double SHOOTER_I = 0;
-    public static final double SHOOTER_D = 0;
+    public static final Gains SHOOTER_GAINS = new Gains(0.089683, 0, 0, 0.24045, 0.061218, 0.0030777);
     public static final double SHOOTER_STM = isPrototype() ? 1 : 0.5;
 
-    public static final double WRIST_P = 250;
-    public static final double WRIST_I = 0;
-    public static final double WRIST_D = 0;
-
+    public static final Gains WRIST_GAINS = new Gains(250, 0, 0);
     public static final double WRIST_RTS = isPrototype() ? 81.0 : (isCompetition() ? 45.0 : 125.0);
     public static final double WRIST_STM = 1.0;
 
     public static final int STEER_MOTOR_CURRENT_LIMIT = 30;
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 120;
-    public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(0.17052, 2.439, 0.23119);
     public static final int SWERVE_DRIVE_VOLTAGE_LIMIT_AUTO = 12;
-    public static final double DRIVE_HIGH_SPEED_M = DRIVE_FEEDFORWARD.maxAchievableVelocity(12, 0);
+    public static final double DRIVE_HIGH_SPEED_M = (12 - SWERVE_DRIVE_GAINS.kS()) / SWERVE_DRIVE_GAINS.kV();
     public static final int MAX_TELEOP_TURN_SPEED = 10;
     public static final boolean USE_RELATIVE_ENCODER_POSITION = true;
     public static final double ALLOWED_SWERVE_ANGLE_ERROR = 0;
@@ -332,7 +320,13 @@ public final class Constants {
                     4.108
             );
 
-    public static final double CLIMBER_SWITCH_OFFSET = 2.4 - 0.95 / CLIMBER_P;
+    public static final double CLIMBER_SWITCH_OFFSET = 2.4 - 0.95 / CLIMBER_GAINS.kP();
 
     public static final double ODOMETRY_REFRESH_HZ = 250;
+
+    public record Gains(double kP, double kI, double kD, double kS, double kV, double kA) {
+        public Gains(double kP, double kI, double kD) {
+            this(kP, kI, kD, 0, 0, 0);
+        }
+    }
 }
