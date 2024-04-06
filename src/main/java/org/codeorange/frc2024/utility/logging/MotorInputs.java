@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
  * Represents various desired fields from a motor controller.
  */
 public class MotorInputs implements StructSerializable {
+    public double CANID;
     public double position;
     public double velocity;
     public double supplyCurrent;
@@ -18,7 +19,8 @@ public class MotorInputs implements StructSerializable {
     public double temperature;
     public double energy;
 
-    public MotorInputs(double position, double velocity, double supplyCurrent, double statorCurrent, double supplyVoltage, double motorVoltage, double temperature, double energy) {
+    public MotorInputs(double CANID, double position, double velocity, double supplyCurrent, double statorCurrent, double supplyVoltage, double motorVoltage, double temperature, double energy) {
+        this.CANID = CANID;
         this.position = position;
         this.velocity = velocity;
         this.supplyCurrent = supplyCurrent;
@@ -30,7 +32,7 @@ public class MotorInputs implements StructSerializable {
     }
 
     public MotorInputs() {
-        this(0, 0, 0, 0, 0, 0, 0, 0);
+        this(0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     public static final MotorInputsStruct struct = new MotorInputsStruct();
@@ -48,16 +50,17 @@ public class MotorInputs implements StructSerializable {
 
         @Override
         public int getSize() {
-            return kSizeDouble * 8;
+            return kSizeDouble * 9;
         }
 
         @Override
         public String getSchema() {
-            return "double position;double velocity;double supplyCurrent;double statorCurrent;double supplyVoltage;double motorVoltage;double temperature;double energy;";
+            return "double CANID;double position;double velocity;double supplyCurrent;double statorCurrent;double supplyVoltage;double motorVoltage;double temperature;double energy;";
         }
 
         @Override
         public MotorInputs unpack(ByteBuffer bb) {
+            double CANID = bb.getDouble();
             double position = bb.getDouble();
             double velocity = bb.getDouble();
             double supplyCurrent = bb.getDouble();
@@ -67,11 +70,12 @@ public class MotorInputs implements StructSerializable {
             double temperature = bb.getDouble();
             double energy = bb.getDouble();
 
-            return new MotorInputs(position, velocity, supplyCurrent, statorCurrent, supplyVoltage, motorVoltage, temperature, energy);
+            return new MotorInputs(CANID, position, velocity, supplyCurrent, statorCurrent, supplyVoltage, motorVoltage, temperature, energy);
         }
 
         @Override
         public void pack(ByteBuffer bb, MotorInputs value) {
+            bb.putDouble(value.CANID);
             bb.putDouble(value.position);
             bb.putDouble(value.velocity);
             bb.putDouble(value.supplyCurrent);

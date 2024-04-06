@@ -77,11 +77,12 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfigs.Slot0.kA = SWERVE_DRIVE_GAINS.kA();
         driveConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfigs.CurrentLimits.SupplyCurrentLimit = DRIVE_MOTOR_CURRENT_LIMIT;
-        driveConfigs.CurrentLimits.StatorCurrentLimitEnable = false;
+        driveConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
+        driveConfigs.CurrentLimits.StatorCurrentLimit = 130;
         driveConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        driveConfigs.Feedback.SensorToMechanismRatio = 1; // / (DRIVE_MOTOR_REDUCTION * SWERVE_METER_PER_ROTATION);
+        driveConfigs.Feedback.SensorToMechanismRatio = 1 / (DRIVE_MOTOR_REDUCTION * SWERVE_METER_PER_ROTATION);
         driveConfigs.Feedback.RotorToSensorRatio = 1;
-        driveConfigs.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.25;
+        driveConfigs.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.1;
         driveConfigs.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
         driveConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;

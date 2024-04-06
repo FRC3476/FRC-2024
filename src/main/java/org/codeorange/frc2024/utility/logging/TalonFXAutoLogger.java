@@ -11,6 +11,8 @@ import static org.codeorange.frc2024.robot.Constants.NOMINAL_DT;
  * Logs desired signals from a given TalonFX motor controller.
  */
 public class TalonFXAutoLogger implements MotorAutoLogger {
+    private final MotorInputs inputs;
+
     private final StatusSignal<Double> position;
     private final StatusSignal<Double> velocity;
     private final StatusSignal<Double> supplyCurrent;
@@ -19,7 +21,9 @@ public class TalonFXAutoLogger implements MotorAutoLogger {
     private final StatusSignal<Double> motorVoltage;
     private final StatusSignal<Double> temperature;
 
-    public TalonFXAutoLogger(CoreTalonFX motor) {
+    public TalonFXAutoLogger(TalonFX motor) {
+        inputs = new MotorInputs();
+        inputs.CANID = motor.getDeviceID();
         position = motor.getPosition();
         velocity = motor.getVelocity();
         supplyCurrent = motor.getSupplyCurrent();

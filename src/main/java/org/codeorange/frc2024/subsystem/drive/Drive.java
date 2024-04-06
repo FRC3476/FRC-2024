@@ -180,13 +180,8 @@ public class Drive extends AbstractSubsystem {
         return moduleInputs[motorNum].driveMotor.velocity;
     }
 
-    @AutoLogOutput(key = "Drive/Wheel Rotations")
     public double getWheelRotation(int moduleNumber) {
-        if (USE_RELATIVE_ENCODER_POSITION) {
-            return MathUtil.normalize(moduleInputs[moduleNumber].steerMotor.position, 0, 1);
-        } else {
-            return moduleInputs[moduleNumber].steerMotorAbsolutePosition;
-        }
+        return MathUtil.normalize(moduleInputs[moduleNumber].steerMotor.position, 0, 1);
     }
 
     public double getDrivePosition(int moduleNumber) {
@@ -227,7 +222,7 @@ public class Drive extends AbstractSubsystem {
     private synchronized void setSwerveModuleStates(SecondOrderModuleState[] swerveModuleStates, boolean isOpenLoop) {
         for (int i = 0; i < 4; i++) {
             var moduleState = swerveModuleStates[i];
-            moduleState = SecondOrderModuleState.optimize(moduleState, Rotation2d.fromDegrees(getWheelRotation(i)));
+            moduleState = SecondOrderModuleState.optimize(moduleState, Rotation2d.fromRotations(getWheelRotation(i)));
             wantedStates[i] = swerveModuleStates[i].toFirstOrder();
 
             moduleIO[i].setSteerMotorPosition(moduleState.angle.getDegrees());
