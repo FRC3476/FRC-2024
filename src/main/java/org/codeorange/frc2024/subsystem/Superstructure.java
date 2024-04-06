@@ -18,6 +18,8 @@ import org.littletonrobotics.junction.Logger;
 import static org.codeorange.frc2024.robot.Constants.*;
 import org.codeorange.frc2024.subsystem.climber.Climber;
 
+import javax.swing.plaf.nimbus.State;
+
 public class Superstructure extends AbstractSubsystem {
     private static Arm arm;
     private static Wrist wrist;
@@ -312,7 +314,15 @@ public class Superstructure extends AbstractSubsystem {
             currentState.update();
             arm.setPosition(currentState.armPos);
             if (superstructure.currentState != States.HOMING) {
-                elevator.setPosition(dynamicAdjustElevator(currentState.elevatorPos));
+                //elevator.setPosition(dynamicAdjustElevator(currentState.elevatorPos));
+                if(goalState == States.AMP) {
+                    //slow movement
+                    elevator.setPosition(currentState.elevatorPos, 23, 130);
+                } else if(goalState == States.SOURCE_INTAKE) {
+                    elevator.setPosition(currentState.elevatorPos, 15, 80);
+                } else {
+                    elevator.setPosition(currentState.elevatorPos);
+                }
             }
             if (superstructure.currentState != States.SPEAKER && superstructure.currentState != States.SPEAKER_OVER_DEFENSE && superstructure.currentState != States.SPEAKER_AUTO) {
                 wrist.setWristPosition(dynamicAdjustWrist(currentState.wristPos));
@@ -329,6 +339,8 @@ public class Superstructure extends AbstractSubsystem {
             elevator.stop();
         }
         prevState = currentState;
+        //update isAtWantedState so that it is logged properly
+        goalState.isAtWantedState();
     }
 
     /**
@@ -384,6 +396,7 @@ public class Superstructure extends AbstractSubsystem {
      * @return
      */
     private double dynamicAdjustElevator(double elevatorPos) {
+        /*
         double elevatorPivotToWristCarriage0ffset = 9.35;
         double wristLengthInches = 11.191;
         double upperBound;
@@ -402,7 +415,6 @@ public class Superstructure extends AbstractSubsystem {
             // 38 allows the arm to go up to 12 inches beyond the bumper but no further.
             upperBound = 38 - (horLength0fWrist + horLengthOfElevator);
         }
-        upperBound -= elevatorPivotToWristCarriage0ffset;
         upperBound = MathUtil.clamp(upperBound, ELEVATOR_LOWER_LIMIT, ELEVATOR_UPPER_LIMIT);
 
 
@@ -410,6 +422,24 @@ public class Superstructure extends AbstractSubsystem {
         Logger.recordOutput("Superstructure/WristHorizontalLength", horLength0fWrist);
         Logger.recordOutput("Superstructure/ElevatorUpperBound", upperBound);
 
+        return MathUtil.clamp(elevatorPos, ELEVATOR_LOWER_LIMIT, upperBound);
+        */
+
+        double elevatorPivotToWristCarriageOffset = 9.35;
+        double upperBound;
+        // TODO this does not yet take into account the additional extension of the intake in front of the arm
+        if (goalState == States.AMP || goalState == States.SOURCE_INTAKE) {
+            // 26 inches is the horizontal distance from arm pivot to front of bumper
+            // use this when you want to raise the arm and you might be directly in front of a wall
+            // to avoid moving outside the robot boundary
+            //upperBound = 26 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
+            upperBound = 16 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
+        } else {
+            // 38 allows the arm to go up to 12 inches beyond the bumper but no further.
+            upperBound = 38 / Math.cos(Units.rotationsToRadians(arm.getPivotRotations()));
+        }
+        upperBound -= elevatorPivotToWristCarriageOffset;
+        upperBound = Math.min(upperBound, ELEVATOR_UPPER_LIMIT);
         return MathUtil.clamp(elevatorPos, ELEVATOR_LOWER_LIMIT, upperBound);
     }
 

@@ -3,6 +3,7 @@ package org.codeorange.frc2024.subsystem.elevator;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -33,7 +34,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD, CAN_BUS);
         followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW, CAN_BUS);
-
+        //36 and 240 works for going down
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()
                         .withMotionMagicCruiseVelocity(200)
@@ -70,10 +71,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         followMotorAmps = followMotor.getSupplyCurrent();
         followMotorTemp = followMotor.getDeviceTemp();
     }
-    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(true).withUpdateFreqHz(0.0);
-    public void setPosition(double targetPosition) {
+    private final DynamicMotionMagicVoltage motionMagicRequest = new DynamicMotionMagicVoltage(0, 200, 200, 10000).withSlot(0).withEnableFOC(true).withUpdateFreqHz(0.0);
+    public void setPosition(double targetPosition, double velocity, double acceleration) {
         this.targetPosition = targetPosition;
-        leadMotor.setControl(motionMagicRequest.withPosition(targetPosition));
+        leadMotor.setControl(motionMagicRequest.withPosition(targetPosition).withVelocity(velocity).withAcceleration(acceleration));
     }
 
     public void updateInputs(ElevatorInputs inputs) {

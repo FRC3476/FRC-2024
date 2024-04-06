@@ -22,7 +22,7 @@ public interface ElevatorIO {
 
     default void updateInputs(ElevatorInputs inputs) {}
 
-    default void setPosition(double targetPositionInRotations){}
+    default void setPosition(double targetPositionInRotations, double velocity, double acceleration){}
 
     default void setEncoderToZero() {}
     default void setElevatorVoltage(double voltage) {}

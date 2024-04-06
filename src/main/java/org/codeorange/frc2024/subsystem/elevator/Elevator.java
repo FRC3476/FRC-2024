@@ -1,9 +1,11 @@
 package org.codeorange.frc2024.subsystem.elevator;
 
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import static org.codeorange.frc2024.robot.Constants.*;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
+import org.codeorange.frc2024.subsystem.Superstructure;
 import org.littletonrobotics.junction.Logger;
 
 
@@ -20,7 +22,12 @@ public class Elevator extends AbstractSubsystem {
 
     public void setPosition(double position) {
         position = MathUtil.clamp(position, ELEVATOR_LOWER_LIMIT, ELEVATOR_UPPER_LIMIT);
-        elevatorIO.setPosition(position);
+        elevatorIO.setPosition(position, 200, 200);
+    }
+
+    public void setPosition(double position, double velocity, double acceleration) {
+        position = MathUtil.clamp(position, ELEVATOR_LOWER_LIMIT, ELEVATOR_UPPER_LIMIT);
+        elevatorIO.setPosition(position, velocity, acceleration);
     }
 
     @Override
