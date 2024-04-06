@@ -72,12 +72,10 @@ public class Vision extends AbstractSubsystem {
 
         //exit if off the field, or too far above or below the ground
         if(
-                inputs.botPose3d.getX() < -fieldBorderMargin
-                        || inputs.botPose3d.getX() > fieldBorderMargin + FIELD_LENGTH_METERS
-                        || inputs.botPose3d.getY() < -fieldBorderMargin
-                        || inputs.botPose3d.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
-                        || inputs.botPose3d.getZ() < -0.4
-                        || inputs.botPose3d.getZ() > 0.1
+                inputs.botPose2d.getX() < -fieldBorderMargin
+                        || inputs.botPose2d.getX() > fieldBorderMargin + FIELD_LENGTH_METERS
+                        || inputs.botPose2d.getY() < -fieldBorderMargin
+                        || inputs.botPose2d.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
         ) return;
 
         //exit if rotation doesn't match gyro measurement
