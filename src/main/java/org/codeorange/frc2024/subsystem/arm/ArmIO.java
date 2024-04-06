@@ -7,8 +7,8 @@ public interface ArmIO {
     @AutoLog
     class ArmInputs {
         double absolutePosition = 0.0;
-        MotorInputs leadMotor;
-        MotorInputs followMotor;
+        MotorInputs leadMotor = new MotorInputs();
+        MotorInputs followMotor = new MotorInputs();
     }
 
     default void updateInputs(ArmInputs inputs) {}

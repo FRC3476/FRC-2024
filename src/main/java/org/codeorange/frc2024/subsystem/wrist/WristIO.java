@@ -7,7 +7,7 @@ public interface WristIO {
     @AutoLog
     class WristInputs {
         double wristAbsolutePosition = 0.0;
-        MotorInputs wrist;
+        MotorInputs wrist = new MotorInputs();
     }
 
     default void updateInputs(WristInputs inputs) {}

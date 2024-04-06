@@ -11,6 +11,8 @@ import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.OrangeUtility;
 import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
 
+import java.util.function.Supplier;
+
 import static org.codeorange.frc2024.robot.Constants.Ports.*;
 import static org.codeorange.frc2024.robot.Constants.*;
 
