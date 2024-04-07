@@ -28,6 +28,8 @@ public class Arm extends AbstractSubsystem {
         return inputs.leadMotor.position;
     }
 
+    public double getVelocity() {return inputs.leadMotor.velocity;}
+
     @Override
     public synchronized void update() {
         armIO.updateInputs(inputs);

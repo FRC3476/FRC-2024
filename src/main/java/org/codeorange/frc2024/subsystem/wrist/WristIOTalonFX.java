@@ -2,6 +2,7 @@ package org.codeorange.frc2024.subsystem.wrist;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -24,6 +25,8 @@ public class WristIOTalonFX implements WristIO {
 
     private final TalonFXConfiguration configs;
     private final CANcoderConfiguration encoderConfigs;
+
+    private final DynamicMotionMagicVoltage motionMagicRequest = new DynamicMotionMagicVoltage(0, 5, 100, 1e4).withSlot(0).withEnableFOC(true).withUpdateFreqHz(0.0);
 
 
     private final StatusSignal<Double> wristAbsolutePosition;
@@ -91,6 +94,11 @@ public class WristIOTalonFX implements WristIO {
 
     public void zeroWristEncoder() {
         absoluteEncoder.setPosition(0);
+    }
+
+    public void setMotionProfile(double velocity, double acceleration) {
+        motionMagicRequest.Velocity = velocity;
+        motionMagicRequest.Acceleration = acceleration;
     }
 
     public void setBrakeMode(boolean braked) {

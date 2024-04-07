@@ -380,12 +380,23 @@ public class Superstructure extends AbstractSubsystem {
             //checks if the wrist can rotate freely (its length is less than its distance from the base).
             verticalOffsetFromRobot = elevatorPositionInches * Math.sin(Units.degreesToRadians(armPositionDegrees)) + armPivotToRobotBaseOffset;
 
+           if(verticalOffsetFromRobot <= wristLengthInches && arm.getVelocity() > 0) {
+               wrist.setMotionProfile(1, 10);
+           } else {
+               wrist.setMotionProfile(5, 100);
+           }
+           //:)
+
+
+
+            /*
             if (verticalOffsetFromRobot <= wristLengthInches && verticalOffsetFromRobot > armPivotToRobotBaseOffset +1) {
                 // lowerBound is the degrees that wrist would have to rotate to form a triangle with the ground
                 // (so that it can't move into the ground). this is negative
                 lowerBound = Units.radiansToRotations(Math.acos(verticalOffsetFromRobot / wristLengthInches)) - Units.degreesToRotations(90);
                 upperBound = -lowerBound;
             }
+             */
         }
         Logger.recordOutput("Superstructure/WristLowerBound", lowerBound);
         Logger.recordOutput("Superstructure/WristUpperBound", upperBound);
