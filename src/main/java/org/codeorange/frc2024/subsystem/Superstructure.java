@@ -317,7 +317,7 @@ public class Superstructure extends AbstractSubsystem {
                 //elevator.setPosition(dynamicAdjustElevator(currentState.elevatorPos));
                 if(goalState == States.AMP) {
                     //slow movement
-                    elevator.setPosition(currentState.elevatorPos, 23, 130);
+                    elevator.setPosition(currentState.elevatorPos, 22, 100); //originally 23 130
                 } else if(goalState == States.SOURCE_INTAKE) {
                     elevator.setPosition(currentState.elevatorPos, 15, 80);
                 } else {
@@ -328,7 +328,7 @@ public class Superstructure extends AbstractSubsystem {
                 wrist.setWristPosition(dynamicAdjustWrist(currentState.wristPos));
             } else {
                 var wristPos = edu.wpi.first.math.MathUtil.inputModulus(-wantedShooterPosition - arm.getPivotRotations(), -0.5, 0.5);
-                wrist.setWristPosition(wristPos);
+                wrist.setWristPosition(dynamicAdjustWrist(wristPos));
                 wantedAngle += shotWristdelta;
 
                 Logger.recordOutput("Wrist/Wanted Position Ground Relative", -wantedShooterPosition);
@@ -356,12 +356,14 @@ public class Superstructure extends AbstractSubsystem {
      * @return a clamped value of wristPos that may limit the amount of negative rotation allowed
      */
     private double dynamicAdjustWrist(double wristPos) {
-        double wristLengthInches = 12;//originally 11.191
+        double wristLengthInches = 11.191;
         double elevatorPivotToWristCarriageOffset = 9.35;
         double elevatorPositionInches = elevator.getPositionInInches();
         double armPositionDegrees = Units.rotationsToDegrees(arm.getPivotRotations());
         double lowerBound = -0.5;
         double upperBound = 0.5;
+        double verticalOffsetFromRobot = 0;
+        double armPivotToRobotBaseOffset = 3;
 
         if (armPositionDegrees <= 0.0) {
             // special case for ground intake
@@ -376,15 +378,18 @@ public class Superstructure extends AbstractSubsystem {
             elevatorPositionInches += elevatorPivotToWristCarriageOffset;
 
             //checks if the wrist can rotate freely (its length is less than its distance from the base).
-            double verticalOffsetFromRobot = elevatorPositionInches * Math.sin(Units.degreesToRadians(armPositionDegrees));
+            verticalOffsetFromRobot = elevatorPositionInches * Math.sin(Units.degreesToRadians(armPositionDegrees)) + armPivotToRobotBaseOffset;
 
-            if (verticalOffsetFromRobot <= wristLengthInches) {
+            if (verticalOffsetFromRobot <= wristLengthInches && verticalOffsetFromRobot > armPivotToRobotBaseOffset +1) {
                 // lowerBound is the degrees that wrist would have to rotate to form a triangle with the ground
                 // (so that it can't move into the ground). this is negative
                 lowerBound = Units.radiansToRotations(Math.acos(verticalOffsetFromRobot / wristLengthInches)) - Units.degreesToRotations(90);
                 upperBound = -lowerBound;
             }
         }
+        Logger.recordOutput("Superstructure/WristLowerBound", lowerBound);
+        Logger.recordOutput("Superstructure/WristUpperBound", upperBound);
+        Logger.recordOutput("Superstructure/VerticalOffsetFromRobot", verticalOffsetFromRobot);
         return MathUtil.clamp(wristPos, lowerBound, upperBound);
     }
 
