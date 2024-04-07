@@ -35,6 +35,7 @@ public class Superstructure extends AbstractSubsystem {
     public boolean isFlipped = false;
     public boolean climberOut = false;
     public boolean manualOverride = false;
+    double verticalOffsetFromRobot = 0;
 
     private final Alert wristAlert = new Alert("WRIST WILL BREAK ITSELF IF ENABLED!!", Alert.AlertType.ERROR);
 
@@ -305,12 +306,12 @@ public class Superstructure extends AbstractSubsystem {
 
 
         if(currentState == States.PUPPETEERING) {
-            arm.setPosition(wantedPuppeteerArm);
+            arm.setPosition(dynamicAdjustArm(wantedPuppeteerArm));
             wrist.setWristPosition(wantedPuppeteerWrist);
             elevator.setPosition(wantedPuppeteerElevator);
         } else if(!DriverStation.isTest()) {
             currentState.update();
-            arm.setPosition(currentState.armPos);
+            arm.setPosition(dynamicAdjustArm(currentState.armPos));
             if (superstructure.currentState != States.HOMING) {
                 if(goalState == States.AMP) {
                     // slow movement so we don't hit the wall in front of us
@@ -361,7 +362,6 @@ public class Superstructure extends AbstractSubsystem {
         double armPositionDegrees = Units.rotationsToDegrees(arm.getPivotRotations());
         double lowerBound = -0.5;
         double upperBound = 0.5;
-        double verticalOffsetFromRobot = 0;
         double armPivotToRobotBaseOffset = 3;
 
         if (armPositionDegrees <= 0.0) {
@@ -373,32 +373,48 @@ public class Superstructure extends AbstractSubsystem {
                 lowerBound = 0;
                 upperBound = 0;
             }
+        } else if(arm.getVelocity() <= -0.25) {
+            lowerBound = 0;
+            upperBound = 0;
         } else {
             elevatorPositionInches += elevatorPivotToWristCarriageOffset;
 
             //checks if the wrist can rotate freely (its length is less than its distance from the base).
             verticalOffsetFromRobot = elevatorPositionInches * Math.sin(Units.degreesToRadians(armPositionDegrees)) + armPivotToRobotBaseOffset;
 
-           if(verticalOffsetFromRobot <= wristLengthInches && arm.getVelocity() > 0) {
+           /*if(verticalOffsetFromRobot <= wristLengthInches && arm.getVelocity() > 0) {
                wrist.setMotionProfile(1, 10);
-           } else {
+           } else {3
                wrist.setMotionProfile(5, 100);
-           }
+           }*/
 
-            /*
-            // This original attempt worked, but the motor control resulted in jerky movement which we didn't like
-            if (verticalOffsetFromRobot <= wristLengthInches && verticalOffsetFromRobot > armPivotToRobotBaseOffset +1) {
+            if (verticalOffsetFromRobot <= wristLengthInches && verticalOffsetFromRobot > armPivotToRobotBaseOffset) {
                 // lowerBound is the degrees that wrist would have to rotate to form a triangle with the ground
                 // (so that it can't move into the ground). this is negative
                 lowerBound = Units.radiansToRotations(Math.acos(verticalOffsetFromRobot / wristLengthInches)) - Units.degreesToRotations(90);
                 upperBound = -lowerBound;
             }
-             */
         }
         Logger.recordOutput("Superstructure/WristLowerBound", lowerBound);
         Logger.recordOutput("Superstructure/WristUpperBound", upperBound);
         Logger.recordOutput("Superstructure/VerticalOffsetFromRobot", verticalOffsetFromRobot);
         return MathUtil.clamp(wristPos, lowerBound, upperBound);
+    }
+
+
+
+//this should keep the wrist from slamming into the robot on the way down--we are not entirely sure if it works
+    private double dynamicAdjustArm(double armPos) {
+        double wristAngle = Units.rotationsToRadians(wrist.getWristAbsolutePosition() + 0.25);
+        double verticalWristFromPivot = Math.cos(wristAngle) * 11.191;
+        double verticalWristWheelsFromRobot = verticalOffsetFromRobot - verticalWristFromPivot;
+
+        if(verticalWristWheelsFromRobot <= 6 && Math.abs(wrist.getWristAbsolutePosition()) >= 0.014) {
+            MathUtil.clamp(armPos, arm.getPivotRotations(), 0.25);
+        }
+        Logger.recordOutput("Superstructure/can move arm down", !(verticalWristWheelsFromRobot <= 2 && Math.abs(wrist.getWristAbsolutePosition()) >= 0.014));
+
+        return armPos;
     }
 
     /**
