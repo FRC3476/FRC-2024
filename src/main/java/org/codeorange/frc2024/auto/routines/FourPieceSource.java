@@ -30,7 +30,6 @@ public class FourPieceSource extends BaseRoutine {
                 new SeriesAction(
                         new Wait(1.18),
                         new RunKicker(),
-                        new Stow(),
                         new GroundIntake(),
                         new ShootFromGround(19)
                 )

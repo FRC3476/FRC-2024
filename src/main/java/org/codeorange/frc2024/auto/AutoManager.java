@@ -20,6 +20,7 @@ public class AutoManager {
     private final TwoFarSourceSubwooferStart TWO_FAR_SOURCE_SUBWOOFER;
     private final ThreePointFiveFarSource THREE_PT_FIVE_FAR_SOURCE;
     private final FivePointFive FIVE_PT_FIVE;
+    private final FourPieceSource FOUR_PC;
     private final TunePathFollowerPID TUNE_PID;
 
     public static AutoManager getInstance() {
@@ -41,6 +42,7 @@ public class AutoManager {
         TWO_FAR_SOURCE_SUBWOOFER = new TwoFarSourceSubwooferStart();
         THREE_PT_FIVE_FAR_SOURCE = new ThreePointFiveFarSource();
         FIVE_PT_FIVE = new FivePointFive();
+        FOUR_PC = new FourPieceSource();
         TUNE_PID = new TunePathFollowerPID();
     }
 
@@ -58,6 +60,7 @@ public class AutoManager {
             case 9 -> selectedRoutine = TWO_FAR_SOURCE_SUBWOOFER;
             case 10 -> selectedRoutine = THREE_PT_FIVE_FAR_SOURCE;
             case 11 -> selectedRoutine = FIVE_PT_FIVE;
+            case 12 -> selectedRoutine = FOUR_PC;
             case 100 -> selectedRoutine = TUNE_PID;
         }
         System.out.println("Selected routine " + selectedRoutine.getClass().getName());

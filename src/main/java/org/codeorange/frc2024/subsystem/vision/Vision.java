@@ -82,7 +82,7 @@ public class Vision extends AbstractSubsystem {
         if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2d.getRotation()).getDegrees()) > 5) return;
 
         //exit if tags are too far in auto
-        // if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
+        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
 
 
         Logger.recordOutput("Vision/" + io.getName() + "/Accepted Pose", inputs.botPose2d);
@@ -97,7 +97,7 @@ public class Vision extends AbstractSubsystem {
 
     public void updateBotOrientation(double yaw, double yawVel, double pitch, double pitchVel, double roll, double rollVel) {
         for(VisionIO io : visionIO) {
-            LimelightHelpers.SetRobotOrientation(io.getName(), yaw, yawVel, pitch, pitchVel, roll, rollVel);
+            LimelightHelpers.SetRobotOrientation(io.getName(), yaw, 0, 0, 0, 0, 0);
         }
     }
 }
