@@ -1,11 +1,9 @@
 package org.codeorange.frc2024.subsystem.elevator;
 
-import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import static org.codeorange.frc2024.robot.Constants.*;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
-import org.codeorange.frc2024.subsystem.Superstructure;
 import org.littletonrobotics.junction.Logger;
 
 

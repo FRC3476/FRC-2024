@@ -26,8 +26,7 @@ public class WristIOTalonFX implements WristIO {
     private final TalonFXConfiguration configs;
     private final CANcoderConfiguration encoderConfigs;
 
-    private final DynamicMotionMagicVoltage motionMagicRequest = new DynamicMotionMagicVoltage(0, 5, 100, 1e4).withSlot(0).withEnableFOC(true).withUpdateFreqHz(0.0);
-
+    private final DynamicMotionMagicVoltage motionMagicControl = new DynamicMotionMagicVoltage(0, 5, 100, 1e4).withSlot(0).withEnableFOC(true).withUpdateFreqHz(0.0);
 
     private final StatusSignal<Double> wristAbsolutePosition;
 
@@ -82,7 +81,6 @@ public class WristIOTalonFX implements WristIO {
         wristMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true).withUpdateFreqHz(0.0);
     public void setPosition(double position){
         wristMotor.setControl(motionMagicControl.withPosition(position));
     }
@@ -97,8 +95,8 @@ public class WristIOTalonFX implements WristIO {
     }
 
     public void setMotionProfile(double velocity, double acceleration) {
-        motionMagicRequest.Velocity = velocity;
-        motionMagicRequest.Acceleration = acceleration;
+        motionMagicControl.Velocity = velocity;
+        motionMagicControl.Acceleration = acceleration;
     }
 
     public void setBrakeMode(boolean braked) {

@@ -18,8 +18,6 @@ import org.littletonrobotics.junction.Logger;
 import static org.codeorange.frc2024.robot.Constants.*;
 import org.codeorange.frc2024.subsystem.climber.Climber;
 
-import javax.swing.plaf.nimbus.State;
-
 public class Superstructure extends AbstractSubsystem {
     private static Arm arm;
     private static Wrist wrist;
@@ -76,7 +74,7 @@ public class Superstructure extends AbstractSubsystem {
                 }
             }
         },
-        SOURCE_INTAKE(SS_SOURCEINTAKE_ELEVATOR, SS_SOURCEINTAKE_ARM, SS_SOURCEINTAKE_WRIST) { //TODO
+        SOURCE_INTAKE(SS_SOURCEINTAKE_ELEVATOR, SS_SOURCEINTAKE_ARM, SS_SOURCEINTAKE_WRIST) {
             @Override
             public void update() {
                 if(intake.hasNote()) {
@@ -314,13 +312,14 @@ public class Superstructure extends AbstractSubsystem {
             currentState.update();
             arm.setPosition(currentState.armPos);
             if (superstructure.currentState != States.HOMING) {
-                //elevator.setPosition(dynamicAdjustElevator(currentState.elevatorPos));
                 if(goalState == States.AMP) {
-                    //slow movement
+                    // slow movement so we don't hit the wall in front of us
                     elevator.setPosition(currentState.elevatorPos, 22, 100); //originally 23 130
                 } else if(goalState == States.SOURCE_INTAKE) {
+                    // even slower movement so we don't hit the wall
                     elevator.setPosition(currentState.elevatorPos, 15, 80);
                 } else {
+                    // regular fast movement
                     elevator.setPosition(currentState.elevatorPos);
                 }
             }
@@ -385,11 +384,9 @@ public class Superstructure extends AbstractSubsystem {
            } else {
                wrist.setMotionProfile(5, 100);
            }
-           //:)
-
-
 
             /*
+            // This original attempt worked, but the motor control resulted in jerky movement which we didn't like
             if (verticalOffsetFromRobot <= wristLengthInches && verticalOffsetFromRobot > armPivotToRobotBaseOffset +1) {
                 // lowerBound is the degrees that wrist would have to rotate to form a triangle with the ground
                 // (so that it can't move into the ground). this is negative
@@ -412,6 +409,9 @@ public class Superstructure extends AbstractSubsystem {
      * @return
      */
     private double dynamicAdjustElevator(double elevatorPos) {
+
+        // Note we are not using this - the elevator movement was too jerky and slow when
+        // we were constantly changing the target position.
         /*
         double elevatorPivotToWristCarriage0ffset = 9.35;
         double wristLengthInches = 11.191;
@@ -443,7 +443,6 @@ public class Superstructure extends AbstractSubsystem {
 
         double elevatorPivotToWristCarriageOffset = 9.35;
         double upperBound;
-        // TODO this does not yet take into account the additional extension of the intake in front of the arm
         if (goalState == States.AMP || goalState == States.SOURCE_INTAKE) {
             // 26 inches is the horizontal distance from arm pivot to front of bumper
             // use this when you want to raise the arm and you might be directly in front of a wall
