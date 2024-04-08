@@ -15,6 +15,9 @@ public class ModuleIOSim implements ModuleIO {
     private final PIDController driveController = new PIDController(SWERVE_DRIVE_GAINS.kP(), SWERVE_DRIVE_GAINS.kI(), SWERVE_DRIVE_GAINS.kD());
     private final SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(SWERVE_DRIVE_GAINS.kS(), SWERVE_DRIVE_GAINS.kV(), SWERVE_DRIVE_GAINS.kA());
     private final PIDController steerController = new PIDController(SWERVE_STEER_GAINS.kP(), SWERVE_STEER_GAINS.kI(), SWERVE_STEER_GAINS.kD());
+    {
+        steerController.enableContinuousInput(-0.5, 0.5);
+    }
 
     private final BetterDCMotorSim driveSim =
             new BetterDCMotorSim(
