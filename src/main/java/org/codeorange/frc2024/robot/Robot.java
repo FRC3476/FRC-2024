@@ -407,7 +407,7 @@ public class Robot extends LoggedRobot {
             superstructure.setGoalState(Superstructure.States.STOW);
         }
         if(xbox.getRisingEdge(XboxButtons.B) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
-            if(intake.hasNote()) {
+            if(intake.hasNote() && superstructure.getCurrentState() != Superstructure.States.SOURCE_INTAKE) {
                 superstructure.setGoalState(Superstructure.States.AMP);
             } else {
                 superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
@@ -491,9 +491,9 @@ public class Robot extends LoggedRobot {
             }
         }
 
-//        if(flightStick.getRawButton(4) && flightStick.getRawButton(6)) {
-//            superstructure.setGoalState(Superstructure.States.PUPPETEERING);
-//        }
+        if(flightStick.getRawButton(4) && flightStick.getRawButton(6)) {
+            superstructure.setGoalState(Superstructure.States.PUPPETEERING);
+        }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawButton(XboxButtons.Y)) {
             drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker(), true);

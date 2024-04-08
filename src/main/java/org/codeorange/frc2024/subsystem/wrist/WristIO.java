@@ -22,5 +22,7 @@ public interface WristIO {
 
     default void setVoltage(double volts) {}
 
+    default void setMotionProfile(double velocity, double acceleration) {}
+
     default void stop() {}
 }

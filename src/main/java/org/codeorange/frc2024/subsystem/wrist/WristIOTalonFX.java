@@ -2,6 +2,7 @@ package org.codeorange.frc2024.subsystem.wrist;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -25,6 +26,7 @@ public class WristIOTalonFX implements WristIO {
     private final TalonFXConfiguration configs;
     private final CANcoderConfiguration encoderConfigs;
 
+    private final DynamicMotionMagicVoltage motionMagicControl = new DynamicMotionMagicVoltage(0, 5, 100, 1e4).withSlot(0).withEnableFOC(true).withUpdateFreqHz(0.0);
 
     private final StatusSignal<Double> wristAbsolutePosition;
 
@@ -79,7 +81,6 @@ public class WristIOTalonFX implements WristIO {
         wristMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withEnableFOC(true);
     public void setPosition(double position){
         wristMotor.setControl(motionMagicControl.withPosition(position));
     }
@@ -93,12 +94,17 @@ public class WristIOTalonFX implements WristIO {
         absoluteEncoder.setPosition(0);
     }
 
+    public void setMotionProfile(double velocity, double acceleration) {
+        motionMagicControl.Velocity = velocity;
+        motionMagicControl.Acceleration = acceleration;
+    }
+
     public void setBrakeMode(boolean braked) {
         wristMotor.setNeutralMode(braked ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
 
     public void setVoltage(double volts) {
-        wristMotor.setControl(new VoltageOut(volts).withOverrideBrakeDurNeutral(true));
+        wristMotor.setControl(new VoltageOut(volts).withOverrideBrakeDurNeutral(true).withUpdateFreqHz(0.0));
     }
 
     @Override

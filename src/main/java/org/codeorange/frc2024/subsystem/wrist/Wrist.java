@@ -27,6 +27,7 @@ public class Wrist extends AbstractSubsystem {
     public synchronized void update() {
         wristIO.updateInputs(inputs);
         Logger.processInputs("Wrist", inputs);
+        wristIO.checkConfigs();
     }
 
     public double getWristAbsolutePosition() {
@@ -43,5 +44,9 @@ public class Wrist extends AbstractSubsystem {
 
     public void stop() {
         wristIO.stop();
+    }
+
+    public void setMotionProfile(double velocity, double acceleration) {
+        wristIO.setMotionProfile(velocity, acceleration);
     }
 }

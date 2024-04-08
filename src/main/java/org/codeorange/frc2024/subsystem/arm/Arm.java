@@ -20,10 +20,15 @@ public class Arm extends AbstractSubsystem {
     */
     public void setPosition(double position) {
         position = MathUtil.clamp(position, -0.02, 0.24);
-        armIO.setLeadPosition(position, 0);
+        armIO.setLeadPosition(position);
         Logger.recordOutput("Pivot/Goal position", position);
     }
 
+    public double getPosition() {
+        return inputs.leadMotor.position;
+    }
+
+    public double getVelocity() {return inputs.leadMotor.velocity;}
 
     @Override
     public synchronized void update() {
@@ -33,7 +38,7 @@ public class Arm extends AbstractSubsystem {
 
         //position, velocity, and acceleration of the profile at that time
 
-    public double getPivotDegrees() {
+    public double getPivotRotations() {
         return inputs.leadMotor.position;
     }
 

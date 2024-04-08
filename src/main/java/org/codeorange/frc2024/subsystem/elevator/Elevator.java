@@ -20,7 +20,12 @@ public class Elevator extends AbstractSubsystem {
 
     public void setPosition(double position) {
         position = MathUtil.clamp(position, ELEVATOR_LOWER_LIMIT, ELEVATOR_UPPER_LIMIT);
-        elevatorIO.setPosition(position);
+        elevatorIO.setPosition(position, 200, 200);
+    }
+
+    public void setPosition(double position, double velocity, double acceleration) {
+        position = MathUtil.clamp(position, ELEVATOR_LOWER_LIMIT, ELEVATOR_UPPER_LIMIT);
+        elevatorIO.setPosition(position, velocity, acceleration);
     }
 
     @Override

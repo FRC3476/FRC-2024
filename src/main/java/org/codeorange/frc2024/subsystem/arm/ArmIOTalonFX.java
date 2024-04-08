@@ -1,5 +1,6 @@
 package org.codeorange.frc2024.subsystem.arm;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
@@ -133,8 +134,8 @@ public class ArmIOTalonFX implements ArmIO {
     }
 
     @Override
-    public void setLeadPosition(double position, double arbFFVoltage) {
-        leadTalonFX.setControl(new MotionMagicVoltage(position).withFeedForward(arbFFVoltage).withEnableFOC(true).withOverrideBrakeDurNeutral(true));
+    public void setLeadPosition(double position) {
+        leadTalonFX.setControl(new MotionMagicVoltage(position).withEnableFOC(true).withOverrideBrakeDurNeutral(true).withUpdateFreqHz(0.0));
     }
 
     @Override
