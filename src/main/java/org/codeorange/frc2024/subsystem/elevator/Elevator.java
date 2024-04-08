@@ -1,6 +1,7 @@
 package org.codeorange.frc2024.subsystem.elevator;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.DriverStation;
 import static org.codeorange.frc2024.robot.Constants.*;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
@@ -10,12 +11,15 @@ import org.littletonrobotics.junction.Logger;
 public class Elevator extends AbstractSubsystem {
     private final ElevatorIO elevatorIO;
     private final ElevatorInputsAutoLogged elevatorInputs = new ElevatorInputsAutoLogged();
+    private final Debouncer hallEffectDebouncer;
+    private boolean hallEffectTriggered;
 
     public boolean homing = false;
     private double homeTime = 0;
     public Elevator(ElevatorIO elevatorIO){
         super();
         this.elevatorIO = elevatorIO;
+        hallEffectDebouncer = new Debouncer(0.1);
     }
 
     public void setPosition(double position) {
@@ -28,6 +32,8 @@ public class Elevator extends AbstractSubsystem {
         elevatorIO.updateInputs(elevatorInputs);
         Logger.processInputs("Elevator", elevatorInputs);
 
+        hallEffectTriggered = hallEffectDebouncer.calculate(elevatorInputs.hallEffectTriggered);
+
         if (homing) {
             if (DriverStation.isEnabled()) {
                 homeTime -= NOMINAL_DT;
@@ -39,6 +45,10 @@ public class Elevator extends AbstractSubsystem {
                 }
                 Logger.recordOutput("Elevator/Home time", homeTime);
             }
+        }
+
+        if(hallEffectTriggered) {
+            elevatorIO.setEncoderToZero();
         }
     }
 

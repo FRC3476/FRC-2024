@@ -8,6 +8,7 @@ public interface ElevatorIO {
     class ElevatorInputs {
         MotorInputs leadMotor = new MotorInputs();
         MotorInputs followMotor = new MotorInputs();
+        boolean hallEffectTriggered;
     }
 
     default void updateInputs(ElevatorInputs inputs) {}

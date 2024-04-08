@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.wpilibj.DigitalInput;
 import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.utility.OrangeUtility;
 import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
@@ -17,10 +18,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final TalonFX followMotor;
     private final TalonFXAutoLogger leadMotorLogger;
     private final TalonFXAutoLogger followMotorLogger;
+    private final DigitalInput hallEffect;
 
     public ElevatorIOTalonFX() {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD, CAN_BUS);
         followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW, CAN_BUS);
+        hallEffect = new DigitalInput(1);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()
@@ -58,6 +61,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public void updateInputs(ElevatorInputs inputs) {
         inputs.leadMotor = leadMotorLogger.log();
         inputs.followMotor = followMotorLogger.log();
+        inputs.hallEffectTriggered = hallEffect.get();
     }
 
     public void setEncoderToZero() {

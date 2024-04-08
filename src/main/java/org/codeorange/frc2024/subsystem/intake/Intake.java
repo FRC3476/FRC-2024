@@ -1,6 +1,7 @@
 package org.codeorange.frc2024.subsystem.intake;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.DriverStation;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -8,28 +9,25 @@ import org.littletonrobotics.junction.Logger;
 
 public class Intake extends AbstractSubsystem {
 
-    public static double debounceTime = 0.2;
+    public static double debounceTime = 0.1;
     private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged intakeInputs = new IntakeInputsAutoLogged();
     private boolean hasNoteDebounced = false;
-    private boolean prevHasNote;
-    private double breakBeamEnabledStartTime;
+    private final Debouncer beamBreakDebouncer;
 
 
     public Intake(IntakeIO intakeIO) {
         super();
         this.intakeIO = intakeIO;
+        beamBreakDebouncer = new Debouncer(debounceTime);
     }
 
     @Override
     public synchronized void update() {
         intakeIO.updateInputs(intakeInputs);
         Logger.processInputs("Intake", intakeInputs);
-        if(intakeInputs.hasNote && !prevHasNote) {
-            breakBeamEnabledStartTime = Logger.getRealTimestamp() * 1e-6;
-        }
-        hasNoteDebounced = Logger.getRealTimestamp() * 1e-6 > breakBeamEnabledStartTime + debounceTime && intakeInputs.hasNote;
-        prevHasNote = intakeInputs.hasNote;
+
+        hasNoteDebounced = DriverStation.isTeleop() ? beamBreakDebouncer.calculate(intakeInputs.hasNote) : intakeInputs.hasNote;
     }
 
 
