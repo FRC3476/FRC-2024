@@ -17,7 +17,7 @@ public class DCMotorSimAutoLogger implements MotorAutoLogger {
         inputs.CANID = -1;
         inputs.position = motorSim.getAngularPositionRotations();
         inputs.velocity = motorSim.getAngularVelocityRPM();
-        inputs.supplyVoltage = 12.5;
+        inputs.supplyVoltage = 12.0;
         inputs.motorVoltage = motorSim.getInputVoltage();
         inputs.supplyCurrent = motorSim.getCurrentDrawAmps();
         inputs.statorCurrent = motorSim.getCurrentDrawAmps() / (inputs.motorVoltage / 12.5);

@@ -1,7 +1,6 @@
 package org.codeorange.frc2024.robot;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
@@ -11,9 +10,7 @@ import org.codeorange.frc2024.utility.MacAddressUtil.RobotIdentity;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.net.SocketException;
-import java.nio.file.Files;
 
 public final class Constants {
     //TODO: reorganize this mess
@@ -230,7 +227,7 @@ public final class Constants {
 
     public static final double freeSpeed = 95.81986264394831;
     public static final boolean USE_SECOND_ORDER_KINEMATICS = false;
-    public static final double STEER_MOTOR_POSITION_CONVERSION_FACTOR = 7.0 / 150.0;
+    public static final double STEER_MOTOR_RTS = 7.0 / 150.0;
     public static final double DRIVE_MOTOR_REDUCTION = 9 / 53.125;
 
     public static final double wheelBaseInches = isPrototype() ? 22.75 : 24.25; // not real number, just example

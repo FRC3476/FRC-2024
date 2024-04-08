@@ -102,7 +102,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         steerConfigs.Feedback.FeedbackRemoteSensorID = swerveCancoder.getDeviceID();
         steerConfigs.Feedback.SensorToMechanismRatio = 1;
-        steerConfigs.Feedback.RotorToSensorRatio = 1 / STEER_MOTOR_POSITION_CONVERSION_FACTOR;
+        steerConfigs.Feedback.RotorToSensorRatio = 1 / STEER_MOTOR_RTS;
         steerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         steerConfigs.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         steerConfigs.MotionMagic.MotionMagicExpo_kV = 0;

@@ -7,6 +7,7 @@ package org.codeorange.frc2024.robot;
 
 import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.SignalLogger;
+import com.fasterxml.jackson.databind.Module;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -180,7 +181,7 @@ public class Robot extends LoggedRobot {
                 Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             }
 
-            drive = new Drive(new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new GyroIO() {});
+            drive = new Drive(new ModuleIOSim(), new ModuleIOSim(), new ModuleIOSim(), new ModuleIOSim(), new GyroIO() {});
             wrist = new Wrist(new WristIO() {});
             elevator = new Elevator(new ElevatorIO() {});
             shooter = new Shooter(new ShooterIO(){});
