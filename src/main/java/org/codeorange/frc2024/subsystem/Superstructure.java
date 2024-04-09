@@ -164,7 +164,7 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 if(DriverStation.isAutonomous()) {
                     superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
-                    shooter.runVelocityAuto(10000.0 / 60);
+                    shooter.runVelocity(6000.0 / 60, 4000.0 / 60);
                 }
                 if(superstructure.goalState != SPEAKER_AUTO) {
                     superstructure.setCurrentState(superstructure.goalState);
@@ -181,16 +181,10 @@ public class Superstructure extends AbstractSubsystem {
                 } else {
                     superstructure.setWantedShooterPosition(0);
                 }
-                if(DriverStation.isTeleop()) {
-                    var shooting = shooter.runVelocity(10000.0 / 60);
-                    if (!shooting && !superstructure.manualOverride) {
-                        superstructure.setGoalState(STOW);
-                    }
+                if (!intake.hasNote() && !superstructure.manualOverride) {
+                    superstructure.setGoalState(STOW);
                 }
-                if(DriverStation.isAutonomous()) {
-                    superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
-                    shooter.runVelocityAuto(10000.0 / 60);
-                }
+                shooter.runVelocity(6000.0, 4000.0);
                 if(superstructure.goalState != States.SPEAKER) {
                     superstructure.setWantedShooterPosition(0);
                     if(!DriverStation.isAutonomous()) {
@@ -205,8 +199,8 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
-                var shooting = shooter.runVelocity(10000.0 / 60);
-                if(!shooting && !superstructure.manualOverride) {
+                shooter.runVelocity(6000.0 / 60, 4000.0 / 60);
+                if(!intake.hasNote() && !superstructure.manualOverride) {
                     superstructure.setGoalState(STOW);
                 }
                 if(superstructure.goalState == SPEAKER) {
@@ -222,7 +216,6 @@ public class Superstructure extends AbstractSubsystem {
         INTERMEDIATE(SS_SPEAKER_ELEVATOR, SS_SPEAKER_ARM, SS_SPEAKER_WRIST) {
             @Override
             public void update() {
-                if(DriverStation.isAutonomous()) shooter.runVelocityAuto(10000.0 / 60);
                 if(isAtWantedState()) {
                     superstructure.setCurrentState(superstructure.goalState);
                 }
@@ -271,7 +264,7 @@ public class Superstructure extends AbstractSubsystem {
         SHOOT_OVER_STAGE(15, 0.1666, -0.31) {
             @Override
             public void update() {
-                shooter.runVelocity(8500.0 / 60);
+                shooter.runVelocity(4000.0 / 60, 2666.66 / 60);
                 if (superstructure.goalState != States.SHOOT_OVER_STAGE) {
                     shooter.stop();
                     superstructure.setCurrentState(superstructure.goalState);
@@ -281,7 +274,7 @@ public class Superstructure extends AbstractSubsystem {
         SHOOT_UNDER_STAGE(20, 0.1666, -0.16) {
             @Override
             public void update() {
-                shooter.runVelocity(10000.0 / 60);
+                shooter.runVelocity(6000.0 / 60, 4000.0 / 60);
                 if (superstructure.goalState != States.SHOOT_UNDER_STAGE) {
                     shooter.stop();
                     superstructure.setCurrentState(superstructure.goalState);

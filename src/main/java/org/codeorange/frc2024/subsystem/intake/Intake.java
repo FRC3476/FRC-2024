@@ -19,7 +19,7 @@ public class Intake extends AbstractSubsystem {
     public Intake(IntakeIO intakeIO) {
         super();
         this.intakeIO = intakeIO;
-        beamBreakDebouncer = new Debouncer(debounceTime);
+        beamBreakDebouncer = new Debouncer(debounceTime, Debouncer.DebounceType.kBoth);
     }
 
     @Override
@@ -60,6 +60,6 @@ public class Intake extends AbstractSubsystem {
 
     @AutoLogOutput(key = "Intake/Has Note Debounced")
     public boolean hasNote() {
-        return DriverStation.isAutonomous() ? intakeInputs.hasNote : hasNoteDebounced;
+        return hasNoteDebounced;
     }
 }

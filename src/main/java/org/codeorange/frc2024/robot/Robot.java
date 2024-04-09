@@ -446,7 +446,7 @@ public class Robot extends LoggedRobot {
         } else if(flightStick.getRawButton(9)) {
             // outtake
             intake.setDutyCycle(-0.075);
-            shooter.setMotorTorque(-120);
+            shooter.setMotorTorque(-120, -120);
         } else {
             intake.stop();
         }

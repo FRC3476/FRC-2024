@@ -3,13 +3,15 @@ package org.codeorange.frc2024.subsystem.shooter;
 import org.codeorange.frc2024.robot.Robot;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.Superstructure;
+import org.codeorange.frc2024.utility.MathUtil;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends AbstractSubsystem {
     private final ShooterIO shooterIO;
     private final ShooterInputsAutoLogged shooterInputs = new ShooterInputsAutoLogged();
-    private double targetVelocity;
+    private double targetVelocityLeft;
+    private double targetVelocityRight;
 
     public Shooter(ShooterIO shooterIO) {
         super();
@@ -25,34 +27,10 @@ public class Shooter extends AbstractSubsystem {
         Logger.processInputs("Shooter", shooterInputs);
     }
 
-    double shotNoteTime;
-    public boolean runVelocity(double velocityRPS) {
-        Logger.recordOutput("Shooter/SetpointRPS", velocityRPS);
-        if (Robot.getIntake().hasNote() || Superstructure.getSuperstructure().manualOverride) {
-            shooterIO.setVelocity(velocityRPS, 0);
-            targetVelocity = velocityRPS;
-        } else {
-            stop();
-        }
-
-        if(shooterInputs.leadMotor.velocity < 100 && !Robot.getIntake().hasNote()) {
-            return false;
-        }
-        return true;
-    }
-
-    public boolean runVelocityAuto(double targetVelocity) {
-        if(Robot.getIntake().hasNote()) {
-            shooterIO.setVelocity(targetVelocity, 0);
-            this.targetVelocity = targetVelocity;
-        } else {
-            shooterIO.setVelocity(targetVelocity*0.85, 0);
-        }
-
-        if(shooterInputs.leadMotor.velocity < 0.80 * targetVelocity && !Robot.getIntake().hasNote()) {
-            return false;
-        }
-        return true;
+    public void runVelocity(double targetVelocityLeft, double targetVelocityRight) {
+        shooterIO.setVelocity(targetVelocityLeft, targetVelocityRight);
+        this.targetVelocityLeft = targetVelocityLeft;
+        this.targetVelocityRight = targetVelocityRight;
     }
 
     public void stop() {
@@ -61,14 +39,16 @@ public class Shooter extends AbstractSubsystem {
 
     @AutoLogOutput(key = "Shooter/Is At Target Velocity")
     public boolean isAtTargetVelocity() {
-        return shooterInputs.leadMotor.velocity > targetVelocity * 0.995;
+        return MathUtil.epsilonEquals(targetVelocityLeft, shooterInputs.leftMotor.velocity, targetVelocityLeft*0.005)
+                && MathUtil.epsilonEquals(targetVelocityRight, shooterInputs.rightMotor.velocity, targetVelocityLeft*0.005);
     }
 
     public boolean isAtTargetVelocityTimeout() {
-        return shooterInputs.leadMotor.velocity > targetVelocity * 0.85;
+        return MathUtil.epsilonEquals(targetVelocityLeft, shooterInputs.leftMotor.velocity, targetVelocityLeft*0.15)
+                && MathUtil.epsilonEquals(targetVelocityRight, shooterInputs.rightMotor.velocity, targetVelocityRight*0.15);
     }
-    public synchronized void setMotorVoltage(double voltage) {
-        shooterIO.setMotorVoltage(voltage);
+    public synchronized void setMotorVoltage(double voltageLeft, double voltageRight) {
+        shooterIO.setMotorVoltage(voltageLeft, voltageRight);
     }
-    public void setMotorTorque(double torque) {shooterIO.setMotorTorque(torque);}
+    public void setMotorTorque(double torqueLeft, double torqueRight) {shooterIO.setMotorTorque(torqueLeft, torqueRight);}
 }
