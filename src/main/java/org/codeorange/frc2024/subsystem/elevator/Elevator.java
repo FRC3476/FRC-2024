@@ -32,7 +32,7 @@ public class Elevator extends AbstractSubsystem {
         elevatorIO.updateInputs(elevatorInputs);
         Logger.processInputs("Elevator", elevatorInputs);
 
-        hallEffectTriggered = hallEffectDebouncer.calculate(elevatorInputs.hallEffectTriggered);
+        hallEffectTriggered = !hallEffectDebouncer.calculate(elevatorInputs.hallEffectTriggered);
 
         if (homing) {
             if (DriverStation.isEnabled()) {
@@ -48,7 +48,7 @@ public class Elevator extends AbstractSubsystem {
         }
 
         if(hallEffectTriggered) {
-            elevatorIO.setEncoderToZero();
+            //elevatorIO.setEncoderToZero();
         }
     }
 

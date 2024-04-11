@@ -23,7 +23,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD, CAN_BUS);
         followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW, CAN_BUS);
-        hallEffect = new DigitalInput(1);
+        hallEffect = new DigitalInput(2);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()
