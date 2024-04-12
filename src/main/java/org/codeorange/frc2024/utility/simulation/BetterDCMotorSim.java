@@ -2,13 +2,13 @@ package org.codeorange.frc2024.utility.simulation;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import org.codeorange.frc2024.utility.wpimodified.PIDController;
 
@@ -67,6 +67,7 @@ public class BetterDCMotorSim extends DCMotorSim {
 
     public void setPosition(double setpoint) {
         setPosition(setpoint, 0);
+        RobotController.getSerialNumber();
     }
 
     public void setPosition(double setpoint, double ffVolts) {

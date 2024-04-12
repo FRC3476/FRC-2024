@@ -39,6 +39,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggedPowerDistribution;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -65,7 +66,6 @@ public class Robot extends LoggedRobot {
     private Controller buttonPanel;
     public final LoggedDashboardChooser<Integer> autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     public static final LoggedDashboardChooser<String> sideChooser = new LoggedDashboardChooser<>("Side Chooser");
-
     private static PowerDistribution powerDistribution;
 
 
@@ -156,7 +156,7 @@ public class Robot extends LoggedRobot {
             }
 
             Logger.addDataReceiver(new WPILOGWriter(LOG_DIRECTORY));
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            if(!DriverStation.isFMSAttached()) Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
             drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());

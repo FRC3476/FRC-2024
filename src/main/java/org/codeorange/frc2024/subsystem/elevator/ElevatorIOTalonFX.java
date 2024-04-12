@@ -23,7 +23,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         leadMotor = new TalonFX(Constants.Ports.ELEVATOR_LEAD, CAN_BUS);
         followMotor = new TalonFX(Constants.Ports.ELEVATOR_FOLLOW, CAN_BUS);
-        hallEffect = new DigitalInput(1);
+        hallEffect = new DigitalInput(2);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration()
                 .withMotionMagic(new MotionMagicConfigs()
@@ -61,12 +61,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public void updateInputs(ElevatorInputs inputs) {
         inputs.leadMotor = leadMotorLogger.log();
         inputs.followMotor = followMotorLogger.log();
-        inputs.hallEffectTriggered = hallEffect.get();
+        inputs.hallEffectTriggered = !hallEffect.get();
     }
 
-    public void setEncoderToZero() {
-        leadMotor.setPosition(-0.05);
-        followMotor.setPosition(-0.05);
+    public void setEncoder(double pos) {
+        leadMotor.setPosition(pos);
+        followMotor.setPosition(pos);
         //elevatorFollower.getEncoder().setPosition(position);
     }
     
