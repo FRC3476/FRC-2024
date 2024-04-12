@@ -28,7 +28,7 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.CurrentLimits.SupplyCurrentLimit = 70;
         config.CurrentLimits.StatorCurrentLimitEnable = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.Inverted = isCompetition() ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive;
         config.Slot0.kP = SHOOTER_GAINS.kP();
         config.Slot0.kI = SHOOTER_GAINS.kI();
         config.Slot0.kD = SHOOTER_GAINS.kD();
@@ -39,7 +39,8 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         OrangeUtility.betterCTREConfigApply(shooterRight, config);
 
-        if(!isCompetition()) config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        if(isCompetition()) config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        else config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         OrangeUtility.betterCTREConfigApply(shooterLeft, config);
 
         leftLogger = new TalonFXAutoLogger(shooterLeft);
