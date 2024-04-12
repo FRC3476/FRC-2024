@@ -3,6 +3,8 @@ package org.codeorange.frc2024.subsystem.intake;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.event.BooleanEvent;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -13,33 +15,46 @@ public class Intake extends AbstractSubsystem {
     private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged intakeInputs = new IntakeInputsAutoLogged();
     private boolean hasNoteDebounced = false;
+    private final EventLoop loop = new EventLoop();
     private final Debouncer beamBreakDebouncer;
 
 
     public Intake(IntakeIO intakeIO) {
         super();
+
+        var beamBreakEvent = new BooleanEvent(loop, () -> intakeInputs.beamBreak);
+        var beamBreak2Event = new BooleanEvent(loop, () -> intakeInputs.beamBreak2);
+
+        beamBreak2Event
+                .debounce(0.1)
+                .rising()
+                .ifHigh(() -> intakeIO.setMotorVoltage(-3));
+        beamBreak2Event
+                .falling()
+                .ifHigh(this::stop);
+
         this.intakeIO = intakeIO;
         beamBreakDebouncer = new Debouncer(debounceTime);
     }
 
     @Override
     public synchronized void update() {
+        loop.poll();
+
         intakeIO.updateInputs(intakeInputs);
         Logger.processInputs("Intake", intakeInputs);
 
-        hasNoteDebounced = DriverStation.isTeleop() ? beamBreakDebouncer.calculate(intakeInputs.hasNote) : intakeInputs.hasNote;
+        hasNoteDebounced = DriverStation.isTeleop() ? beamBreakDebouncer.calculate(intakeInputs.beamBreak) : intakeInputs.beamBreak;
     }
 
 
     public void runIntake(double dutyCycle) {
-        if (!intakeInputs.hasNote) {
+        if (!intakeInputs.beamBreak2) {
             intakeIO.setMotorDutyCycle(dutyCycle);
-        } else {
-            stop();
         }
     }
     public void runIntakeForShooter() {
-        if (intakeInputs.hasNote) {
+        if (intakeInputs.beamBreak) {
             intakeIO.setMotorDutyCycle(0.8);
         } else {
             stop();

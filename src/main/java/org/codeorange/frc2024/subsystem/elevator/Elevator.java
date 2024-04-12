@@ -2,24 +2,40 @@ package org.codeorange.frc2024.subsystem.elevator;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.util.function.FloatSupplier;
 import edu.wpi.first.wpilibj.DriverStation;
 import static org.codeorange.frc2024.robot.Constants.*;
+
+import edu.wpi.first.wpilibj.event.BooleanEvent;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.function.DoubleSupplier;
 
 
 public class Elevator extends AbstractSubsystem {
     private final ElevatorIO elevatorIO;
     private final ElevatorInputsAutoLogged elevatorInputs = new ElevatorInputsAutoLogged();
-    private final Debouncer hallEffectDebouncer;
-    private boolean hallEffectTriggered;
+    private final EventLoop loop = new EventLoop();
+    private double val = 0;
 
     public boolean homing = false;
     private double homeTime = 0;
     public Elevator(ElevatorIO elevatorIO){
         super();
         this.elevatorIO = elevatorIO;
-        hallEffectDebouncer = new Debouncer(0.1);
+
+        var hallEffectTriggered = new BooleanEvent(loop, () -> elevatorInputs.hallEffectTriggered);
+
+        hallEffectTriggered
+                .rising()
+                .ifHigh(() -> val = elevatorInputs.leadMotor.position);
+
+        hallEffectTriggered
+                .debounce(0.1, Debouncer.DebounceType.kRising)
+                .rising()
+                .ifHigh(() -> elevatorIO.setEncoder(elevatorInputs.leadMotor.position - val + 0.25));
     }
 
     public void setPosition(double position) {
@@ -29,10 +45,11 @@ public class Elevator extends AbstractSubsystem {
 
     @Override
     public synchronized void update() {
+        loop.poll();
+
         elevatorIO.updateInputs(elevatorInputs);
         Logger.processInputs("Elevator", elevatorInputs);
 
-        hallEffectTriggered = !hallEffectDebouncer.calculate(elevatorInputs.hallEffectTriggered);
 
         if (homing) {
             if (DriverStation.isEnabled()) {
@@ -48,7 +65,7 @@ public class Elevator extends AbstractSubsystem {
         }
 
         if(hallEffectTriggered) {
-            //elevatorIO.setEncoderToZero();
+            elevatorIO.setEncoderToZero();
         }
     }
 
@@ -61,8 +78,9 @@ public class Elevator extends AbstractSubsystem {
         //apparently leadMotorPosition already returns in inches! yay!
         return elevatorInputs.leadMotor.position;
     }
-    public void zeroEncoder() {
-        elevatorIO.setEncoderToZero();
+
+    public void setEncoder(double pos) {
+        elevatorIO.setEncoder(pos);
     }
 
     public void runVoltage(int volts) {

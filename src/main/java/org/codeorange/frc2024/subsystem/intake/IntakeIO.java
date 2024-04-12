@@ -7,7 +7,8 @@ public interface IntakeIO {
     @AutoLog
     class IntakeInputs {
         MotorInputs intake = new MotorInputs();
-        boolean hasNote;
+        boolean beamBreak = false;
+        boolean beamBreak2 = false;
     }
 
     default void updateInputs(IntakeInputs inputs) {}

@@ -15,7 +15,7 @@ public interface ElevatorIO {
 
     default void setPosition(double targetPositionInRotations){}
 
-    default void setEncoderToZero() {}
+    default void setEncoder(double pos) {}
     default void setElevatorVoltage(double voltage) {}
 
     default void stop() {}
