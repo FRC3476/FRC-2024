@@ -16,6 +16,7 @@ public class Intake extends AbstractSubsystem {
     private final IntakeInputsAutoLogged intakeInputs = new IntakeInputsAutoLogged();
     private boolean hasNoteDebounced = false;
     private final Debouncer beamBreakDebouncer;
+    private final EventLoop loop = new EventLoop();
 
 
     public Intake(IntakeIO intakeIO) {
