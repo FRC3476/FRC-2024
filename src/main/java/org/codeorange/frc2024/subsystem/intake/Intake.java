@@ -75,6 +75,6 @@ public class Intake extends AbstractSubsystem {
 
     @AutoLogOutput(key = "Intake/Has Note Debounced")
     public boolean hasNote() {
-        return DriverStation.isAutonomous() ? intakeInputs.hasNote : hasNoteDebounced;
+        return DriverStation.isAutonomous() ? intakeInputs.beamBreak : hasNoteDebounced;
     }
 }

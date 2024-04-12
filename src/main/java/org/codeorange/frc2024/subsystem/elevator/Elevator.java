@@ -58,14 +58,10 @@ public class Elevator extends AbstractSubsystem {
                 double avgMotorCurrent = (elevatorInputs.leadMotor.supplyCurrent + elevatorInputs.leadMotor.supplyCurrent) / 2.0;
                 if (homeTime <= 0 && avgMotorCurrent > 10) {
                     homing = false;
-                    elevatorIO.setEncoderToZero();
+                    elevatorIO.setEncoder(-0.05);
                 }
                 Logger.recordOutput("Elevator/Home time", homeTime);
             }
-        }
-
-        if(hallEffectTriggered) {
-            elevatorIO.setEncoderToZero();
         }
     }
 
