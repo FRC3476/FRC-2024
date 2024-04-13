@@ -18,12 +18,12 @@ public class GroundIntake implements BaseAction {
 
     @Override
     public void update() {
-        intake.runIntake(0.4);
+        intake.runIntake(0.75);
     }
 
     @Override
     public boolean isFinished() {
-        return intake.hasNote() || (Timer.getFPGATimestamp() - startTime) > 2.75;
+        return intake.hasNote() || (Timer.getFPGATimestamp() - startTime) > 1.5;
     }
 
     @Override

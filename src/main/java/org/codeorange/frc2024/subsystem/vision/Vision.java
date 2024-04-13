@@ -23,7 +23,7 @@ public class Vision extends AbstractSubsystem {
     private static final String LL_BACK = "limelight-back";
     private static Drive drive;
     double fieldBorderMargin = 0.15;
-    double defaultXYStdev = 0.3;
+    double defaultXYStdev = 0.7;
 
 
     public static final LoggedDashboardChooser<Boolean> visionChooser;
@@ -82,13 +82,17 @@ public class Vision extends AbstractSubsystem {
         if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2d.getRotation()).getDegrees()) > 5) return;
 
         //exit if tags are too far in auto
-        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
+//        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
 
 
         Logger.recordOutput("Vision/" + io.getName() + "/Accepted Pose", inputs.botPose2d);
 
         //scale stdevs with ??
         double xyStdev = defaultXYStdev * inputs.avgDist;
+
+        if(inputs.tagCount < 2) {
+            xyStdev *= inputs.avgDist;
+        }
 
         Logger.recordOutput("Vision/" + io.getName() + "/XY Standard Deviations", xyStdev);
         io.getDashboardField().setRobotPose(inputs.botPose2d);

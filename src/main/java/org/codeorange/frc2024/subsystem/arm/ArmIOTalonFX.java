@@ -102,8 +102,6 @@ public class ArmIOTalonFX implements ArmIO {
         }
 
         absoluteEncoder.setPosition(absPos);
-
-        absoluteEncoder.optimizeBusUtilization();
     }
 
     public void setPosition(double position){

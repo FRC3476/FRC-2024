@@ -36,7 +36,7 @@ public class DrivePath implements BaseAction {
         pathTimer.reset();
         pathTimer.start();
 
-        PIDController translationController = new PIDController(7, 0, 0.0);
+        PIDController translationController = new PIDController(7.5, 0, 0.0);
         PIDController rotationController = new PIDController(3, 0, 0.0);
         choreoController = Choreo.choreoSwerveController(translationController, translationController, rotationController);
         Logger.recordOutput("Auto/Final Pose", trajectory.getFinalState().getPose());
@@ -46,6 +46,7 @@ public class DrivePath implements BaseAction {
         var state = trajectory.sample(pathTimer.get());
         var speeds = choreoController.apply(drive.getPose(), state);
         Logger.recordOutput("Auto/Target Pose", state.getPose());
+        Logger.recordOutput("Auto/FF", state.getChassisSpeeds());
 
         drive.setNextChassisSpeeds(
                 new ChassisSpeeds(

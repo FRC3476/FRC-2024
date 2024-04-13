@@ -29,18 +29,23 @@ public class ShooterIOTalonFX implements ShooterIO {
         config.CurrentLimits.StatorCurrentLimitEnable = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.MotorOutput.Inverted = isCompetition() ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive;
-        config.Slot0.kP = SHOOTER_GAINS.kP();
-        config.Slot0.kI = SHOOTER_GAINS.kI();
-        config.Slot0.kD = SHOOTER_GAINS.kD();
-        config.Slot0.kS = SHOOTER_GAINS.kS();
-        config.Slot0.kV = SHOOTER_GAINS.kV();
-        config.Slot0.kA = SHOOTER_GAINS.kA();
+        config.Slot0.kP = 0.11687;
+        config.Slot0.kI = 0;
+        config.Slot0.kD = 0;
+        config.Slot0.kS = 0.09351;
+        config.Slot0.kV = 0.078291;
+        config.Slot0.kA = 0.0073099;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
         OrangeUtility.betterCTREConfigApply(shooterRight, config);
 
-        if(isCompetition()) config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        else config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        if(isCompetition()) {
+            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            config.Slot0.kP = 0.12753;
+            config.Slot0.kS = 0.1032;
+            config.Slot0.kV = 0.079354;
+            config.Slot0.kA = 0.0075325;
+        } else config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         OrangeUtility.betterCTREConfigApply(shooterLeft, config);
 
         leftLogger = new TalonFXAutoLogger(shooterLeft);

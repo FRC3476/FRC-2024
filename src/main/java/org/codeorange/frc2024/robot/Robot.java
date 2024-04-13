@@ -434,9 +434,9 @@ public class Robot extends LoggedRobot {
 
 
         if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
-            intake.runIntake(0.5);
+            intake.runIntake(0.7);
         } else if ((xbox.getRawButton(XboxButtons.B) && !intake.hasNote() && superstructure.getCurrentState() == Superstructure.States.SOURCE_INTAKE)) {
-            intake.runIntake(0.3);
+            intake.runIntake(0.5);
         } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
             intake.runOuttake(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP ? -12 : -8.5);
         } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
@@ -448,7 +448,7 @@ public class Robot extends LoggedRobot {
             intake.setDutyCycle(-0.075);
             shooter.setMotorTorque(-120, -120);
         } else {
-            intake.stop();
+            intake.plsStop();
         }
         if(flightStick.getFallingEdge(9)) {
             shooter.stop();

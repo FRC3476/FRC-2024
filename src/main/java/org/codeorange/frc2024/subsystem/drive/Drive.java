@@ -34,7 +34,7 @@ import static org.codeorange.frc2024.robot.Constants.*;
 
 public class Drive extends AbstractSubsystem {
     static final Lock odometryLock = new ReentrantLock();
-    public static final double SPEAKER_ANGLE_OFFSET = Units.degreesToRadians(4);
+    public static final double SPEAKER_ANGLE_OFFSET = Units.degreesToRadians(-3);
 
     private final Alert odomAlert = new Alert("ODOMETRY WENT TO NAN!!!!", Alert.AlertType.ERROR);
     {

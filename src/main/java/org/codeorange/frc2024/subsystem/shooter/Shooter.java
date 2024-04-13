@@ -39,13 +39,13 @@ public class Shooter extends AbstractSubsystem {
 
     @AutoLogOutput(key = "Shooter/Is At Target Velocity")
     public boolean isAtTargetVelocity() {
-        return MathUtil.epsilonEquals(targetVelocityLeft, shooterInputs.leftMotor.velocity, targetVelocityLeft*0.005)
-                && MathUtil.epsilonEquals(targetVelocityRight, shooterInputs.rightMotor.velocity, targetVelocityLeft*0.005);
+        return MathUtil.epsilonEquals(targetVelocityLeft, shooterInputs.leftMotor.velocity, 2)
+                && MathUtil.epsilonEquals(targetVelocityRight, shooterInputs.rightMotor.velocity, 2);
     }
 
     public boolean isAtTargetVelocityTimeout() {
-        return MathUtil.epsilonEquals(targetVelocityLeft, shooterInputs.leftMotor.velocity, targetVelocityLeft*0.15)
-                && MathUtil.epsilonEquals(targetVelocityRight, shooterInputs.rightMotor.velocity, targetVelocityRight*0.15);
+        return MathUtil.epsilonEquals(targetVelocityLeft, shooterInputs.leftMotor.velocity, 10)
+                && MathUtil.epsilonEquals(targetVelocityRight, shooterInputs.rightMotor.velocity, 10);
     }
     public synchronized void setMotorVoltage(double voltageLeft, double voltageRight) {
         shooterIO.setMotorVoltage(voltageLeft, voltageRight);

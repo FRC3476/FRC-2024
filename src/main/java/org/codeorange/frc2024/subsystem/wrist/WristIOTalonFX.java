@@ -69,6 +69,7 @@ public class WristIOTalonFX implements WristIO {
         encoderConfigs = new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
                                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+                        .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
                                 .withMagnetOffset(WRIST_ABSOLUTE_ENCODER_OFFSET));
 
         OrangeUtility.betterCTREConfigApply(absoluteEncoder, encoderConfigs);

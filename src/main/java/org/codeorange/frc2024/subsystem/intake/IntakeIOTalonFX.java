@@ -23,7 +23,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     public IntakeIOTalonFX() {
         motor = new TalonFX(Constants.Ports.INTAKE_MOTOR_ID, CAN_BUS);
         beamBreak = new DigitalInput(Constants.Ports.INTAKE_BEAM_BREAK);
-        beamBreak2 = new DigitalInput(3);
+        beamBreak2 = new DigitalInput(4);
 
         OrangeUtility.betterCTREConfigApply(motor, new TalonFXConfiguration());
 

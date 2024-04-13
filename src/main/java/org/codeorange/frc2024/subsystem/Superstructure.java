@@ -164,7 +164,7 @@ public class Superstructure extends AbstractSubsystem {
             public void update() {
                 if(DriverStation.isAutonomous()) {
                     superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
-                    shooter.runVelocity(6000.0 / 60, 4000.0 / 60);
+                    shooter.runVelocity(8000.0 / 60, 8000.0 / 60);
                 }
                 if(superstructure.goalState != SPEAKER_AUTO) {
                     superstructure.setCurrentState(superstructure.goalState);
@@ -181,10 +181,10 @@ public class Superstructure extends AbstractSubsystem {
                 } else {
                     superstructure.setWantedShooterPosition(0);
                 }
-                if (!intake.hasNote() && !superstructure.manualOverride) {
+                if (!intake.hasNote() && !intake.noteLeft() && !superstructure.manualOverride) {
                     superstructure.setGoalState(STOW);
                 }
-                shooter.runVelocity(6000.0, 4000.0);
+                shooter.runVelocity(8000.0 / 60, 8000.0 / 60);
                 if(superstructure.goalState != States.SPEAKER) {
                     superstructure.setWantedShooterPosition(0);
                     if(!DriverStation.isAutonomous()) {
@@ -199,7 +199,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
-                shooter.runVelocity(6000.0 / 60, 4000.0 / 60);
+                shooter.runVelocity(8000.0 / 60, 8000.0 / 60);
                 if(!intake.hasNote() && !superstructure.manualOverride) {
                     superstructure.setGoalState(STOW);
                 }
@@ -235,10 +235,10 @@ public class Superstructure extends AbstractSubsystem {
                 if(isAtWantedState()) {
                     climber.openServos();
                     if(!superstructure.climberOut) {
-                        climber.setMotorPosition(190);
+                        climber.setMotorPosition(140);
                     }
 
-                    if(climber.getPositionInRotations() > 184) {
+                    if(climber.getPositionInRotations() > 135) {
                         superstructure.climberOut = true;
                     }
 
@@ -387,7 +387,7 @@ public class Superstructure extends AbstractSubsystem {
             wantedPos += 2 * (0.25 - wantedPos);
         }
         wantedShooterPosition = superstructure.currentState == States.SPEAKER || superstructure.currentState == States.SPEAKER_OVER_DEFENSE || superstructure.currentState == States.SPEAKER_AUTO ? wantedPos : 0;
-        Logger.recordOutput("Shooter/Wanted Angle", wantedShooterPosition);
+        Logger.recordOutput("Shooter/Wanted Angle", wantedShooterPosition * 360);
     }
 
     public double getWristDegreesRelativeToGround(double degreesRelativeToArm, double armPivotDegrees) {
