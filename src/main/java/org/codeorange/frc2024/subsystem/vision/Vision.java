@@ -23,7 +23,7 @@ public class Vision extends AbstractSubsystem {
     private static final String LL_BACK = "limelight-back";
     private static Drive drive;
     double fieldBorderMargin = 0.15;
-    double defaultXYStdev = 0.7;
+    public double defaultXYStdev = 0.7;
 
 
     public static final LoggedDashboardChooser<Boolean> visionChooser;
@@ -88,7 +88,7 @@ public class Vision extends AbstractSubsystem {
         Logger.recordOutput("Vision/" + io.getName() + "/Accepted Pose", inputs.botPose2d);
 
         //scale stdevs with ??
-        double xyStdev = defaultXYStdev * inputs.avgDist;
+        double xyStdev = defaultXYStdev;
 
         if(inputs.tagCount < 2) {
             xyStdev *= inputs.avgDist;

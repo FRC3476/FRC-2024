@@ -169,6 +169,7 @@ public class Superstructure extends AbstractSubsystem {
                 if(superstructure.goalState != SPEAKER_AUTO) {
                     superstructure.setCurrentState(superstructure.goalState);
                     superstructure.setWantedShooterPosition(0);
+                    shooter.runVelocity(5000.0 / 60, 5000.0 / 60);
                 }
             }
         },
@@ -187,9 +188,8 @@ public class Superstructure extends AbstractSubsystem {
                 shooter.runVelocity(8000.0 / 60, 8000.0 / 60);
                 if(superstructure.goalState != States.SPEAKER) {
                     superstructure.setWantedShooterPosition(0);
-                    if(!DriverStation.isAutonomous()) {
-                        shooter.stop();
-                    }
+                    if(!DriverStation.isAutonomous()) shooter.stop();
+                    else shooter.runVelocity(4000.0 / 60, 4000.0 / 60);
                     superstructure.manualOverride = false;
                     superstructure.setCurrentState(States.INTERMEDIATE);
                 }
@@ -199,7 +199,7 @@ public class Superstructure extends AbstractSubsystem {
             @Override
             public void update() {
                 superstructure.setWantedShooterPosition(superstructure.wantedAngle / 360);
-                shooter.runVelocity(8000.0 / 60, 8000.0 / 60);
+                shooter.runVelocity(4000.0 / 60, 4000.0 / 60);
                 if(!intake.hasNote() && !superstructure.manualOverride) {
                     superstructure.setGoalState(STOW);
                 }
@@ -235,10 +235,10 @@ public class Superstructure extends AbstractSubsystem {
                 if(isAtWantedState()) {
                     climber.openServos();
                     if(!superstructure.climberOut) {
-                        climber.setMotorPosition(140);
+                        climber.setMotorPosition(176);
                     }
 
-                    if(climber.getPositionInRotations() > 135) {
+                    if(climber.getPositionInRotations() > 170) {
                         superstructure.climberOut = true;
                     }
 
@@ -264,7 +264,7 @@ public class Superstructure extends AbstractSubsystem {
         SHOOT_OVER_STAGE(15, 0.1666, -0.31) {
             @Override
             public void update() {
-                shooter.runVelocity(4000.0 / 60, 2666.66 / 60);
+                shooter.runVelocity(6000.0 / 60, 6000.0 / 60);
                 if (superstructure.goalState != States.SHOOT_OVER_STAGE) {
                     shooter.stop();
                     superstructure.setCurrentState(superstructure.goalState);
@@ -274,14 +274,14 @@ public class Superstructure extends AbstractSubsystem {
         SHOOT_UNDER_STAGE(20, 0.1666, -0.16) {
             @Override
             public void update() {
-                shooter.runVelocity(6000.0 / 60, 4000.0 / 60);
+                shooter.runVelocity(6000.0 / 60, 6000.0 / 60);
                 if (superstructure.goalState != States.SHOOT_UNDER_STAGE) {
                     shooter.stop();
                     superstructure.setCurrentState(superstructure.goalState);
                 }
             }
         },
-        TEST_TRAP(20, 0.125, 0.06) {
+        TEST_TRAP(20, 0.125 + (double) 1/72, 0.06 - (double) 1/72) {
             @Override
             public void update() {
                 if (superstructure.goalState != States.TEST_TRAP) {

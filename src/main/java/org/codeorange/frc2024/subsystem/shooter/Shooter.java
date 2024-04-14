@@ -39,8 +39,8 @@ public class Shooter extends AbstractSubsystem {
 
     @AutoLogOutput(key = "Shooter/Is At Target Velocity")
     public boolean isAtTargetVelocity() {
-        return MathUtil.epsilonEquals(targetVelocityLeft, shooterInputs.leftMotor.velocity, 2)
-                && MathUtil.epsilonEquals(targetVelocityRight, shooterInputs.rightMotor.velocity, 2);
+        return MathUtil.epsilonEquals(targetVelocityLeft, shooterInputs.leftMotor.velocity, 3.5)
+                && MathUtil.epsilonEquals(targetVelocityRight, shooterInputs.rightMotor.velocity, 3.5);
     }
 
     public boolean isAtTargetVelocityTimeout() {

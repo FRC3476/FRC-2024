@@ -27,15 +27,14 @@ public class FivePointFive extends BaseRoutine {
             driveToThirdNote = Choreo.getTrajectory("5point5_blue.3");
             driveToFourthNote = Choreo.getTrajectory("5point5_blue.4");
         }
-        sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(46)));
-        sequenceAction(new RunKicker());
+        sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(48), new SeriesAction(new Wait(1.3), new RunKicker())));
         sequenceAction(new ParallelAction(
                 new SeriesAction(
                         new GroundIntake(),
-                        new ShootFromGround(31),
+                        new ShootFromGround(32.5),
                         new RunKicker()
                 ), new SeriesAction(
-                new Wait(0.20),
+                new Wait(0.15),
                 new DrivePath(driveToFirstNote)
         )));
 
@@ -49,7 +48,7 @@ public class FivePointFive extends BaseRoutine {
                         new GroundIntake(),
                         new Stow(),
                         new Wait(0.95),
-                        new ShootFromGround(35)
+                        new ShootFromGround(35.5)
                 )
         ));
         sequenceAction(new SeriesAction(
@@ -59,12 +58,12 @@ public class FivePointFive extends BaseRoutine {
 
         sequenceAction(new ParallelAction(
                 new SeriesAction(
-                        new Wait(0.25),
+                        new Wait(0.6),
                         new DrivePath(driveToThirdNote)
                 ),
                 new SeriesAction(
                         new GroundIntake(),
-                        new ShootFromGround(Robot.isRed() ? 29 : 30)
+                        new ShootFromGround(Robot.isRed() ? 30.0 : 30)
                 )
         ));
         sequenceAction(new SeriesAction(
@@ -78,7 +77,7 @@ public class FivePointFive extends BaseRoutine {
                 new SeriesAction(
                         new Wait(0.5),
                         new GroundIntake(),
-                        new ShootFromGround(30)
+                        new ShootFromGround(30.0)
                 )
         ));
         sequenceAction(new SeriesAction(

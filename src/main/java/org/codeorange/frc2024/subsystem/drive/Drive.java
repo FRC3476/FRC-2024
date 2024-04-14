@@ -308,10 +308,14 @@ public class Drive extends AbstractSubsystem {
         Rotation2d target = getTranslationToGoal().getAngle();
         delta = target.minus(heading);
 
-        if(delta.getCos() < 0) {
-            return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians() + SPEAKER_ANGLE_OFFSET;
-        }
-        return target.getRadians() - SPEAKER_ANGLE_OFFSET;
+        return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians() + SPEAKER_ANGLE_OFFSET;
+    }
+
+    public double passingAngle() {
+        Translation2d target = Robot.isRed() ? new Translation2d(14.6, 7) : new Translation2d(FIELD_LENGTH_METERS - 14.6, 7);
+        Rotation2d targetAngle = target.minus(getPose().getTranslation()).getAngle();
+
+        return targetAngle.rotateBy(Rotation2d.fromDegrees(180)).getRadians();
     }
 
     public Translation2d getTranslationToGoal() {

@@ -89,7 +89,7 @@ public class Intake extends AbstractSubsystem {
         }
     }
     public void runIntakeForShooter() {
-        if (intakeInputs.beamBreak) {
+        if (intakeInputs.beamBreak && Robot.getShooter().isAtTargetVelocity()) {
             intakeIO.setMotorDutyCycle(0.8);
         } else {
             stop();

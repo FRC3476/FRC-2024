@@ -190,7 +190,7 @@ public final class Constants {
     public static final double SS_HOMING_ARM = isPrototype() ? 0.1 : 0;
     public static final double SS_HOMING_WRIST = 0;
 
-    public static final Gains SWERVE_DRIVE_GAINS = new Gains(4.5, 0, 0, 0.23382, 2.3886, 0.26137);
+    public static final Gains SWERVE_DRIVE_GAINS = new Gains(4.5, 0, 0, 0.23968, 2.3853, 0.26249);
 
     public static final Gains SWERVE_STEER_GAINS = new Gains(150, 0, 0);
 
