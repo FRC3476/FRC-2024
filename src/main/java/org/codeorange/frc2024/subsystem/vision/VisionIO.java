@@ -11,6 +11,7 @@ public interface VisionIO {
         boolean connected;
         boolean hasTarget;
         Pose2d botPose2d;
+        Pose2d botPose2dMegatag2;
         Pose3d botPose3d;
         double captureLatency;
         double pipelineLatency;

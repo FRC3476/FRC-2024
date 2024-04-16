@@ -50,7 +50,12 @@ public class Vision extends AbstractSubsystem {
             visionIO[i].updateInputs(visionInputs[i]);
             Logger.processInputs("Vision/" + visionIO[i].getName(), visionInputs[i]);
 
-            processVisionData(visionIO[i], visionInputs[i]);
+            if(Robot.getDrive().getGyroYawVel() > Math.PI) {
+                processVisionData(visionIO[i], visionInputs[i]);
+            } else {
+                processVisionDataMT2(visionIO[i], visionInputs[i]);
+            }
+
         }
     }
 
@@ -72,10 +77,53 @@ public class Vision extends AbstractSubsystem {
 
         //exit if off the field, or too far above or below the ground
         if(
-                inputs.botPose2d.getX() < -fieldBorderMargin
-                        || inputs.botPose2d.getX() > fieldBorderMargin + FIELD_LENGTH_METERS
-                        || inputs.botPose2d.getY() < -fieldBorderMargin
-                        || inputs.botPose2d.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
+                inputs.botPose3d.getX() < -fieldBorderMargin
+                        || inputs.botPose3d.getX() > fieldBorderMargin + FIELD_LENGTH_METERS
+                        || inputs.botPose3d.getY() < -fieldBorderMargin
+                        || inputs.botPose3d.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
+                        || inputs.botPose3d.getZ() < -0.4
+                        || inputs.botPose3d.getZ() > 0.1
+        ) return;
+
+        //exit if rotation doesn't match gyro measurement
+        if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2d.getRotation()).getDegrees()) > 5) return;
+
+        //exit if tags are too far in auto
+        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
+
+
+        Logger.recordOutput("Vision/" + io.getName() + "/Accepted Pose", inputs.botPose2d);
+
+        //scale stdevs with ??
+        double xyStdev = defaultXYStdev * inputs.avgDist * inputs.avgDist / inputs.tagCount / inputs.tagCount;
+
+        Logger.recordOutput("Vision/" + io.getName() + "/XY Standard Deviations", xyStdev);
+        io.getDashboardField().setRobotPose(inputs.botPose2d);
+        drive.addVisionMeasurement(inputs.botPose2d, inputs.timestamp, VecBuilder.fill(xyStdev, xyStdev, 9999999));
+    }
+
+    private void processVisionDataMT2(VisionIO io, VisionIO.VisionInputs inputs) {
+        if(!inputs.hasTarget) return;
+
+        if(inputs.tagCount < 1) return;
+
+        if(unconditionallyTrustVision.get()) {
+            drive.addVisionMeasurement(
+                    inputs.botPose2d,
+                    inputs.timestamp,
+                    VecBuilder.fill(0.01, 0.01, 1)
+            );
+        }
+
+        //exit if data sucks
+        if(inputs.botPose2dMegatag2.equals(new Pose2d()) || inputs.botPose3d.equals(new Pose3d())) return;
+
+        //exit if off the field, or too far above or below the ground
+        if(
+                inputs.botPose2dMegatag2.getX() < -fieldBorderMargin
+                        || inputs.botPose2dMegatag2.getX() > fieldBorderMargin + FIELD_LENGTH_METERS
+                        || inputs.botPose2dMegatag2.getY() < -fieldBorderMargin
+                        || inputs.botPose2dMegatag2.getY() > fieldBorderMargin + FIELD_WIDTH_METERS
         ) return;
 
         //exit if rotation doesn't match gyro measurement
@@ -84,16 +132,13 @@ public class Vision extends AbstractSubsystem {
         //exit if tags are too far in auto
 //        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
 
-
-        Logger.recordOutput("Vision/" + io.getName() + "/Accepted Pose", inputs.botPose2d);
-
-        //scale stdevs with ??
         double xyStdev = defaultXYStdev;
 
         if(inputs.tagCount < 2) {
             xyStdev *= inputs.avgDist;
         }
 
+        Logger.recordOutput("Vision/" + io.getName() + "/Accepted Pose", inputs.botPose2dMegatag2);
         Logger.recordOutput("Vision/" + io.getName() + "/XY Standard Deviations", xyStdev);
         io.getDashboardField().setRobotPose(inputs.botPose2d);
         drive.addVisionMeasurement(inputs.botPose2d, inputs.timestamp, VecBuilder.fill(xyStdev, xyStdev, 9999999));
@@ -101,7 +146,7 @@ public class Vision extends AbstractSubsystem {
 
     public void updateBotOrientation(double yaw, double yawVel, double pitch, double pitchVel, double roll, double rollVel) {
         for(VisionIO io : visionIO) {
-            LimelightHelpers.SetRobotOrientation(io.getName(), yaw, 0, 0, 0, 0, 0);
+            LimelightHelpers.SetRobotOrientation(io.getName(), yaw, yawVel, pitch, pitchVel, roll, rollVel);
         }
     }
 }

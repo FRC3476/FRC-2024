@@ -376,6 +376,10 @@ public class Drive extends AbstractSubsystem {
         Logger.recordOutput("Drive/Target Pose", target);
     }
 
+    public double getGyroYawVel() {
+        return gyroInputs.yawVelocityRadPerSec;
+    }
+
     private String getModuleName(int i) {
         return switch(i) {
             case 0 -> "FL";

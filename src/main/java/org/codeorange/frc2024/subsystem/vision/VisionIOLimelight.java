@@ -40,7 +40,8 @@ public class VisionIOLimelight implements VisionIO {
         inputs.timestamp = Logger.getRealTimestamp() * 1e-6 - (Units.millisecondsToSeconds(cl + tl));
         inputs.captureLatency = cl;
         inputs.pipelineLatency = tl;
-        inputs.botPose2d = measurement.pose;
+        inputs.botPose2d = LimelightHelpers.getBotPose2d_wpiBlue(limelightName);
+        inputs.botPose2dMegatag2 = measurement.pose;
         inputs.tagCount = measurement.tagCount;
         inputs.avgDist = measurement.avgTagDist;
         inputs.botPose3d = LimelightHelpers.getBotPose3d_wpiBlue(limelightName);
