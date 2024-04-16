@@ -104,10 +104,6 @@ public class Drive extends AbstractSubsystem {
         poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp, visionMeasurementStdevs);
     }
 
-    double lastTimeStep;
-    @AutoLogOutput(key = "Drive/Is Open Loop")
-    public boolean isOpenLoop = false;
-
     private Rotation2d rawGyroRotation = new Rotation2d();
     @Override
     public synchronized void update() {

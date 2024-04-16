@@ -313,7 +313,6 @@ public class Robot extends LoggedRobot {
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        drive.isOpenLoop = true;
         AutoManager.getInstance().loadAuto(autoChooser.get());
         AutoManager.getInstance().startAuto();
     }
@@ -341,7 +340,6 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        drive.isOpenLoop = true;
         drive.setBrakeMode(true);
         shooter.stop();
     }
