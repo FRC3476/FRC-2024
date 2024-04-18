@@ -308,7 +308,7 @@ public class Drive extends AbstractSubsystem {
     }
 
     public double passingAngle() {
-        Translation2d target = Robot.isRed() ? new Translation2d(14.6, 7) : new Translation2d(FIELD_LENGTH_METERS - 14.6, 7);
+        Translation2d target = Robot.isRed() ? new Translation2d(14.6, 6) : new Translation2d(FIELD_LENGTH_METERS - 14.6, 6);
         Rotation2d targetAngle = target.minus(getPose().getTranslation()).getAngle();
 
         return targetAngle.rotateBy(Rotation2d.fromDegrees(180)).getRadians();

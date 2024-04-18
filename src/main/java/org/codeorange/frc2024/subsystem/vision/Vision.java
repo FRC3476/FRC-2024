@@ -23,7 +23,7 @@ public class Vision extends AbstractSubsystem {
     private static final String LL_BACK = "limelight-back";
     private static Drive drive;
     double fieldBorderMargin = 0.15;
-    public double defaultXYStdev = 0.7;
+    public double defaultXYStdev = 0.3;
 
 
     public static final LoggedDashboardChooser<Boolean> visionChooser;

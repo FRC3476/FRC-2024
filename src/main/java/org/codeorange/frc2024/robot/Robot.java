@@ -444,6 +444,8 @@ public class Robot extends LoggedRobot {
         } else if(flightStick.getRawButton(9)) {
             // outtake
             intake.setDutyCycle(-0.075);
+        } else if(flightStick.getRawButton(7)) {
+            intake.weird();
         } else {
             intake.plsStop();
         }

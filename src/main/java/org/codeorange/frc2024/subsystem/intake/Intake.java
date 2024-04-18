@@ -104,6 +104,10 @@ public class Intake extends AbstractSubsystem {
 
     }
 
+    public void weird() {
+        intakeIO.setMotorVoltage(intakeInputs.beamBreak2 ? -2 : 2);
+    }
+
     public void stop() {
         intakeIO.setMotorDutyCycle(0);
     }

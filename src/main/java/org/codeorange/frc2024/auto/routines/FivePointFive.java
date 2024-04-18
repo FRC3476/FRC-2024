@@ -31,7 +31,7 @@ public class FivePointFive extends BaseRoutine {
         sequenceAction(new ParallelAction(
                 new SeriesAction(
                         new GroundIntake(),
-                        new ShootFromGround(32.5),
+                        new ShootFromGround(Robot.isRed() ? 31.5 : 32.5),
                         new RunKicker()
                 ), new SeriesAction(
                 new Wait(0.15),
@@ -63,7 +63,7 @@ public class FivePointFive extends BaseRoutine {
                 ),
                 new SeriesAction(
                         new GroundIntake(),
-                        new ShootFromGround(Robot.isRed() ? 30.0 : 30)
+                        new ShootFromGround(Robot.isRed() ? 29.0 : 30)
                 )
         ));
         sequenceAction(new SeriesAction(
