@@ -11,7 +11,10 @@ public interface ModuleIO {
         public double steerMotorAbsolutePosition;
         MotorInputs steerMotor = new MotorInputs();
 
-        public double[] odometryTimestamps = new double[] {};
+        //public double[] odometryTimestamps = new double[] {};
+
+        public double[] odometryDriveTimestamps = new double[] {};
+        public double[] odometryTurnTimestamps = new double[] {};
         public double[] odometryDrivePositionsMeters = new double[] {};
         public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
     }

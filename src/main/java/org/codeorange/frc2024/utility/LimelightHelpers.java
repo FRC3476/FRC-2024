@@ -610,6 +610,14 @@ public class LimelightHelpers {
         return getLimelightNTDouble(limelightName, "cl");
     }
 
+    public static double getRIOFPGACaptureTimestamp(String limelightName) {
+        return getLimelightNTDouble(limelightName, "ts_rio");
+    }
+
+    public static double getLimelightPublishTimestamp(String limelightName) {
+        return getLimelightNTDouble(limelightName, "ts");
+    }
+
     public static double getCurrentPipelineIndex(String limelightName) {
         return getLimelightNTDouble(limelightName, "getpipe");
     }

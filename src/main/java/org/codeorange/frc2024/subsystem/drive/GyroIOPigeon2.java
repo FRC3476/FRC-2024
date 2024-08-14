@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.OrangeUtility;
@@ -21,7 +22,7 @@ public class GyroIOPigeon2 implements GyroIO {
     private final StatusSignal<Double> pitchVelocityDegPerSec;
     private final StatusSignal<Double> rollPositionDeg;
     private final StatusSignal<Double> rollVelocityDegPerSec;
-    private final Queue<Double> yawPositionQueue;
+    private final Queue<Pair<Double, Double>> yawPositionQueue;
     private final Queue<Double> yawTimestampQueue;
     private final StatusSignal<Double> uptime;
 

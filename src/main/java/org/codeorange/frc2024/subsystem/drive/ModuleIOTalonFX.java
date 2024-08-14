@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.codeorange.frc2024.utility.OrangeUtility;
 import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
@@ -22,9 +23,10 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFXAutoLogger steerMotorLogger;
 
     private final Queue<Double> timestampQueue;
-    private final Queue<Double> driveMotorPositionQueue;
+
+    private final Queue<Pair<Double,Double>> driveMotorPositionQueue;
     private final StatusSignal<Double> steerMotorAbsolutePosition;
-    private final Queue<Double> steerMotorPositionQueue;
+    private final Queue<Pair<Double,Double>> steerMotorPositionQueue;
 
 
     private final CANcoder swerveCancoder;
@@ -136,15 +138,17 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         inputs.steerMotorAbsolutePosition = steerMotorAbsolutePosition.refresh().getValue();
 
-
+        //drive
         inputs.odometryDrivePositionsMeters =
-                driveMotorPositionQueue.stream().mapToDouble((value) -> value).toArray();
+                driveMotorPositionQueue.stream().mapToDouble(Pair::getSecond).toArray();
+        inputs.odometryDriveTimestamps = driveMotorPositionQueue.stream().mapToDouble(Pair::getFirst).toArray();
+        //turning
         inputs.odometryTurnPositions =
-                steerMotorPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
-        inputs.odometryTimestamps = timestampQueue.stream().mapToDouble((value) -> value).toArray();
+                steerMotorPositionQueue.stream().mapToDouble(Pair::getSecond).mapToObj(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
+        inputs.odometryTurnTimestamps = steerMotorPositionQueue.stream().mapToDouble(Pair::getFirst).toArray();
+
         driveMotorPositionQueue.clear();
         steerMotorPositionQueue.clear();
-        timestampQueue.clear();
     }
 
     private boolean isBraking = false;

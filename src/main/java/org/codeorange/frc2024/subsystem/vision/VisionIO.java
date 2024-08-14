@@ -18,6 +18,8 @@ public interface VisionIO {
         double timestamp;
         int tagCount;
         double avgDist;
+        double RIOFPGACaptureTimestamp;
+        double LimelightPublishTimestamp;
     }
 
     default void updateInputs(VisionInputs inputs) {}

@@ -37,6 +37,11 @@ public class VisionIOLimelight implements VisionIO {
         double cl = LimelightHelpers.getLatency_Capture(limelightName);
         double tl = LimelightHelpers.getLatency_Pipeline(limelightName);
 
+        double tsRio = LimelightHelpers.getRIOFPGACaptureTimestamp(limelightName);
+        double ts = LimelightHelpers.getLimelightPublishTimestamp(limelightName);
+
+        inputs.RIOFPGACaptureTimestamp = tsRio;
+        inputs.LimelightPublishTimestamp = ts;
         inputs.timestamp = Logger.getRealTimestamp() * 1e-6 - (Units.millisecondsToSeconds(cl + tl));
         inputs.captureLatency = cl;
         inputs.pipelineLatency = tl;
