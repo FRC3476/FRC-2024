@@ -120,7 +120,18 @@ public class Drive extends AbstractSubsystem {
 
         SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
 
-        double[] sampleTimestamps = moduleInputs[0].odometryTimestamps;
+        double[] sampleTimestamps = new double[gyroInputs.odometryYawTimestamps.length];//moduleInputs[0].odometryTimestamps;
+        for(int i = 0; i < sampleTimestamps.length; i++)
+        {
+            sampleTimestamps[i] = gyroInputs.odometryYawTimestamps[i];
+            for(int m = 0; m < 4; m++) {
+
+                sampleTimestamps[i] += moduleInputs[m].odometryDriveTimestamps[i] +
+                        moduleInputs[m].odometryTurnTimestamps[i];
+            }
+
+            sampleTimestamps[i] = sampleTimestamps[i]/9.0;
+        }
         int sampleCount = sampleTimestamps.length;
         for (int i = 0; i < sampleCount; i++) {
             for (int j = 0; j < 4; j++) {

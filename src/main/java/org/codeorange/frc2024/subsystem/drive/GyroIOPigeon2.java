@@ -10,6 +10,8 @@ import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.OrangeUtility;
 
 import java.util.Queue;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -75,8 +77,8 @@ public class GyroIOPigeon2 implements GyroIO {
         inputs.rotation3d = pigeon.getRotation3d();
         inputs.rotation2d = pigeon.getRotation2d();
 
-        inputs.odometryYawTimestamps = yawTimestampQueue.stream().mapToDouble((val) -> val).toArray();
-        inputs.odometryYawPositions = yawPositionQueue.stream().map(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
+        inputs.odometryYawTimestamps = yawPositionQueue.stream().mapToDouble(Pair::getFirst).toArray();
+        inputs.odometryYawPositions = yawPositionQueue.stream().mapToDouble(Pair::getSecond).mapToObj(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
         yawTimestampQueue.clear();
         yawPositionQueue.clear();
     }
