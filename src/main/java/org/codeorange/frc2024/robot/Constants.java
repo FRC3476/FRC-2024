@@ -122,10 +122,10 @@ public final class Constants {
 
             }
             case HALEIWA -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.15625;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.52392578125;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.857666015625;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.380126953125;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.153076171875;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.521728515625;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.823486328125;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.40478515625;
                 WRIST_ABSOLUTE_ENCODER_OFFSET = 0.07177734375;
                 ARM_ABSOLUTE_ENCODER_OFFSET = 0.380859375;
             }
@@ -252,6 +252,8 @@ public final class Constants {
     // perimeters of the field, Width is the side where drivers stand
     public static final double FIELD_WIDTH_METERS = 8.0137;
     public static final double FIELD_LENGTH_METERS = 16.54175;
+
+    public static final double LIMELIGHT_TRANSMISSION_DELAY = 0.1;
 
     public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
 

@@ -50,7 +50,7 @@ public class Vision extends AbstractSubsystem {
             visionIO[i].updateInputs(visionInputs[i]);
             Logger.processInputs("Vision/" + visionIO[i].getName(), visionInputs[i]);
 
-            if(Robot.getDrive().getGyroYawVel() > Math.PI) {
+            if(Math.abs(Robot.getDrive().getGyroYawVel()) > Math.PI) {
                 processVisionData(visionIO[i], visionInputs[i]);
             } else {
                 processVisionDataMT2(visionIO[i], visionInputs[i]);
@@ -65,11 +65,12 @@ public class Vision extends AbstractSubsystem {
         if(inputs.tagCount < 1) return;
 
         if(unconditionallyTrustVision.get()) {
-            drive.addVisionMeasurement(
-                    inputs.botPose2d,
-                    inputs.timestamp,
-                    VecBuilder.fill(0.01, 0.01, 1)
-            );
+//            drive.addVisionMeasurement(
+//                    inputs.botPose2d,
+//                    inputs.timestamp,
+//                    VecBuilder.fill(0.01, 0.01, 1)
+//            );
+            drive.resetOdometry(inputs.botPose2d);
         }
 
         //exit if data sucks
@@ -108,11 +109,12 @@ public class Vision extends AbstractSubsystem {
         if(inputs.tagCount < 1) return;
 
         if(unconditionallyTrustVision.get()) {
-            drive.addVisionMeasurement(
-                    inputs.botPose2d,
-                    inputs.timestamp,
-                    VecBuilder.fill(0.01, 0.01, 1)
-            );
+//            drive.addVisionMeasurement(
+//                    inputs.botPose2d,
+//                    inputs.timestamp,
+//                    VecBuilder.fill(0.01, 0.01, 1)
+//            );
+            drive.resetOdometry(inputs.botPose2d);
         }
 
         //exit if data sucks

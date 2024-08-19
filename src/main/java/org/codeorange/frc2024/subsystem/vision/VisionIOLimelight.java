@@ -3,6 +3,7 @@ package org.codeorange.frc2024.subsystem.vision;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
@@ -42,7 +43,7 @@ public class VisionIOLimelight implements VisionIO {
 
         inputs.RIOFPGACaptureTimestamp = tsRio;
         inputs.LimelightPublishTimestamp = ts;
-        inputs.timestamp = Logger.getRealTimestamp() * 1e-6 - (Units.millisecondsToSeconds(cl + tl));
+        inputs.timestamp = Logger.getRealTimestamp() * 1e-6 - (Units.millisecondsToSeconds(cl + tl) + Constants.LIMELIGHT_TRANSMISSION_DELAY);
         inputs.captureLatency = cl;
         inputs.pipelineLatency = tl;
         inputs.botPose2d = LimelightHelpers.getBotPose2d_wpiBlue(limelightName);

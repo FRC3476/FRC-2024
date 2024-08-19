@@ -251,6 +251,14 @@ public class Drive extends AbstractSubsystem {
         return SWERVE_DRIVE_KINEMATICS.toChassisSpeeds(realStates);
     }
 
+    @AutoLogOutput(key = "Drive/Real Field Chassis Speeds")
+    public ChassisSpeeds getFieldChassisSpeeds() {
+        ChassisSpeeds bot_rel = SWERVE_DRIVE_KINEMATICS.toChassisSpeeds(realStates);
+        var rotated =
+                new Translation2d(bot_rel.vxMetersPerSecond, bot_rel.vyMetersPerSecond).rotateBy(gyroInputs.rotation2d);
+        return new ChassisSpeeds(rotated.getX(), rotated.getY(), bot_rel.omegaRadiansPerSecond);
+    }
+
     public synchronized void drive(@NotNull ControllerDriveInputs inputs, boolean fieldRel, boolean openLoop) {
         SecondOrderModuleState[] states =
                 SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(
