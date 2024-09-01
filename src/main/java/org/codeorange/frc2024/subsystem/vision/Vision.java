@@ -129,7 +129,7 @@ public class Vision extends AbstractSubsystem {
         ) return;
 
         //exit if rotation doesn't match gyro measurement
-        if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2d.getRotation()).getDegrees()) > 5) return;
+        if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2dMegatag2.getRotation()).getDegrees()) > 5) return;
 
         //exit if tags are too far in auto
 //        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;

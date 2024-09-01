@@ -104,7 +104,7 @@ public class OdometryThread extends Thread {
                     timestamp -= totalLatency / signals.length;
                 } */
                 for (int i = 0; i < signals.length; i++) {
-                    queues.get(i).offer(new Pair<>(signals[i].getTimestamp().getTime(), signals[i].getValueAsDouble()));
+                    queues.get(i).offer(new Pair<>(timestamp - signals[i].getTimestamp().getLatency(), signals[i].getValueAsDouble()));
                 }
 //               for (int i = 0; i < timestampQueues.size(); i++) {
 //                    timestampQueues.get(i).offer(timestamp);

@@ -253,7 +253,7 @@ public final class Constants {
     public static final double FIELD_WIDTH_METERS = 8.0137;
     public static final double FIELD_LENGTH_METERS = 16.54175;
 
-    public static final double LIMELIGHT_TRANSMISSION_DELAY = 0.1;
+    public static final double LIMELIGHT_TRANSMISSION_DELAY = 0.05;
 
     public static final ArmFeedforward ARM_FEEDFORWARD = new ArmFeedforward(0.32, 0.34, 0, 0);
 
