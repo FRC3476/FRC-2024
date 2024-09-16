@@ -122,11 +122,11 @@ public final class Constants {
 
             }
             case HALEIWA -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.14990234375;
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.521484375;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.823974609375;
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.4541015625;
-                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.394775390625;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.144287;
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.521729;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.796631;
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.378418;
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.394287;
                 ARM_ABSOLUTE_ENCODER_OFFSET = 0.380859375;
             }
             default -> {
