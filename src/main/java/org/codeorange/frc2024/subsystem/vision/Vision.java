@@ -132,11 +132,13 @@ public class Vision extends AbstractSubsystem {
         if(Math.abs(drive.getPose().getRotation().minus(inputs.botPose2dMegatag2.getRotation()).getDegrees()) > 5) return;
 
         //exit if tags are too far in auto
-//        if(inputs.avgDist > 4 && DriverStation.isAutonomous()) return;
+        if(inputs.avgDist > 5.5) return;
 
         double xyStdev = defaultXYStdev;
 
         if(inputs.tagCount < 2) {
+            xyStdev *= inputs.avgDist*inputs.avgDist;
+        } else {
             xyStdev *= inputs.avgDist;
         }
 

@@ -27,10 +27,12 @@ public class TwoFarSource extends BaseRoutine {
         sequenceAction(new Wait(0.2));
         sequenceAction(new RunKicker());
         sequenceAction(new Stow());
-        sequenceAction(new ParallelAction(new DrivePath(driveToFirstNote), new SeriesAction(new Wait(0.2), new GroundIntake(), new Stow(), new Wait(0.4), new ShootFromStow(31))));
+        sequenceAction(new ParallelAction(new DrivePath(driveToFirstNote), new SeriesAction(new Wait(
+                0.2), new GroundIntake(), new Stow(), new Wait(0.4), new ShootFromStow(
+                        31))));
         sequenceAction(new Wait(0.05));
         sequenceAction(new RunKicker());
         sequenceAction(new Stow());
-        sequenceAction(new StopShooter());
+        sequenceAction(new StopShooter())    ;
     }
 }
