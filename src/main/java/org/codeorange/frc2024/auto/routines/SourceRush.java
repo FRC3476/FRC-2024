@@ -27,11 +27,11 @@ public class SourceRush extends BaseRoutine {
         sequenceAction(new ResetOdometry(driveToFirstNote.sample(0)));
         sequenceAction(
                 new ParallelAction(
+                        new SpitIntake(),
                         new SeriesAction(
-                            new SpitIntake(),
-                            new GroundIntake(), new Stow(), new Wait(0.4), new ShootFromStow(31)
-                        ),
-                        new SeriesAction(new DrivePath(driveToFirstNote), new RunKicker())
+                                new Wait(1.2),
+                            new GroundIntake(0.7), new Stow(), new RunIntake(0.4), new ShootFromStow(31)),
+                        new DrivePath(driveToFirstNote)
                 )
         );
         /*
@@ -42,7 +42,7 @@ public class SourceRush extends BaseRoutine {
         driveToThirdNote)));
         sequenceAction(new ShootFromGround(31.5));
          */
-        sequenceAction(new Wait(0.15)); //need to chang time
+        sequenceAction(new Wait(0.05));
         sequenceAction(new RunKicker());
         sequenceAction(new Stow());
         sequenceAction(new StopShooter());

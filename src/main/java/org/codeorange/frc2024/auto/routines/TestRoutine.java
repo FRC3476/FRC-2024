@@ -17,13 +17,18 @@ public class TestRoutine extends BaseRoutine {
         driveToCenter = Choreo.getTrajectory("Test.2");
         drive = Robot.getDrive();
     }
+
     @Override
     protected void configureRoutine() {
         sequenceAction(new ResetOdometry(driveToFirstNote.getInitialState()));
+        sequenceAction(new SeriesAction(new GroundIntake(0.8), new Stow(), new Wait(0.4)));
+        /*
         sequenceAction(new SeriesAction(
                 new DrivePath(driveToFirstNote),
                 new Wait(1),
                 new DrivePath(driveToCenter)
         ));
+
+         */
     }
 }

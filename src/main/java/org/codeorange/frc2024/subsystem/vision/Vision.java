@@ -137,7 +137,7 @@ public class Vision extends AbstractSubsystem {
         double xyStdev = defaultXYStdev;
 
         if(inputs.tagCount < 2) {
-            xyStdev *= inputs.avgDist*inputs.avgDist;
+            xyStdev *= inputs.avgDist*inputs.avgDist*inputs.avgDist;
         } else {
             xyStdev *= inputs.avgDist;
         }

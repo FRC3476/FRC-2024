@@ -10,15 +10,24 @@ public class GroundIntake implements BaseAction {
     private final Superstructure superstructure = Superstructure.getSuperstructure();
     private final Intake intake = Robot.getIntake();
     private double startTime;
+
+    private double duty_cycle;
     @Override
     public void start() {
         superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
         startTime = Timer.getFPGATimestamp();
     }
 
+    public GroundIntake(double duty_cycle) {
+        this.duty_cycle = duty_cycle;
+    }
+    public GroundIntake() {
+        this.duty_cycle = 0.4;
+    }
+
     @Override
     public void update() {
-        intake.runIntake(0.4);
+        intake.runIntake(duty_cycle);
     }
 
     @Override

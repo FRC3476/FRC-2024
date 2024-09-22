@@ -6,44 +6,34 @@ import org.littletonrobotics.junction.Logger;
 
 
 
-public class SpitIntake implements BaseAction {
+public class RunIntake implements BaseAction {
     private final Intake intake;
     private double leftIntakeTimestamp = Double.POSITIVE_INFINITY;
     private boolean prevHasNote = true;
+    private double waitTime = 0.4;
 
-    public SpitIntake() {
+    public RunIntake(double waitTime) {
         intake = Robot.getIntake();
+        waitTime = this.waitTime;
     }
 
     @Override
     public void start(){
-        if(intake.hasNote()) {
-            intake.runOuttake(-5);
-        }
+        intake.runIntake(0.4);
         leftIntakeTimestamp = Logger.getRealTimestamp() * 1e-6;
     }
 
     @Override
     public void update() {
-        if(intake.hasNote()) {
-            intake.runOuttake(-5);
-        }
-        if(!intake.hasNote() && prevHasNote) {
-            leftIntakeTimestamp = Logger.getRealTimestamp() * 1e-6;
-
-        }
-
-        if(isFinished())
-        {
+        if (isFinished()) {
             intake.stop();
         }
-
-        prevHasNote = intake.hasNote();
     }
+
 
     @Override
     public boolean isFinished() {
-        return Logger.getRealTimestamp() * 1e-6 > leftIntakeTimestamp + 0.3;
+        return Logger.getRealTimestamp() * 1e-6 > leftIntakeTimestamp + waitTime;
     }
 
     @Override
@@ -51,4 +41,3 @@ public class SpitIntake implements BaseAction {
         intake.stop();
     }
 }
-

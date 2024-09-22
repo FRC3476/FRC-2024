@@ -53,7 +53,6 @@ public class Intake extends AbstractSubsystem {
         beamBreak2Event
                 .debounce(0.1)
                 .ifHigh(() -> {
-                    if(DriverStation.isAutonomous()) return;
                     if(neverBackedOut) {
                         intakeIO.setMotorVoltage(-2);
                         neverBackedOut = false;
@@ -79,12 +78,12 @@ public class Intake extends AbstractSubsystem {
         intakeIO.updateInputs(intakeInputs);
         Logger.processInputs("Intake", intakeInputs);
 
-        hasNoteDebounced = DriverStation.isTeleop() ? beamBreakDebouncer.calculate(intakeInputs.beamBreak) : intakeInputs.beamBreak;
+        hasNoteDebounced = beamBreakDebouncer.calculate(intakeInputs.beamBreak);
     }
 
 
     public void runIntake(double dutyCycle) {
-        if ((!intakeInputs.beamBreak2 && !backedOut) || DriverStation.isAutonomous()) {
+        if ((!intakeInputs.beamBreak2 && !backedOut) /*|| DriverStation.isAutonomous()*/) {
             intakeIO.setMotorDutyCycle(dutyCycle);
         }
     }
@@ -120,7 +119,7 @@ public class Intake extends AbstractSubsystem {
 
     @AutoLogOutput(key = "Intake/Has Note Debounced")
     public boolean hasNote() {
-        return DriverStation.isAutonomous() ? intakeInputs.beamBreak : hasNoteDebounced;
+        return hasNoteDebounced;
     }
 
     public boolean noteLeft() {

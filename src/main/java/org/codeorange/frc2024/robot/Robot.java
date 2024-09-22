@@ -200,9 +200,10 @@ public class Robot extends LoggedRobot {
         autoChooser.addOption("Shoot Do Nothing Source", 2);
         autoChooser.addOption("Shoot and Leave Source", 6);
         autoChooser.addOption("Shoot and Leave Amp", 7);
-        autoChooser.addOption("Test", 3);
+        autoChooser.addOption("Test", 99);
         autoChooser.addOption("Four Piece", 4);
         autoChooser.addOption("Center Source Side 3 Piece", 5);
+        autoChooser.addOption("Source Rush", 3);
         autoChooser.addOption("Two Far Source", 8);
         autoChooser.addOption("Cursed path", 9);
         autoChooser.addOption("3.5 Far Source", 10);
