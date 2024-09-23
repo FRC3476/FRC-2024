@@ -24,7 +24,7 @@ public class ShootFromGround implements BaseAction {
     @Override
     public void start() {
         superstructure.isFlipped = false;
-        if(intake.hasNote()) {
+        if(intake.hasNoteNoDebounce()) {
             superstructure.setGoalState(Superstructure.States.SPEAKER_AUTO);
         }
         intake.stop();
@@ -34,6 +34,8 @@ public class ShootFromGround implements BaseAction {
 
     @Override
     public boolean isFinished() {
-        return superstructure.getCurrentState().isAtWantedState() && superstructure.isAtGoalState() && (shooter.isAtTargetVelocity() || (shooter.isAtTargetVelocityTimeout() && Timer.getFPGATimestamp() > shotStartTime + 1.5)) || !intake.hasNote();
+        return superstructure.getCurrentState().isAtWantedState() && superstructure.isAtGoalState() &&
+                (shooter.isAtTargetVelocity() || (shooter.isAtTargetVelocityTimeout() && Timer.getFPGATimestamp()
+                        > shotStartTime + 1.5)) || !intake.hasNoteNoDebounce();
     }
 }

@@ -12,27 +12,47 @@ public class GroundIntake implements BaseAction {
     private double startTime;
 
     private double duty_cycle;
+    private boolean hesitant;
+
     @Override
     public void start() {
         superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
         startTime = Timer.getFPGATimestamp();
     }
 
+    public GroundIntake(double duty_cycle, boolean hesitant) {
+        this.duty_cycle = duty_cycle;
+        this.hesitant = hesitant;
+    }
+
     public GroundIntake(double duty_cycle) {
         this.duty_cycle = duty_cycle;
+        this.hesitant = false;
     }
+
+    public GroundIntake(boolean hesitant) {
+        this.duty_cycle = 0.4;
+        this.hesitant = hesitant;
+    }
+
     public GroundIntake() {
         this.duty_cycle = 0.4;
+        this.hesitant = false;
     }
 
     @Override
     public void update() {
-        intake.runIntake(duty_cycle);
+        if (hesitant ? intake.hasNoteNoDebounce() : intake.hasNote()){
+            intake.stop();
+        }else{
+            intake.runIntake(duty_cycle);
+        }
     }
+// t/f ? T : F
 
     @Override
     public boolean isFinished() {
-        return intake.hasNote() || (Timer.getFPGATimestamp() - startTime) > 1.5;
+        return (hesitant ? intake.hasNoteNoDebounce() : intake.hasNote()) || (Timer.getFPGATimestamp() - startTime) > 1.5;
     }
 
     @Override

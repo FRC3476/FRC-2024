@@ -122,6 +122,8 @@ public class Intake extends AbstractSubsystem {
         return hasNoteDebounced;
     }
 
+    public boolean hasNoteNoDebounce(){return intakeInputs.beamBreak;}
+
     public boolean noteLeft() {
         return beamBreak2Debouncer.calculate(intakeInputs.beamBreak2);
     }

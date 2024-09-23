@@ -30,7 +30,7 @@ public class SourceRush extends BaseRoutine {
                         new SpitIntake(),
                         new SeriesAction(
                                 new Wait(1.2),
-                            new GroundIntake(0.7), new Stow(), new RunIntake(0.4), new ShootFromStow(31)),
+                            new GroundIntake(0.7), new Stow(), new RunIntake(0.4), new Wait(0.3), new ShootFromStow(33.5)),
                         new DrivePath(driveToFirstNote)
                 )
         );
