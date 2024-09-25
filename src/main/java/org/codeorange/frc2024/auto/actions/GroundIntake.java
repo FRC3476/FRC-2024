@@ -6,6 +6,9 @@ import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.subsystem.intake.Intake;
 import org.littletonrobotics.junction.Logger;
 
+/**
+ * ground intake take 0.7 second to go from stove to out&read
+ */
 public class GroundIntake implements BaseAction {
     private final Superstructure superstructure = Superstructure.getSuperstructure();
     private final Intake intake = Robot.getIntake();
@@ -42,13 +45,22 @@ public class GroundIntake implements BaseAction {
 
     @Override
     public void update() {
-        if (hesitant ? intake.hasNoteNoDebounce() : intake.hasNote()){
-            intake.stop();
-        }else{
-            intake.runIntake(duty_cycle);
+        if(hesitant) {
+            if (intake.hasNoteNoDebounce()) {
+                intake.stop();
+            } else {
+                intake.runIntake(duty_cycle);
+            }
+        }
+        else
+        {
+            if (intake.hasNote()) {
+                intake.plsStop();
+            } else {
+                intake.runIntake(duty_cycle);
+            }
         }
     }
-// t/f ? T : F
 
     @Override
     public boolean isFinished() {
@@ -57,6 +69,12 @@ public class GroundIntake implements BaseAction {
 
     @Override
     public void done() {
-        intake.stop();
+        if(hesitant)
+        {
+            intake.stop();
+        }
+        else {
+            intake.plsStop();
+        }
     }
 }

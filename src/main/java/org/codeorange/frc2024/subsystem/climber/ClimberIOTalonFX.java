@@ -11,8 +11,10 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import org.codeorange.frc2024.robot.Constants;
+import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.utility.OrangeUtility;
 import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
+import org.littletonrobotics.junction.Logger;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -85,12 +87,19 @@ public class ClimberIOTalonFX implements ClimberIO {
 
     public void open() {
         servoLeft.setPosition(0.5); //to compensate for bad servo programming :) opens left when facing robot-relative
+        Logger.recordOutput("Left Servo Position", servoLeft.getPosition());
         servoRight.setPosition(0.3); //opens to the right when facing robot-relative
+        Logger.recordOutput("Right Servo Position", servoRight.getPosition());
+
+        Logger.recordOutput("Climber Servo State", "Open");
+
     }
 
     public void close() {
         servoLeft.setPosition(0.1); //should be about 90 degrees
         servoRight.setPosition(1.0); //should be about 90 degrees
+
+        Logger.recordOutput("Climber Servo State", "Close");
     }
 
     public void stop() {

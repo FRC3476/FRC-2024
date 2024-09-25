@@ -9,7 +9,7 @@ import org.littletonrobotics.junction.Logger;
 public class RunIntake implements BaseAction {
     private final Intake intake;
     private double leftIntakeTimestamp = Double.POSITIVE_INFINITY;
-    private boolean prevHasNote = true;
+
     private double waitTime = 0.4;
 
     public RunIntake(double waitTime) {
@@ -26,7 +26,7 @@ public class RunIntake implements BaseAction {
     @Override
     public void update() {
         if (isFinished()) {
-            intake.stop();
+            intake.plsStop();
         }
     }
 

@@ -35,7 +35,7 @@ public class SpitIntake implements BaseAction {
 
         if(isFinished())
         {
-            intake.stop();
+            intake.plsStop();
         }
 
         prevHasNote = intake.hasNote();
@@ -48,7 +48,7 @@ public class SpitIntake implements BaseAction {
 
     @Override
     public void done() {
-        intake.stop();
+        intake.plsStop();
     }
 }
 

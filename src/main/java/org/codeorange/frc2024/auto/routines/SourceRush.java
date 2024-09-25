@@ -18,11 +18,11 @@ public class SourceRush extends BaseRoutine {
         if(Robot.isRed()) {
             driveToFirstNote = Choreo.getTrajectory("source_rush_red.1");
             driveToSecondNote = Choreo.getTrajectory("source_rush_red.2");
-            driveToThirdNote = Choreo.getTrajectory("source_rush_red.3");
+            //driveToSecondShot = Choreo.getTrajectory("source_rush_red.2");
         } else {
             driveToFirstNote = Choreo.getTrajectory("source_rush_blue.1");
             driveToSecondNote = Choreo.getTrajectory("source_rush_blue.2");
-            driveToThirdNote = Choreo.getTrajectory("source_rush_blue.3");
+            //driveToSecondShot = Choreo.getTrajectory("source_rush_blue.2");
         }
         sequenceAction(new ResetOdometry(driveToFirstNote.sample(0)));
         sequenceAction(
@@ -30,8 +30,19 @@ public class SourceRush extends BaseRoutine {
                         new SpitIntake(),
                         new SeriesAction(
                                 new Wait(1.2),
-                            new GroundIntake(0.7), new Stow(), new RunIntake(0.4), new Wait(0.3), new ShootFromStow(33.5)),
+                            new GroundIntake(0.7,true), new Stow(), new RunIntake(0.4), new Wait(0.3), new ShootFromStow(33.5)),
                         new DrivePath(driveToFirstNote)
+                )
+        );
+        sequenceAction(new Wait(0.05));
+        sequenceAction(new RunKicker());
+        sequenceAction(new Stow());
+        sequenceAction(
+                new ParallelAction(
+                        new SeriesAction(
+                                new Wait(0.5),
+                                new GroundIntake(0.7), new Stow(), new Wait(1.0), new ShootFromStow(34)),
+                        new DrivePath(driveToSecondNote) ////driveToSecondShot?
                 )
         );
         /*

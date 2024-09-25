@@ -122,10 +122,10 @@ public final class Constants {
 
             }
             case HALEIWA -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.142333984375;//0
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.521240234375;//-.01
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.796142578125;//0
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.6318359375;//changed module
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.210693359375;//magnet changed
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.523681640625;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.876708984375;//magnet changed
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.88134765625;//magnet changed
                 WRIST_ABSOLUTE_ENCODER_OFFSET = -0.394287;
                 ARM_ABSOLUTE_ENCODER_OFFSET = 0.380859375;
             }
