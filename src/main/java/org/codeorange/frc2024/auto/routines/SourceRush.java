@@ -29,19 +29,18 @@ public class SourceRush extends BaseRoutine {
                 new ParallelAction(
                         new SpitIntake(),
                         new SeriesAction(
-                                new Wait(1.2),
+                                new Wait(1.1),
                             new GroundIntake(0.7,true), new Stow(), new RunIntake(0.4), new Wait(0.3), new ShootFromStow(33.5)),
                         new DrivePath(driveToFirstNote)
                 )
         );
         sequenceAction(new Wait(0.05));
         sequenceAction(new RunKicker());
-        sequenceAction(new Stow());
         sequenceAction(
                 new ParallelAction(
                         new SeriesAction(
                                 new Wait(0.5),
-                                new GroundIntake(0.7), new Stow(), new Wait(1.0), new ShootFromStow(34)),
+                                new GroundIntake(0.7, true), new Stow(), new Wait(1.0), new ShootFromStow(36)),
                         new DrivePath(driveToSecondNote) ////driveToSecondShot?
                 )
         );

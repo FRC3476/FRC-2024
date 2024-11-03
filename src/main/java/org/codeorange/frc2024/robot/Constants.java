@@ -122,11 +122,11 @@ public final class Constants {
 
             }
             case HALEIWA -> {
-                FL_ABSOLUTE_ENCODER_OFFSET = -0.210693359375;//magnet changed
-                BL_ABSOLUTE_ENCODER_OFFSET = -0.523681640625;
-                FR_ABSOLUTE_ENCODER_OFFSET = -0.876708984375;//magnet changed
-                BR_ABSOLUTE_ENCODER_OFFSET = -0.88134765625;//magnet changed
-                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.394287;
+                FL_ABSOLUTE_ENCODER_OFFSET = -0.21044921875;//magnet changed
+                BL_ABSOLUTE_ENCODER_OFFSET = -0.525146484375;
+                FR_ABSOLUTE_ENCODER_OFFSET = -0.877197265625;//magnet changed
+                BR_ABSOLUTE_ENCODER_OFFSET = -0.883056640625;//magnet changed
+                WRIST_ABSOLUTE_ENCODER_OFFSET = -0.311767578125; //change!!!!!!!!!!!
                 ARM_ABSOLUTE_ENCODER_OFFSET = 0.380859375;
             }
             default -> {
@@ -261,11 +261,11 @@ public final class Constants {
     public static class AngleLookupInterpolation {
         public static final InterpolatingDoubleTreeMap SHOOTER_ANGLE_BACK_LOW = new InterpolatingDoubleTreeMap();
         static {
-            SHOOTER_ANGLE_BACK_LOW.put(1.28, 52.0);
-            SHOOTER_ANGLE_BACK_LOW.put(1.50, 47.0);
-            SHOOTER_ANGLE_BACK_LOW.put(1.75, 45.0);
-            SHOOTER_ANGLE_BACK_LOW.put(2.0, 43.0);
-            SHOOTER_ANGLE_BACK_LOW.put(2.5, 39.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.28, 53.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.50, 48.0);
+            SHOOTER_ANGLE_BACK_LOW.put(1.75, 45.5);
+            SHOOTER_ANGLE_BACK_LOW.put(2.0, 43.5);
+            SHOOTER_ANGLE_BACK_LOW.put(2.5, 39.5);
             SHOOTER_ANGLE_BACK_LOW.put(3.0, 36.0);
             SHOOTER_ANGLE_BACK_LOW.put(3.5, 30.5);
             SHOOTER_ANGLE_BACK_LOW.put(4.0, 28.4);
