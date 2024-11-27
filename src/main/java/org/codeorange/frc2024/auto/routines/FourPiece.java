@@ -33,7 +33,7 @@ public class FourPiece extends BaseRoutine {
                 new SeriesAction(
                         new GroundIntake(true),
                         new GroundIntake(1.0,true),
-                        new ShootFromGround(32),
+                        new ShootFromGround(31.5),
                         new Wait(0.15),
                         new RunKicker()
                 ), new SeriesAction(
@@ -42,7 +42,7 @@ public class FourPiece extends BaseRoutine {
         )));
         //drive to second note intake and shoot it
         sequenceAction(new ParallelAction(new SeriesAction(new Wait(0.5), new GroundIntake(true),
-                new GroundIntake(1.0,true), new ShootFromGround(Robot.isRed() ? 30 : 32),
+                new GroundIntake(1.0,true), new ShootFromGround(Robot.isRed() ? 30.5 : 32),
                 new Wait(0.15), new RunKicker()), new SeriesAction(new DrivePath(driveToSecondNote))));
         //drive to 3rd note intake and shoot it
         sequenceAction(new ParallelAction(new SeriesAction(new Wait(0.5), new GroundIntake(true),
