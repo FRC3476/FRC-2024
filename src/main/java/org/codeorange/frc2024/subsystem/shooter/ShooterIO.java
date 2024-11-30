@@ -6,19 +6,19 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ShooterIO {
     @AutoLog
     class ShooterInputs {
-        MotorInputs leadMotor = new MotorInputs();
-        MotorInputs followMotor = new MotorInputs();
+        MotorInputs leftMotor = new MotorInputs();
+        MotorInputs rightMotor = new MotorInputs();
     }
 
     default void updateInputs(ShooterInputs inputs) {
     }
 
-    default void setMotorVoltage(double voltage) {
+    default void setMotorVoltage(double voltageLeft, double voltageRight) {
     }
 
-    default void setMotorTorque(double torque) {}
+    default void setMotorTorque(double torqueLeft, double torqueRight) {}
 
-    default void setVelocity(double velocityRadPerSec, double ffVolts) {
+    default void setVelocity(double velocityLeft, double velocityRight) {
     }
 
     default void stop() {

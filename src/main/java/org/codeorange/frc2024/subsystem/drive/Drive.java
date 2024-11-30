@@ -34,7 +34,7 @@ import static org.codeorange.frc2024.robot.Constants.*;
 
 public class Drive extends AbstractSubsystem {
     static final Lock odometryLock = new ReentrantLock();
-    public static final double SPEAKER_ANGLE_OFFSET = Units.degreesToRadians(4);
+    public static final double SPEAKER_ANGLE_OFFSET = Units.degreesToRadians(-3);
 
     private final Alert odomAlert = new Alert("ODOMETRY WENT TO NAN!!!!", Alert.AlertType.ERROR);
     {
@@ -104,10 +104,6 @@ public class Drive extends AbstractSubsystem {
         poseEstimator.addVisionMeasurement(estimatedRobotPose, observationTimestamp, visionMeasurementStdevs);
     }
 
-    double lastTimeStep;
-    @AutoLogOutput(key = "Drive/Is Open Loop")
-    public boolean isOpenLoop = false;
-
     private Rotation2d rawGyroRotation = new Rotation2d();
     @Override
     public synchronized void update() {
@@ -124,7 +120,18 @@ public class Drive extends AbstractSubsystem {
 
         SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
 
-        double[] sampleTimestamps = moduleInputs[0].odometryTimestamps;
+        double[] sampleTimestamps = new double[gyroInputs.odometryYawTimestamps.length];//moduleInputs[0].odometryTimestamps;
+        for(int i = 0; i < sampleTimestamps.length; i++)
+        {
+            sampleTimestamps[i] = gyroInputs.odometryYawTimestamps[i];
+            for(int m = 0; m < 4; m++) {
+
+                sampleTimestamps[i] += moduleInputs[m].odometryDriveTimestamps[i] +
+                        moduleInputs[m].odometryTurnTimestamps[i];
+            }
+
+            sampleTimestamps[i] = sampleTimestamps[i]/9.0;
+        }
         int sampleCount = sampleTimestamps.length;
         for (int i = 0; i < sampleCount; i++) {
             for (int j = 0; j < 4; j++) {
@@ -244,6 +251,14 @@ public class Drive extends AbstractSubsystem {
         return SWERVE_DRIVE_KINEMATICS.toChassisSpeeds(realStates);
     }
 
+    @AutoLogOutput(key = "Drive/Real Field Chassis Speeds")
+    public ChassisSpeeds getFieldChassisSpeeds() {
+        ChassisSpeeds bot_rel = SWERVE_DRIVE_KINEMATICS.toChassisSpeeds(realStates);
+        var rotated =
+                new Translation2d(bot_rel.vxMetersPerSecond, bot_rel.vyMetersPerSecond).rotateBy(gyroInputs.rotation2d);
+        return new ChassisSpeeds(rotated.getX(), rotated.getY(), bot_rel.omegaRadiansPerSecond);
+    }
+
     public synchronized void drive(@NotNull ControllerDriveInputs inputs, boolean fieldRel, boolean openLoop) {
         SecondOrderModuleState[] states =
                 SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(
@@ -308,10 +323,14 @@ public class Drive extends AbstractSubsystem {
         Rotation2d target = getTranslationToGoal().getAngle();
         delta = target.minus(heading);
 
-        if(delta.getCos() < 0) {
-            return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians() + SPEAKER_ANGLE_OFFSET;
-        }
-        return target.getRadians() - SPEAKER_ANGLE_OFFSET;
+        return target.rotateBy(Rotation2d.fromDegrees(180)).getRadians() + SPEAKER_ANGLE_OFFSET;
+    }
+
+    public double passingAngle() {
+        Translation2d target = Robot.isRed() ? new Translation2d(14.6, 6) : new Translation2d(FIELD_LENGTH_METERS - 14.6, 6);
+        Rotation2d targetAngle = target.minus(getPose().getTranslation()).getAngle();
+
+        return targetAngle.rotateBy(Rotation2d.fromDegrees(180)).getRadians();
     }
 
     public Translation2d getTranslationToGoal() {
@@ -374,6 +393,10 @@ public class Drive extends AbstractSubsystem {
 
         realField.getObject("wantedPose").setPose(target);
         Logger.recordOutput("Drive/Target Pose", target);
+    }
+
+    public double getGyroYawVel() {
+        return gyroInputs.yawVelocityRadPerSec;
     }
 
     private String getModuleName(int i) {

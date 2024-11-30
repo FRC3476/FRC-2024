@@ -28,31 +28,35 @@ public class FourPieceSource extends BaseRoutine {
                 new ShootFromStow(25),
                 new DrivePath(driveToFirstNote),
                 new SeriesAction(
-                        new Wait(1.18),
+                        new Wait(1.36),
                         new RunKicker(),
+                        new Wait(0.3),
                         new GroundIntake(),
-                        new ShootFromGround(19)
-                )
-        ));
-        sequenceAction(new RunKicker());
-        sequenceAction(new ParallelAction(
-                new DrivePath(driveToSecondNote),
-                new SeriesAction(
-                        new GroundIntake(),
-                        new ShootFromGround(19)
-                )
-        ));
-        sequenceAction(new RunKicker());
-        sequenceAction(new ParallelAction(
-                new DrivePath(driveToThirdNote),
-                new GroundIntake(),
-                new SeriesAction(
-                        new GroundIntake(),
-                        new ShootFromGround(19)
+                        new Stow(),
+                        new ShootFromStow(25)
                 )
         ));
         sequenceAction(new RunKicker());
         sequenceAction(new Stow());
+        sequenceAction(new ParallelAction(
+                new DrivePath(driveToSecondNote),
+                new SeriesAction(
+                        new Wait(0.7),
+                        new GroundIntake(),
+                        new Stow(),
+                        new ShootFromStow(25)
+                )
+        ));
+        sequenceAction(new Stow());
         sequenceAction(new StopShooter());
+        sequenceAction(new RunKicker());
+        sequenceAction(new ParallelAction(
+                new DrivePath(driveToThirdNote),
+                new SeriesAction(
+                        new Wait(1.1),
+                        new GroundIntake(),
+                        new Stow()
+                )
+        ));
     }
 }

@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.codeorange.frc2024.utility.OrangeUtility;
 import org.codeorange.frc2024.utility.logging.TalonFXAutoLogger;
@@ -22,9 +23,10 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFXAutoLogger steerMotorLogger;
 
     private final Queue<Double> timestampQueue;
-    private final Queue<Double> driveMotorPositionQueue;
+
+    private final Queue<Pair<Double,Double>> driveMotorPositionQueue;
     private final StatusSignal<Double> steerMotorAbsolutePosition;
-    private final Queue<Double> steerMotorPositionQueue;
+    private final Queue<Pair<Double,Double>> steerMotorPositionQueue;
 
 
     private final CANcoder swerveCancoder;
@@ -77,8 +79,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfigs.Slot0.kA = SWERVE_DRIVE_GAINS.kA();
         driveConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfigs.CurrentLimits.SupplyCurrentLimit = DRIVE_MOTOR_CURRENT_LIMIT;
-        driveConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-        driveConfigs.CurrentLimits.StatorCurrentLimit = 130;
+        driveConfigs.CurrentLimits.StatorCurrentLimitEnable = false;
         driveConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         driveConfigs.Feedback.SensorToMechanismRatio = 1 / (DRIVE_MOTOR_REDUCTION * SWERVE_METER_PER_ROTATION);
         driveConfigs.Feedback.RotorToSensorRatio = 1;
@@ -137,15 +138,17 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         inputs.steerMotorAbsolutePosition = steerMotorAbsolutePosition.refresh().getValue();
 
-
+        //drive
         inputs.odometryDrivePositionsMeters =
-                driveMotorPositionQueue.stream().mapToDouble((value) -> value).toArray();
+                driveMotorPositionQueue.stream().mapToDouble(Pair::getSecond).toArray();
+        inputs.odometryDriveTimestamps = driveMotorPositionQueue.stream().mapToDouble(Pair::getFirst).toArray();
+        //turning
         inputs.odometryTurnPositions =
-                steerMotorPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
-        inputs.odometryTimestamps = timestampQueue.stream().mapToDouble((value) -> value).toArray();
+                steerMotorPositionQueue.stream().mapToDouble(Pair::getSecond).mapToObj(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
+        inputs.odometryTurnTimestamps = steerMotorPositionQueue.stream().mapToDouble(Pair::getFirst).toArray();
+
         driveMotorPositionQueue.clear();
         steerMotorPositionQueue.clear();
-        timestampQueue.clear();
     }
 
     private boolean isBraking = false;

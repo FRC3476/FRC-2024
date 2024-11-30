@@ -14,66 +14,77 @@ import static org.codeorange.frc2024.robot.Constants.*;
 
 
 public class ShooterIOTalonFX implements ShooterIO {
-    private final TalonFX leader;
-    private final TalonFX follower;
-    private final TalonFXAutoLogger leaderLogger;
-    private final TalonFXAutoLogger followerLogger;
+    private final TalonFX shooterLeft;
+    private final TalonFX shooterRight;
+    private final TalonFXAutoLogger leftLogger;
+    private final TalonFXAutoLogger rightLogger;
 
     public ShooterIOTalonFX() {
-        leader = new TalonFX(Ports.SHOOTER_LEAD, CAN_BUS);
-        follower = new TalonFX(Ports.SHOOTER_FOLLOW, CAN_BUS);
+        shooterLeft = new TalonFX(Ports.SHOOTER_LEAD, CAN_BUS);
+        shooterRight = new TalonFX(Ports.SHOOTER_FOLLOW, CAN_BUS);
 
         var config = new TalonFXConfiguration();
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.SupplyCurrentLimit = 70;
         config.CurrentLimits.StatorCurrentLimitEnable = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        config.Slot0.kP = SHOOTER_GAINS.kP();
-        config.Slot0.kI = SHOOTER_GAINS.kI();
-        config.Slot0.kD = SHOOTER_GAINS.kD();
-        config.Slot0.kS = SHOOTER_GAINS.kS();
-        config.Slot0.kV = SHOOTER_GAINS.kV();
-        config.Slot0.kA = SHOOTER_GAINS.kA();
+        config.MotorOutput.Inverted = isCompetition() ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive;
+        config.Slot0.kP = 0.11687;
+        config.Slot0.kI = 0;
+        config.Slot0.kD = 0;
+        config.Slot0.kS = 0.09351;
+        config.Slot0.kV = 0.078291;
+        config.Slot0.kA = 0.0073099;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = SHOOTER_STM;
-        OrangeUtility.betterCTREConfigApply(follower, config);
+        OrangeUtility.betterCTREConfigApply(shooterRight, config);
 
-        if(!isCompetition()) config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        OrangeUtility.betterCTREConfigApply(leader, config);
+        if(isCompetition()) {
+            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            config.Slot0.kP = 0.12753;
+            config.Slot0.kS = 0.1032;
+            config.Slot0.kV = 0.079354;
+            config.Slot0.kA = 0.0075325;
+        } else config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        OrangeUtility.betterCTREConfigApply(shooterLeft, config);
 
-        follower.setControl(new StrictFollower(leader.getDeviceID()));
-
-        leaderLogger = new TalonFXAutoLogger(leader);
-        followerLogger = new TalonFXAutoLogger(follower);
+        leftLogger = new TalonFXAutoLogger(shooterLeft);
+        rightLogger = new TalonFXAutoLogger(shooterRight);
     }
 
     @Override
     public void updateInputs(ShooterInputs inputs) {
-        inputs.leadMotor = leaderLogger.log();
-        inputs.followMotor = followerLogger.log();
+        inputs.leftMotor = leftLogger.log();
+        inputs.rightMotor = rightLogger.log();
     }
 
-    VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true).withOverrideBrakeDurNeutral(true);
+    VoltageOut voltageOutLeft = new VoltageOut(0).withEnableFOC(true);
+    VoltageOut voltageOutRight = new VoltageOut(0).withEnableFOC(true);
     @Override
-    public void setMotorVoltage(double voltage) {
-        leader.setControl(voltageOut.withOutput(voltage));
+    public void setMotorVoltage(double voltageLeft, double voltageRight) {
+        shooterLeft.setControl(voltageOutLeft.withOutput(voltageLeft));
+        shooterRight.setControl(voltageOutRight.withOutput(voltageRight));
     }
 
-    TorqueCurrentFOC torqueOut = new TorqueCurrentFOC(0);
+    TorqueCurrentFOC torqueOutLeft = new TorqueCurrentFOC(0);
+    TorqueCurrentFOC torqueOutRight = new TorqueCurrentFOC(0);
     @Override
-    public void setMotorTorque(double torque) {
-        leader.setControl(torqueOut.withOutput(torque));
+    public void setMotorTorque(double torqueLeft, double torqueRight) {
+        shooterLeft.setControl(torqueOutLeft.withOutput(torqueLeft));
+        shooterRight.setControl(torqueOutRight.withOutput(torqueRight));
     }
 
-    VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+    VelocityVoltage velocityVoltageLeft = new VelocityVoltage(0);
+    VelocityVoltage velocityVoltageRight = new VelocityVoltage(0);
     @Override
-    public void setVelocity(double velocity, double ffVolts) {
-        leader.setControl(velocityVoltage.withVelocity(velocity));
+    public void setVelocity(double velocityLeft, double velocityRight) {
+        shooterLeft.setControl(velocityVoltageLeft.withVelocity(velocityLeft));
+        shooterRight.setControl(velocityVoltageRight.withVelocity(velocityRight));
     }
 
     @Override
     public void stop() {
-        leader.setControl(new CoastOut());
+        shooterLeft.setControl(new CoastOut());
+        shooterRight.setControl(new CoastOut());
     }
 }

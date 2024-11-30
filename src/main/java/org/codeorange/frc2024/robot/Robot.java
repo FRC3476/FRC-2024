@@ -200,9 +200,10 @@ public class Robot extends LoggedRobot {
         autoChooser.addOption("Shoot Do Nothing Source", 2);
         autoChooser.addOption("Shoot and Leave Source", 6);
         autoChooser.addOption("Shoot and Leave Amp", 7);
-        autoChooser.addOption("Test", 3);
+        autoChooser.addOption("Test", 99);
         autoChooser.addOption("Four Piece", 4);
         autoChooser.addOption("Center Source Side 3 Piece", 5);
+        autoChooser.addOption("Source Rush", 3);
         autoChooser.addOption("Two Far Source", 8);
         autoChooser.addOption("Cursed path", 9);
         autoChooser.addOption("3.5 Far Source", 10);
@@ -313,7 +314,6 @@ public class Robot extends LoggedRobot {
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        drive.isOpenLoop = true;
         AutoManager.getInstance().loadAuto(autoChooser.get());
         AutoManager.getInstance().startAuto();
     }
@@ -341,7 +341,6 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        drive.isOpenLoop = true;
         drive.setBrakeMode(true);
         shooter.stop();
     }
@@ -434,9 +433,9 @@ public class Robot extends LoggedRobot {
 
 
         if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
-            intake.runIntake(0.5);
+            intake.runIntake(0.7);
         } else if ((xbox.getRawButton(XboxButtons.B) && !intake.hasNote() && superstructure.getCurrentState() == Superstructure.States.SOURCE_INTAKE)) {
-            intake.runIntake(0.3);
+            intake.runIntake(0.5);
         } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
             intake.runOuttake(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP ? -12 : -8.5);
         } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
@@ -446,17 +445,28 @@ public class Robot extends LoggedRobot {
         } else if(flightStick.getRawButton(9)) {
             // outtake
             intake.setDutyCycle(-0.075);
-            shooter.setMotorTorque(-120);
+        } else if(flightStick.getRawButton(7)) {
+            intake.weird();
         } else {
-            intake.stop();
+            intake.plsStop();
         }
         if(flightStick.getFallingEdge(9)) {
             shooter.stop();
         }
         if(xbox.getRisingEdge(XboxButtons.Y)) {
-            superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
-            superstructure.isFlipped = drive.isForward();
-            superstructure.setGoalState(Superstructure.States.SPEAKER);
+            boolean isPassing;
+            if(Robot.isRed()) {
+                isPassing = drive.getPose().getX() < FIELD_LENGTH_METERS / 2;
+            } else {
+                isPassing = drive.getPose().getX() > FIELD_LENGTH_METERS / 2;
+            }
+            if(isPassing) {
+                superstructure.setGoalState(Superstructure.States.SHOOT_OVER_STAGE);
+            } else {
+                superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
+                superstructure.isFlipped = false;
+                superstructure.setGoalState(Superstructure.States.SPEAKER);
+            }
         }
         if(xbox.getFallingEdge(XboxButtons.Y)) {
             superstructure.setGoalState(Superstructure.States.STOW);
@@ -497,11 +507,15 @@ public class Robot extends LoggedRobot {
 //        }
         ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
         if(xbox.getRawButton(XboxButtons.Y)) {
-            drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker(), true);
-            if(superstructure.getCurrentState() == Superstructure.States.SPEAKER_OVER_DEFENSE) {
-                superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_HIGH_BACK.get(drive.findDistanceToSpeaker());
+            if(superstructure.getCurrentState() == Superstructure.States.SHOOT_OVER_STAGE) {
+                drive.swerveDriveTargetAngle(controllerDriveInputs, drive.passingAngle(), true);
             } else {
-                superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
+                drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker(), true);
+                if (superstructure.getCurrentState() == Superstructure.States.SPEAKER_OVER_DEFENSE) {
+                    superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_HIGH_BACK.get(drive.findDistanceToSpeaker());
+                } else {
+                    superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
+                }
             }
         } else if(xbox.getRawButton(XboxButtons.RIGHT_CLICK)) {
             double targetAngle;

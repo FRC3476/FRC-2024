@@ -3,6 +3,7 @@ package org.codeorange.frc2024.subsystem.vision;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.utility.Alert;
 import org.codeorange.frc2024.utility.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
@@ -37,10 +38,16 @@ public class VisionIOLimelight implements VisionIO {
         double cl = LimelightHelpers.getLatency_Capture(limelightName);
         double tl = LimelightHelpers.getLatency_Pipeline(limelightName);
 
-        inputs.timestamp = Logger.getRealTimestamp() * 1e-6 - (Units.millisecondsToSeconds(cl + tl));
+        double tsRio = LimelightHelpers.getRIOFPGACaptureTimestamp(limelightName);
+        double ts = LimelightHelpers.getLimelightPublishTimestamp(limelightName);
+
+        inputs.RIOFPGACaptureTimestamp = tsRio;
+        inputs.LimelightPublishTimestamp = ts;
+        inputs.timestamp = Logger.getRealTimestamp() * 1e-6 - (Units.millisecondsToSeconds(cl + tl) + Constants.LIMELIGHT_TRANSMISSION_DELAY);
         inputs.captureLatency = cl;
         inputs.pipelineLatency = tl;
-        inputs.botPose2d = measurement.pose;
+        inputs.botPose2d = LimelightHelpers.getBotPose2d_wpiBlue(limelightName);
+        inputs.botPose2dMegatag2 = measurement.pose;
         inputs.tagCount = measurement.tagCount;
         inputs.avgDist = measurement.avgTagDist;
         inputs.botPose3d = LimelightHelpers.getBotPose3d_wpiBlue(limelightName);

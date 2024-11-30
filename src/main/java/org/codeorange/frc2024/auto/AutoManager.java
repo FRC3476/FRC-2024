@@ -23,6 +23,8 @@ public class AutoManager {
     private final FourPieceSource FOUR_PC;
     private final TunePathFollowerPID TUNE_PID;
 
+    private final SourceRush SOURCE_RUSH;
+
     public static AutoManager getInstance() {
         if(instance == null) {
             instance = new AutoManager();
@@ -44,6 +46,7 @@ public class AutoManager {
         FIVE_PT_FIVE = new FivePointFive();
         FOUR_PC = new FourPieceSource();
         TUNE_PID = new TunePathFollowerPID();
+        SOURCE_RUSH = new SourceRush();
     }
 
     public void loadAuto(int key) {
@@ -51,7 +54,7 @@ public class AutoManager {
             case 0 -> selectedRoutine = DO_NOTHING_CENTER;
             case 1 -> selectedRoutine = DO_NOTHING_AMP;
             case 2 -> selectedRoutine = DO_NOTHING_SOURCE;
-            case 3 -> selectedRoutine = new TestRoutine();
+            case 3 -> selectedRoutine = SOURCE_RUSH;
             case 4 -> selectedRoutine = FOUR_PIECE;
             case 5 -> selectedRoutine = THREE_PIECE_CENTER_SRC;
             case 6 -> selectedRoutine = SHOOT_AND_LEAVE_SOURCE;
@@ -61,6 +64,7 @@ public class AutoManager {
             case 10 -> selectedRoutine = THREE_PT_FIVE_FAR_SOURCE;
             case 11 -> selectedRoutine = FIVE_PT_FIVE;
             case 12 -> selectedRoutine = FOUR_PC;
+            case 99 -> selectedRoutine = new TestRoutine();
             case 100 -> selectedRoutine = TUNE_PID;
         }
         System.out.println("Selected routine " + selectedRoutine.getClass().getName());

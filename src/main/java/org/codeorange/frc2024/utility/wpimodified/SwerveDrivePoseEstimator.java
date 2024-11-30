@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 import org.codeorange.frc2024.robot.Constants;
 import org.codeorange.frc2024.utility.swerve.SecondOrderKinematics;
 import org.codeorange.frc2024.utility.swerve.SecondOrderModuleState;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * This class wraps {@link SwerveDriveOdometry Swerve Drive Odometry} to fuse latency-compensated vision measurements with swerve
@@ -326,6 +327,7 @@ public class SwerveDrivePoseEstimator {
                             -odometry_backtrack.rz);
 
             var old_estimate = m_poseEstimate.exp(odometry_backtrack);
+            Logger.recordOutput("PoseEstimator/Pose Estimate at Vision Timestamp", old_estimate);
 
             // Step 2: Measure the twist between the odometry pose and the vision pose.
             var twist = old_estimate.log(visionRobotPoseMeters);

@@ -21,23 +21,20 @@ public class FivePointFive extends BaseRoutine {
             driveToSecondNote = Choreo.getTrajectory("5point5_red.2");
             driveToThirdNote = Choreo.getTrajectory("5point5_red.3");
             driveToFourthNote = Choreo.getTrajectory("5point5_red.4");
-            driveToEdge = Choreo.getTrajectory("5point5_red.5");
         } else {
             driveToFirstNote = Choreo.getTrajectory("5point5_blue.1");
             driveToSecondNote = Choreo.getTrajectory("5point5_blue.2");
             driveToThirdNote = Choreo.getTrajectory("5point5_blue.3");
             driveToFourthNote = Choreo.getTrajectory("5point5_blue.4");
-            driveToEdge = Choreo.getTrajectory("5point5_blue.5");
         }
-        sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(46)));
-        sequenceAction(new RunKicker());
+        sequenceAction(new ParallelAction(new ResetOdometry(driveToFirstNote.sample(0)), new ShootFromGround(48), new SeriesAction(new Wait(1.3), new RunKicker())));
         sequenceAction(new ParallelAction(
                 new SeriesAction(
                         new GroundIntake(),
-                        new ShootFromGround(31),
+                        new ShootFromGround(Robot.isRed() ? 31.5 : 32.5),
                         new RunKicker()
                 ), new SeriesAction(
-                new Wait(0.25),
+                new Wait(0.15),
                 new DrivePath(driveToFirstNote)
         )));
 
@@ -50,8 +47,8 @@ public class FivePointFive extends BaseRoutine {
                         new Wait(0.2),
                         new GroundIntake(),
                         new Stow(),
-                        new Wait(0.9),
-                        new ShootFromGround(35)
+                        new Wait(0.95),
+                        new ShootFromGround(35.5)
                 )
         ));
         sequenceAction(new SeriesAction(
@@ -61,12 +58,12 @@ public class FivePointFive extends BaseRoutine {
 
         sequenceAction(new ParallelAction(
                 new SeriesAction(
-                        new Wait(0.25),
+                        new Wait(0.6),
                         new DrivePath(driveToThirdNote)
                 ),
                 new SeriesAction(
                         new GroundIntake(),
-                        new ShootFromGround(Robot.isRed() ? 29 : 30)
+                        new ShootFromGround(Robot.isRed() ? 29.0 : 30)
                 )
         ));
         sequenceAction(new SeriesAction(
@@ -78,8 +75,9 @@ public class FivePointFive extends BaseRoutine {
                         new DrivePath(driveToFourthNote)
                 ),
                 new SeriesAction(
+                        new Wait(0.5),
                         new GroundIntake(),
-                        new ShootFromGround(30)
+                        new ShootFromGround(30.0)
                 )
         ));
         sequenceAction(new SeriesAction(
@@ -89,16 +87,6 @@ public class FivePointFive extends BaseRoutine {
         sequenceAction(new SeriesAction(
                 new Stow(),
                 new StopShooter()
-        ));
-        sequenceAction(new ParallelAction(
-                new SeriesAction(
-                        new DrivePath(driveToEdge)
-                ),
-                new SeriesAction(
-                        new Wait(0.6),
-                        new GroundIntake(),
-                        new Stow()
-                )
         ));
     }
 }

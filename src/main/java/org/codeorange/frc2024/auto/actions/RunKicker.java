@@ -22,6 +22,9 @@ public class RunKicker implements BaseAction {
 
     @Override
     public void update() {
+        if(intake.hasNote()) {
+            intake.runIntakeForShooter();
+        }
         if(!intake.hasNote() && prevHasNote) {
             intake.stop();
             leftIntakeTimestamp = Logger.getRealTimestamp() * 1e-6;

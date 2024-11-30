@@ -47,7 +47,8 @@ public class ModuleIOSim implements ModuleIO {
         inputs.steerMotor = steerLogger.log();
         inputs.steerMotorAbsolutePosition = inputs.steerMotor.position;
 
-        inputs.odometryTimestamps = new double[] {Logger.getRealTimestamp() * 1e-6};
+        inputs.odometryDriveTimestamps = new double[] {Logger.getRealTimestamp() * 1e-6};
+        inputs.odometryTurnTimestamps = new double[] {Logger.getRealTimestamp() * 1e-6};
         inputs.odometryDrivePositionsMeters = new double[] {inputs.driveMotor.position};
         inputs.odometryTurnPositions = new Rotation2d[] {Rotation2d.fromRotations(inputs.steerMotor.position)};
     }

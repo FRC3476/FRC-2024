@@ -197,6 +197,7 @@ public class SwerveDriveOdometry {
         }
 
         var angle = gyroAngle.plus(m_gyroOffset);
+        //difference between the current angle (angle) and the previous angle
         var angle_difference = angle.minus(m_previousAngle).getQuaternion().toRotationVector();
 
         var twist2d = m_kinematics.toTwist2d(moduleDeltas);
@@ -209,11 +210,13 @@ public class SwerveDriveOdometry {
                         angle_difference.get(1, 0),
                         angle_difference.get(2, 0));
 
+        // moves the current pose forward in time according to the twist's linear and angular components
         var newPose = m_poseMeters.exp(twist);
 
         m_previousAngle = angle;
         m_poseMeters = new Pose3d(newPose.getTranslation(), angle);
 
+        //Return the Updated Pose:
         return m_poseMeters;
     }
 

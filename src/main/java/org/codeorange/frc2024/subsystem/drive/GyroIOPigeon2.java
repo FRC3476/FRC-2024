@@ -4,11 +4,14 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import org.codeorange.frc2024.utility.OrangeUtility;
 
 import java.util.Queue;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import static org.codeorange.frc2024.robot.Constants.*;
 
@@ -21,7 +24,7 @@ public class GyroIOPigeon2 implements GyroIO {
     private final StatusSignal<Double> pitchVelocityDegPerSec;
     private final StatusSignal<Double> rollPositionDeg;
     private final StatusSignal<Double> rollVelocityDegPerSec;
-    private final Queue<Double> yawPositionQueue;
+    private final Queue<Pair<Double, Double>> yawPositionQueue;
     private final Queue<Double> yawTimestampQueue;
     private final StatusSignal<Double> uptime;
 
@@ -74,8 +77,8 @@ public class GyroIOPigeon2 implements GyroIO {
         inputs.rotation3d = pigeon.getRotation3d();
         inputs.rotation2d = pigeon.getRotation2d();
 
-        inputs.odometryYawTimestamps = yawTimestampQueue.stream().mapToDouble((val) -> val).toArray();
-        inputs.odometryYawPositions = yawPositionQueue.stream().map(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
+        inputs.odometryYawTimestamps = yawPositionQueue.stream().mapToDouble(Pair::getFirst).toArray();
+        inputs.odometryYawPositions = yawPositionQueue.stream().mapToDouble(Pair::getSecond).mapToObj(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
         yawTimestampQueue.clear();
         yawPositionQueue.clear();
     }
