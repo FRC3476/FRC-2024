@@ -18,17 +18,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
-import org.codeorange.frc2024.auto.AutoManager;
+// import org.codeorange.frc2024.auto.AutoManager;
 import org.codeorange.frc2024.subsystem.AbstractSubsystem;
 import org.codeorange.frc2024.subsystem.BlinkinLEDController;
-import org.codeorange.frc2024.subsystem.arm.*;
-import org.codeorange.frc2024.subsystem.climber.*;
 import org.codeorange.frc2024.subsystem.drive.*;
-import org.codeorange.frc2024.subsystem.intake.*;
 import org.codeorange.frc2024.subsystem.vision.*;
-import org.codeorange.frc2024.subsystem.wrist.*;
-import org.codeorange.frc2024.subsystem.elevator.*;
-import org.codeorange.frc2024.subsystem.shooter.*;
 import org.codeorange.frc2024.subsystem.Superstructure;
 import org.codeorange.frc2024.utility.*;
 import org.codeorange.frc2024.utility.Alert.AlertType;
@@ -78,12 +72,6 @@ public class Robot extends LoggedRobot {
 
 
     static Drive drive;
-    static Wrist wrist;
-    static Elevator elevator;
-    static Shooter shooter;
-    static Arm arm;
-    static Intake intake;
-    static Climber climber;
     static Vision vision;
     static BlinkinLEDController blinkin;
 
@@ -160,16 +148,8 @@ public class Robot extends LoggedRobot {
             powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev); // Enables power distribution logging
 
             drive = new Drive(new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3), new GyroIOPigeon2());
-            wrist = new Wrist(new WristIOTalonFX());
-            elevator = new Elevator(new ElevatorIOTalonFX());
-            shooter = new Shooter(new ShooterIOTalonFX());
-            arm = new Arm(new ArmIOTalonFX());
-            intake = new Intake(new IntakeIOTalonFX());
+
             blinkin = new BlinkinLEDController();
-            if(isCompetition()) {
-                climber = new Climber(new ClimberIOTalonFX());
-            }
-            superstructure = Superstructure.getSuperstructure();
             vision = new Vision(new VisionIOLimelight("limelight-front"), new VisionIOLimelight("limelight-back"));
         } else {
             setUseTiming(false); // Run as fast as possible
@@ -182,16 +162,9 @@ public class Robot extends LoggedRobot {
             }
 
             drive = new Drive(new ModuleIOSim(), new ModuleIOSim(), new ModuleIOSim(), new ModuleIOSim(), new GyroIO() {});
-            wrist = new Wrist(new WristIO() {});
-            elevator = new Elevator(new ElevatorIO() {});
-            shooter = new Shooter(new ShooterIO(){});
-            arm = new Arm(new ArmIO(){});
-            intake = new Intake(new IntakeIO() {});
             if(isCompetition()) {
-                climber = new Climber(new ClimberIO() {});
                 blinkin = new BlinkinLEDController();
             }
-            superstructure = Superstructure.getSuperstructure();
             vision = new Vision(new VisionIO() {}, new VisionIO() {});
         }
         // Initialize auto chooser
@@ -219,16 +192,9 @@ public class Robot extends LoggedRobot {
 
         Logger.start();
         drive.start();
-        wrist.start();
-        elevator.start();
-        shooter.start();
-        arm.start();
-        intake.start();
         vision.start();
         blinkin.start();
         if(isCompetition()) {
-            assert climber != null;
-            climber.start();
         }
 
         RobotController.setBrownoutVoltage(6.4);
@@ -238,10 +204,7 @@ public class Robot extends LoggedRobot {
 
         superstructure.start();
 
-        superstructure.setCurrentState(Superstructure.States.STOW);
-
-
-        AutoManager.getInstance();
+        // AutoManager.getInstance();
         AutoLogOutputManager.addPackage("org.codeorange.frc2024.subsystem");
         blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
 
@@ -287,7 +250,6 @@ public class Robot extends LoggedRobot {
         if(DriverStation.getAlliance().isPresent()) {
             var alliance = DriverStation.getAlliance().get();
 
-            allianceColorAlert.set(alliance.equals(DriverStation.Alliance.Red) ^ Robot.isRed());
         }
 
         double currentTimestamp = Logger.getRealTimestamp() * 1e-6;
@@ -314,35 +276,26 @@ public class Robot extends LoggedRobot {
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        AutoManager.getInstance().loadAuto(autoChooser.get());
-        AutoManager.getInstance().startAuto();
+        //AutoManager.getInstance().loadAuto(autoChooser.get());
+        //AutoManager.getInstance().startAuto();
     }
 
     @Override
     public void autonomousExit() {
-        AutoManager.getInstance().endAuto();
-        shooter.stop();
-        superstructure.setGoalState(Superstructure.States.STOW);
+        //AutoManager.getInstance().endAuto();
+        //shooter.stop();
     }
 
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-        AutoManager.getInstance().updateAuto();
-        if (intake.hasNote() && shooter.isAtTargetVelocity()) {
-            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
-        } else if (intake.hasNote()){
-            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP1_HEARTBEAT_FAST);
-        } else {
-            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
-        }
+        //AutoManager.getInstance().updateAuto();
     }
 
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
         drive.setBrakeMode(true);
-        shooter.stop();
     }
 
     boolean amp = false;
@@ -352,279 +305,13 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        //TODO: delete this
-        if(xbox.getRisingEdge(XboxButtons.START)) {
-            superstructure.setGoalState(Superstructure.States.SPEAKER_AUTO);
-        }
-
-        if(!prevHasNote && intake.hasNote()) {
-            xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0.9);
-            rumbleStart = Logger.getRealTimestamp() * 1e-6;
-        }
-        if(Logger.getRealTimestamp() * 1e-6 - rumbleStart > 0.5) {
-            xbox.setRumble(GenericHID.RumbleType.kBothRumble, 0);
-        }
-        if(buttonPanel.getRisingEdge(1)) {
-            superstructure.setGoalState(Superstructure.States.STOW);
-        }
-        if(buttonPanel.getRisingEdge(2)) {
-            superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
-        }
-        if(buttonPanel.getRisingEdge(3)) {
-            superstructure.setGoalState(Superstructure.States.AMP);
-        }
-        if(buttonPanel.getRisingEdge(4)) {
-            superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
-        }
-        if(buttonPanel.getRisingEdge(5)) {
-            superstructure.isFlipped = false;
-            superstructure.wantedAngle = 52;
-            superstructure.manualOverride = true;
-            superstructure.setGoalState(Superstructure.States.SPEAKER);
-        }
-        if(buttonPanel.getRisingEdge(11)) {
-            superstructure.isFlipped = true;
-            superstructure.wantedAngle = 52;
-            superstructure.manualOverride = true;
-            superstructure.setGoalState(Superstructure.States.SPEAKER);
-        }
-        if(buttonPanel.getRisingEdge(6)) {
-            superstructure.setGoalState(Superstructure.States.SHOOT_OVER_STAGE);
-        }
-        if(buttonPanel.getRisingEdge(7)) {
-            superstructure.setGoalState(Superstructure.States.SHOOT_UNDER_STAGE);
-        }
-        if(buttonPanel.getRisingEdge(8)) {
-            superstructure.setGoalState(Superstructure.States.TEST_TRAP);
-        }
-        if(xbox.getRisingEdge(XboxButtons.A)) {
-            drive.resetGyro(Robot.isRed() ? 0.5 : 0);
-        }
-
-        if(xbox.getRisingEdge(XboxButtons.RIGHT_BUMPER) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
-            superstructure.setGoalState(Superstructure.States.GROUND_INTAKE);
-        } else if (xbox.getFallingEdge(XboxButtons.RIGHT_BUMPER) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
-            superstructure.setGoalState(Superstructure.States.STOW);
-        }
-        if(xbox.getRisingEdge(XboxButtons.B) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
-            if(intake.hasNote()) {
-                superstructure.setGoalState(Superstructure.States.AMP);
-            } else {
-                superstructure.setGoalState(Superstructure.States.SOURCE_INTAKE);
-            }
-        } else if (xbox.getFallingEdge(XboxButtons.B) && !(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP)) {
-            superstructure.setGoalState(Superstructure.States.STOW);
-        }
-
-        if(buttonPanel.getRisingEdge(1, 0.6)) {
-            if(superstructure.getCurrentState() == Superstructure.States.SPEAKER) {
-                superstructure.setGoalState(Superstructure.States.SPEAKER_OVER_DEFENSE);
-                superstructure.wantedAngle = 22;
-            }
-        }
-        if(buttonPanel.getFallingEdge(1, -0.6)) {
-            if(superstructure.getCurrentState() == Superstructure.States.SPEAKER_OVER_DEFENSE) {
-                superstructure.setGoalState(Superstructure.States.SPEAKER);
-            }
-        }
-        if(buttonPanel.getRisingEdge(0, 0.6)) {
-            superstructure.wantedAngle = superstructure.isFlipped ? superstructure.podium_back : superstructure.podium_front;
-        }
-
-
-        if(xbox.getRawButton(XboxButtons.RIGHT_BUMPER)) {
-            intake.runIntake(0.7);
-        } else if ((xbox.getRawButton(XboxButtons.B) && !intake.hasNote() && superstructure.getCurrentState() == Superstructure.States.SOURCE_INTAKE)) {
-            intake.runIntake(0.5);
-        } else if (xbox.getRawAxis(Controller.XboxAxes.RIGHT_TRIGGER) > 0.1) {
-            intake.runOuttake(superstructure.getCurrentState() == Superstructure.States.TEST_TRAP ? -12 : -8.5);
-        } else if (xbox.getRawButton(XboxButtons.LEFT_BUMPER)) {
-            intake.runIntakeForShooter();
-        } else if(flightStick.getRawButton(11)) {
-            intake.setDutyCycle(0.075);
-        } else if(flightStick.getRawButton(9)) {
-            // outtake
-            intake.setDutyCycle(-0.075);
-        } else if(flightStick.getRawButton(7)) {
-            intake.weird();
-        } else {
-            intake.plsStop();
-        }
-        if(flightStick.getFallingEdge(9)) {
-            shooter.stop();
-        }
-        if(xbox.getRisingEdge(XboxButtons.Y)) {
-            boolean isPassing;
-            if(Robot.isRed()) {
-                isPassing = drive.getPose().getX() < FIELD_LENGTH_METERS / 2;
-            } else {
-                isPassing = drive.getPose().getX() > FIELD_LENGTH_METERS / 2;
-            }
-            if(isPassing) {
-                superstructure.setGoalState(Superstructure.States.SHOOT_OVER_STAGE);
-            } else {
-                superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
-                superstructure.isFlipped = false;
-                superstructure.setGoalState(Superstructure.States.SPEAKER);
-            }
-        }
-        if(xbox.getFallingEdge(XboxButtons.Y)) {
-            superstructure.setGoalState(Superstructure.States.STOW);
-        }
-        if(buttonPanel.getRisingEdge(10) && superstructure.getCurrentState() == Superstructure.States.STOW) {
-            superstructure.setGoalState(Superstructure.States.HOMING);
-            if(!(superstructure.getCurrentState() == Superstructure.States.CLIMBER)) {
-                elevator.home();
-            }
-        }
-
-        superstructure.shotWristdelta = MathUtil.applyDeadband(-flightStick.getRawAxis(1), 0.1);
-
-        if(superstructure.getCurrentState() == Superstructure.States.PUPPETEERING) {
-            superstructure.wantedPuppeteerWrist += (MathUtil.applyDeadband(-flightStick.getRawAxis(1), 0.25))/360;
-            superstructure.wantedPuppeteerArm += (MathUtil.applyDeadband(-flightStick.getRawAxis(0), 0.25))/360;
-            superstructure.wantedPuppeteerElevator += (MathUtil.applyDeadband(flightStick.getRawAxis(2), 0.25))/50;
-        }
-
-        if(flightStick.getRisingEdge(8)) {
-            if(superstructure.getCurrentState() == Superstructure.States.CLIMBER) {
-                superstructure.setGoalState(Superstructure.States.TRAP);
-            } else if(superstructure.getCurrentState() == Superstructure.States.TRAP) {
-                superstructure.setGoalState(Superstructure.States.CLIMBER);
-            }
-        }
-
-        if(xbox.getRisingEdge(XboxButtons.RIGHT_CLICK)) {
-            if(intake.hasNote()) {
-                amp = true;
-            } else {
-                amp = false;
-            }
-        }
-
-//        if(flightStick.getRawButton(4) && flightStick.getRawButton(6)) {
-//            superstructure.setGoalState(Superstructure.States.PUPPETEERING);
-//        }
-        ControllerDriveInputs controllerDriveInputs = getControllerDriveInputs();
-        if(xbox.getRawButton(XboxButtons.Y)) {
-            if(superstructure.getCurrentState() == Superstructure.States.SHOOT_OVER_STAGE) {
-                drive.swerveDriveTargetAngle(controllerDriveInputs, drive.passingAngle(), true);
-            } else {
-                drive.swerveDriveTargetAngle(controllerDriveInputs, drive.findAngleToSpeaker(), true);
-                if (superstructure.getCurrentState() == Superstructure.States.SPEAKER_OVER_DEFENSE) {
-                    superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_HIGH_BACK.get(drive.findDistanceToSpeaker());
-                } else {
-                    superstructure.wantedAngle = AngleLookupInterpolation.SHOOTER_ANGLE_BACK_LOW.get(drive.findDistanceToSpeaker());
-                }
-            }
-        } else if(xbox.getRawButton(XboxButtons.RIGHT_CLICK)) {
-            double targetAngle;
-
-            if(amp) {
-                if(isRed()) {
-                    drive.driveTargetPose(new Pose2d(
-                            14.65,
-                            7.8,
-                            Rotation2d.fromDegrees(90)
-                    ));
-                } else {
-                    drive.driveTargetPose(new Pose2d(
-                            1.9,
-                            7.8,
-                            Rotation2d.fromDegrees(90)
-                    ));
-                }
-            } else {
-                if(!isRed()) {
-                    targetAngle = Units.Degrees.of(-60).in(Units.Radians);
-                } else {
-                    targetAngle = Units.Degrees.of(240).in(Units.Radians);
-                }
-                drive.swerveDriveTargetAngle(controllerDriveInputs, targetAngle, true);
-            }
-        } else if(xbox.getRawButton(XboxButtons.X)) {
-            var drivePose = drive.getPose();
-            double rotationFromStage;
-            Translation2d stageCenter;
-            StageSpots selectedSpot;
-
-            if(isRed()) {
-                stageCenter = RED_STAGE_CENTER;
-                rotationFromStage = Math.atan2(drivePose.getY() - stageCenter.getY(), drivePose.getX() - stageCenter.getX());
-                if(rotationFromStage >= 2 * Math.PI / 3 || rotationFromStage <= -2 * Math.PI / 3) {
-                    selectedSpot = StageSpots.TOWARDS_CENTER;
-                } else if(rotationFromStage >= 0) {
-                    selectedSpot = StageSpots.TOWARDS_AMP;
-                } else {
-                    selectedSpot = StageSpots.TOWARDS_SOURCE;
-                }
-            } else {
-                stageCenter = BLUE_STAGE_CENTER;
-                rotationFromStage = Math.atan2(drivePose.getY() - stageCenter.getY(), drivePose.getX() - stageCenter.getX());
-                if(rotationFromStage <= Math.PI / 3 && rotationFromStage >= -Math.PI / 3) {
-                    selectedSpot = StageSpots.TOWARDS_CENTER;
-                } else if(rotationFromStage >= Math.PI / 3) {
-                    selectedSpot = StageSpots.TOWARDS_AMP;
-                } else {
-                    selectedSpot = StageSpots.TOWARDS_SOURCE;
-                }
-            }
-
-            Pose2d wantedPose;
-
-            if(superstructure.getCurrentState() == Superstructure.States.CLIMBER) {
-                if(isRed()) {
-                    wantedPose = selectedSpot.redClimbPose;
-                } else {
-                    wantedPose = selectedSpot.blueClimbPose;
-                }
-            } else {
-                if(isRed()) {
-                    wantedPose = selectedSpot.redTrapPose;
-                } else {
-                    wantedPose = selectedSpot.blueTrapPose;
-                }
-            }
-
-            drive.swerveDriveTargetAngle(controllerDriveInputs, wantedPose.getRotation().getRadians(), false);;
-        } else {
-            drive.drive(controllerDriveInputs, true, true);
-        }
-
-        prevHasNote = intake.hasNote();
-
-
-        if(flightStick.getRawButton(1) && buttonPanel.getRawButton(9)) {
-            //prepares for climb (sss in position, climber arm up, servos opened
-            superstructure.setGoalState(Superstructure.States.CLIMBER);
-        }
-        if(flightStick.getRawButton(5)) {
-            //pulls robot up, closes servos so they don't hit anything
-            if(superstructure.climberOut) {
-                climber.climb();
-                climber.closeServos();
-            }
-        } else if (flightStick.getRawButton(6)) {
-            //drops climber
-            climber.reverseClimb();
-        }
-        if((flightStick.getFallingEdge(5) || flightStick.getFallingEdge(6)) && climber.climbing){
-            climber.stop();
-        }
-        if (intake.hasNote() && shooter.isAtTargetVelocity()) {
-            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
-        } else if (intake.hasNote()){
-            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP1_HEARTBEAT_FAST);
-        } else {
-            blinkin.setPattern(BlinkinLEDController.BlinkinPattern.CP2_HEARTBEAT_SLOW);
-        }
 
     }
 
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        AutoManager.getInstance().endAuto();
+        // AutoManager.getInstance().endAuto();
         LimelightHelpers.setLEDMode_ForceOff("limelight-front");
         LimelightHelpers.setLEDMode_ForceOff("limelight-back");
         drive.setBrakeMode(true);
@@ -714,9 +401,7 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
-        if(buttonPanel.getRisingEdge(9)) {
-            climber.home();
-        }
+
     }
 
     @SuppressWarnings("Magic Number")
@@ -768,26 +453,8 @@ public class Robot extends LoggedRobot {
         }
     }
 
-    public static Arm getArm() {
-        return arm;
-    }
     public static Drive getDrive() {
         return drive;
-    }
-    public static Elevator getElevator() {
-        return elevator;
-    }
-    public static Intake getIntake() {
-        return intake;
-    }
-    public static Shooter getShooter() {
-        return shooter;
-    }
-    public static Wrist getWrist() {
-        return wrist;
-    }
-    public static Climber getClimber() {
-        return climber;
     }
 
     public static Vision getVision() {
